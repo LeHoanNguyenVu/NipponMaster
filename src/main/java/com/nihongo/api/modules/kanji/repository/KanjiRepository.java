@@ -1,0 +1,31 @@
+package com.nihongo.api.modules.kanji.repository;
+
+import com.nihongo.api.modules.auth.entity.User;
+import com.nihongo.api.modules.kanji.entity.Kanji;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface KanjiRepository extends JpaRepository<Kanji, Long> {
+
+    Optional<Kanji> findByCharacter(String character);
+
+    Page<Kanji> findByJlptLevel(User.JlptLevel level, Pageable pageable);
+
+    Page<Kanji> findByRadical(String radical, Pageable pageable);
+
+    @Query("SELECT k FROM Kanji k WHERE " +
+            "k.character LIKE CONCAT('%', :keyword, '%') OR " +
+            "LOWER(k.meaning) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "k.onReading LIKE CONCAT('%', :keyword, '%') OR " +
+            "k.kunReading LIKE CONCAT('%', :keyword, '%')")
+    Page<Kanji> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    Page<Kanji> findByStrokeCount(Integer strokeCount, Pageable pageable);
+}
