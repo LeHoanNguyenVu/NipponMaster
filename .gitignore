@@ -33,3 +33,15 @@ build/
 .vscode/
 .env
 *.zip
+
+### NipponMaster Plan & Progress Metadata ###
+PLAN_DETAILED.md
+PROJECT_PROGRESS.md
+
+### Frontend Web Dependencies & Secrets ###
+/web/node_modules/
+/web/dist/
+/web/dist-ssr/
+/web/.env
+/web/.env*.local
+
