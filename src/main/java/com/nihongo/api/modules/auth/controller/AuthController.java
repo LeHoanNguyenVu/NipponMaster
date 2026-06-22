@@ -3,20 +3,25 @@ package com.nihongo.api.modules.auth.controller;
 import com.nihongo.api.common.dto.ApiResponse;
 import com.nihongo.api.modules.auth.dto.*;
 import com.nihongo.api.modules.auth.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Đăng ký, đăng nhập và quản lý tài khoản")
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/register")
+    @Operation(summary = "Đăng ký tài khoản mới")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
             @Valid @RequestBody RegisterRequest request) {
 
@@ -27,6 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Đăng nhập")
     public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request) {
 
@@ -35,9 +41,10 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
-        // TODO: Lấy userId từ JWT SecurityContext khi tích hợp JWT
-        Long userId = 1L; // Placeholder
+    @Operation(summary = "Lấy thông tin user hiện tại (cần JWT)")
+    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser(Authentication authentication) {
+        // Lấy userId từ JWT SecurityContext (principal = userId)
+        Long userId = (Long) authentication.getPrincipal();
         UserResponse response = authService.getCurrentUser(userId);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
