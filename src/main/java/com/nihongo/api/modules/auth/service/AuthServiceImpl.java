@@ -2,6 +2,7 @@ package com.nihongo.api.modules.auth.service;
 
 import com.nihongo.api.common.exception.BusinessException;
 import com.nihongo.api.common.exception.ResourceNotFoundException;
+import com.nihongo.api.common.security.JwtTokenProvider;
 import com.nihongo.api.modules.auth.dto.*;
 import com.nihongo.api.modules.auth.entity.User;
 import com.nihongo.api.modules.auth.repository.UserRepository;
@@ -18,6 +19,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     @Transactional
@@ -37,8 +39,12 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(user);
         log.info("Đăng ký thành công user: {}", savedUser.getEmail());
 
-        // TODO: Tạo JWT token thật khi tích hợp JWT
-        String token = "temporary-token-" + savedUser.getId();
+        // Tạo JWT token thật
+        String token = jwtTokenProvider.generateToken(
+                savedUser.getId(),
+                savedUser.getEmail(),
+                savedUser.getRole().name()
+        );
 
         return AuthResponse.of(token, UserResponse.from(savedUser));
     }
@@ -62,8 +68,12 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Đăng nhập thành công: {}", user.getEmail());
 
-        // TODO: Tạo JWT token thật khi tích hợp JWT
-        String token = "temporary-token-" + user.getId();
+        // Tạo JWT token thật
+        String token = jwtTokenProvider.generateToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
 
         return AuthResponse.of(token, UserResponse.from(user));
     }
