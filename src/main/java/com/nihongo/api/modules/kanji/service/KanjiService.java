@@ -45,6 +45,7 @@ public class KanjiService {
 
     @Transactional
     public Kanji create(Kanji kanji) {
+        kanji.setId(null);
         return kanjiRepository.save(kanji);
     }
 

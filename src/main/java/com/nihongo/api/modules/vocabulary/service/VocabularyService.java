@@ -45,6 +45,7 @@ public class VocabularyService {
 
     @Transactional
     public Vocabulary create(Vocabulary vocabulary) {
+        vocabulary.setId(null);
         Vocabulary saved = vocabularyRepository.save(vocabulary);
         log.info("Tạo từ vựng mới: {} ({})", saved.getWord(), saved.getMeaning());
         return saved;

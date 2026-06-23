@@ -64,10 +64,45 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Xử lý lỗi từ chối truy cập từ Spring Security (403)
+     */
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        log.warn("Access denied error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error("Bạn không có quyền thực hiện hành động này."));
+    }
+
+    /**
+     * Xử lý lỗi xác thực từ Spring Security (401)
+     */
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthentication(org.springframework.security.core.AuthenticationException ex) {
+        log.warn("Authentication error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error("Yêu cầu cần được xác thực. Vui lòng đăng nhập."));
+    }
+
+    /**
      * Xử lý mọi lỗi không mong muốn (500)
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneral(Exception ex) {
+        // Kiểm tra lỗi PropertyReferenceException qua tên class để tránh lỗi build trên các phiên bản Spring khác nhau
+        if (ex.getClass().getSimpleName().equals("PropertyReferenceException")) {
+            log.warn("Property reference error: {}", ex.getMessage());
+            String fieldName = "không hợp lệ";
+            try {
+                java.lang.reflect.Method getPropertyName = ex.getClass().getMethod("getPropertyName");
+                fieldName = (String) getPropertyName.invoke(ex);
+            } catch (Exception ignored) {}
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("Trường sắp xếp không hợp lệ: " + fieldName));
+        }
+
         log.error("Unexpected error: ", ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

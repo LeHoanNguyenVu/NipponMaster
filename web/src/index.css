@@ -1,15 +1,67 @@
-@import "tailwindcss";
-
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+
+@import "tailwindcss";
 
 @theme {
   --font-sans: 'Geist', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono', monospace;
+
+  /* Custom Japanese-inspired Dark Palette */
+  --color-charcoal-50: #f4f4f5;
+  --color-charcoal-100: #e4e4e7;
+  --color-charcoal-200: #d4d4d8;
+  --color-charcoal-300: #a1a1aa;
+  --color-charcoal-400: #71717a;
+  --color-charcoal-500: #52525b;
+  --color-charcoal-600: #3f3f46;
+  --color-charcoal-700: #27272a;
+  --color-charcoal-800: #1a1a1e;
+  --color-charcoal-900: #0f0f12;
+  --color-charcoal-950: #070709;
+
+  --color-crimson-50: #fff1f2;
+  --color-crimson-100: #ffe4e6;
+  --color-crimson-200: #fecdd3;
+  --color-crimson-300: #fda4af;
+  --color-crimson-400: #fb7185;
+  --color-crimson-500: #f43f5e;
+  --color-crimson-600: #e11d48;
+  --color-crimson-700: #be123c;
+  --color-crimson-800: #9f1239;
+  --color-crimson-900: #881337;
+  --color-crimson-950: #4c0519;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #0c0c0e; /* charcoal off-black */
-  color: #f3f4f6; /* off-white */
+  background-color: var(--color-charcoal-950);
+  color: var(--color-charcoal-100);
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-charcoal-950);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-charcoal-800);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-charcoal-700);
+}
+
+/* Smooth selection colors */
+::selection {
+  background-color: var(--color-crimson-950);
+  color: var(--color-crimson-200);
 }

@@ -23,7 +23,8 @@
 - [x] **Khởi tạo Scaffold:** Tạo dự án React v19 + Vite v6 + TS tại thư mục `web/`.
 - [x] **Cài đặt thư viện cốt lõi:** `gsap`, `motion`, `tailwindcss` (v4), `zustand`, `axios`, `react-router-dom`, `@phosphor-icons/react`.
 - [x] **Cấu hình Dev Environment:** Thiết lập API Proxy trong `vite.config.ts` để map `/api` sang server cổng `8080`. Cấu hình Font (Geist + Noto Sans JP) & Theme tối giản tại `index.css`.
-- [ ] **Auth Client & Global State:** Viết Axios instance kèm JWT Interceptor + Zustand store quản lý Auth.
+- [x] **Auth Client & Global State:** Viết Axios instance kèm JWT Interceptor + Zustand store quản lý Auth.
+- [x] **Design System (Ngày 2):** Thiết lập hệ màu sắc Charcoal & Crimson tối giản tại `index.css`, viết các component cơ bản Button, Input, Card, Badge chuẩn a11y và tạo trang Showcase tại `/design-system`.
 - [ ] **Landing Page (GSAP):** Thiết kế giao diện trang chủ phong cách tối giản Nhật Bản với hiệu ứng chuyển động scroll-driven lộ trình học.
 - [ ] **Auth Pages:** Giao diện Đăng nhập / Đăng ký.
 - [ ] **Vocabulary & Kanji Pages:** Giao diện tra cứu, tìm kiếm từ vựng và chữ Hán N5.
@@ -31,10 +32,13 @@
 
 ---
 
+## ⚠️ Lưu Ý Cơ Sở Dữ Liệu Supabase
+Nếu chạy backend báo lỗi `tenant/user not found`, điều đó có nghĩa là database Supabase miễn phí của bạn đã bị Pause do lâu ngày không sử dụng. Hãy truy cập [Supabase Dashboard](https://supabase.com/dashboard), chọn dự án và nhấn **Restore Project** để kích hoạt lại.
+
 ## ⚙️ Hướng Dẫn Vận Hành Local
 
 ### 1. Khởi Chạy Backend (Spring Boot)
-Cần đảm bảo file `.env` ở thư mục gốc có đầy đủ các biến môi trường:
+Cần đảm bảo file `.env` ở thư mục gốc có đầy đủ các biến môi trường và dự án Supabase đã được Unpause:
 ```bash
 # Cú pháp chạy server qua Maven Wrapper:
 .\mvnw.cmd spring-boot:run
@@ -47,8 +51,8 @@ Di chuyển vào thư mục `web/` và khởi chạy server dev:
 cd web
 npm run dev
 ```
-* **Local Web App URL:** [http://localhost:3000](http://localhost:3000) (hoặc cổng Vite tự động cấp phát, proxy sẽ tự động hoạt động).
+* **Local Web App URL:** [http://localhost:3000](http://localhost:3000) hoặc [http://localhost:3001](http://localhost:3001) (tùy thuộc vào cổng trống khả dụng).
 
 ---
 
-*Cập nhật lần cuối: 2026-06-22 23:55*
+*Cập nhật lần cuối: 2026-06-23 14:10*

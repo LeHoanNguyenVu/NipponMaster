@@ -39,6 +39,7 @@ public class GrammarService {
 
     @Transactional
     public Grammar create(Grammar grammar) {
+        grammar.setId(null);
         return grammarRepository.save(grammar);
     }
 

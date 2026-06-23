@@ -8,16 +8,16 @@
 **Mục tiêu:** Cài đặt xong luồng dữ liệu (Auth flow), xây dựng Design System và hoàn thiện Landing Page có chuyển động GSAP mượt mà.
 
 ### 📍 Ngày 1: Cấu Trúc Định Tuyến & Quản Lý Trạng Thái
-* [ ] **Định tuyến (Routing):** Thiết lập React Router 7 điều hướng các trang: `/` (Landing), `/login`, `/register`, `/dashboard`, `/vocab`, `/kanji`, `/grammar`, `/flashcards`.
-* [ ] **API Client:** Tạo Axios client instance với Interceptor tự động lấy JWT từ LocalStorage gắn vào Header `Authorization`.
-* [ ] **Auth Store:** Sử dụng Zustand quản lý trạng thái đăng nhập, lưu trữ thông tin user hiện tại và token.
+* [x] **Định tuyến (Routing):** Thiết lập React Router 7 điều hướng các trang: `/` (Landing), `/login`, `/register`, `/dashboard`, `/vocab`, `/kanji`, `/grammar`, `/flashcards`.
+* [x] **API Client:** Tạo Axios client instance với Interceptor tự động lấy JWT từ LocalStorage gắn vào Header `Authorization`.
+* [x] **Auth Store:** Sử dụng Zustand quản lý trạng thái đăng nhập, lưu trữ thông tin user hiện tại và token.
 
 ### 📍 Ngày 2: Xây Dựng Thư Viện Thành Phần (Design System)
-* [ ] **Cấu hình Theme:** Thiết lập hệ màu sắc Dark Mode Nhật Bản tối giản (Charcoal nền, Crimson làm màu nhấn) tại Tailwind v4.
-* [ ] **Base Components (tasteskill):**
-  * **Button:** Thiết kế hiệu ứng ấn vật lý (`active:scale-[0.98]`), căn chỉnh độ tương phản a11y, nhãn ngắn gọn.
-  * **Input:** Form inputs có label nằm trên, thông báo lỗi màu đỏ dịu phía dưới, focus ring rõ ràng.
-  * **Card:** Các thẻ chứa thông tin viền siêu mảnh (`border-zinc-800`), không đổ bóng đen nhòe nhoẹt.
+* [x] **Cấu hình Theme:** Thiết lập hệ màu sắc Dark Mode Nhật Bản tối giản (Charcoal nền, Crimson làm màu nhấn) tại Tailwind v4.
+* [x] **Base Components (tasteskill):**
+  * [x] **Button:** Thiết kế hiệu ứng ấn vật lý (`active:scale-[0.98]`), căn chỉnh độ tương phản a11y, nhãn ngắn gọn.
+  * [x] **Input:** Form inputs có label nằm trên, thông báo lỗi màu đỏ dịu phía dưới, focus ring rõ ràng.
+  * [x] **Card:** Các thẻ chứa thông tin viền siêu mảnh (`border-zinc-800`), không đổ bóng đen nhòe nhoẹt.
 
 ### 📍 Ngày 3: Trang Chủ Premium (Landing Page với GSAP)
 * [ ] **Hero Section:** Thiết kế bất đối xứng (Split Hero), chữ to có khoảng thở rộng, tối ưu chiều cao hiển thị trên thiết bị di động.
