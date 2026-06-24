@@ -8,12 +8,12 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className = '', children, interactive = false, padding = 'md', ...props }, ref) => {
     // Base card styling
-    const baseStyles = 'bg-charcoal-900/35 border border-charcoal-800/60 rounded-xl overflow-hidden';
+    const baseStyles = 'bg-surface-container-lowest border border-outline-variant rounded-2xl overflow-hidden shadow-sm';
     
     // Hover animation states for interactive variant
     const hoverStyles = interactive
-      ? 'hover:border-charcoal-700/80 hover:bg-charcoal-900/50 hover:translate-y-[-1px] transition-all duration-150 ease-out cursor-pointer'
-      : 'transition-colors duration-150';
+      ? 'hover:border-primary/50 hover:shadow-md hover:translate-y-[-2px] transition-all duration-200 ease-out cursor-pointer'
+      : 'transition-all duration-200';
 
     // Padding settings
     const paddings = {

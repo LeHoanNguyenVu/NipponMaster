@@ -3,24 +3,15 @@ import axiosClient from '../api/axiosClient';
 
 export interface User {
   id: number;
+  username: string;
   email: string;
-  fullName: string;
-  avatarUrl: string | null;
-  jlptLevel: string;
-  role: string;
-  createdAt: string;
+  role?: string;
+  streak?: number;
 }
 
-interface AuthResponseData {
-  accessToken: string;
-  tokenType: string;
+interface AuthResponse {
+  token: string;
   user: User;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
 }
 
 interface AuthState {
@@ -29,123 +20,94 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  
-  // Actions
-  login: (email: string, password: string) => Promise<User>;
-  register: (fullName: string, email: string, password: string) => Promise<User>;
+  login: (credentials: any) => Promise<void>;
+  register: (credentials: any) => Promise<void>;
   logout: () => void;
-  fetchCurrentUser: () => Promise<User | null>;
+  fetchMe: () => Promise<void>;
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => {
-  // Load initial state from LocalStorage
-  const savedToken = localStorage.getItem('nippon_token');
-  let savedUser: User | null = null;
-  
-  try {
-    const userStr = localStorage.getItem('nippon_user');
-    if (userStr) savedUser = JSON.parse(userStr);
-  } catch (e) {
-    localStorage.removeItem('nippon_user');
-  }
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  token: localStorage.getItem('token'),
+  isAuthenticated: !!localStorage.getItem('token'),
+  isLoading: false,
+  error: null,
 
-  return {
-    user: savedUser,
-    token: savedToken,
-    isAuthenticated: !!savedToken && !!savedUser,
-    isLoading: false,
-    error: null,
+  login: async (credentials) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosClient.post<any, AuthResponse>('/auth/login', credentials);
+      localStorage.setItem('token', response.token);
+      set({
+        token: response.token,
+        user: response.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (err: any) {
+      set({
+        isLoading: false,
+        error: err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.',
+      });
+      throw err;
+    }
+  },
 
-    login: async (email, password) => {
-      set({ isLoading: true, error: null });
-      try {
-        const response = await axiosClient.post<any, ApiResponse<AuthResponseData>>(
-          '/auth/login',
-          { email, password }
-        );
+  register: async (credentials) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosClient.post<any, AuthResponse>('/auth/register', credentials);
+      localStorage.setItem('token', response.token);
+      set({
+        token: response.token,
+        user: response.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (err: any) {
+      set({
+        isLoading: false,
+        error: err.message || 'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.',
+      });
+      throw err;
+    }
+  },
 
-        const { accessToken, user } = response.data;
+  logout: () => {
+    localStorage.removeItem('token');
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      error: null,
+    });
+  },
 
-        // Persist to LocalStorage
-        localStorage.setItem('nippon_token', accessToken);
-        localStorage.setItem('nippon_user', JSON.stringify(user));
+  fetchMe: async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-        set({
-          user,
-          token: accessToken,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-
-        return user;
-      } catch (err: any) {
-        const errMsg = err.message || 'Đăng nhập thất bại';
-        set({ error: errMsg, isLoading: false });
-        throw new Error(errMsg);
-      }
-    },
-
-    register: async (fullName, email, password) => {
-      set({ isLoading: true, error: null });
-      try {
-        const response = await axiosClient.post<any, ApiResponse<AuthResponseData>>(
-          '/auth/register',
-          { fullName, email, password }
-        );
-
-        const { accessToken, user } = response.data;
-
-        // Persist to LocalStorage
-        localStorage.setItem('nippon_token', accessToken);
-        localStorage.setItem('nippon_user', JSON.stringify(user));
-
-        set({
-          user,
-          token: accessToken,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-
-        return user;
-      } catch (err: any) {
-        const errMsg = err.message || 'Đăng ký thất bại';
-        set({ error: errMsg, isLoading: false });
-        throw new Error(errMsg);
-      }
-    },
-
-    logout: () => {
-      localStorage.removeItem('nippon_token');
-      localStorage.removeItem('nippon_user');
+    set({ isLoading: true, error: null });
+    try {
+      const user = await axiosClient.get<any, User>('/auth/me');
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } catch (err: any) {
+      localStorage.removeItem('token');
       set({
         user: null,
         token: null,
         isAuthenticated: false,
-        error: null,
+        isLoading: false,
       });
-    },
+    }
+  },
 
-    fetchCurrentUser: async () => {
-      const { token } = get();
-      if (!token) return null;
-
-      set({ isLoading: true });
-      try {
-        const response = await axiosClient.get<any, ApiResponse<User>>('/auth/me');
-        const user = response.data;
-
-        localStorage.setItem('nippon_user', JSON.stringify(user));
-        set({ user, isAuthenticated: true, isLoading: false });
-        return user;
-      } catch (err) {
-        // Token is invalid/expired
-        get().logout();
-        set({ isLoading: false });
-        return null;
-      }
-    },
-
-    clearError: () => set({ error: null }),
-  };
-});
+  clearError: () => set({ error: null }),
+}));

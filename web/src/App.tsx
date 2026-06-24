@@ -1,85 +1,52 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { useAuthStore } from './store/useAuthStore';
+import { useState, useEffect, useRef } from 'react';
+import Sidebar from './components/Sidebar';
+import TopBar from './components/TopBar';
+import Dashboard from './screens/Dashboard';
+import Vocabulary from './screens/Vocabulary';
+import Exams from './screens/Exams';
+import Flashcards from './screens/Flashcards';
+import gsap from 'gsap';
 
-// Pages
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import VocabularyPage from './pages/VocabularyPage';
-import KanjiPage from './pages/KanjiPage';
-import GrammarPage from './pages/GrammarPage';
-import FlashcardsPage from './pages/FlashcardsPage';
-import DesignSystemPage from './pages/DesignSystemPage';
-
-// Components
-import ProtectedRoute from './components/ProtectedRoute';
+export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation';
 
 export default function App() {
-  const { fetchCurrentUser, token } = useAuthStore();
+  const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
+  const mainRef = useRef<HTMLDivElement>(null);
 
-  // Try to restore user session on mount if token exists
   useEffect(() => {
-    if (token) {
-      fetchCurrentUser();
+    if (mainRef.current) {
+      // Fade in and slide up transition when screen changes
+      gsap.fromTo(mainRef.current,
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', overwrite: 'auto' }
+      );
     }
-  }, [token, fetchCurrentUser]);
+  }, [currentScreen]);
+
+  if (currentScreen === 'flashcards') {
+    return <Flashcards onExit={() => setCurrentScreen('dashboard')} />;
+  }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/design-system" element={<DesignSystemPage />} />
-
-        {/* Protected Learner Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/vocab"
-          element={
-            <ProtectedRoute>
-              <VocabularyPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/kanji"
-          element={
-            <ProtectedRoute>
-              <KanjiPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/grammar"
-          element={
-            <ProtectedRoute>
-              <GrammarPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/flashcards"
-          element={
-            <ProtectedRoute>
-              <FlashcardsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Catch-all Redirect */}
-        <Route path="*" element={<LandingPage />} />
-      </Routes>
-    </BrowserRouter>
+    <div className="flex h-screen overflow-hidden bg-surface font-sans">
+      <Sidebar currentScreen={currentScreen} onNavigate={setCurrentScreen} />
+      <div className="flex flex-col flex-1 min-w-0">
+        <TopBar />
+        <main ref={mainRef} className="flex-1 overflow-y-auto">
+          {currentScreen === 'dashboard' && <Dashboard onStartStudy={() => setCurrentScreen('flashcards')} />}
+          {currentScreen === 'vocabulary' && <Vocabulary />}
+          {currentScreen === 'exams' && <Exams />}
+          {currentScreen === 'kanji' && (
+            <div className="p-8 text-center text-on-surface-variant font-medium">Kanji screen is under construction.</div>
+          )}
+          {currentScreen === 'grammar' && (
+            <div className="p-8 text-center text-on-surface-variant font-medium">Grammar screen is under construction.</div>
+          )}
+          {currentScreen === 'translation' && (
+            <div className="p-8 text-center text-on-surface-variant font-medium">Translation screen is under construction.</div>
+          )}
+        </main>
+      </div>
+    </div>
   );
 }

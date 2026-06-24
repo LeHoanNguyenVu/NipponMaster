@@ -19,14 +19,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-xs font-semibold tracking-wide text-charcoal-300 select-none uppercase"
+            className="text-xs font-semibold tracking-wide text-on-surface-variant select-none uppercase"
           >
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {icon && (
-            <span className="absolute left-3.5 text-charcoal-400 pointer-events-none flex items-center justify-center">
+            <span className="absolute left-3.5 text-outline pointer-events-none flex items-center justify-center">
               {icon}
             </span>
           )}
@@ -38,9 +38,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={
               error ? errorId : helperText ? helperId : undefined
             }
-            className={`w-full bg-charcoal-900 border ${
-              error ? 'border-red-500/70 focus:ring-red-500/30' : 'border-charcoal-800 focus:ring-crimson-600/30 focus:border-crimson-600'
-            } text-charcoal-100 placeholder-charcoal-500 rounded-lg text-sm transition-all duration-150 outline-none py-2.5 ${
+            className={`w-full bg-surface-container-lowest border ${
+              error ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'
+            } text-on-surface placeholder:text-outline rounded-xl text-sm transition-all duration-150 outline-none py-2.5 ${
               icon ? 'pl-10.5 pr-4' : 'px-4'
             } focus:ring-4`}
             {...props}
@@ -49,14 +49,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error && (
           <span
             id={errorId}
-            className="text-xs font-medium text-red-400 mt-0.5"
+            className="text-xs font-medium text-error mt-0.5"
             role="alert"
           >
             {error}
           </span>
         )}
         {!error && helperText && (
-          <span id={helperId} className="text-xs text-charcoal-400 mt-0.5">
+          <span id={helperId} className="text-xs text-on-surface-variant mt-0.5">
             {helperText}
           </span>
         )}

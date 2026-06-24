@@ -25,14 +25,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     // Base styles
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 outline-none select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]';
+      'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 outline-none select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]';
 
     // Variants config
     const variants = {
-      primary: 'bg-crimson-600 hover:bg-crimson-700 text-white shadow-sm border border-transparent focus:ring-2 focus:ring-crimson-500 focus:ring-offset-2 focus:ring-offset-charcoal-950',
-      secondary: 'bg-charcoal-900 border border-charcoal-800 hover:border-charcoal-700 hover:bg-charcoal-800 text-charcoal-100 focus:ring-2 focus:ring-charcoal-500 focus:ring-offset-2 focus:ring-offset-charcoal-950',
-      ghost: 'bg-transparent text-charcoal-300 hover:text-charcoal-100 hover:bg-charcoal-900 focus:ring-2 focus:ring-charcoal-800',
-      danger: 'bg-red-950/40 border border-red-800/40 text-red-200 hover:bg-red-900/40 hover:border-red-700/60 focus:ring-2 focus:ring-red-700',
+      primary: 'bg-primary hover:bg-primary-container text-on-primary shadow-sm border border-transparent focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface',
+      secondary: 'bg-surface-container-low border border-outline-variant hover:border-outline hover:bg-surface-container text-on-surface focus:ring-2 focus:ring-outline focus:ring-offset-2 focus:ring-offset-surface',
+      ghost: 'bg-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low focus:ring-2 focus:ring-outline-variant',
+      danger: 'bg-error-container text-on-error-container hover:bg-error hover:text-on-error border border-error-container focus:ring-2 focus:ring-error',
     };
 
     // Sizes config
