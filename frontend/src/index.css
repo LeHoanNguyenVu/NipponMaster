@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Source+Serif+4:opsz,wght@8..60,400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Geist', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+  --font-jp: "Noto Sans JP", sans-serif;
+  --font-serif: "Source Serif 4", serif;
+
+  /* Custom Japanese-inspired Dark Palette (used in Landing Page) */
+  --color-charcoal-50: #f4f4f5;
+  --color-charcoal-100: #e4e4e7;
+  --color-charcoal-200: #d4d4d8;
+  --color-charcoal-300: #a1a1aa;
+  --color-charcoal-400: #71717a;
+  --color-charcoal-500: #52525b;
+  --color-charcoal-600: #3f3f46;
+  --color-charcoal-700: #27272a;
+  --color-charcoal-800: #1a1a1e;
+  --color-charcoal-900: #0f0f12;
+  --color-charcoal-950: #070709;
+
+  --color-crimson-50: #fff1f2;
+  --color-crimson-100: #ffe4e6;
+  --color-crimson-200: #fecdd3;
+  --color-crimson-300: #fda4af;
+  --color-crimson-400: #fb7185;
+  --color-crimson-500: #f43f5e;
+  --color-crimson-600: #e11d48;
+  --color-crimson-700: #be123c;
+  --color-crimson-800: #9f1239;
+  --color-crimson-900: #881337;
+  --color-crimson-950: #4c0519;
+
+  /* Premium Light Palette (Japanese Traditional inspired) */
+  --color-primary: #c01538; /* Beni traditional red */
+  --color-on-primary: #ffffff;
+  --color-primary-container: #da2b49;
+  --color-on-primary-container: #ffeef0;
+  --color-inverse-primary: #ffb3ba;
+  
+  --color-secondary: #2b5f43; /* Matcha tea green */
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #d9ecd9;
+  --color-on-secondary-container: #1b3d2b;
+  
+  --color-tertiary: #92541a; /* Gold lacquer */
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #e6a760;
+  --color-on-tertiary-container: #331700;
+  
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  
+  --color-surface: #f7f5f0; /* Off-white Washi paper */
+  --color-surface-dim: #ebdcd0;
+  --color-surface-bright: #fbfaf8;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f1ede6; /* Soft warm gray-white */
+  --color-surface-container: #eae4da;
+  --color-surface-container-high: #e2dbce;
+  --color-surface-container-highest: #d9cfbe;
+  --color-on-surface: #231815; /* Sumi ink black */
+  --color-on-surface-variant: #5a5450;
+  --color-inverse-surface: #362e2c;
+  --color-inverse-on-surface: #f7f5f0;
+  
+  --color-outline: #8c827b;
+  --color-outline-variant: #d3c9be;
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-container-high);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-surface-container-highest);
+}
+
+/* Smooth selection colors */
+::selection {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+/* Kotobasensei Background Patterns */
+.bg-pattern-hexagons {
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='69.28203230275509' viewBox='0 0 40 69.28203230275509' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 11.547L40 23.094L20 34.641L0 23.094L0 11.547L20 0L40 11.547ZM20 46.188L20 57.735L0 69.282L-20 57.735L-20 46.188L0 34.641L20 46.188ZM60 46.188L60 57.735L40 69.282L20 57.735L20 46.188L40 34.641L60 46.188Z' fill='none' stroke='%23d3c9be' stroke-width='1' opacity='0.3'/%3E%3C/svg%3E");
+}
+
+.bg-pattern-paper {
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+.bg-pattern-waves {
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='30' viewBox='0 0 60 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 15 A 15 15 0 0 1 30 15 A 15 15 0 0 1 60 15' fill='none' stroke='%23d3c9be' stroke-width='1' opacity='0.3'/%3E%3Cpath d='M-15 30 A 15 15 0 0 1 15 30 A 15 15 0 0 1 45 30 A 15 15 0 0 1 75 30' fill='none' stroke='%23d3c9be' stroke-width='1' opacity='0.3'/%3E%3C/svg%3E");
+}

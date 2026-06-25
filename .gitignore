@@ -38,10 +38,23 @@ build/
 PLAN_DETAILED.md
 PROJECT_PROGRESS.md
 
+### Logs & Temp Files ###
+*.log
+backend.log
+backend_utf8.log
+
+### Node & NPM (Global/Root & Subdirs) ###
+node_modules/
+package-lock.json
+package.json
+skills-lock.json
+
+### Agent Skills & Cache ###
+.agents/
+
 ### Frontend Web Dependencies & Secrets ###
 /web/node_modules/
 /web/dist/
 /web/dist-ssr/
 /web/.env
 /web/.env*.local
-
