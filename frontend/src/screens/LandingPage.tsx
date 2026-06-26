@@ -89,10 +89,6 @@ export default function LandingPage({ onNavigateAuth }: LandingPageProps) {
 
         <div className="relative max-w-7xl mx-auto px-6 z-10 w-full">
           <div className="max-w-2xl">
-            <div className="hero-text flex items-center gap-2 mb-6">
-              <div className="w-10 h-[2px] bg-primary"></div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Nền tảng học tiếng Nhật #1 Việt Nam</span>
-            </div>
             <h1 className="hero-text font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-on-surface leading-[1.1] tracking-tight mb-6">
               Chinh phục<br />
               <span className="text-primary">Nhật ngữ</span><br />
@@ -218,12 +214,9 @@ export default function LandingPage({ onNavigateAuth }: LandingPageProps) {
             <p className="philosophy-text font-serif italic text-lg text-white/75 leading-relaxed mb-8">
               Ngã bảy lần, đứng dậy tám lần. Tinh thần kiên trì của người Nhật chính là triết lý cốt lõi mà NipponMaster mang đến cho mỗi học viên.
             </p>
-            <p className="philosophy-text text-white/65 leading-relaxed mb-10">
+            <p className="philosophy-text text-white/65 leading-relaxed">
               Chúng tôi tin rằng mỗi người đều có thể chinh phục tiếng Nhật khi được đồng hành bởi phương pháp đúng đắn, giảng viên tận tâm, và một cộng đồng luôn sẵn sàng hỗ trợ.
             </p>
-            <button onClick={onNavigateAuth} className="philosophy-text bg-[#e8c47a] text-[#1a0a00] font-bold px-8 py-4 rounded-xl hover:bg-[#f0d48a] transition-all text-sm flex items-center gap-2 cursor-pointer shadow-lg">
-              Khám phá con đường của bạn <ArrowRight size={16} />
-            </button>
           </div>
         </div>
       </section>
