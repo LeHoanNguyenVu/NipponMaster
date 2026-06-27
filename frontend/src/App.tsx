@@ -25,6 +25,26 @@ export default function App() {
     fetchMe();
   }, [fetchMe]);
 
+  // Support browser's back/forward buttons (hash navigation)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === '#/auth' || hash === '#auth') {
+        setShowAuth(true);
+      } else {
+        setShowAuth(false);
+      }
+    };
+
+    // Run once on load
+    handleHashChange();
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
   useEffect(() => {
     if (mainRef.current) {
       gsap.fromTo(mainRef.current,
@@ -37,9 +57,19 @@ export default function App() {
   // Guest flow: Landing Page → Auth Screen → Dashboard
   if (!isAuthenticated) {
     if (showAuth) {
-      return <Auth onAuthSuccess={() => setCurrentScreen('dashboard')} />;
+      return (
+        <Auth 
+          onAuthSuccess={() => {
+            window.location.hash = '';
+            setCurrentScreen('dashboard');
+          }} 
+          onBack={() => {
+            window.location.hash = '';
+          }}
+        />
+      );
     }
-    return <LandingPage onNavigateAuth={() => setShowAuth(true)} />;
+    return <LandingPage onNavigateAuth={() => { window.location.hash = '#/auth'; }} />;
   }
 
   if (currentScreen === 'flashcards') {

@@ -7,9 +7,10 @@ import { Card } from '../components/ui/Card';
 
 interface AuthProps {
   onAuthSuccess: () => void;
+  onBack: () => void;
 }
 
-export default function Auth({ onAuthSuccess }: AuthProps) {
+export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
   const [view, setView] = useState<'login' | 'register' | 'verify'>('login');
   const [showPassword, setShowPassword] = useState(false);
   
@@ -85,11 +86,19 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
 
   // --- SUBVIEW: LOGIN ---
   const renderLogin = () => (
-    <div className="min-h-screen bg-pattern-hexagons flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-pattern-hexagons flex flex-col items-center justify-center p-4 relative">
+      {/* Floating Back Button */}
+      <button 
+        onClick={onBack}
+        className="absolute top-6 left-6 text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 cursor-pointer font-bold text-sm bg-surface-container-low border border-outline-variant/60 py-2 px-4 rounded-xl shadow-sm z-30"
+      >
+        <ArrowLeft size={16} /> Quay lại trang chủ
+      </button>
+
       {/* Logo Area */}
       <div className="flex flex-col items-center mb-6 text-center">
         <div className="w-12 h-1.5 bg-primary rounded-full mb-4"></div>
-        <h1 className="font-serif text-5xl font-bold text-on-surface tracking-tight mb-2">
+        <h1 onClick={onBack} className="font-serif text-5xl font-bold text-on-surface tracking-tight mb-2 cursor-pointer hover:text-primary transition-colors">
           NipponMaster
         </h1>
         <p className="font-serif italic text-on-surface-variant text-lg">
@@ -201,11 +210,19 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
 
   // --- SUBVIEW: REGISTER ---
   const renderRegister = () => (
-    <div className="min-h-screen bg-pattern-paper flex">
+    <div className="min-h-screen bg-pattern-paper flex relative">
+      {/* Floating Back Button */}
+      <button 
+        onClick={onBack}
+        className="absolute top-6 left-6 text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 cursor-pointer font-bold text-sm bg-surface-container-low border border-outline-variant/60 py-2 px-4 rounded-xl shadow-sm z-30"
+      >
+        <ArrowLeft size={16} /> Quay lại trang chủ
+      </button>
+
       {/* Left Column (Hero Card) */}
       <div className="hidden lg:flex w-5/12 flex-col justify-between p-16 xl:p-24 border-r border-outline-variant/40 bg-surface-container-low relative">
         <div>
-          <div className="flex items-center gap-3 mb-24">
+          <div onClick={onBack} className="flex items-center gap-3 mb-24 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-serif font-bold text-xl">
               学
             </div>
@@ -238,7 +255,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
       <div className="w-full lg:w-7/12 flex flex-col justify-center p-6 md:p-12 lg:p-16 xl:px-24 overflow-y-auto">
         <div className="max-w-xl w-full mx-auto">
           {/* Mobile Logo */}
-          <div className="flex lg:hidden items-center gap-3 mb-10">
+          <div onClick={onBack} className="flex lg:hidden items-center gap-3 mb-10 cursor-pointer hover:opacity-80 transition-opacity">
              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-serif font-bold text-xl">
               学
             </div>
