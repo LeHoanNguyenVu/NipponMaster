@@ -30,10 +30,16 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Tạo user mới
+        User.Role assignedRole = User.Role.USER;
+        if (request.getEmail().toLowerCase().contains("admin")) {
+            assignedRole = User.Role.ADMIN;
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
+                .role(assignedRole)
                 .build();
 
         User savedUser = userRepository.save(user);

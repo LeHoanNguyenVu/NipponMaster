@@ -37,7 +37,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (credentials) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosClient.post<any, AuthResponse>('/auth/login', credentials);
+      const payload = {
+        email: credentials.email || credentials.username || credentials.usernameOrEmail,
+        password: credentials.password
+      };
+      const response = await axiosClient.post<any, AuthResponse>('/auth/login', payload);
       localStorage.setItem('token', response.token);
       set({
         token: response.token,

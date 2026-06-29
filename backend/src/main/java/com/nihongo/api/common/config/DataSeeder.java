@@ -7,11 +7,12 @@ import com.nihongo.api.modules.kanji.entity.Kanji;
 import com.nihongo.api.modules.kanji.repository.KanjiRepository;
 import com.nihongo.api.modules.vocabulary.entity.Vocabulary;
 import com.nihongo.api.modules.vocabulary.repository.VocabularyRepository;
+import com.nihongo.api.modules.auth.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 
 /**
@@ -26,12 +27,29 @@ public class DataSeeder implements CommandLineRunner {
     private final VocabularyRepository vocabularyRepository;
     private final KanjiRepository kanjiRepository;
     private final GrammarRepository grammarRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
+        seedAdminUser();
         seedVocabulary();
         seedKanji();
         seedGrammar();
+    }
+
+    private void seedAdminUser() {
+        if (!userRepository.existsByEmail("admin@nihongo.com")) {
+            User admin = User.builder()
+                    .email("admin@nihongo.com")
+                    .password(passwordEncoder.encode("admin123"))
+                    .fullName("System Admin")
+                    .role(User.Role.ADMIN)
+                    .isActive(true)
+                    .build();
+            userRepository.save(admin);
+            log.info("✅ Seeded default admin user: admin@nihongo.com / admin123");
+        }
     }
 
     private void seedVocabulary() {

@@ -26,6 +26,19 @@ public interface VocabularyRepository extends JpaRepository<Vocabulary, Long> {
             "LOWER(v.meaning) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Vocabulary> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
+    @Query("SELECT v FROM Vocabulary v WHERE " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
+            " LOWER(v.word) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            " LOWER(v.reading) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            " LOWER(v.meaning) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+            "(:level IS NULL OR v.jlptLevel = :level) AND " +
+            "(:wordType IS NULL OR v.wordType = :wordType)")
+    Page<Vocabulary> searchWithFilters(
+            @Param("keyword") String keyword,
+            @Param("level") User.JlptLevel level,
+            @Param("wordType") Vocabulary.WordType wordType,
+            Pageable pageable);
+
     List<Vocabulary> findByJlptLevelAndTopic(User.JlptLevel level, String topic);
 
     long countByJlptLevel(User.JlptLevel level);

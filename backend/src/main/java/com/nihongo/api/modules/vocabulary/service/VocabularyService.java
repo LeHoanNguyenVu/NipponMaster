@@ -43,6 +43,12 @@ public class VocabularyService {
         return PageResponse.from(page);
     }
 
+    @Transactional(readOnly = true)
+    public PageResponse<Vocabulary> searchWithFilters(String keyword, User.JlptLevel level, Vocabulary.WordType wordType, Pageable pageable) {
+        Page<Vocabulary> page = vocabularyRepository.searchWithFilters(keyword, level, wordType, pageable);
+        return PageResponse.from(page);
+    }
+
     @Transactional
     public Vocabulary create(Vocabulary vocabulary) {
         vocabulary.setId(null);

@@ -39,9 +39,11 @@ public class VocabularyController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<PageResponse<Vocabulary>>> search(
-            @RequestParam String keyword,
-            @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.ok(vocabularyService.search(keyword, pageable)));
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false) User.JlptLevel level,
+            @RequestParam(required = false) Vocabulary.WordType wordType,
+            @PageableDefault(size = 9) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.ok(vocabularyService.searchWithFilters(keyword, level, wordType, pageable)));
     }
 
     @PostMapping
