@@ -1,5 +1,7 @@
+import { useRef, useEffect } from 'react';
 import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, Play, LogOut } from 'lucide-react';
 import type { ScreenType } from '../App';
+import gsap from 'gsap';
 
 interface SidebarProps {
   currentScreen: ScreenType;
@@ -8,6 +10,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ currentScreen, onNavigate, onLogout }: SidebarProps) {
+  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'vocabulary', label: 'Vocabulary', icon: Languages },
@@ -17,6 +21,27 @@ export default function Sidebar({ currentScreen, onNavigate, onLogout }: Sidebar
     { id: 'exams', label: 'Exams', icon: Target },
     { id: 'translation', label: 'Translation', icon: BookType },
   ];
+
+  // GSAP animation for active item transitions
+  useEffect(() => {
+    const activeBtn = buttonRefs.current[currentScreen];
+    if (activeBtn) {
+      // Gentle spring bounce scale animation on active button
+      gsap.fromTo(activeBtn,
+        { scale: 0.92, y: 1 },
+        { scale: 1, y: 0, duration: 0.45, ease: 'back.out(1.8)', overwrite: 'auto' }
+      );
+
+      // Cute tilt animation on the icon
+      const icon = activeBtn.querySelector('svg');
+      if (icon) {
+        gsap.fromTo(icon,
+          { rotate: -20, scale: 0.8 },
+          { rotate: 0, scale: 1, duration: 0.5, ease: 'power2.out', overwrite: 'auto' }
+        );
+      }
+    }
+  }, [currentScreen]);
 
   return (
     <nav className="w-64 flex-shrink-0 bg-surface-container-low border-r border-outline-variant flex flex-col hidden md:flex z-10">
@@ -39,14 +64,17 @@ export default function Sidebar({ currentScreen, onNavigate, onLogout }: Sidebar
               return (
                 <li key={item.id}>
                   <button
+                    ref={(el) => {
+                      buttonRefs.current[item.id] = el;
+                    }}
                     onClick={() => onNavigate(item.id as ScreenType)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-primary-container text-primary shadow-sm scale-95 font-bold'
+                        ? 'bg-primary text-on-primary shadow-sm font-semibold'
                         : 'text-on-surface-variant hover:bg-surface-variant hover:text-on-surface'
                     }`}
                   >
-                    <Icon size={18} className={isActive ? 'text-primary' : ''} />
+                    <Icon size={18} className={isActive ? 'text-on-primary' : 'text-on-surface-variant'} />
                     {item.label}
                   </button>
                 </li>

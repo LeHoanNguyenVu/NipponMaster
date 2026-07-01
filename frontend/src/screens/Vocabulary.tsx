@@ -63,6 +63,49 @@ const kanjiMeaningMap: Record<string, { meaning: string; onyomi: string; kunyomi
   比: { meaning: 'Bỉ (so sánh)', onyomi: 'ヒ', kunyomi: 'くら.べる' },
 };
 
+const getVisiblePages = (current: number, total: number) => {
+  const current1 = current + 1;
+  const pages: (number | string)[] = [];
+  
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) {
+      pages.push(i);
+    }
+  } else {
+    pages.push(1);
+    
+    if (current1 > 4) {
+      pages.push('...');
+    }
+    
+    const start = Math.max(2, current1 - 2);
+    const end = Math.min(total - 1, current1 + 2);
+    
+    let adjustedStart = start;
+    let adjustedEnd = end;
+    if (current1 <= 4) {
+      adjustedEnd = 5;
+    }
+    if (current1 >= total - 3) {
+      adjustedStart = total - 4;
+    }
+    
+    for (let i = adjustedStart; i <= adjustedEnd; i++) {
+      if (i > 1 && i < total) {
+        pages.push(i);
+      }
+    }
+    
+    if (current1 < total - 3) {
+      pages.push('...');
+    }
+    
+    pages.push(total);
+  }
+  
+  return pages;
+};
+
 export default function Vocabulary() {
   const [vocabList, setVocabList] = useState<VocabularyItem[]>([]);
   const [selectedWord, setSelectedWord] = useState<VocabularyItem | null>(null);
@@ -363,17 +406,12 @@ export default function Vocabulary() {
               </Button>
             </div>
           ) : (
-            /* Asymmetric Card Grid */
+            /* Symmetric Card Grid */
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pb-12">
               {vocabList.map((word, index) => {
                 const isSelected = selectedWord?.id === word.id;
                 const isInSrs = !!srsCardMap[word.word];
                 const isSrsButtonLoading = srsLoading[word.id];
-
-                // Create asymmetry on index % 4 === 0 -> span 2 columns on larger screens
-                const gridSpanClass = index % 4 === 0 
-                  ? 'sm:col-span-2 lg:col-span-2' 
-                  : 'col-span-1';
 
                 // Alternate styles: gold outline accents for N5 signature words
                 const goldAccentClass = index % 3 === 0
@@ -385,7 +423,7 @@ export default function Vocabulary() {
                     key={word.id}
                     interactive
                     onClick={() => setSelectedWord(word)}
-                    className={`gsap-vocab-card relative flex flex-col justify-between p-6 ${gridSpanClass} ${goldAccentClass} ${
+                    className={`gsap-vocab-card relative flex flex-col justify-between p-6 col-span-1 ${goldAccentClass} ${
                       isSelected ? 'border-2 border-primary scale-[1.01] shadow-md' : ''
                     }`}
                   >
@@ -454,19 +492,29 @@ export default function Vocabulary() {
                 Trước
               </Button>
               <div className="flex items-center gap-1.5">
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentPage(i)}
-                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      currentPage === i
-                        ? 'bg-primary text-on-primary shadow-sm'
-                        : 'text-on-surface hover:bg-surface-container-low'
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
+                {getVisiblePages(currentPage, totalPages).map((p, idx) => {
+                  if (p === '...') {
+                    return (
+                      <span key={`dots-${idx}`} className="px-2 text-sm text-on-surface-variant font-bold select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const pageIndex = (p as number) - 1;
+                  return (
+                    <button
+                      key={pageIndex}
+                      onClick={() => setCurrentPage(pageIndex)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        currentPage === pageIndex
+                          ? 'bg-primary text-on-primary shadow-sm scale-105'
+                          : 'text-on-surface hover:bg-surface-container-low'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
               </div>
               <Button
                 variant="secondary"
