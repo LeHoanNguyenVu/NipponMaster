@@ -43,6 +43,11 @@ public class KanjiService {
         return PageResponse.from(kanjiRepository.searchByKeyword(keyword, pageable));
     }
 
+    @Transactional(readOnly = true)
+    public PageResponse<Kanji> searchWithFilters(String keyword, User.JlptLevel level, Pageable pageable) {
+        return PageResponse.from(kanjiRepository.searchWithFilters(keyword, level, pageable));
+    }
+
     @Transactional
     public Kanji create(Kanji kanji) {
         kanji.setId(null);

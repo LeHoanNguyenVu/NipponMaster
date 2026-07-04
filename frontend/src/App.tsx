@@ -9,6 +9,7 @@ import Exams from './screens/Exams';
 import Flashcards from './screens/Flashcards';
 import Auth from './screens/Auth';
 import LandingPage from './screens/LandingPage';
+import Kanji from './screens/Kanji';
 import { useAuthStore } from './store/useAuthStore';
 import gsap from 'gsap';
 
@@ -100,9 +101,7 @@ export default function App() {
           )}
           {currentScreen === 'vocabulary' && <Vocabulary />}
           {currentScreen === 'exams' && <Exams />}
-          {currentScreen === 'kanji' && (
-            <div className="p-8 text-center text-on-surface-variant font-medium">Kanji screen is under construction.</div>
-          )}
+          {currentScreen === 'kanji' && <Kanji />}
           {currentScreen === 'grammar' && (
             <div className="p-8 text-center text-on-surface-variant font-medium">Grammar screen is under construction.</div>
           )}

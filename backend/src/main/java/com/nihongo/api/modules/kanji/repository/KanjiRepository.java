@@ -27,5 +27,16 @@ public interface KanjiRepository extends JpaRepository<Kanji, Long> {
             "k.kunReading LIKE CONCAT('%', :keyword, '%')")
     Page<Kanji> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
+    @Query("SELECT k FROM Kanji k WHERE " +
+            "(:level IS NULL OR k.jlptLevel = :level) AND " +
+            "(:keyword = '' OR k.character LIKE CONCAT('%', :keyword, '%') OR " +
+            "LOWER(k.meaning) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "k.onReading LIKE CONCAT('%', :keyword, '%') OR " +
+            "k.kunReading LIKE CONCAT('%', :keyword, '%'))")
+    Page<Kanji> searchWithFilters(
+            @Param("keyword") String keyword,
+            @Param("level") User.JlptLevel level,
+            Pageable pageable);
+
     Page<Kanji> findByStrokeCount(Integer strokeCount, Pageable pageable);
 }

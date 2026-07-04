@@ -44,9 +44,10 @@ public class KanjiController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<PageResponse<Kanji>>> search(
-            @RequestParam String keyword,
-            @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.ok(kanjiService.search(keyword, pageable)));
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false) User.JlptLevel level,
+            @PageableDefault(size = 9) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.ok(kanjiService.searchWithFilters(keyword, level, pageable)));
     }
 
     @PostMapping
