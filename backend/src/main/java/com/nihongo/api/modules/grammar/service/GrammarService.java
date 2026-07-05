@@ -37,6 +37,11 @@ public class GrammarService {
         return PageResponse.from(grammarRepository.searchByKeyword(keyword, pageable));
     }
 
+    @Transactional(readOnly = true)
+    public PageResponse<Grammar> searchWithFilters(String keyword, User.JlptLevel level, Pageable pageable) {
+        return PageResponse.from(grammarRepository.searchWithFilters(keyword, level, pageable));
+    }
+
     @Transactional
     public Grammar create(Grammar grammar) {
         grammar.setId(null);

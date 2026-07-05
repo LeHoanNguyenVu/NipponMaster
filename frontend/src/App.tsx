@@ -10,6 +10,7 @@ import Flashcards from './screens/Flashcards';
 import Auth from './screens/Auth';
 import LandingPage from './screens/LandingPage';
 import Kanji from './screens/Kanji';
+import Grammar from './screens/Grammar';
 import { useAuthStore } from './store/useAuthStore';
 import gsap from 'gsap';
 
@@ -102,9 +103,7 @@ export default function App() {
           {currentScreen === 'vocabulary' && <Vocabulary />}
           {currentScreen === 'exams' && <Exams />}
           {currentScreen === 'kanji' && <Kanji />}
-          {currentScreen === 'grammar' && (
-            <div className="p-8 text-center text-on-surface-variant font-medium">Grammar screen is under construction.</div>
-          )}
+          {currentScreen === 'grammar' && <Grammar />}
           {currentScreen === 'translation' && (
             <div className="p-8 text-center text-on-surface-variant font-medium">Translation screen is under construction.</div>
           )}

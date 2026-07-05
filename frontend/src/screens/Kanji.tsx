@@ -63,26 +63,26 @@ const getVisiblePages = (current: number, total: number) => {
   return pages;
 };
 
+const JLPT_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const;
+
 export default function Kanji() {
   const [kanjiList, setKanjiList] = useState<KanjiItem[]>([]);
   const [selectedKanji, setSelectedKanji] = useState<KanjiItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedLevel, setSelectedLevel] = useState<'N5' | 'N4' | 'N3' | 'N2' | 'N1'>('N5');
   const [strokeFilter, setStrokeFilter] = useState<'ALL' | '1-5' | '6-10' | 'gt10'>('ALL');
   const [currentPage, setCurrentPage] = useState<number>(0);
 
   const detailPanelRef = useRef<HTMLDivElement>(null);
 
-  // Fetch all N5 Kanjis
-  const fetchKanjis = async () => {
+  // Fetch Kanjis for selected level
+  const fetchKanjis = async (level: string) => {
     try {
       setLoading(true);
-      // Fetch size=200 to get all N5 Kanji in one request for seamless search & filtering
+      setKanjiList([]);
       const response = await axiosClient.get('/kanjis/search', {
-        params: {
-          level: 'N5',
-          size: 200,
-        },
+        params: { level, size: 200 },
       });
       if (response.data?.content) {
         setKanjiList(response.data.content);
@@ -95,8 +95,11 @@ export default function Kanji() {
   };
 
   useEffect(() => {
-    fetchKanjis();
-  }, []);
+    fetchKanjis(selectedLevel);
+    setCurrentPage(0);
+    setSearchQuery('');
+    setStrokeFilter('ALL');
+  }, [selectedLevel]);
 
   // Slide-in / slide-out detail panel animations using GSAP
   useEffect(() => {
@@ -126,7 +129,7 @@ export default function Kanji() {
   // Reset page when search or filters change
   useEffect(() => {
     setCurrentPage(0);
-  }, [searchQuery, strokeFilter]);
+  }, [searchQuery, strokeFilter, selectedLevel]);
 
   // Client-side search and filtering
   const filteredKanjis = kanjiList.filter((kanji) => {
@@ -168,8 +171,25 @@ export default function Kanji() {
           <div>
             <h1 className="text-3xl font-bold text-on-surface tracking-tight">NipponMaster Kanji</h1>
             <p className="text-sm text-on-surface-variant mt-1">
-              Tra cứu chữ Hán N5 ({kanjiList.length} chữ), lọc theo số nét viết và xem thứ tự nét vẽ sinh động.
+              Tra cứu chữ Hán {selectedLevel} ({kanjiList.length} chữ), lọc theo số nét viết và xem thứ tự nét vẽ sinh động.
             </p>
+          </div>
+
+          {/* Level Tabs */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {JLPT_LEVELS.map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => setSelectedLevel(lvl)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
+                  selectedLevel === lvl
+                    ? 'bg-primary text-on-primary shadow-md shadow-primary/25'
+                    : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {lvl}
+              </button>
+            ))}
           </div>
 
           {/* Search & Filter Bar */}
@@ -299,22 +319,20 @@ export default function Kanji() {
 
           {/* Pagination */}
           {!loading && totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 py-8 border-t border-outline-variant/30">
-              <Button
-                variant="secondary"
-                size="sm"
+            <div className="flex items-center justify-center gap-2 py-8 border-t border-outline-variant/30">
+              <button
                 onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
                 disabled={currentPage === 0}
-                icon={<ChevronLeft size={16} />}
+                className="w-9 h-9 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
-                Trước
-              </Button>
-              <div className="flex items-center gap-1.5">
+                <ChevronLeft size={16} />
+              </button>
+              <div className="flex items-center gap-1">
                 {getVisiblePages(currentPage, totalPages).map((p, idx) => {
                   if (p === '...') {
                     return (
-                      <span key={`dots-${idx}`} className="px-2 text-sm text-on-surface-variant font-bold select-none">
-                        ...
+                      <span key={`dots-${idx}`} className="w-9 h-9 flex items-center justify-center text-sm text-on-surface-variant select-none">
+                        …
                       </span>
                     );
                   }
@@ -323,10 +341,10 @@ export default function Kanji() {
                     <button
                       key={pageIndex}
                       onClick={() => setCurrentPage(pageIndex)}
-                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                         currentPage === pageIndex
-                          ? 'bg-primary text-on-primary shadow-sm scale-105'
-                          : 'text-on-surface hover:bg-surface-container-low'
+                          ? 'bg-primary text-on-primary shadow-md shadow-primary/25'
+                          : 'text-on-surface hover:bg-surface-container-low hover:text-primary'
                       }`}
                     >
                       {p}
@@ -334,16 +352,13 @@ export default function Kanji() {
                   );
                 })}
               </div>
-              <Button
-                variant="secondary"
-                size="sm"
+              <button
                 onClick={() => setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))}
                 disabled={currentPage === totalPages - 1}
-                icon={<ChevronRight size={16} />}
-                iconPosition="right"
+                className="w-9 h-9 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
-                Sau
-              </Button>
+                <ChevronRight size={16} />
+              </button>
             </div>
           )}
         </div>

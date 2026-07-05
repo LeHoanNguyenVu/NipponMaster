@@ -18,4 +18,15 @@ public interface GrammarRepository extends JpaRepository<Grammar, Long> {
             "LOWER(g.pattern) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(g.meaning) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Grammar> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT g FROM Grammar g WHERE " +
+            "(:level IS NULL OR g.jlptLevel = :level) AND " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(g.pattern) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(g.meaning) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(g.structure) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Grammar> searchWithFilters(
+            @Param("keyword") String keyword,
+            @Param("level") User.JlptLevel level,
+            Pageable pageable);
 }

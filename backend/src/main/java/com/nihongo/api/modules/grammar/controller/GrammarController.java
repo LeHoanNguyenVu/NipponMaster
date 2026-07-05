@@ -39,9 +39,10 @@ public class GrammarController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<PageResponse<Grammar>>> search(
-            @RequestParam String keyword,
-            @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.ok(grammarService.search(keyword, pageable)));
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) User.JlptLevel level,
+            @PageableDefault(size = 9) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.ok(grammarService.searchWithFilters(keyword, level, pageable)));
     }
 
     @PostMapping
