@@ -2,6 +2,7 @@ package com.nihongo.api.modules.flashcard.controller;
 
 import com.nihongo.api.common.dto.ApiResponse;
 import com.nihongo.api.common.dto.PageResponse;
+import com.nihongo.api.modules.flashcard.dto.StudySessionResponse;
 import com.nihongo.api.modules.flashcard.entity.Flashcard;
 import com.nihongo.api.modules.flashcard.service.FlashcardService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,16 @@ public class FlashcardController {
     @GetMapping("/user/{userId}/due")
     public ResponseEntity<ApiResponse<List<Flashcard>>> getDueCards(@PathVariable Long userId) {
         return ResponseEntity.ok(ApiResponse.ok("Danh sách thẻ cần ôn tập", flashcardService.getDueCards(userId)));
+    }
+
+    /**
+     * Endpoint kiểu Anki: tự động tạo phiên ôn tập
+     * Gồm: thẻ mới (từ Vocabulary + Kanji) + thẻ cần ôn lại (SRS due)
+     */
+    @GetMapping("/user/{userId}/study-session")
+    public ResponseEntity<ApiResponse<StudySessionResponse>> getStudySession(@PathVariable Long userId) {
+        StudySessionResponse session = flashcardService.buildStudySession(userId);
+        return ResponseEntity.ok(ApiResponse.ok("Phiên ôn tập hôm nay", session));
     }
 
     @PostMapping

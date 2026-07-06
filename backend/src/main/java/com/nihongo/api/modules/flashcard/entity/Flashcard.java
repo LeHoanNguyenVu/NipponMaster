@@ -41,6 +41,18 @@ public class Flashcard extends BaseEntity {
     @Column(name = "card_type")
     private CardType cardType;
 
+    /** ID nguồn gốc (vocabulary_id hoặc kanji_id) để tránh tạo trùng */
+    @Column(name = "source_id")
+    private Long sourceId;
+
+    /** Câu ví dụ tiếng Nhật */
+    @Column(name = "example_sentence", length = 1000)
+    private String exampleSentence;
+
+    /** Nghĩa câu ví dụ */
+    @Column(name = "example_meaning", length = 1000)
+    private String exampleMeaning;
+
     // --- SRS Fields ---
 
     /** Khoảng cách ôn tập hiện tại (ngày) */

@@ -30,10 +30,10 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Tổng học viên', value: '—', icon: Users, color: 'text-primary' },
-          { label: 'Bài học đã đăng', value: '—', icon: BookOpen, color: 'text-secondary' },
-          { label: 'Đánh giá trung bình', value: '—', icon: Star, color: 'text-tertiary' },
-          { label: 'Giờ giảng dạy', value: '—', icon: Clock, color: 'text-outline' },
+          { label: 'Tổng học viên', value: '48', icon: Users, color: 'text-primary' },
+          { label: 'Bài học đã đăng', value: '12', icon: BookOpen, color: 'text-secondary' },
+          { label: 'Đánh giá trung bình', value: '4.8/5', icon: Star, color: 'text-tertiary' },
+          { label: 'Giờ giảng dạy', value: '120h', icon: Clock, color: 'text-outline' },
         ].map((stat, i) => (
           <Card key={i} className="p-5 flex flex-col gap-3">
             <div className="flex justify-between items-start">

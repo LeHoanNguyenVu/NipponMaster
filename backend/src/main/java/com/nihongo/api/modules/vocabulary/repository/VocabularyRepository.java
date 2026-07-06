@@ -42,4 +42,17 @@ public interface VocabularyRepository extends JpaRepository<Vocabulary, Long> {
     List<Vocabulary> findByJlptLevelAndTopic(User.JlptLevel level, String topic);
 
     long countByJlptLevel(User.JlptLevel level);
+
+    /** Lấy từ vựng chưa có trong danh sách ID đã học, theo cấp JLPT */
+    @Query("SELECT v FROM Vocabulary v WHERE v.jlptLevel = :level AND v.id NOT IN :excludeIds ORDER BY v.id ASC")
+    List<Vocabulary> findNewVocabularies(
+            @Param("level") User.JlptLevel level,
+            @Param("excludeIds") List<Long> excludeIds,
+            Pageable pageable);
+
+    /** Lấy từ vựng chưa có flashcard nào (khi danh sách exclude rỗng) */
+    @Query("SELECT v FROM Vocabulary v WHERE v.jlptLevel = :level ORDER BY v.id ASC")
+    List<Vocabulary> findNewVocabulariesNoExclude(
+            @Param("level") User.JlptLevel level,
+            Pageable pageable);
 }

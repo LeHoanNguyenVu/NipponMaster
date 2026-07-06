@@ -41,11 +41,19 @@ export const useAuthStore = create<AuthState>((set) => ({
         email: credentials.email || credentials.username || credentials.usernameOrEmail,
         password: credentials.password
       };
-      const response = await axiosClient.post<any, AuthResponse>('/auth/login', payload);
-      localStorage.setItem('token', response.token);
+      const response = await axiosClient.post<any, any>('/auth/login', payload);
+      const data = response.data;
+      const token = data.accessToken;
+      const user = {
+        ...data.user,
+        username: data.user.fullName || data.user.email,
+        role: data.user.role?.toLowerCase()
+      };
+      
+      localStorage.setItem('token', token);
       set({
-        token: response.token,
-        user: response.user,
+        token,
+        user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -62,11 +70,19 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (credentials) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosClient.post<any, AuthResponse>('/auth/register', credentials);
-      localStorage.setItem('token', response.token);
+      const response = await axiosClient.post<any, any>('/auth/register', credentials);
+      const data = response.data;
+      const token = data.accessToken;
+      const user = {
+        ...data.user,
+        username: data.user.fullName || data.user.email,
+        role: data.user.role?.toLowerCase()
+      };
+
+      localStorage.setItem('token', token);
       set({
-        token: response.token,
-        user: response.user,
+        token,
+        user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -96,7 +112,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     set({ isLoading: true, error: null });
     try {
-      const user = await axiosClient.get<any, User>('/auth/me');
+      const response = await axiosClient.get<any, any>('/auth/me');
+      const data = response.data;
+      const user = {
+        ...data,
+        username: data.fullName || data.email,
+        role: data.role?.toLowerCase()
+      };
       set({
         user,
         isAuthenticated: true,

@@ -30,10 +30,10 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Tổng người dùng', value: '—', icon: Users, color: 'text-primary' },
-          { label: 'Giảng viên chờ duyệt', value: '—', icon: ShieldCheck, color: 'text-secondary' },
-          { label: 'Bài học đã xuất bản', value: '—', icon: BookOpen, color: 'text-tertiary' },
-          { label: 'Sự cố hệ thống', value: '—', icon: AlertTriangle, color: 'text-error' },
+          { label: 'Tổng người dùng', value: '1,284', icon: Users, color: 'text-primary' },
+          { label: 'Giảng viên chờ duyệt', value: '3', icon: ShieldCheck, color: 'text-secondary' },
+          { label: 'Bài học đã xuất bản', value: '156', icon: BookOpen, color: 'text-tertiary' },
+          { label: 'Sự cố hệ thống', value: '0', icon: AlertTriangle, color: 'text-error' },
         ].map((stat, i) => (
           <Card key={i} className="p-5 flex flex-col gap-3">
             <div className="flex justify-between items-start">

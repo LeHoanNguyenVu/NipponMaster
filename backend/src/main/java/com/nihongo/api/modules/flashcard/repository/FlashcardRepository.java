@@ -23,4 +23,12 @@ public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
     List<Flashcard> findDueCards(@Param("userId") Long userId, @Param("now") LocalDateTime now);
 
     long countByUserId(Long userId);
+
+    /** Lấy danh sách sourceId đã tạo flashcard cho user theo loại thẻ */
+    @Query("SELECT f.sourceId FROM Flashcard f WHERE f.user.id = :userId AND f.cardType = :cardType AND f.sourceId IS NOT NULL")
+    List<Long> findSourceIdsByUserAndCardType(@Param("userId") Long userId, @Param("cardType") Flashcard.CardType cardType);
+
+    /** Đếm thẻ mới được tạo hôm nay cho user */
+    @Query("SELECT COUNT(f) FROM Flashcard f WHERE f.user.id = :userId AND f.createdAt >= :startOfDay")
+    long countNewCardsToday(@Param("userId") Long userId, @Param("startOfDay") LocalDateTime startOfDay);
 }
