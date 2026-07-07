@@ -349,12 +349,27 @@ export default function Flashcards({ onExit }: { onExit: () => void }) {
                   </div>
 
                   {/* Example sentence */}
-                  <div className="bg-surface-container-low/50 p-4 rounded-2xl w-full text-center max-w-md">
-                    <p className="text-lg text-on-surface mb-1">
-                      日本語の<span className="font-bold text-primary">{currentCard.front}</span>はとても面白いです。
-                    </p>
-                    <p className="text-sm text-on-surface-variant">Ví dụ sử dụng từ trong câu.</p>
-                  </div>
+                  {(currentCard.exampleSentence || currentCard.exampleMeaning) ? (
+                    <div className="bg-surface-container-low/50 p-4 rounded-2xl w-full text-center max-w-md">
+                      {currentCard.exampleSentence && (
+                        <p className="text-lg text-on-surface mb-1 font-jp font-medium">
+                          {currentCard.exampleSentence}
+                        </p>
+                      )}
+                      {currentCard.exampleMeaning && (
+                        <p className="text-sm text-on-surface-variant">
+                          {currentCard.exampleMeaning}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-surface-container-low/50 p-4 rounded-2xl w-full text-center max-w-md">
+                      <p className="text-lg text-on-surface mb-1">
+                        日本語の<span className="font-bold text-primary">{currentCard.front}</span>はとても面白いです。
+                      </p>
+                      <p className="text-sm text-on-surface-variant">Ví dụ sử dụng từ trong câu.</p>
+                    </div>
+                  )}
                 </motion.div>
               </div>
             </motion.div>
