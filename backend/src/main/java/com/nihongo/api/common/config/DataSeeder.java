@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 
 /**
@@ -29,9 +30,16 @@ public class DataSeeder implements CommandLineRunner {
     private final GrammarRepository grammarRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void run(String... args) {
+        try {
+            jdbcTemplate.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
+            log.info("✅ Dropped check constraint users_role_check on users table");
+        } catch (Exception e) {
+            log.warn("Could not drop constraint: {}", e.getMessage());
+        }
         seedAdminUser();
         seedVocabulary();
         seedKanji();
@@ -49,6 +57,42 @@ public class DataSeeder implements CommandLineRunner {
                     .build();
             userRepository.save(admin);
             log.info("✅ Seeded default admin user: admin@nihongo.com / admin123");
+        }
+
+        if (!userRepository.existsByEmail("student@nihongo.com")) {
+            User student = User.builder()
+                    .email("student@nihongo.com")
+                    .password(passwordEncoder.encode("student123"))
+                    .fullName("Nguyễn Học Viên")
+                    .role(User.Role.STUDENT)
+                    .isActive(true)
+                    .build();
+            userRepository.save(student);
+            log.info("✅ Seeded default student user: student@nihongo.com / student123");
+        }
+
+        if (!userRepository.existsByEmail("teacher@nihongo.com")) {
+            User teacher = User.builder()
+                    .email("teacher@nihongo.com")
+                    .password(passwordEncoder.encode("teacher123"))
+                    .fullName("Trần Giảng Viên")
+                    .role(User.Role.TEACHER)
+                    .isActive(true)
+                    .build();
+            userRepository.save(teacher);
+            log.info("✅ Seeded default teacher user: teacher@nihongo.com / teacher123");
+        }
+
+        if (!userRepository.existsByEmail("guest@nihongo.com")) {
+            User guest = User.builder()
+                    .email("guest@nihongo.com")
+                    .password(passwordEncoder.encode("guest123"))
+                    .fullName("Lê Khách Tham Quan")
+                    .role(User.Role.GUEST)
+                    .isActive(true)
+                    .build();
+            userRepository.save(guest);
+            log.info("✅ Seeded default guest user: guest@nihongo.com / guest123");
         }
     }
 

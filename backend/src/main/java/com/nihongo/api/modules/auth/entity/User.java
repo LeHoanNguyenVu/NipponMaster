@@ -39,14 +39,14 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Role role = Role.USER;
+    private Role role = Role.GUEST;
 
     @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;
 
     public enum Role {
-        USER, ADMIN
+        ADMIN, STUDENT, TEACHER, GUEST, USER
     }
 
     public enum JlptLevel {

@@ -66,6 +66,14 @@ public class JwtTokenProvider {
     }
 
     /**
+     * Trích xuất role từ token.
+     */
+    public String getRoleFromToken(String token) {
+        Claims claims = parseToken(token);
+        return claims.get("role", String.class);
+    }
+
+    /**
      * Kiểm tra token có hợp lệ không.
      */
     public boolean validateToken(String token) {

@@ -7,6 +7,7 @@ export interface User {
   email: string;
   role?: string;
   streak?: number;
+  jlptLevel?: string;
 }
 
 interface AuthResponse {
@@ -24,6 +25,7 @@ interface AuthState {
   register: (credentials: any) => Promise<void>;
   logout: () => void;
   fetchMe: () => Promise<void>;
+  changeUserRole: (newRole: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -132,6 +134,21 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: false,
         isLoading: false,
       });
+    }
+  },
+
+  changeUserRole: async (newRole: string) => {
+    try {
+      const response = await axiosClient.put<any, any>(`/dashboard/change-role?role=${newRole.toUpperCase()}`);
+      const data = response.data.data ?? response.data;
+      const user = {
+        ...data,
+        username: data.fullName || data.email,
+        role: data.role?.toLowerCase()
+      };
+      set({ user });
+    } catch (err: any) {
+      console.error('Failed to change user role:', err);
     }
   },
 

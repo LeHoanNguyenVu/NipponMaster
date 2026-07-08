@@ -29,10 +29,15 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException("Email đã được sử dụng: " + request.getEmail());
         }
 
-        // Tạo user mới
-        User.Role assignedRole = User.Role.USER;
-        if (request.getEmail().toLowerCase().contains("admin")) {
+        // Tạo user mới dựa trên từ khóa trong email (tiện lợi cho kiểm thử và phát triển)
+        User.Role assignedRole = User.Role.STUDENT;
+        String emailLower = request.getEmail().toLowerCase();
+        if (emailLower.contains("admin")) {
             assignedRole = User.Role.ADMIN;
+        } else if (emailLower.contains("teacher")) {
+            assignedRole = User.Role.TEACHER;
+        } else if (emailLower.contains("guest")) {
+            assignedRole = User.Role.GUEST;
         }
 
         User user = User.builder()

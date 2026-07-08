@@ -23,13 +23,14 @@ public class UserResponse {
     private LocalDateTime createdAt;
 
     public static UserResponse from(User user) {
+        String roleStr = user.getRole() == User.Role.USER ? User.Role.STUDENT.name() : user.getRole().name();
         return UserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
                 .jlptLevel(user.getJlptLevel().name())
-                .role(user.getRole().name())
+                .role(roleStr)
                 .createdAt(user.getCreatedAt())
                 .build();
     }

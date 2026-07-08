@@ -4,6 +4,7 @@ import TopBar from './components/TopBar';
 import DashboardStudent from './screens/DashboardStudent';
 import DashboardTeacher from './screens/DashboardTeacher';
 import DashboardAdmin from './screens/DashboardAdmin';
+import DashboardGuest from './screens/DashboardGuest';
 import Vocabulary from './screens/Vocabulary';
 import Exams from './screens/Exams';
 import Flashcards from './screens/Flashcards';
@@ -94,6 +95,9 @@ export default function App() {
           )}
           {currentScreen === 'dashboard' && (user?.role === 'system' || user?.role === 'admin') && (
             <DashboardAdmin username={user?.username} />
+          )}
+          {currentScreen === 'dashboard' && user?.role === 'guest' && (
+            <DashboardGuest />
           )}
           {currentScreen === 'dashboard' && (!user?.role || user?.role === 'student') && (
             <DashboardStudent

@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, Play, LogOut } from 'lucide-react';
 import type { ScreenType } from '../App';
+import { useAuthStore } from '../store/useAuthStore';
 import gsap from 'gsap';
 
 interface SidebarProps {
@@ -10,6 +11,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ currentScreen, onNavigate, onLogout }: SidebarProps) {
+  const { user } = useAuthStore();
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   const navItems = [
@@ -54,7 +56,7 @@ export default function Sidebar({ currentScreen, onNavigate, onLogout }: Sidebar
           
           <div className="mb-6">
             <div className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Learning Path</div>
-            <div className="text-sm text-on-surface font-medium">Current Level: N3</div>
+            <div className="text-sm text-on-surface font-medium">Current Level: {user?.jlptLevel || 'N5'}</div>
           </div>
 
           <ul className="space-y-1">
