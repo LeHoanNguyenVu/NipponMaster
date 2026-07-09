@@ -7,6 +7,8 @@ import com.nihongo.api.modules.vocabulary.entity.Vocabulary;
 import com.nihongo.api.modules.vocabulary.repository.VocabularyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class VocabularyService {
     private final VocabularyRepository vocabularyRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "vocabularies", key = "'all:' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public PageResponse<Vocabulary> getAll(Pageable pageable) {
         Page<Vocabulary> page = vocabularyRepository.findAll(pageable);
         return PageResponse.from(page);
@@ -32,6 +35,7 @@ public class VocabularyService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "vocabularies", key = "'level:' + #level + ':' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public PageResponse<Vocabulary> getByLevel(User.JlptLevel level, Pageable pageable) {
         Page<Vocabulary> page = vocabularyRepository.findByJlptLevel(level, pageable);
         return PageResponse.from(page);
@@ -50,6 +54,7 @@ public class VocabularyService {
     }
 
     @Transactional
+    @CacheEvict(value = "vocabularies", allEntries = true)
     public Vocabulary create(Vocabulary vocabulary) {
         vocabulary.setId(null);
         Vocabulary saved = vocabularyRepository.save(vocabulary);
@@ -58,6 +63,7 @@ public class VocabularyService {
     }
 
     @Transactional
+    @CacheEvict(value = "vocabularies", allEntries = true)
     public Vocabulary update(Long id, Vocabulary updated) {
         Vocabulary existing = getById(id);
         existing.setWord(updated.getWord());
@@ -72,6 +78,7 @@ public class VocabularyService {
     }
 
     @Transactional
+    @CacheEvict(value = "vocabularies", allEntries = true)
     public void delete(Long id) {
         Vocabulary existing = getById(id);
         vocabularyRepository.delete(existing);

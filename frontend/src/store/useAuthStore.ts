@@ -23,7 +23,7 @@ interface AuthState {
   error: string | null;
   login: (credentials: any) => Promise<void>;
   register: (credentials: any) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
   changeUserRole: (newRole: string) => Promise<void>;
   clearError: () => void;
@@ -98,7 +98,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  logout: () => {
+  logout: async () => {
+    try {
+      await axiosClient.post('/auth/logout');
+    } catch (err) {
+      // Nếu API logout thất bại (ví dụ token hết hạn), vẫn tiếp tục xóa local
+      console.warn('Backend logout failed, clearing local session anyway');
+    }
     localStorage.removeItem('token');
     set({
       user: null,

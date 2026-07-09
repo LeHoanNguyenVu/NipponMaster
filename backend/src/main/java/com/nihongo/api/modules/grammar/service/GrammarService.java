@@ -6,6 +6,8 @@ import com.nihongo.api.modules.auth.entity.User;
 import com.nihongo.api.modules.grammar.entity.Grammar;
 import com.nihongo.api.modules.grammar.repository.GrammarRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ public class GrammarService {
     private final GrammarRepository grammarRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "grammars", key = "'all:' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public PageResponse<Grammar> getAll(Pageable pageable) {
         return PageResponse.from(grammarRepository.findAll(pageable));
     }
@@ -28,6 +31,7 @@ public class GrammarService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "grammars", key = "'level:' + #level + ':' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public PageResponse<Grammar> getByLevel(User.JlptLevel level, Pageable pageable) {
         return PageResponse.from(grammarRepository.findByJlptLevel(level, pageable));
     }
@@ -43,12 +47,14 @@ public class GrammarService {
     }
 
     @Transactional
+    @CacheEvict(value = "grammars", allEntries = true)
     public Grammar create(Grammar grammar) {
         grammar.setId(null);
         return grammarRepository.save(grammar);
     }
 
     @Transactional
+    @CacheEvict(value = "grammars", allEntries = true)
     public void delete(Long id) {
         Grammar existing = getById(id);
         grammarRepository.delete(existing);

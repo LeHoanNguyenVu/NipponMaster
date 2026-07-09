@@ -33,6 +33,7 @@ public class FlashcardService {
     private final VocabularyRepository vocabularyRepository;
     private final KanjiRepository kanjiRepository;
     private final UserRepository userRepository;
+    private final com.nihongo.api.modules.leaderboard.service.LeaderboardService leaderboardService;
 
     /** Số thẻ từ vựng mới mỗi ngày */
     private static final int NEW_VOCAB_PER_DAY = 8;
@@ -199,7 +200,9 @@ public class FlashcardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Flashcard", cardId));
 
         if (quality >= 3) {
-            // Trả lời đúng
+            // Trả lời đúng -> Cộng điểm bảng xếp hạng
+            leaderboardService.addScore(card.getUser().getId(), quality * 10.0);
+
             if (card.getRepetitionCount() == 0) {
                 card.setIntervalDays(1);
             } else if (card.getRepetitionCount() == 1) {

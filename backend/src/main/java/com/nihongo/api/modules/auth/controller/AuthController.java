@@ -48,4 +48,15 @@ public class AuthController {
         UserResponse response = authService.getCurrentUser(userId);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Đăng xuất — vô hiệu hóa JWT token hiện tại")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @RequestHeader("Authorization") String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            authService.logout(token);
+        }
+        return ResponseEntity.ok(ApiResponse.ok("Đăng xuất thành công", null));
+    }
 }

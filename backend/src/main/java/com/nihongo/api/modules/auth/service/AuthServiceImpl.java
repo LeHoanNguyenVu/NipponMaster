@@ -2,6 +2,7 @@ package com.nihongo.api.modules.auth.service;
 
 import com.nihongo.api.common.exception.BusinessException;
 import com.nihongo.api.common.exception.ResourceNotFoundException;
+import com.nihongo.api.common.security.JwtBlacklistService;
 import com.nihongo.api.common.security.JwtTokenProvider;
 import com.nihongo.api.modules.auth.dto.*;
 import com.nihongo.api.modules.auth.entity.User;
@@ -20,6 +21,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Override
     @Transactional
@@ -96,5 +98,12 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng", userId));
 
         return UserResponse.from(user);
+    }
+
+    @Override
+    public void logout(String token) {
+        long remainingMs = jwtTokenProvider.getRemainingExpirationMs(token);
+        jwtBlacklistService.blacklistToken(token, remainingMs);
+        log.info("Đăng xuất thành công, token đã được vô hiệu hóa");
     }
 }

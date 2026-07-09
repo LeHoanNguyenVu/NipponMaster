@@ -6,6 +6,8 @@ import com.nihongo.api.modules.auth.entity.User;
 import com.nihongo.api.modules.kanji.entity.Kanji;
 import com.nihongo.api.modules.kanji.repository.KanjiRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ public class KanjiService {
     private final KanjiRepository kanjiRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "kanjis", key = "'all:' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public PageResponse<Kanji> getAll(Pageable pageable) {
         return PageResponse.from(kanjiRepository.findAll(pageable));
     }
@@ -34,6 +37,7 @@ public class KanjiService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "kanjis", key = "'level:' + #level + ':' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public PageResponse<Kanji> getByLevel(User.JlptLevel level, Pageable pageable) {
         return PageResponse.from(kanjiRepository.findByJlptLevel(level, pageable));
     }
@@ -49,12 +53,14 @@ public class KanjiService {
     }
 
     @Transactional
+    @CacheEvict(value = "kanjis", allEntries = true)
     public Kanji create(Kanji kanji) {
         kanji.setId(null);
         return kanjiRepository.save(kanji);
     }
 
     @Transactional
+    @CacheEvict(value = "kanjis", allEntries = true)
     public void delete(Long id) {
         Kanji existing = getById(id);
         kanjiRepository.delete(existing);

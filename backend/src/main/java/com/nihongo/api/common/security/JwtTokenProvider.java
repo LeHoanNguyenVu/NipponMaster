@@ -92,6 +92,22 @@ public class JwtTokenProvider {
         return false;
     }
 
+    /**
+     * Trích xuất thời gian hết hạn từ token.
+     */
+    public java.util.Date getExpirationFromToken(String token) {
+        Claims claims = parseToken(token);
+        return claims.getExpiration();
+    }
+
+    /**
+     * Tính thời gian còn lại (ms) trước khi token hết hạn.
+     */
+    public long getRemainingExpirationMs(String token) {
+        java.util.Date expiration = getExpirationFromToken(token);
+        return Math.max(0, expiration.getTime() - System.currentTimeMillis());
+    }
+
     private Claims parseToken(String token) {
         return Jwts.parser()
                 .verifyWith(key)

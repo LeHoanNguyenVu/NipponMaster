@@ -28,6 +28,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -37,6 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = extractTokenFromRequest(request);
 
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+            // Kiểm tra token có bị blacklist (đã đăng xuất) không
+            if (jwtBlacklistService.isBlacklisted(token)) {
+                log.debug("Token đã bị vô hiệu hóa (blacklisted), bỏ qua xác thực");
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             Long userId = jwtTokenProvider.getUserIdFromToken(token);
             String email = jwtTokenProvider.getEmailFromToken(token);
             String role = jwtTokenProvider.getRoleFromToken(token);

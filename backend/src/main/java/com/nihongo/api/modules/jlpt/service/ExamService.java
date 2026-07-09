@@ -20,6 +20,7 @@ public class ExamService {
 
     private final ExamRepository examRepository;
     private final ExamResultRepository examResultRepository;
+    private final com.nihongo.api.modules.leaderboard.service.LeaderboardService leaderboardService;
 
     @Transactional(readOnly = true)
     public PageResponse<Exam> getPublishedExams(Pageable pageable) {
@@ -47,6 +48,12 @@ public class ExamService {
     @Transactional
     public ExamResult submitExam(ExamResult result) {
         ExamResult saved = examResultRepository.save(result);
+        
+        // Cộng điểm thi vào bảng xếp hạng
+        if (saved.getScore() != null && saved.getScore() > 0) {
+            leaderboardService.addScore(saved.getUser().getId(), saved.getScore().doubleValue());
+        }
+
         log.info("Nộp bài thi: userId={}, examId={}, score={}/{}",
                 saved.getUser().getId(), saved.getExam().getId(),
                 saved.getScore(), saved.getTotalScore());
