@@ -21,9 +21,32 @@ export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'fla
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
   const [showAuth, setShowAuth] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
   
   const { isAuthenticated, logout, user, fetchMe } = useAuthStore();
+
+  // Configure GSAP globally for prefers-reduced-motion
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleMotionChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      if (e.matches) {
+        gsap.globalTimeline.timeScale(100);
+      } else {
+        gsap.globalTimeline.timeScale(1);
+      }
+    };
+    
+    handleMotionChange(mediaQuery);
+    
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleMotionChange);
+      return () => mediaQuery.removeEventListener('change', handleMotionChange);
+    } else {
+      mediaQuery.addListener(handleMotionChange);
+      return () => mediaQuery.removeListener(handleMotionChange);
+    }
+  }, []);
 
   useEffect(() => {
     fetchMe();
@@ -86,9 +109,11 @@ export default function App() {
         currentScreen={currentScreen} 
         onNavigate={setCurrentScreen} 
         onLogout={logout}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
       <div className="flex flex-col flex-1 min-w-0">
-        <TopBar />
+        <TopBar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main ref={mainRef} className="flex-1 overflow-y-auto">
           {currentScreen === 'dashboard' && user?.role === 'teacher' && (
             <DashboardTeacher username={user?.username} />

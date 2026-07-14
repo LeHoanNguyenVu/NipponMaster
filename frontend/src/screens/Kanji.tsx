@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, ChevronLeft, ChevronRight, Loader2, Play, BookOpen } from 'lucide-react';
-import { Button } from '../components/ui/Button';
+import { Search, X, ChevronLeft, ChevronRight, Loader2, BookOpen } from 'lucide-react';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';

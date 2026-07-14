@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Zap, Flame, Languages, Shapes, BookOpen, Target, Clock, AlertCircle } from 'lucide-react';
+import { Zap, Flame, Languages, Shapes, BookOpen, Clock, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import axiosClient from '../api/axiosClient';
 import gsap from 'gsap';
@@ -164,7 +164,11 @@ export default function DashboardStudent({ onStartStudy, username }: { onStartSt
         <div className="col-span-1 lg:col-span-4 bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant shadow-sm flex flex-col items-center justify-center gsap-fade-in gsap-hover-card">
           <h2 className="text-sm text-on-surface-variant uppercase tracking-wider font-bold self-start w-full mb-6">Mục tiêu hôm nay</h2>
           <div className="relative w-32 h-32 flex items-center justify-center mb-4">
-            <svg className="w-full h-full transform -rotate-90">
+            <svg 
+              className="w-full h-full transform -rotate-90"
+              role="img"
+              aria-label="Daily goal progress circle"
+            >
               <circle cx="64" cy="64" r="56" fill="none" className="stroke-surface-container-highest" strokeWidth="8"></circle>
               {stats && stats.dueCardCount === 0 ? (
                 <circle cx="64" cy="64" r="56" fill="none" className="stroke-secondary" strokeWidth="8" strokeDasharray="351.858" strokeDashoffset="0" strokeLinecap="round"></circle>

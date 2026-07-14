@@ -111,12 +111,12 @@ export default function Exams() {
                   End Exam
                 </Button>
               </div>
-              <div className="flex flex-1 overflow-hidden">
-                <div className="flex-1 p-6 border-r border-outline-variant bg-surface flex flex-col">
+              <div className="flex flex-1 flex-col md:flex-row overflow-hidden h-auto md:h-full">
+                <div className="flex-1 p-6 md:border-r border-outline-variant bg-surface flex flex-col overflow-y-auto">
                   <div className="mb-4">
                     <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Question 12</span>
                   </div>
-                  <div className="text-2xl font-jp text-on-surface mb-8 leading-relaxed font-medium">
+                  <div className="text-2xl font-jp text-on-surface mb-6 leading-relaxed font-medium">
                     この漢字の正しい読み方を選んでください。<br/>
                     <span className="text-primary font-bold">「約束」</span>
                   </div>
@@ -131,9 +131,9 @@ export default function Exams() {
                     </label>
                   </div>
                 </div>
-                <div className="w-56 bg-surface-container-lowest p-4 flex flex-col border-l border-outline-variant/50">
-                  <div className="text-sm text-on-surface-variant mb-4 font-bold">Navigator</div>
-                  <div className="grid grid-cols-4 gap-2 overflow-y-auto no-scrollbar pb-4">
+                <div className="w-full md:w-56 bg-surface-container-lowest p-4 flex flex-col border-t md:border-t-0 md:border-l border-outline-variant/50">
+                  <div className="text-sm text-on-surface-variant mb-3 font-bold">Navigator</div>
+                  <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-4 gap-2 overflow-y-auto no-scrollbar pb-2">
                     {[1,2,3,4,5,6,7,8,9,10,11].map(n => (
                       <div key={n} className="h-9 w-9 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center text-sm font-medium border border-secondary-fixed">{n}</div>
                     ))}

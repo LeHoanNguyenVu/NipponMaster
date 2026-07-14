@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, ChevronLeft, BookOpen, Calendar, ArrowLeft } from 'lucide-react';
+import { Search, X, BookOpen, Calendar, ArrowLeft } from 'lucide-react';
 import { Input } from '../components/ui/Input';
-import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import axiosClient from '../api/axiosClient';
 import gsap from 'gsap';

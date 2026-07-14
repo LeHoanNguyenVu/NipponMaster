@@ -1,17 +1,29 @@
-import { Search, Bell, Settings } from 'lucide-react';
+import { Search, Bell, Settings, Menu } from 'lucide-react';
 
-export default function TopBar() {
+interface TopBarProps {
+  onToggleSidebar?: () => void;
+}
+
+export default function TopBar({ onToggleSidebar }: TopBarProps) {
   return (
     <header className="h-16 flex-shrink-0 bg-surface border-b border-outline-variant/30 flex items-center justify-between px-6 z-10">
       <div className="flex-1 max-w-xl">
-        <div className="relative md:hidden">
-            <span className="text-xl font-bold text-primary tracking-tight">NipponMaster</span>
+        <div className="flex items-center gap-3 md:hidden">
+          <button 
+            onClick={onToggleSidebar}
+            aria-label="Open menu"
+            className="p-1.5 -ml-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer"
+          >
+            <Menu size={22} />
+          </button>
+          <span className="text-xl font-bold text-primary tracking-tight">NipponMaster</span>
         </div>
         <div className="hidden md:flex relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" size={18} />
           <input
             type="text"
             placeholder="Search vocabulary, grammar..."
+            aria-label="Search database"
             className="w-full bg-surface-container-lowest border border-outline-variant rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-on-surface"
           />
         </div>
@@ -22,10 +34,16 @@ export default function TopBar() {
           <span className="w-2 h-2 rounded-full bg-secondary"></span>
           N1-N5 Level
         </div>
-        <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors">
+        <button 
+          aria-label="Notifications"
+          className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors"
+        >
           <Bell size={20} />
         </button>
-        <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors">
+        <button 
+          aria-label="Settings"
+          className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors"
+        >
           <Settings size={20} />
         </button>
         <div className="w-8 h-8 rounded-full bg-primary-container border border-outline-variant overflow-hidden">

@@ -10,11 +10,6 @@ export interface User {
   jlptLevel?: string;
 }
 
-interface AuthResponse {
-  token: string;
-  user: User;
-}
-
 interface AuthState {
   user: User | null;
   token: string | null;

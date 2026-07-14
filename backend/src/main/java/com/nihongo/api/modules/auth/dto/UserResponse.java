@@ -29,7 +29,7 @@ public class UserResponse {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
-                .jlptLevel(user.getJlptLevel().name())
+                .jlptLevel(user.getJlptLevel() != null ? user.getJlptLevel().name() : null)
                 .role(roleStr)
                 .createdAt(user.getCreatedAt())
                 .build();

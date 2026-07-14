@@ -534,7 +534,7 @@ export default function Vocabulary() {
       {/* Slide-over Detail Panel */}
       <aside
         ref={sidebarRef}
-        className={`fixed md:absolute top-0 right-0 h-full w-[360px] bg-surface-container-lowest border-l border-outline-variant shadow-2xl z-40 flex flex-col overflow-y-auto ${
+        className={`fixed md:absolute top-0 right-0 h-full w-full sm:w-[360px] bg-surface-container-lowest border-l border-outline-variant shadow-2xl z-40 flex flex-col overflow-y-auto ${
           selectedWord ? 'pointer-events-auto' : 'pointer-events-none opacity-0 translate-x-full'
         }`}
       >

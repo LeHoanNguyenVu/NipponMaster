@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, Play, RotateCcw } from 'lucide-react';
+import { Loader2, RotateCcw } from 'lucide-react';
 import gsap from 'gsap';
 
 interface KanjiStrokeWriterProps {
@@ -87,7 +87,6 @@ export default function KanjiStrokeWriter({ character }: KanjiStrokeWriterProps)
     // Animate each path in order
     activePaths.forEach((pathNode) => {
       const path = pathNode as SVGPathElement;
-      const length = path.getTotalLength();
       
       tl.to(path, {
         strokeDashoffset: 0,
