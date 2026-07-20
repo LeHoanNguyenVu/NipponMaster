@@ -13,6 +13,7 @@ import LandingPage from './screens/LandingPage';
 import Kanji from './screens/Kanji';
 import Grammar from './screens/Grammar';
 import Translation from './screens/Translation';
+import OnboardingScreen from './screens/OnboardingScreen';
 import { useAuthStore } from './store/useAuthStore';
 import gsap from 'gsap';
 
@@ -81,7 +82,7 @@ export default function App() {
     }
   }, [currentScreen]);
 
-  // Guest flow: Landing Page → Auth Screen → Dashboard
+  // Guest flow: Landing Page → Auth Screen → Onboarding (if new) → Dashboard
   if (!isAuthenticated) {
     if (showAuth) {
       return (
@@ -97,6 +98,18 @@ export default function App() {
       );
     }
     return <LandingPage onNavigateAuth={() => { window.location.hash = '#/auth'; }} />;
+  }
+
+  // Onboarding flow: New student who hasn't completed onboarding yet
+  if (isAuthenticated && user && user.onboardingCompleted === false) {
+    return (
+      <OnboardingScreen
+        onDone={() => {
+          fetchMe();
+          setCurrentScreen('dashboard');
+        }}
+      />
+    );
   }
 
   if (currentScreen === 'flashcards') {

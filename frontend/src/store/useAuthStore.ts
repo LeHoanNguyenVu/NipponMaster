@@ -8,6 +8,8 @@ export interface User {
   role?: string;
   streak?: number;
   jlptLevel?: string;
+  targetLevel?: string;
+  onboardingCompleted?: boolean;
 }
 
 interface AuthState {
@@ -22,6 +24,7 @@ interface AuthState {
   fetchMe: () => Promise<void>;
   changeUserRole: (newRole: string) => Promise<void>;
   clearError: () => void;
+  completeOnboarding: (targetLevel: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -120,7 +123,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       const user = {
         ...data,
         username: data.fullName || data.email,
-        role: data.role?.toLowerCase()
+        role: data.role?.toLowerCase(),
+        targetLevel: data.targetLevel ?? null,
+        onboardingCompleted: data.onboardingCompleted ?? true,
       };
       set({
         user,
@@ -154,4 +159,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  completeOnboarding: async (targetLevel: string) => {
+    try {
+      await axiosClient.put('/users/me/onboarding', { targetLevel });
+      set((state) => ({
+        user: state.user
+          ? {
+              ...state.user,
+              targetLevel,
+              onboardingCompleted: true,
+              role: 'student',
+            }
+          : null,
+      }));
+    } catch (err: any) {
+      console.error('Onboarding completion failed:', err);
+      throw err;
+    }
+  },
 }));
