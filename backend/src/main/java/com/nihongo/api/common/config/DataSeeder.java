@@ -5,6 +5,8 @@ import com.nihongo.api.modules.grammar.entity.Grammar;
 import com.nihongo.api.modules.grammar.repository.GrammarRepository;
 import com.nihongo.api.modules.kanji.entity.Kanji;
 import com.nihongo.api.modules.kanji.repository.KanjiRepository;
+import com.nihongo.api.modules.placement.entity.PlacementQuestion;
+import com.nihongo.api.modules.placement.repository.PlacementQuestionRepository;
 import com.nihongo.api.modules.vocabulary.entity.Vocabulary;
 import com.nihongo.api.modules.vocabulary.repository.VocabularyRepository;
 import com.nihongo.api.modules.auth.repository.UserRepository;
@@ -31,6 +33,7 @@ public class DataSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
+    private final PlacementQuestionRepository placementQuestionRepository;
 
     @Override
     public void run(String... args) {
@@ -44,6 +47,7 @@ public class DataSeeder implements CommandLineRunner {
         seedVocabulary();
         seedKanji();
         seedGrammar();
+        seedPlacementQuestions();
     }
 
     private void seedAdminUser() {
@@ -249,5 +253,295 @@ public class DataSeeder implements CommandLineRunner {
                 .exampleSentence(example).exampleMeaning(exampleMeaning)
                 .notes(notes).jlptLevel(User.JlptLevel.N5)
                 .build();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // PLACEMENT TEST QUESTIONS SEEDER
+    // ─────────────────────────────────────────────────────────────────────
+
+    private void seedPlacementQuestions() {
+        if (placementQuestionRepository.count() > 0) {
+            log.info("Placement questions đã có data, bỏ qua seed.");
+            return;
+        }
+
+        List<PlacementQuestion> questions = new java.util.ArrayList<>();
+
+        // ── N5: VOCAB (6 câu) ───────────────────────────────────────────
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.VOCAB,
+                "「___」に　なにを　いれますか。　わたしは　まいにち　ごはんを　___。",
+                List.of("A. たべます", "B. のみます", "C. かきます", "D. ききます"),
+                0,
+                "食べます (たべます) nghĩa là 'ăn'. まいにち = mỗi ngày, ごはん = cơm. Đáp án A là đúng vì 'ăn cơm' là diễn đạt tự nhiên.",
+                1));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.VOCAB,
+                "この　かばんは　___です。ちいさくて　かるい。",
+                List.of("A. おおきい", "B. べんりな", "C. たかい", "D. あたらしい"),
+                1,
+                "便利な (べんりな) nghĩa là 'tiện lợi'. Câu mô tả cái túi nhỏ và nhẹ → tiện lợi là phù hợp nhất với ngữ cảnh.",
+                2));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.VOCAB,
+                "「山」の　よみかたは　なんですか。",
+                List.of("A. かわ", "B. やま", "C. うみ", "D. そら"),
+                1,
+                "山 (やま) nghĩa là 'núi'. かわ=sông, うみ=biển, そら=bầu trời. Cách đọc Kun'yomi của 山 là やま.",
+                3));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.VOCAB,
+                "わたしの　たんじょうびは　___です。(Ngày sinh của tôi là 15 tháng 5)",
+                List.of("A. ごがつ　じゅうごにち", "B. ごがつ　じゅうにち", "C. ろくがつ　じゅうごにち", "D. ごがつ　いつか"),
+                0,
+                "5月15日 = ごがつ じゅうごにち. ご=5, がつ=tháng, じゅうご=15, にち=ngày.",
+                4));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.VOCAB,
+                "つくえの　うえに　ほんが　___。",
+                List.of("A. います", "B. あります", "C. おきます", "D. みます"),
+                1,
+                "あります dùng cho đồ vật (vô tri giác). います dùng cho người/động vật. Quyển sách (本) là đồ vật nên dùng あります.",
+                5));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.VOCAB,
+                "これは　___ですか。 ─ これは　えんぴつです。",
+                List.of("A. なに", "B. だれ", "C. どこ", "D. いつ"),
+                0,
+                "なに = 'cái gì'. だれ=ai, どこ=ở đâu, いつ=khi nào. Câu hỏi về vật → dùng なに (何).",
+                6));
+
+        // ── N5: GRAMMAR (6 câu) ─────────────────────────────────────────
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.GRAMMAR,
+                "わたしは　がっこう　___　いきます。",
+                List.of("A. を", "B. に", "C. が", "D. は"),
+                1,
+                "に chỉ đích đến của chuyển động (行く, 来る, 帰る). 'Đi đến trường' = がっこうに いきます. を dùng cho tân ngữ trực tiếp.",
+                7));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.GRAMMAR,
+                "たなかさんは　にほんご___　はなします。",
+                List.of("A. が", "B. に", "C. で", "D. を"),
+                3,
+                "を (を) đánh dấu tân ngữ trực tiếp. 'Nói tiếng Nhật' = にほんごを はなします. で chỉ phương tiện hoặc nơi chốn.",
+                8));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.GRAMMAR,
+                "きのう　えいがを　みました。とても　___かったです。",
+                List.of("A. たのし", "B. たのしい", "C. たのして", "D. たのしく"),
+                0,
+                "Tính từ đuôi い khi đứng trước かったです (quá khứ lịch sự) phải bỏ い → たのし + かったです. たのしかった = đã vui.",
+                9));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.GRAMMAR,
+                "もっと　ゆっくり　はなして___。",
+                List.of("A. みます", "B. ください", "C. います", "D. あります"),
+                1,
+                "てください là cách yêu cầu lịch sự: 'Xin hãy làm gì đó'. はなしてください = 'Xin hãy nói chậm hơn'.",
+                10));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.GRAMMAR,
+                "あした　がっこうに　い___と　おもいます。",
+                List.of("A. く", "B. き", "C. って", "D. か"),
+                0,
+                "～と　おもいます (tôi nghĩ rằng...) đứng sau thể từ điển của động từ. 行く (いく) + と おもいます.",
+                11));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.GRAMMAR,
+                "わたしは　コーヒー___　こうちゃ___　すきです。",
+                List.of("A. も / も", "B. や / や", "C. と / と", "D. か / か"),
+                0,
+                "も...も nghĩa là 'cả...lẫn...'. 'Tôi thích cả cà phê lẫn trà'. と liệt kê đầy đủ, や liệt kê không đầy đủ.",
+                12));
+
+        // ── N5: READING (3 câu) ─────────────────────────────────────────
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.READING,
+                "「たなかさんは　まいあさ　ろくじに　おきます。そして　しちじに　がっこうへ　いきます。」\nたなかさんは　なんじに　おきますか？",
+                List.of("A. ごじ", "B. ろくじ", "C. しちじ", "D. はちじ"),
+                1,
+                "Đoạn văn viết 'まいあさ ろくじに おきます' = mỗi sáng thức dậy lúc 6 giờ. ろくじ = 6 giờ.",
+                13));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.READING,
+                "「きょうは　あついです。でも　あしたは　さむく　なります。」\nあしたの　てんきは　どうですか？",
+                List.of("A. あつい", "B. さむい", "C. あめ", "D. はれ"),
+                1,
+                "Câu 2 nói 'あした は さむく なります' = ngày mai sẽ trở nên lạnh. さむい = lạnh.",
+                14));
+
+        questions.add(pq(User.JlptLevel.N5, PlacementQuestion.Section.READING,
+                "「わたしは　まいにち　じてんしゃで　かいしゃへ　いきます。でんしゃは　つかいません。」\nこのひとは　なにで　かいしゃへ　いきますか？",
+                List.of("A. でんしゃ", "B. バス", "C. じてんしゃ", "D. くるま"),
+                2,
+                "Đoạn văn nói 'じてんしゃで かいしゃへ いきます' = đi làm bằng xe đạp. じてんしゃ = xe đạp.",
+                15));
+
+        // ── N4: VOCAB (6 câu) ───────────────────────────────────────────
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.VOCAB,
+                "かれは　しごとを　やめて、___しました。(Anh ấy nghỉ việc và bắt đầu kinh doanh)",
+                List.of("A. けっこん", "B. りゅうがく", "C. どくりつ", "D. たいしょく"),
+                2,
+                "独立 (どくりつ) nghĩa là 'độc lập, tự kinh doanh'. けっこん=kết hôn, りゅうがく=du học, たいしょく=nghỉ hưu.",
+                1));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.VOCAB,
+                "かぜで　ねつが　でたので、___に　いきました。",
+                List.of("A. びょういん", "B. ぎんこう", "C. ゆうびんきょく", "D. スーパー"),
+                0,
+                "病院 (びょういん) = bệnh viện. Khi bị sốt do cảm → đi bệnh viện là tự nhiên nhất.",
+                2));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.VOCAB,
+                "この　もんだいは　___すぎて、わかりません。",
+                List.of("A. むずかしい", "B. むずかし", "C. むずかしく", "D. むずかしさ"),
+                1,
+                "Trước すぎる, tính từ đuôい phải bỏ い → むずかし + すぎる. むずかしすぎる = quá khó.",
+                3));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.VOCAB,
+                "しあいに　まけて、とても___です。",
+                List.of("A. うれしい", "B. たのしい", "C. かなしい", "D. おもしろい"),
+                2,
+                "悲しい (かなしい) = buồn. Thua trận đấu → cảm thấy buồn là cảm xúc phù hợp nhất.",
+                4));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.VOCAB,
+                "電車が　___ので、会社に　おくれました。",
+                List.of("A. おそい", "B. はやい", "C. おくれた", "D. こんだ"),
+                3,
+                "込んだ (こんだ) = đông/tắc. Tàu đông nên đi làm trễ là lý do hợp lý. おくれた=bị trễ, おそい=chậm.",
+                5));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.VOCAB,
+                "この　しごとを　___には、けいけんが　ひつようです。",
+                List.of("A. する", "B. した", "C. すること", "D. して"),
+                2,
+                "～には (để làm gì đó) đứng sau thể từ điển + こと: することには = để làm việc này. Đây là cấu trúc danh hóa động từ.",
+                6));
+
+        // ── N4: GRAMMAR (7 câu) ─────────────────────────────────────────
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.GRAMMAR,
+                "もっと　はやく　おきれば、　バスに　___のに。",
+                List.of("A. のれた", "B. のる", "C. のれる", "D. のって"),
+                0,
+                "Cấu trúc ～ば～のに (giá mà... thì...) diễn đạt tiếc nuối. のれた = đã có thể lên tàu (quá khứ điều kiện).",
+                7));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.GRAMMAR,
+                "かのじょは　うたが　___そうです。",
+                List.of("A. じょうずな", "B. じょうず", "C. じょうずく", "D. じょうずに"),
+                1,
+                "そうです (có vẻ như) sau tính từ na: bỏ な → じょうず + そうです. じょうずそう = có vẻ giỏi.",
+                8));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.GRAMMAR,
+                "てんきが　よければ、ピクニックに　___。",
+                List.of("A. いきます", "B. いきたいです", "C. いこうと　おもいます", "D. いきました"),
+                2,
+                "よければ là điều kiện 'nếu thời tiết tốt'. Kết hợp với ý định → いこうと おもいます (dự định đi) là tự nhiên nhất.",
+                9));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.GRAMMAR,
+                "この　くすりを　のんで___ば、すぐ　なおります。",
+                List.of("A. よけれ", "B. よかれ", "C. いけれ", "D. おけれ"),
+                0,
+                "よければ là thể điều kiện của いい (tốt). Uống thuốc này → nếu tốt (dùng đúng cách) thì sẽ khỏi nhanh.",
+                10));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.GRAMMAR,
+                "きのう　ともだちに　プレゼントを　もらい___。",
+                List.of("A. ました", "B. ました　か", "C. たかったです", "D. てください"),
+                0,
+                "もらいました = đã nhận được. もらう là động từ nhận (nhận từ người khác). Thì quá khứ lịch sự = ました.",
+                11));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.GRAMMAR,
+                "せんせいに　しつもんを　___もいいですか。",
+                List.of("A. して", "B. する", "C. した", "D. し"),
+                0,
+                "てもいいですか là cấu trúc xin phép 'Tôi có thể... không?'. Thể て của する = して. してもいいですか = Tôi có thể hỏi không?",
+                12));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.GRAMMAR,
+                "あの　えいがは　みた___　ありません。",
+                List.of("A. こと", "B. の", "C. もの", "D. ところ"),
+                0,
+                "～たことがない = chưa từng... Đây là cấu trúc diễn đạt kinh nghiệm chưa có. みたことがない = chưa từng xem.",
+                13));
+
+        // ── N4: READING (3 câu) ─────────────────────────────────────────
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.READING,
+                "「たなか：もしもし、やまださん、あした　いっしょに　えいがを　みませんか。\nやまだ：いいですね。でも、あしたは　ちょっと　つごうが　わるくて...。あさってはどうですか。\nたなか：あさって？　いいですよ。」\nふたりは　いつ　えいがを　みますか？",
+                List.of("A. きょう", "B. あした", "C. あさって", "D. まだ　きめていない"),
+                2,
+                "Yamada nói không rảnh vào ngày mai nhưng đề xuất あさって (ngày kia), và Tanaka đồng ý. → Họ sẽ xem phim vào あさって.",
+                14));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.READING,
+                "「このレストランは　へいじつ　ごご12じから　よる9じまで　えいぎょうしています。どようびと　にちようびは　ごぜん11じから　えいぎょうします。もんようびは　やすみです。」\nどようびは　なんじから　あいていますか？",
+                List.of("A. ごぜん11じ", "B. ごご12じ", "C. よる9じ", "D. やすみ"),
+                0,
+                "Thứ 7 và Chủ nhật mở từ ごぜん11じ (11 giờ sáng). Ngày thường mở từ 12 giờ trưa.",
+                15));
+
+        questions.add(pq(User.JlptLevel.N4, PlacementQuestion.Section.READING,
+                "「わたしは　りゅうがくせいです。にほんに　きて、2ねんに　なります。さいしょは　ひらがなも　よめませんでした。でも　いま、かんじも　すこし　よめます。にほんごは　むずかしいですが、たのしいです。」\nこのひとが　にほんに　きた　とき、どうでしたか？",
+                List.of("A. かんじが　よめた", "B. ひらがなも　よめなかった", "C. にほんごが　じょうずだった", "D. たのしかった"),
+                1,
+                "Đoạn văn viết 'さいしょは ひらがなも よめませんでした' = lúc đầu không thể đọc cả hiragana. Đây là trạng thái khi mới đến.",
+                16));
+
+        // ── N3: VOCAB (4 câu mẫu) ───────────────────────────────────────
+        questions.add(pq(User.JlptLevel.N3, PlacementQuestion.Section.VOCAB,
+                "彼女は　いつも　___な　態度で　話します。(Cô ấy luôn nói chuyện với thái độ...)",
+                List.of("A. 礼儀正しい", "B. 失礼な", "C. 遠慮ない", "D. 無礼な"),
+                0,
+                "礼儀正しい (れいぎただしい) = lịch sự, có phép tắc. 失礼=vô lễ, 遠慮ない=không ngần ngại, 無礼=vô lễ. Từ 'いつも' (luôn luôn) gợi ý phẩm chất tốt.",
+                1));
+
+        questions.add(pq(User.JlptLevel.N3, PlacementQuestion.Section.GRAMMAR,
+                "この　問題は　難しすぎて、___解けません。",
+                List.of("A. なかなか", "B. ずっと", "C. もっと", "D. やっと"),
+                0,
+                "なかなか + 否定 (phủ định) = 'mãi không...'. なかなか解けない = mãi không giải được. Diễn đạt sự khó khăn kéo dài.",
+                2));
+
+        questions.add(pq(User.JlptLevel.N3, PlacementQuestion.Section.GRAMMAR,
+                "雨が降って___、試合を　中止に　なりました。",
+                List.of("A. から", "B. ので", "C. ため", "D. しまい"),
+                1,
+                "ので là liên từ nguyên nhân lịch sự, phù hợp trong văn viết/trang trọng. から mang tính chủ quan hơn. 雨が降ったので = vì trời mưa.",
+                3));
+
+        questions.add(pq(User.JlptLevel.N3, PlacementQuestion.Section.READING,
+                "「最近、SNSの利用が増えています。便利な面がある一方で、個人情報の漏えいや誹謗中傷などの問題も起きています。」\nこの文章の　主な内容は　何ですか？",
+                List.of("A. SNSは非常に便利だ", "B. SNSは使わない方がいい", "C. SNSには利点と問題点の両面がある", "D. 個人情報の漏えいは増えている"),
+                2,
+                "Từ '便利な面がある一方で...問題も起きています' (có mặt tiện lợi nhưng đồng thời cũng xảy ra vấn đề) → nội dung nói về cả hai mặt của SNS.",
+                4));
+
+        placementQuestionRepository.saveAll(questions);
+        log.info("✅ Seed {} câu hỏi Placement Test (N5/N4/N3) thành công.", questions.size());
+    }
+
+    /**
+     * Helper tạo PlacementQuestion nhanh.
+     */
+    private PlacementQuestion pq(User.JlptLevel level, PlacementQuestion.Section section,
+                                   String questionText, List<String> options,
+                                   int correctOption, String explanation, int order) {
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            return PlacementQuestion.builder()
+                    .level(level)
+                    .section(section)
+                    .questionText(questionText)
+                    .optionsJson(mapper.writeValueAsString(options))
+                    .correctOption(correctOption)
+                    .explanation(explanation)
+                    .displayOrder(order)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi serialize options JSON", e);
+        }
     }
 }

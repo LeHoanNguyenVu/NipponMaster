@@ -48,6 +48,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/kanjis/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/grammars/**").permitAll()
 
+                        // Cho phép xem cấu trúc đề thi (không cần login, submit thì cần)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/placement-test/questions").permitAll()
+
                         // Tất cả endpoint còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()
                 )

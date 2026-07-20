@@ -45,6 +45,22 @@ public class User extends BaseEntity {
     @Builder.Default
     private Boolean isActive = true;
 
+    /**
+     * Trình độ JLPT mục tiêu mà học viên đăng ký học (N5-N1).
+     * Được chốt sau khi hoàn tất luồng Onboarding.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_level")
+    private JlptLevel targetLevel;
+
+    /**
+     * Đánh dấu học viên đã hoàn thành bước Onboarding chưa.
+     * false = lần đầu đăng nhập, cần đi qua Onboarding Hub.
+     */
+    @Column(name = "onboarding_completed")
+    @Builder.Default
+    private Boolean onboardingCompleted = false;
+
     public enum Role {
         ADMIN, STUDENT, TEACHER, GUEST, USER
     }
