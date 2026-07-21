@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Zap, Flame, Languages, Shapes, BookOpen, Clock, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import axiosClient from '../api/axiosClient';
+import { useAuthStore } from '../store/useAuthStore';
 import gsap from 'gsap';
 
 const LayersIcon = ({ className, size }: any) => (
@@ -28,6 +29,8 @@ export default function DashboardStudent({ onStartStudy, username }: { onStartSt
   const containerRef = useRef<HTMLDivElement>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const { user } = useAuthStore();
+  const targetLevel = user?.targetLevel || 'N5';
 
   useEffect(() => {
     let active = true;
@@ -113,7 +116,16 @@ export default function DashboardStudent({ onStartStudy, username }: { onStartSt
           <h1 className="text-4xl font-bold text-on-surface mb-2 tracking-tight">
             Chào mừng trở lại, {username || 'Học viên'}!
           </h1>
-          <p className="text-lg text-on-surface-variant">Dưới đây là tiến độ học tập thực tế của bạn hôm nay.</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+            <p className="text-lg text-on-surface-variant">Tiến độ học tập thực tế của bạn hôm nay.</p>
+            <span style={{
+              fontSize: 12, fontWeight: 700, padding: '3px 12px', borderRadius: 99,
+              background: '#c0153818', color: '#c01538', border: '1.5px solid #c0153833',
+              letterSpacing: '0.04em',
+            }}>
+              🎯 Lộ trình {targetLevel}
+            </span>
+          </div>
         </div>
         <div className="text-right">
           <p className="text-xs text-outline font-medium uppercase tracking-wider mb-1">Chuỗi ngày học (Streak)</p>
@@ -206,7 +218,7 @@ export default function DashboardStudent({ onStartStudy, username }: { onStartSt
               <div className="w-full bg-surface-container-highest rounded-full h-1.5 mb-2">
                 <div className={`${stat.color} h-1.5 rounded-full`} style={{ width: `${stat.pct}%` }}></div>
               </div>
-              <span className="text-xs text-on-surface-variant">Hoàn thành {stat.pct}% lộ trình N5</span>
+              <span className="text-xs text-on-surface-variant">Hoàn thành {stat.pct}% lộ trình {targetLevel}</span>
             </div>
           ))}
         </div>

@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
-import { placementApi, JlptLevel, PlacementTestData } from '../api/placementApi';
+import { placementApi, JlptLevel, PlacementTestData, PlacementResult } from '../api/placementApi';
 import LevelSelector from '../components/onboarding/LevelSelector';
 import LevelTestSelector from '../components/onboarding/LevelTestSelector';
 import QuizPlayer from '../components/onboarding/QuizPlayer';
+import PlacementResultView from '../components/onboarding/PlacementResultView';
 
 type Step =
   | 'hub'               // Trang chọn Option 1 hoặc 2
   | 'level-select'      // Option 1: Chọn trực tiếp
   | 'test-level-pick'   // Option 2 bước 1: Chọn cấp độ muốn test
   | 'quiz'              // Option 2 bước 2: Làm bài
+  | 'result'            // Option 2 bước 3: Xem kết quả + đáp án
   | 'confirming';       // Đang gọi API hoàn tất onboarding
 
 interface OnboardingScreenProps {
@@ -21,8 +23,10 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
   const [step, setStep] = useState<Step>('hub');
   const [testData, setTestData] = useState<PlacementTestData | null>(null);
   const [testLevel, setTestLevel] = useState<JlptLevel | null>(null);
+  const [resultData, setResultData] = useState<PlacementResult | null>(null);
   const [loadingTest, setLoadingTest] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // ── Option 1: Chọn trực tiếp ──────────────────────────────────────────────
@@ -55,20 +59,32 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
     }
   };
 
-  // ── Option 2: Nộp bài ─────────────────────────────────────────────────────
+  // ── Option 2: Nộp bài → hiện kết quả ────────────────────────────────────
   const handleQuizSubmit = async (answers: { questionId: number; chosenOption: number }[]) => {
     if (!testLevel) return;
     setSubmitting(true);
     setError(null);
     try {
       const result = await placementApi.submitTest(testLevel, answers);
-      // Lưu kết quả vào sessionStorage để màn hình kết quả (Ngày 16) đọc
-      sessionStorage.setItem('placementResult', JSON.stringify(result));
-      await completeOnboarding(result.recommendedLevel);
-      onDone();
+      setResultData(result);
+      setStep('result');
     } catch {
       setError('Không thể nộp bài. Vui lòng thử lại!');
+    } finally {
       setSubmitting(false);
+    }
+  };
+
+  // ── Xác nhận level sau khi xem kết quả ───────────────────────────────────
+  const handleConfirmLevel = async (level: JlptLevel) => {
+    setConfirming(true);
+    setError(null);
+    try {
+      await completeOnboarding(level);
+      onDone();
+    } catch {
+      setError('Có lỗi khi lưu trình độ. Vui lòng thử lại!');
+      setConfirming(false);
     }
   };
 
@@ -228,6 +244,22 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
             onSubmit={handleQuizSubmit}
             isSubmitting={submitting}
           />
+        )}
+
+        {/* ── RESULT VIEW ─────────────────────────────────────────────── */}
+        {step === 'result' && resultData && (
+          <>
+            <div style={{ marginBottom: 20 }}>
+              <h1 style={{ fontSize: 22, fontWeight: 800, color: '#231815', marginBottom: 6 }}>Kết Quả Kiểm Tra Trình Độ 📊</h1>
+              <p style={{ color: '#5a5450', fontSize: 14 }}>Xem lại đáp án, chọn trình độ phù hợp và bắt đầu học ngay!</p>
+            </div>
+            <PlacementResultView
+              result={resultData}
+              onConfirm={handleConfirmLevel}
+              onRetry={() => { setResultData(null); setStep('test-level-pick'); }}
+              isConfirming={confirming}
+            />
+          </>
         )}
 
         {/* ── CONFIRMING ──────────────────────────────────────────────── */}
