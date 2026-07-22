@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
-import { placementApi, JlptLevel, PlacementTestData, PlacementResult } from '../api/placementApi';
+import { placementApi } from '../api/placementApi';
+import type { JlptLevel, PlacementTestData, PlacementResult } from '../api/placementApi';
 import LevelSelector from '../components/onboarding/LevelSelector';
 import LevelTestSelector from '../components/onboarding/LevelTestSelector';
 import QuizPlayer from '../components/onboarding/QuizPlayer';

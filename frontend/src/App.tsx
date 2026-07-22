@@ -14,10 +14,11 @@ import Kanji from './screens/Kanji';
 import Grammar from './screens/Grammar';
 import Translation from './screens/Translation';
 import OnboardingScreen from './screens/OnboardingScreen';
+import Pricing from './screens/Pricing';
 import { useAuthStore } from './store/useAuthStore';
 import gsap from 'gsap';
 
-export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation';
+export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation' | 'pricing';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
@@ -59,6 +60,9 @@ export default function App() {
       const hash = window.location.hash;
       if (hash === '#/auth' || hash === '#auth') {
         setShowAuth(true);
+      } else if (hash === '#/pricing' || hash === '#pricing') {
+        setShowAuth(false);
+        setCurrentScreen('pricing');
       } else {
         setShowAuth(false);
       }
@@ -148,6 +152,7 @@ export default function App() {
           {currentScreen === 'kanji' && <Kanji />}
           {currentScreen === 'grammar' && <Grammar />}
           {currentScreen === 'translation' && <Translation />}
+          {currentScreen === 'pricing' && <Pricing />}
         </main>
       </div>
     </div>

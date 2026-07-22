@@ -7,6 +7,7 @@ import com.nihongo.api.common.security.JwtTokenProvider;
 import com.nihongo.api.modules.auth.dto.*;
 import com.nihongo.api.modules.auth.entity.User;
 import com.nihongo.api.modules.auth.repository.UserRepository;
+import com.nihongo.api.modules.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +22,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final SubscriptionService subscriptionService;
     private final JwtBlacklistService jwtBlacklistService;
 
     @Override
@@ -97,7 +99,8 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng", userId));
 
-        return UserResponse.from(user);
+        String subStatus = subscriptionService.getSubscriptionStatus(userId);
+        return UserResponse.from(user, subStatus);
     }
 
     @Override

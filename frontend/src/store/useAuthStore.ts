@@ -10,6 +10,7 @@ export interface User {
   jlptLevel?: string;
   targetLevel?: string;
   onboardingCompleted?: boolean;
+  subscriptionStatus?: 'NONE' | 'ACTIVE' | 'EXPIRED';
 }
 
 interface AuthState {
@@ -126,6 +127,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         role: data.role?.toLowerCase(),
         targetLevel: data.targetLevel ?? null,
         onboardingCompleted: data.onboardingCompleted ?? true,
+        subscriptionStatus: data.subscriptionStatus ?? 'NONE',
       };
       set({
         user,

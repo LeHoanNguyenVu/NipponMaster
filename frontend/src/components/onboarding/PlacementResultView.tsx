@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PlacementResult, JlptLevel, Section } from '../../api/placementApi';
+import type { PlacementResult, JlptLevel, Section } from '../../api/placementApi';
 
 interface Props {
   result: PlacementResult;

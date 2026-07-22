@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, Play, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, CreditCard, Play, LogOut, X } from 'lucide-react';
 import type { ScreenType } from '../App';
 import { useAuthStore } from '../store/useAuthStore';
 import gsap from 'gsap';
@@ -24,6 +24,7 @@ export default function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, o
     { id: 'flashcards', label: 'Flashcards', icon: Layers },
     { id: 'exams', label: 'Exams', icon: Target },
     { id: 'translation', label: 'Translation', icon: BookType },
+    { id: 'pricing', label: 'Gói học', icon: CreditCard },
   ];
 
   // GSAP animation for active item transitions

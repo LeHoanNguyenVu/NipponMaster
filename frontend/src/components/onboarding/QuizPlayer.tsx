@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { PlacementQuestion, JlptLevel } from '../../api/placementApi';
+import type { PlacementQuestion, JlptLevel } from '../../api/placementApi';
 
 interface QuizPlayerProps {
   level: JlptLevel;

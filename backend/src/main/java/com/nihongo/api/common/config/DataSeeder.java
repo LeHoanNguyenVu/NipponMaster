@@ -7,6 +7,8 @@ import com.nihongo.api.modules.kanji.entity.Kanji;
 import com.nihongo.api.modules.kanji.repository.KanjiRepository;
 import com.nihongo.api.modules.placement.entity.PlacementQuestion;
 import com.nihongo.api.modules.placement.repository.PlacementQuestionRepository;
+import com.nihongo.api.modules.subscription.entity.SubscriptionPlan;
+import com.nihongo.api.modules.subscription.repository.SubscriptionPlanRepository;
 import com.nihongo.api.modules.vocabulary.entity.Vocabulary;
 import com.nihongo.api.modules.vocabulary.repository.VocabularyRepository;
 import com.nihongo.api.modules.auth.repository.UserRepository;
@@ -34,6 +36,7 @@ public class DataSeeder implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
     private final PlacementQuestionRepository placementQuestionRepository;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
 
     @Override
     public void run(String... args) {
@@ -48,6 +51,7 @@ public class DataSeeder implements CommandLineRunner {
         seedKanji();
         seedGrammar();
         seedPlacementQuestions();
+        seedSubscriptionPlans();
     }
 
     private void seedAdminUser() {
@@ -543,5 +547,85 @@ public class DataSeeder implements CommandLineRunner {
         } catch (Exception e) {
             throw new RuntimeException("Lỗi serialize options JSON", e);
         }
+    }
+
+    private void seedSubscriptionPlans() {
+        if (subscriptionPlanRepository.count() > 0) {
+            log.info("📦 Subscription plans already seeded — skipping");
+            return;
+        }
+
+        log.info("📦 Seeding subscription plans...");
+
+        subscriptionPlanRepository.saveAll(List.of(
+                SubscriptionPlan.builder()
+                        .name("Gói N5 — Nhập môn")
+                        .description("Trọn bộ nội dung JLPT N5: ~800 từ vựng, ~100 Kanji, ngữ pháp cơ bản.")
+                        .planType(SubscriptionPlan.PlanType.SINGLE_LEVEL)
+                        .jlptLevel(User.JlptLevel.N5)
+                        .price(199000L)
+                        .currency("VND")
+                        .durationDays(365)
+                        .badge(null)
+                        .features("Toàn bộ từ vựng N5\nToàn bộ Kanji N5\nNgữ pháp N5 chi tiết\nFlashcard SRS không giới hạn\nBài thi thử N5")
+                        .build(),
+                SubscriptionPlan.builder()
+                        .name("Gói N4 — Sơ cấp")
+                        .description("Nâng cấp lên JLPT N4: ~1500 từ vựng, ~300 Kanji, ngữ pháp sơ cấp.")
+                        .planType(SubscriptionPlan.PlanType.SINGLE_LEVEL)
+                        .jlptLevel(User.JlptLevel.N4)
+                        .price(249000L)
+                        .currency("VND")
+                        .durationDays(365)
+                        .badge(null)
+                        .features("Toàn bộ từ vựng N4\nToàn bộ Kanji N4\nNgữ pháp N4 chi tiết\nFlashcard SRS không giới hạn\nBài thi thử N4")
+                        .build(),
+                SubscriptionPlan.builder()
+                        .name("Gói N3 — Trung cấp")
+                        .description("Chinh phục JLPT N3: ~3750 từ vựng, ~650 Kanji, ngữ pháp trung cấp.")
+                        .planType(SubscriptionPlan.PlanType.SINGLE_LEVEL)
+                        .jlptLevel(User.JlptLevel.N3)
+                        .price(299000L)
+                        .currency("VND")
+                        .durationDays(365)
+                        .badge("Popular")
+                        .features("Toàn bộ từ vựng N3\nToàn bộ Kanji N3\nNgữ pháp N3 chi tiết\nFlashcard SRS không giới hạn\nBài thi thử N3\nPhân tích đọc hiểu")
+                        .build(),
+                SubscriptionPlan.builder()
+                        .name("Gói N2 — Cao cấp")
+                        .description("Luyện thi JLPT N2: ~6000 từ vựng, ~1000 Kanji, ngữ pháp nâng cao.")
+                        .planType(SubscriptionPlan.PlanType.SINGLE_LEVEL)
+                        .jlptLevel(User.JlptLevel.N2)
+                        .price(349000L)
+                        .currency("VND")
+                        .durationDays(365)
+                        .badge(null)
+                        .features("Toàn bộ từ vựng N2\nToàn bộ Kanji N2\nNgữ pháp N2 nâng cao\nFlashcard SRS không giới hạn\nBài thi thử N2\nPhân tích đọc hiểu chuyên sâu")
+                        .build(),
+                SubscriptionPlan.builder()
+                        .name("Gói N1 — Thành thạo")
+                        .description("Đỉnh cao JLPT N1: ~10000 từ vựng, ~2000 Kanji, ngữ pháp chuyên gia.")
+                        .planType(SubscriptionPlan.PlanType.SINGLE_LEVEL)
+                        .jlptLevel(User.JlptLevel.N1)
+                        .price(399000L)
+                        .currency("VND")
+                        .durationDays(365)
+                        .badge(null)
+                        .features("Toàn bộ từ vựng N1\nToàn bộ Kanji N1\nNgữ pháp N1 chuyên gia\nFlashcard SRS không giới hạn\nBài thi thử N1\nPhân tích đọc hiểu & nghe hiểu")
+                        .build(),
+                SubscriptionPlan.builder()
+                        .name("Trọn bộ N5–N1 — Master Bundle")
+                        .description("Mở khóa TOÀN BỘ nội dung từ N5 đến N1. Tiết kiệm 50% so với mua lẻ!")
+                        .planType(SubscriptionPlan.PlanType.FULL_BUNDLE)
+                        .jlptLevel(null) // All levels
+                        .price(999000L)
+                        .currency("VND")
+                        .durationDays(365)
+                        .badge("Best Value")
+                        .features("Mở khóa toàn bộ N5-N1\nTừ vựng + Kanji + Ngữ pháp đầy đủ\nFlashcard SRS không giới hạn\nBài thi thử tất cả cấp độ\nPhân tích đọc hiểu chuyên sâu\nƯu tiên hỗ trợ kỹ thuật\nCập nhật nội dung miễn phí")
+                        .build()
+        ));
+
+        log.info("✅ Seeded 6 subscription plans (N5-N1 + Full Bundle)");
     }
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, PlusCircle, CheckCircle2, Volume2, BookOpen, X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Search, PlusCircle, CheckCircle2, Volume2, BookOpen, X, ChevronLeft, ChevronRight, Loader2, Lock, CreditCard } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
@@ -122,6 +122,7 @@ export default function Vocabulary() {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [srsLoading, setSrsLoading] = useState<Record<number, boolean>>({});
+  const [accessRestricted, setAccessRestricted] = useState(false);
 
   // SRS Connection Map: word -> flashcardId
   const [srsCardMap, setSrsCardMap] = useState<Record<string, number>>({});
@@ -173,10 +174,20 @@ export default function Vocabulary() {
       params.append('size', pageSize.toString());
 
       const res = await axiosClient.get<any, any>(`/vocabularies/search?${params.toString()}`);
+      let pageData = null;
       if (res && res.success && res.data) {
-        setVocabList(res.data.content || []);
-        setTotalPages(res.data.totalPages || 0);
-        setTotalElements(res.data.totalElements || 0);
+        if (res.data.page) {
+          pageData = res.data.page;
+          setAccessRestricted(!!res.data.accessRestricted);
+        } else {
+          pageData = res.data;
+          setAccessRestricted(false);
+        }
+      }
+      if (pageData) {
+        setVocabList(pageData.content || []);
+        setTotalPages(pageData.totalPages || 0);
+        setTotalElements(pageData.totalElements || 0);
       } else {
         setVocabList([]);
         setTotalPages(0);
@@ -386,6 +397,36 @@ export default function Vocabulary() {
               </div>
             </div>
           </div>
+
+          {/* Access Restricted Banner */}
+          {accessRestricted && (
+            <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-primary/10 via-tertiary/10 to-surface-container-high border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center flex-shrink-0">
+                  <Lock size={20} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
+                    Nội dung cấp độ {selectedLevel} bị giới hạn (Xem thử 5 từ vựng)
+                  </h4>
+                  <p className="text-xs text-on-surface-variant">
+                    Nâng cấp gói học để mở khóa toàn bộ từ vựng, ngữ pháp và tính năng ôn tập SRS cho level này.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                icon={<CreditCard size={16} />}
+                onClick={() => {
+                  window.location.hash = '#/pricing';
+                  window.dispatchEvent(new HashChangeEvent('hashchange'));
+                }}
+              >
+                Xem gói học
+              </Button>
+            </div>
+          )}
 
           {/* Loading state */}
           {loading ? (

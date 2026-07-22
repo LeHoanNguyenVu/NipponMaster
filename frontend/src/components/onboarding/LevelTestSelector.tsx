@@ -1,4 +1,4 @@
-import { JlptLevel } from '../../api/placementApi';
+import type { JlptLevel } from '../../api/placementApi';
 
 interface LevelTestSelectorProps {
   onSelect: (level: JlptLevel) => void;
