@@ -45,4 +45,12 @@ public class SubscriptionController {
         return ResponseEntity.ok(ApiResponse.ok(
                 "Thông tin truy cập", subscriptionService.getAccessInfo(userId)));
     }
+
+    @GetMapping("/trial-status")
+    @Operation(summary = "Lấy hạn mức xem thử tài khoản dùng thử")
+    public ResponseEntity<ApiResponse<TrialStatusResponse>> getTrialStatus(
+            @AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                "Trạng thái dùng thử", subscriptionService.getTrialStatus(userId)));
+    }
 }

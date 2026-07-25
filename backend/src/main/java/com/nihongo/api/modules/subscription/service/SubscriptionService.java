@@ -192,4 +192,67 @@ public class SubscriptionService {
 
         return "NONE";
     }
+
+    /**
+     * Lấy trạng thái tài khoản dùng thử và hạn mức xem thử trong ngày.
+     */
+    @Transactional(readOnly = true)
+    public TrialStatusResponse getTrialStatus(Long userId) {
+        if (userId == null) {
+            return TrialStatusResponse.builder()
+                    .isTrial(true)
+                    .dailyVocabLimit(5)
+                    .dailyKanjiLimit(1)
+                    .dailyGrammarLimit(1)
+                    .dailyVocabUsed(0)
+                    .dailyKanjiUsed(0)
+                    .dailyGrammarUsed(0)
+                    .subscriptionRequired(true)
+                    .message("Tài khoản Khách tham quan: Được xem thử tối đa 5 từ vựng & 1 Hán tự/Ngữ pháp mỗi ngày.")
+                    .build();
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && (user.getRole() == User.Role.ADMIN || user.getRole() == User.Role.TEACHER)) {
+            return TrialStatusResponse.builder()
+                    .isTrial(false)
+                    .dailyVocabLimit(-1)
+                    .dailyKanjiLimit(-1)
+                    .dailyGrammarLimit(-1)
+                    .dailyVocabUsed(0)
+                    .dailyKanjiUsed(0)
+                    .dailyGrammarUsed(0)
+                    .subscriptionRequired(false)
+                    .message("Tài khoản Giảng viên / Quản trị viên: Không giới hạn quyền truy cập.")
+                    .build();
+        }
+
+        boolean hasActiveSub = subscriptionRepository.findActiveByUserId(userId).size() > 0;
+        if (hasActiveSub) {
+            return TrialStatusResponse.builder()
+                    .isTrial(false)
+                    .dailyVocabLimit(-1)
+                    .dailyKanjiLimit(-1)
+                    .dailyGrammarLimit(-1)
+                    .dailyVocabUsed(0)
+                    .dailyKanjiUsed(0)
+                    .dailyGrammarUsed(0)
+                    .subscriptionRequired(false)
+                    .message("Đã kích hoạt gói học Premium thành công!")
+                    .build();
+        }
+
+        return TrialStatusResponse.builder()
+                .isTrial(true)
+                .dailyVocabLimit(5)
+                .dailyKanjiLimit(1)
+                .dailyGrammarLimit(1)
+                .dailyVocabUsed(2)
+                .dailyKanjiUsed(0)
+                .dailyGrammarUsed(0)
+                .subscriptionRequired(true)
+                .message("Bạn đang dùng thử miễn phí. Nâng cấp gói học để mở khóa không giới hạn!")
+                .build();
+    }
 }
+

@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, ChevronLeft, ChevronRight, Loader2, BookOpen } from 'lucide-react';
+import { Search, X, ChevronLeft, ChevronRight, Loader2, BookOpen, Lock, CreditCard } from 'lucide-react';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
 import axiosClient from '../api/axiosClient';
 import KanjiStrokeWriter from '../components/KanjiStrokeWriter';
 import gsap from 'gsap';
@@ -72,6 +73,7 @@ export default function Kanji() {
   const [selectedLevel, setSelectedLevel] = useState<'N5' | 'N4' | 'N3' | 'N2' | 'N1'>('N5');
   const [strokeFilter, setStrokeFilter] = useState<'ALL' | '1-5' | '6-10' | 'gt10'>('ALL');
   const [currentPage, setCurrentPage] = useState<number>(0);
+  const [accessRestricted, setAccessRestricted] = useState(false);
 
   const detailPanelRef = useRef<HTMLDivElement>(null);
 
@@ -83,9 +85,17 @@ export default function Kanji() {
       const response = await axiosClient.get('/kanjis/search', {
         params: { level, size: 200 },
       });
-      if (response.data?.content) {
-        setKanjiList(response.data.content);
+      let contentList: KanjiItem[] = [];
+      if (response.data) {
+        if (response.data.page) {
+          contentList = response.data.page.content || [];
+          setAccessRestricted(!!response.data.accessRestricted);
+        } else if (response.data.content) {
+          contentList = response.data.content;
+          setAccessRestricted(false);
+        }
       }
+      setKanjiList(contentList);
     } catch (err) {
       console.error('Lỗi khi tải Kanji:', err);
     } finally {
@@ -249,6 +259,36 @@ export default function Kanji() {
               </button>
             </div>
           </Card>
+
+          {/* Access Restricted Banner */}
+          {accessRestricted && (
+            <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-primary/10 via-tertiary/10 to-surface-container-high border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center flex-shrink-0">
+                  <Lock size={20} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
+                    Nội dung Hán tự cấp độ {selectedLevel} bị giới hạn (Tài khoản Dùng thử)
+                  </h4>
+                  <p className="text-xs text-on-surface-variant">
+                    Nâng cấp gói học để mở khóa toàn bộ Hán tự, thứ tự nét vẽ và ví dụ thực tế cho cấp độ này.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                icon={<CreditCard size={16} />}
+                onClick={() => {
+                  window.location.hash = '#/pricing';
+                  window.dispatchEvent(new HashChangeEvent('hashchange'));
+                }}
+              >
+                Xem gói học
+              </Button>
+            </div>
+          )}
 
           {/* Grid view */}
           {loading ? (
