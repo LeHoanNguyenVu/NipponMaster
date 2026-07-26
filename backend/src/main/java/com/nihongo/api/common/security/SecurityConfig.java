@@ -56,6 +56,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/trial-status").permitAll()
                         .requestMatchers("/api/v1/payments/webhook").permitAll()
 
+                        // Cho phép xem danh sách kịch bản Speaking (không cần login)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/speaking/scenarios").permitAll()
+
                         // Tất cả endpoint còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()
                 )

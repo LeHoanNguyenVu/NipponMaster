@@ -15,10 +15,11 @@ import Grammar from './screens/Grammar';
 import Translation from './screens/Translation';
 import OnboardingScreen from './screens/OnboardingScreen';
 import Pricing from './screens/Pricing';
+import SpeakingStudio from './screens/SpeakingStudio';
 import { useAuthStore } from './store/useAuthStore';
 import gsap from 'gsap';
 
-export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation' | 'pricing';
+export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation' | 'pricing' | 'speaking';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
@@ -153,6 +154,7 @@ export default function App() {
           {currentScreen === 'grammar' && <Grammar />}
           {currentScreen === 'translation' && <Translation />}
           {currentScreen === 'pricing' && <Pricing />}
+          {currentScreen === 'speaking' && <SpeakingStudio />}
         </main>
       </div>
     </div>
