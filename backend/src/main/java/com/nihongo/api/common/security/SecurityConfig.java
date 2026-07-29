@@ -59,6 +59,9 @@ public class SecurityConfig {
                         // Cho phép xem danh sách kịch bản Speaking (không cần login)
                         .requestMatchers(HttpMethod.GET, "/api/v1/speaking/scenarios").permitAll()
 
+                        // Cho phép thử nghiệm vẽ Kanji Canvas & OCR
+                        .requestMatchers("/api/v1/kanjis/canvas/**").permitAll()
+
                         // Tất cả endpoint còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()
                 )

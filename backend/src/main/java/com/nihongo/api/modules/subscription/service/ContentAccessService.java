@@ -3,7 +3,6 @@ package com.nihongo.api.modules.subscription.service;
 import com.nihongo.api.modules.auth.entity.User;
 import com.nihongo.api.modules.auth.repository.UserRepository;
 import com.nihongo.api.modules.subscription.entity.Subscription;
-import com.nihongo.api.modules.subscription.entity.SubscriptionPlan;
 import com.nihongo.api.modules.subscription.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

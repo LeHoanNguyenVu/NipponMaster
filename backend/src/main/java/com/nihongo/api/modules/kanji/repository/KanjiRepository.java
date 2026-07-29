@@ -7,12 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface KanjiRepository extends JpaRepository<Kanji, Long> {
 
     Optional<Kanji> findByCharacter(String character);
@@ -40,6 +38,8 @@ public interface KanjiRepository extends JpaRepository<Kanji, Long> {
             Pageable pageable);
 
     Page<Kanji> findByStrokeCount(Integer strokeCount, Pageable pageable);
+
+    List<Kanji> findByStrokeCountBetween(Integer minStrokes, Integer maxStrokes);
 
     /** Lấy Kanji chưa có trong danh sách ID đã học, theo cấp JLPT */
     @Query("SELECT k FROM Kanji k WHERE k.jlptLevel = :level AND k.id NOT IN :excludeIds ORDER BY k.id ASC")

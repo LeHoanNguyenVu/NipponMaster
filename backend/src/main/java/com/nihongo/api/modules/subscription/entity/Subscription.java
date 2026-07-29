@@ -1,7 +1,6 @@
 package com.nihongo.api.modules.subscription.entity;
 
 import com.nihongo.api.common.entity.BaseEntity;
-import com.nihongo.api.modules.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

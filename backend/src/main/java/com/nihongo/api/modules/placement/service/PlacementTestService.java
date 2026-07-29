@@ -290,7 +290,6 @@ public class PlacementTestService {
         };
     }
 
-    @SuppressWarnings("unchecked")
     private List<String> parseOptions(String optionsJson) {
         try {
             return objectMapper.readValue(optionsJson, new TypeReference<List<String>>() {});

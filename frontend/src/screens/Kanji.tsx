@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, ChevronLeft, ChevronRight, Loader2, BookOpen, Lock, CreditCard } from 'lucide-react';
+import { Search, X, ChevronLeft, ChevronRight, Loader2, BookOpen, Lock, CreditCard, PenTool } from 'lucide-react';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import axiosClient from '../api/axiosClient';
 import KanjiStrokeWriter from '../components/KanjiStrokeWriter';
+import KanjiCanvasStudio from './KanjiCanvasStudio';
 import gsap from 'gsap';
 
 interface KanjiItem {
@@ -74,6 +75,8 @@ export default function Kanji() {
   const [strokeFilter, setStrokeFilter] = useState<'ALL' | '1-5' | '6-10' | 'gt10'>('ALL');
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [accessRestricted, setAccessRestricted] = useState(false);
+  const [activeTab, setActiveTab] = useState<'dictionary' | 'canvas'>('dictionary');
+  const [canvasInitialKanji, setCanvasInitialKanji] = useState<string>('日');
 
   const detailPanelRef = useRef<HTMLDivElement>(null);
 
@@ -177,12 +180,48 @@ export default function Kanji() {
         <div className="max-w-6xl mx-auto w-full space-y-6">
           
           {/* Header */}
-          <div>
-            <h1 className="text-3xl font-bold text-on-surface tracking-tight">NipponMaster Kanji</h1>
-            <p className="text-sm text-on-surface-variant mt-1">
-              Tra cứu chữ Hán {selectedLevel} ({kanjiList.length} chữ), lọc theo số nét viết và xem thứ tự nét vẽ sinh động.
-            </p>
+          {/* Header & Main Tab Switcher */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-on-surface tracking-tight">NipponMaster Kanji</h1>
+              <p className="text-sm text-on-surface-variant mt-1">
+                Tra cứu chữ Hán {selectedLevel} ({kanjiList.length} chữ), luyện nét vẽ Kanji & nhận diện OCR AI.
+              </p>
+            </div>
+            <div className="flex items-center p-1 bg-surface-container-low rounded-2xl border border-outline-variant/30 self-start sm:self-auto">
+              <button
+                onClick={() => setActiveTab('dictionary')}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === 'dictionary'
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                📚 Thư viện Kanji
+              </button>
+              <button
+                onClick={() => setActiveTab('canvas')}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === 'canvas'
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                ✍️ Bảng vẽ & OCR Studio
+              </button>
+            </div>
           </div>
+
+          {activeTab === 'canvas' ? (
+            <KanjiCanvasStudio
+              initialKanji={canvasInitialKanji}
+              onSelectKanjiDetail={(char) => {
+                setSearchQuery(char);
+                setActiveTab('dictionary');
+              }}
+            />
+          ) : (
+            <>
 
           {/* Level Tabs */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -400,6 +439,8 @@ export default function Kanji() {
               </button>
             </div>
           )}
+          </>
+          )}
         </div>
       </div>
 
@@ -445,7 +486,20 @@ export default function Kanji() {
 
             {/* Stroke order animation section */}
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold uppercase text-on-surface-variant tracking-wider">Hoạt ảnh nét vẽ</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase text-on-surface-variant tracking-wider">Hoạt ảnh nét vẽ</h3>
+                <button
+                  onClick={() => {
+                    setCanvasInitialKanji(selectedKanji.character);
+                    handleCloseDetail();
+                    setActiveTab('canvas');
+                  }}
+                  className="px-3 py-1 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <PenTool size={13} />
+                  Thực hành vẽ chữ này ✍️
+                </button>
+              </div>
               <KanjiStrokeWriter character={selectedKanji.character} />
             </div>
 

@@ -4,11 +4,8 @@ import com.nihongo.api.modules.auth.entity.User;
 import com.nihongo.api.modules.placement.entity.PlacementQuestion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
-@Repository
 public interface PlacementQuestionRepository extends JpaRepository<PlacementQuestion, Long> {
 
     /**

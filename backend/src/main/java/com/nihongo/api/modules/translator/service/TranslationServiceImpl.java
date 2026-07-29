@@ -10,10 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -146,8 +144,10 @@ public class TranslationServiceImpl implements TranslationService {
                 String langPair = sourceLang + "|" + targetLang;
                 String url = "https://api.mymemory.translated.net/get?q={q}&langpair={langpair}";
 
+                @SuppressWarnings("unchecked")
                 Map<String, Object> response = restTemplate.getForObject(url, Map.class, text, langPair);
                 if (response != null && response.containsKey("responseData")) {
+                    @SuppressWarnings("unchecked")
                     Map<String, Object> responseData = (Map<String, Object>) response.get("responseData");
                     if (responseData != null && responseData.containsKey("translatedText")) {
                         translatedText = (String) responseData.get("translatedText");
