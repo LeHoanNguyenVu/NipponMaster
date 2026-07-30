@@ -51,7 +51,10 @@ const LANG_NAMES: Record<string, string> = {
   en: 'Tiếng Anh'
 };
 
+import SentenceBreakdownStudio from './SentenceBreakdownStudio';
+
 export default function Translation() {
+  const [activeTab, setActiveTab] = useState<'translate' | 'breakdown'>('translate');
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<TranslateResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -139,13 +142,43 @@ export default function Translation() {
         <div>
           <Badge variant="primary" className="mb-3">AI Smart Tools</Badge>
           <h1 className="text-4xl font-bold text-on-surface mb-2 tracking-tight">
-            Dịch thuật thông minh AI
+            Dịch thuật & Phân tích cú pháp AI
           </h1>
           <p className="text-lg text-on-surface-variant">
-            Dịch thuật đa hướng giữa tiếng Nhật, tiếng Việt và tiếng Anh. Hỗ trợ hiển thị phiên âm Furigana và phân tích từ vựng tiếng Nhật.
+            Dịch thuật đa hướng và phân tích cú pháp câu tiếng Nhật thông minh với Furigana và Handbook ngữ pháp.
           </p>
         </div>
       </header>
+
+      {/* Main Feature Tab Switcher */}
+      <div className="flex items-center gap-2 border-b border-outline-variant/30 pb-4">
+        <button
+          onClick={() => setActiveTab('translate')}
+          className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 cursor-pointer flex items-center gap-2 ${
+            activeTab === 'translate'
+              ? 'bg-primary text-on-primary shadow-md shadow-primary/25'
+              : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant hover:text-on-surface'
+          }`}
+        >
+          <Languages size={18} />
+          <span>Dịch Thuật Đa Ngữ</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('breakdown')}
+          className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 cursor-pointer flex items-center gap-2 ${
+            activeTab === 'breakdown'
+              ? 'bg-primary text-on-primary shadow-md shadow-primary/25'
+              : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant hover:text-on-surface'
+          }`}
+        >
+          <span>🧩 Phân Tích Cú Pháp Câu AI</span>
+        </button>
+      </div>
+
+      {activeTab === 'breakdown' ? (
+        <SentenceBreakdownStudio initialSentence={inputText} />
+      ) : (
+        <>
 
       {/* Language Selector Bar */}
       <div className="flex items-center justify-center gap-3 bg-surface-container-low/60 backdrop-blur-md border border-outline-variant/40 p-3 rounded-2xl max-w-xl mx-auto shadow-sm">
@@ -356,18 +389,26 @@ export default function Translation() {
                         <FileText size={14} />
                         Bản dịch {LANG_NAMES[targetLang]}
                       </span>
-                      <button
-                        onClick={handleCopy}
-                        className="text-outline hover:text-primary transition-colors p-1.5 hover:bg-surface-container-low rounded-lg cursor-pointer"
-                        title="Sao chép bản dịch"
-                      >
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setActiveTab('breakdown')}
+                          className="px-3 py-1 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>Phân tích cú pháp câu này 🧩</span>
+                        </button>
+                        <button
+                          onClick={handleCopy}
+                          className="text-outline hover:text-primary transition-colors p-1.5 hover:bg-surface-container-low rounded-lg cursor-pointer"
+                          title="Sao chép bản dịch"
+                        >
                         {copiedText ? <Check size={16} className="text-secondary" /> : <Copy size={16} />}
                       </button>
                     </div>
-                    <p className="text-xl font-medium text-on-surface font-sans leading-relaxed">
-                      {result.translatedText}
-                    </p>
                   </div>
+                  <p className="text-xl font-medium text-on-surface font-sans leading-relaxed">
+                    {result.translatedText}
+                  </p>
+                </div>
                 </Card>
 
                 {/* Vocabulary Analysis Card */}
@@ -416,6 +457,8 @@ export default function Translation() {
           </AnimatePresence>
         </div>
       </div>
+          </>
+      )}
     </div>
   );
 }

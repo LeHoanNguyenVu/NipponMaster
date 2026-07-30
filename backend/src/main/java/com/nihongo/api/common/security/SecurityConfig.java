@@ -62,6 +62,9 @@ public class SecurityConfig {
                         // Cho phép thử nghiệm vẽ Kanji Canvas & OCR
                         .requestMatchers("/api/v1/kanjis/canvas/**").permitAll()
 
+                        // Cho phép phân tích cú pháp câu AI
+                        .requestMatchers("/api/v1/sentence-breakdown/**").permitAll()
+
                         // Tất cả endpoint còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()
                 )
