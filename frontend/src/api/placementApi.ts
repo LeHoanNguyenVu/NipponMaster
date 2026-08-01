@@ -49,6 +49,9 @@ export interface PlacementResult {
   recommendedLevel: JlptLevel;
   overallFeedback: string;
   actionSuggestion: string;
+  diagnosticSummary?: string;
+  levelDropReason?: string;
+  recommendedTestLevel?: JlptLevel;
   sectionScores: Record<Section, SectionScore>;
   questionReviews: QuestionReview[];
   completedAt: string;
@@ -58,12 +61,12 @@ export const placementApi = {
   /** Lấy bộ đề thi theo level */
   getQuestions: async (level: JlptLevel): Promise<PlacementTestData> => {
     const res = await axiosClient.get<any, any>(`/placement-test/questions?level=${level}`);
-    return res.data;
+    return (res && res.data) ? res.data : res;
   },
 
   /** Nộp bài và nhận kết quả */
   submitTest: async (level: JlptLevel, answers: AnswerItem[]): Promise<PlacementResult> => {
     const res = await axiosClient.post<any, any>('/placement-test/submit', { level, answers });
-    return res.data;
+    return (res && res.data) ? res.data : res;
   },
 };

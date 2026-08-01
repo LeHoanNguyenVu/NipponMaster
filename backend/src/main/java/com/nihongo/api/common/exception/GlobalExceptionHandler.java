@@ -104,8 +104,12 @@ public class GlobalExceptionHandler {
         }
 
         log.error("Unexpected error: ", ex);
+        String details = ex.getMessage() != null ? ex.getMessage() : ex.toString();
+        if (ex.getCause() != null) {
+            details += " | Cause: " + ex.getCause().getMessage();
+        }
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."));
+                .body(ApiResponse.error("Lỗi hệ thống: " + details));
     }
 }

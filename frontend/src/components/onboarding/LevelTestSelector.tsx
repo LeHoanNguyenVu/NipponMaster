@@ -6,10 +6,10 @@ interface LevelTestSelectorProps {
 
 const LEVELS: { level: JlptLevel; label: string; questions: number; minutes: number; desc: string; emoji: string }[] = [
   { level: 'N5', label: 'N5 — Cơ Bản', questions: 15, minutes: 15, desc: 'Từ vựng Hiragana/Katakana, Kanji sơ cấp, Trợ từ cơ bản', emoji: '🟢' },
-  { level: 'N4', label: 'N4 — Sơ Cấp', questions: 20, minutes: 20, desc: 'Ngữ pháp kính ngữ, Thể khả năng, Từ vựng ghép', emoji: '🔵' },
-  { level: 'N3', label: 'N3 — Trung Cấp', questions: 20, minutes: 25, desc: 'Cấu trúc câu phức, Từ nối, Đọc hiểu ngắn', emoji: '🟡' },
-  { level: 'N2', label: 'N2 — Cao Cấp', questions: 25, minutes: 30, desc: 'Từ vựng chuyên ngành, Ngữ pháp tinh tế, Bài đọc trung bình', emoji: '🟠' },
-  { level: 'N1', label: 'N1 — Thượng Thừa', questions: 25, minutes: 30, desc: 'Thành ngữ, Kanji hiếm, Ngữ pháp văn học', emoji: '🔴' },
+  { level: 'N4', label: 'N4 — Sơ Cấp', questions: 15, minutes: 15, desc: 'Ngữ pháp kính ngữ, Thể khả năng, Từ vựng ghép', emoji: '🔵' },
+  { level: 'N3', label: 'N3 — Trung Cấp', questions: 15, minutes: 20, desc: 'Cấu trúc câu phức, Từ nối, Đọc hiểu ngắn', emoji: '🟡' },
+  { level: 'N2', label: 'N2 — Cao Cấp', questions: 15, minutes: 25, desc: 'Từ vựng chuyên ngành, Ngữ pháp tinh tế, Bài đọc trung bình', emoji: '🟠' },
+  { level: 'N1', label: 'N1 — Thượng Thừa', questions: 15, minutes: 30, desc: 'Thành ngữ, Kanji hiếm, Ngữ pháp văn học', emoji: '🔴' },
 ];
 
 export default function LevelTestSelector({ onSelect }: LevelTestSelectorProps) {

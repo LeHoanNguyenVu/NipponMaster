@@ -40,6 +40,15 @@ public class PlacementResultResponse {
     /** Đề xuất hành động (ví dụ: "Đăng ký học N4 ngay!", "Thử sức với N3!"). */
     private String actionSuggestion;
 
+    /** Tóm tắt chẩn đoán kỹ năng. */
+    private String diagnosticSummary;
+
+    /** Lý do cụ thể vì sao hạ/giữ/tăng level. */
+    private String levelDropReason;
+
+    /** Level bài test đề xuất làm lại nếu muốn đo lại chính xác. */
+    private User.JlptLevel recommendedTestLevel;
+
     /**
      * Điểm từng phần: VOCAB, GRAMMAR, READING.
      * Ví dụ: {"VOCAB": {"correct": 4, "total": 6}, ...}

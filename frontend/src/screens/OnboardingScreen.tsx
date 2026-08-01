@@ -37,8 +37,9 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
     try {
       await completeOnboarding(level);
       onDone();
-    } catch {
-      setError('Có lỗi xảy ra. Vui lòng thử lại!');
+    } catch (err: any) {
+      const msg = err?.message || 'Có lỗi xảy ra khi lưu trình độ. Vui lòng thử lại!';
+      setError(msg);
       setStep('level-select');
     }
   };
@@ -50,10 +51,14 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
     setTestLevel(level);
     try {
       const data = await placementApi.getQuestions(level);
+      if (!data || !data.questions || data.questions.length === 0) {
+        throw new Error('Đề thi chưa có câu hỏi nào. Vui lòng chọn cấp độ khác!');
+      }
       setTestData(data);
       setStep('quiz');
-    } catch {
-      setError('Không thể tải đề thi. Vui lòng thử lại!');
+    } catch (err: any) {
+      const msg = err?.message || 'Không thể tải đề thi. Vui lòng thử lại!';
+      setError(msg);
       setStep('test-level-pick');
     } finally {
       setLoadingTest(false);
@@ -258,6 +263,7 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
               result={resultData}
               onConfirm={handleConfirmLevel}
               onRetry={() => { setResultData(null); setStep('test-level-pick'); }}
+              onTakeTestLevel={handleLoadTest}
               isConfirming={confirming}
             />
           </>
