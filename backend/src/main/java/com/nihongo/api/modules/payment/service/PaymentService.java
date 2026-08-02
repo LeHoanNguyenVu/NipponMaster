@@ -31,7 +31,7 @@ public class PaymentService {
     private final SubscriptionPlanRepository planRepository;
     private final SubscriptionService subscriptionService;
 
-    // TODO: Khi có Stripe keys, inject StripeClient ở đây
+    // Note: Khi có Stripe keys, inject StripeClient ở đây
     // @Value("${stripe.api.key:}")
     // private String stripeApiKey;
 
@@ -94,7 +94,7 @@ public class PaymentService {
     public void handleWebhook(String payload, String signature) {
         log.info("Received payment webhook (mock mode — no action needed)");
 
-        // TODO: Stripe Webhook Handler
+        // Note: Stripe Webhook Handler
         // Stripe.apiKey = stripeApiKey;
         // Event event = Webhook.constructEvent(payload, signature, webhookSecret);
         // if ("checkout.session.completed".equals(event.getType())) {

@@ -28,11 +28,11 @@ import java.util.Map;
 @Slf4j
 @Configuration
 @EnableCaching
+@SuppressWarnings({"deprecation", "removal"})
 public class RedisConfig implements CachingConfigurer {
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
-        @SuppressWarnings("deprecation")
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -47,7 +47,6 @@ public class RedisConfig implements CachingConfigurer {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
-        @SuppressWarnings("deprecation")
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         // Cấu hình mặc định: TTL 30 phút

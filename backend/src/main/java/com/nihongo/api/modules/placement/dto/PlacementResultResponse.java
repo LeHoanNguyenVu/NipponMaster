@@ -1,7 +1,9 @@
 package com.nihongo.api.modules.placement.dto;
 
 import com.nihongo.api.modules.auth.entity.User;
+import com.nihongo.api.modules.auth.entity.User.JlptLevel;
 import com.nihongo.api.modules.placement.entity.PlacementQuestion;
+import com.nihongo.api.modules.placement.entity.PlacementQuestion.Section;
 import lombok.Builder;
 import lombok.Data;
 
@@ -20,7 +22,7 @@ public class PlacementResultResponse {
     private Long resultId;
 
     /** Level bài test vừa làm. */
-    private User.JlptLevel targetLevel;
+    private JlptLevel targetLevel;
 
     /** Số câu đúng. */
     private int score;
@@ -32,7 +34,7 @@ public class PlacementResultResponse {
     private double scorePercent;
 
     /** Level được đề xuất cho học viên. */
-    private User.JlptLevel recommendedLevel;
+    private JlptLevel recommendedLevel;
 
     /** Nhận xét đánh giá tổng quan. */
     private String overallFeedback;
@@ -47,13 +49,13 @@ public class PlacementResultResponse {
     private String levelDropReason;
 
     /** Level bài test đề xuất làm lại nếu muốn đo lại chính xác. */
-    private User.JlptLevel recommendedTestLevel;
+    private JlptLevel recommendedTestLevel;
 
     /**
      * Điểm từng phần: VOCAB, GRAMMAR, READING.
      * Ví dụ: {"VOCAB": {"correct": 4, "total": 6}, ...}
      */
-    private Map<PlacementQuestion.Section, SectionScore> sectionScores;
+    private Map<Section, SectionScore> sectionScores;
 
     /** Chi tiết từng câu hỏi kèm đáp án và giải thích. */
     private List<QuestionReviewDto> questionReviews;
@@ -72,7 +74,7 @@ public class PlacementResultResponse {
     @Builder
     public static class QuestionReviewDto {
         private Long questionId;
-        private PlacementQuestion.Section section;
+        private Section section;
         private String questionText;
         private List<String> options;
         /** Đáp án học viên chọn (0-3), -1 nếu bỏ trống. */
