@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, CreditCard, Play, LogOut, X, Mic, Type } from 'lucide-react';
+import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, CreditCard, Play, LogOut, X, Mic, GraduationCap } from 'lucide-react';
 import type { ScreenType } from '../App';
 import { useAuthStore } from '../store/useAuthStore';
 import gsap from 'gsap';
@@ -18,7 +18,7 @@ export default function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, o
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'alphabet', label: 'Bảng Chữ Cái', icon: Type },
+    { id: 'beginner', label: 'Nhập Môn', icon: GraduationCap },
     { id: 'vocabulary', label: 'Vocabulary', icon: Languages },
     { id: 'kanji', label: 'Kanji', icon: Shapes },
     { id: 'grammar', label: 'Grammar', icon: BookOpen },
