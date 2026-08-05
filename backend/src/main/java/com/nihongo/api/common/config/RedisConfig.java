@@ -28,7 +28,7 @@ import java.util.Map;
 @Slf4j
 @Configuration
 @EnableCaching
-@SuppressWarnings({"deprecation", "removal"})
+@SuppressWarnings("all")
 public class RedisConfig implements CachingConfigurer {
 
     @Bean

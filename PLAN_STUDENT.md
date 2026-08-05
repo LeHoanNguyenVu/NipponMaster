@@ -42,11 +42,16 @@ Tài liệu chi tiết quản lý toàn bộ lộ trình học tập, thuật to
 #### [x] **Task 7.1 - 7.3: Phân Hệ Sách Giáo Khoa Nhập Môn (Chương 1, 2, 3)**
 - **Mô tả**: Bảng chữ cái Kana (Luyện viết AI), Số đếm & Đơn vị đếm (Bảng Biến Âm 1-10), Chào hỏi & Xưng hô văn hóa kèm Bài test ôn tập cuối chương.
 
-#### [ ] **Task 7.4: Chương 4 — 50+ Bộ Thủ Kanji Nền Tảng (Essential Kanji Radicals)** — [NGÀY 26 ⏳]
-- **Mô tả**: Thư viện 30-50 bộ thủ xuất hiện nhiều nhất N5/N4 (Nhật 日, Nguyệt 月, Mộc 木, Thủy 水, Hỏa 火...). Mẹo nhớ Kanji qua câu chuyện ghép bộ thủ.
+#### [x] **Task 7.4: Chương 4 — 50+ Bộ Thủ Kanji Tượng Hình Nền Tảng (Essential Kanji Radicals)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Thư viện 35+ bộ thủ tượng hình N5/N4 với phương pháp 4 bước (Quan sát Tượng hình ➔ Giải thích Nghĩa đa chiều ➔ Luyện viết Canvas AI ➔ Mẹo nhớ & Ghép chữ Hán).
 
-#### [ ] **Task 7.5: Chương 5 — Cấu Trúc Câu & Thì Ngữ Pháp Nhập Môn (Basic Sentence Structure)** — [NGÀY 26 ⏳]
-- **Mô tả**: Mẫu câu `N1 は N2 です`, câu hỏi `か`, từ chỉ định (`これ/それ/あれ`), thì hiện tại & quá khứ đơn giản. Bài test tốt nghiệp Nhập Môn.
+#### [x] **Task 7.5: Chương 5 — Cấu Trúc Câu, Thì Ngữ Pháp & Lễ Tốt Nghiệp Nhập Môn** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Mẫu câu `N1 は N2 です`, từ chỉ định, bảng thì Hiện tại ↔ Quá khứ & Bài Thi Tốt Nghiệp Nhập Môn 20 câu tổng hợp (Trao Bằng Chứng Nhận Tốt Nghiệp Nhập Môn).
+
+#### 💡 **[GHI CHÚ TỐI ƯU UX/UI CẦN LÀM TIẾP THEO (SPRINT 8 POLISH)]**:
+- [ ] **1. Âm Thanh Hiệu Ứng (Web Audio SFX Engine)**: Thêm tiếng chuông *Ding! ✨* khi trả lời đúng và âm thanh *Tada! 🎉* khi nhận Bằng Chứng Nhận Tốt Nghiệp Nhập Môn.
+- [ ] **2. Bộ Lọc Phân Loại Bộ Thủ Theo Chủ Đề**: Thêm Filter Pills trong Chương 4 (`[Tất cả]`, `[Tự nhiên: Mặt trời, Nước, Đất...]`, `[Con người & Cơ thể]`, `[Đồ vật & Thực vật]`).
+- [ ] **3. Tải Bằng Tốt Nghiệp Dạng Ảnh / PDF**: Thêm nút "Tải Bằng Chứng Nhận (.PNG / .PDF)" trên Modal Tốt Nghiệp Nhập Môn để học viên chia sẻ lên Mạng Xã Hội.
 
 ---
 

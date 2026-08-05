@@ -1,8 +1,6 @@
 package com.nihongo.api.modules.placement.dto;
 
-import com.nihongo.api.modules.auth.entity.User;
 import com.nihongo.api.modules.auth.entity.User.JlptLevel;
-import com.nihongo.api.modules.placement.entity.PlacementQuestion;
 import com.nihongo.api.modules.placement.entity.PlacementQuestion.Section;
 import lombok.Builder;
 import lombok.Data;

@@ -1,11 +1,13 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { BookOpen, CheckCircle2, Lock, ChevronRight, GraduationCap, VolumeX, Sparkles, Trophy } from 'lucide-react';
+import { CheckCircle2, Lock, ChevronRight, GraduationCap, VolumeX, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 // Lazy loading chapter components to optimize performance & initial load time
 const AlphabetExplorer = lazy(() => import('./AlphabetExplorer'));
 const NumbersAndTime = lazy(() => import('./beginner/NumbersAndTime'));
 const AisatsuPhrases = lazy(() => import('./beginner/AisatsuPhrases'));
+const KanjiRadicalsHub = lazy(() => import('./beginner/KanjiRadicalsHub'));
+const BasicGrammarHub = lazy(() => import('./beginner/BasicGrammarHub'));
 
 interface ChapterProgress {
   [chapterId: string]: {
@@ -16,22 +18,17 @@ interface ChapterProgress {
 }
 
 const DEFAULT_PROGRESS: ChapterProgress = {
-  'chapter-1': { completed: true, bestScore: 100, unlocked: true }, // Chapter 1 unlocked by default
-  'chapter-2': { completed: false, bestScore: 0, unlocked: true },  // Unlocked for demo/free explore
-  'chapter-3': { completed: false, bestScore: 0, unlocked: false },
-  'chapter-4': { completed: false, bestScore: 0, unlocked: false },
-  'chapter-5': { completed: false, bestScore: 0, unlocked: false },
+  'chapter-1': { completed: true, bestScore: 100, unlocked: true },
+  'chapter-2': { completed: false, bestScore: 0, unlocked: true },
+  'chapter-3': { completed: false, bestScore: 0, unlocked: true },
+  'chapter-4': { completed: false, bestScore: 0, unlocked: true },
+  'chapter-5': { completed: false, bestScore: 0, unlocked: true },
 };
 
 export default function BeginnerCourseHub() {
-  const [activeChapter, setActiveChapter] = useState<string>('chapter-[SELECTED]');
+  const [activeChapter, setActiveChapter] = useState<string>('chapter-1');
   const [progress, setProgress] = useState<ChapterProgress>(DEFAULT_PROGRESS);
   const [hasJaVoice, setHasJaVoice] = useState<boolean>(true);
-
-  // Initialize active chapter to chapter-1
-  useEffect(() => {
-    setActiveChapter('chapter-1');
-  }, []);
 
   // Load progress from localStorage
   useEffect(() => {
@@ -50,7 +47,7 @@ export default function BeginnerCourseHub() {
       const checkVoices = () => {
         const voices = window.speechSynthesis.getVoices();
         const ja = voices.some(v => v.lang.startsWith('ja'));
-        setHasJaVoice(ja || voices.length === 0); // Allow default if voices pending
+        setHasJaVoice(ja || voices.length === 0);
       };
       checkVoices();
       if (window.speechSynthesis.onvoiceschanged !== undefined) {
@@ -117,16 +114,16 @@ export default function BeginnerCourseHub() {
     {
       id: 'chapter-4',
       number: '04',
-      title: 'Chương 4: 50+ Bộ Thủ Kanji Nền Tảng (Ngày 26)',
-      desc: 'Thư viện bộ thủ N5/N4 & mẹo nhớ chữ Hán qua câu chuyện',
+      title: 'Chương 4: 50+ Bộ Thủ Kanji Tượng Hình Nền Tảng',
+      desc: '35+ bộ thủ tượng hình, giải thích nghĩa đa chiều & luyện viết Canvas AI',
       icon: '⛩️',
     },
     {
       id: 'chapter-5',
       number: '05',
-      title: 'Chương 5: Cấu Trúc Câu & Thì Ngữ Pháp (Ngày 26)',
-      desc: 'Mẫu câu N1 は N2 です, từ chỉ định & các thì đơn giản',
-      icon: '✍️',
+      title: 'Chương 5: Cấu Trúc Câu & Thì Ngữ Pháp Nhập Môn',
+      desc: 'Mẫu câu N1 は N2 です, từ chỉ định, bảng thì & Bài Thi Tốt Nghiệp',
+      icon: '🎓',
     },
   ];
 
@@ -259,15 +256,15 @@ export default function BeginnerCourseHub() {
                 </motion.div>
               )}
 
-              {(activeChapter === 'chapter-4' || activeChapter === 'chapter-5') && (
-                <motion.div key="upcoming" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="p-12 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto text-3xl">
-                    🚧
-                  </div>
-                  <h3 className="text-xl font-bold text-on-surface">Chương Đang Được Phát Triển</h3>
-                  <p className="text-sm text-on-surface-variant max-w-md mx-auto">
-                    Nội dung Chương 4 (Bộ thủ Kanji) & Chương 5 (Cấu trúc câu) đang hoàn thiện cho task Ngày 26. Hãy hoàn thành các chương trước!
-                  </p>
+              {activeChapter === 'chapter-4' && (
+                <motion.div key="chapter-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                  <KanjiRadicalsHub onChapterComplete={handleChapterComplete} />
+                </motion.div>
+              )}
+
+              {activeChapter === 'chapter-5' && (
+                <motion.div key="chapter-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                  <BasicGrammarHub onChapterComplete={handleChapterComplete} />
                 </motion.div>
               )}
             </AnimatePresence>
