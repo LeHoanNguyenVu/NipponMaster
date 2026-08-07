@@ -17,10 +17,12 @@ import OnboardingScreen from './screens/OnboardingScreen';
 import Pricing from './screens/Pricing';
 import SpeakingStudio from './screens/SpeakingStudio';
 import BeginnerCourseHub from './screens/BeginnerCourseHub';
+import JLPTBattleArena from './screens/JLPTBattleArena';
+import QuestsAndShop from './screens/QuestsAndShop';
 import { useAuthStore } from './store/useAuthStore';
 import gsap from 'gsap';
 
-export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation' | 'pricing' | 'speaking' | 'beginner';
+export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation' | 'pricing' | 'speaking' | 'beginner' | 'battle' | 'quests';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
@@ -157,6 +159,8 @@ export default function App() {
           {currentScreen === 'pricing' && <Pricing />}
           {currentScreen === 'speaking' && <SpeakingStudio />}
           {currentScreen === 'beginner' && <BeginnerCourseHub />}
+          {currentScreen === 'battle' && <JLPTBattleArena />}
+          {currentScreen === 'quests' && <QuestsAndShop />}
         </main>
       </div>
     </div>

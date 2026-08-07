@@ -48,26 +48,32 @@ Tài liệu chi tiết quản lý toàn bộ lộ trình học tập, thuật to
 #### [x] **Task 7.5: Chương 5 — Cấu Trúc Câu, Thì Ngữ Pháp & Lễ Tốt Nghiệp Nhập Môn** — [ĐÃ HOÀN THÀNH ✅]
 - **Mô tả**: Mẫu câu `N1 は N2 です`, từ chỉ định, bảng thì Hiện tại ↔ Quá khứ & Bài Thi Tốt Nghiệp Nhập Môn 20 câu tổng hợp (Trao Bằng Chứng Nhận Tốt Nghiệp Nhập Môn).
 
-#### 💡 **[GHI CHÚ TỐI ƯU UX/UI CẦN LÀM TIẾP THEO (SPRINT 8 POLISH)]**:
-- [ ] **1. Âm Thanh Hiệu Ứng (Web Audio SFX Engine)**: Thêm tiếng chuông *Ding! ✨* khi trả lời đúng và âm thanh *Tada! 🎉* khi nhận Bằng Chứng Nhận Tốt Nghiệp Nhập Môn.
-- [ ] **2. Bộ Lọc Phân Loại Bộ Thủ Theo Chủ Đề**: Thêm Filter Pills trong Chương 4 (`[Tất cả]`, `[Tự nhiên: Mặt trời, Nước, Đất...]`, `[Con người & Cơ thể]`, `[Đồ vật & Thực vật]`).
-- [ ] **3. Tải Bằng Tốt Nghiệp Dạng Ảnh / PDF**: Thêm nút "Tải Bằng Chứng Nhận (.PNG / .PDF)" trên Modal Tốt Nghiệp Nhập Môn để học viên chia sẻ lên Mạng Xã Hội.
+#### 💡 **[GHI CHÚ TỐI ƯU UX/UI — ĐÃ HOÀN THÀNH ✅]**:
+- [x] **1. Âm Thanh Hiệu Ứng (Web Audio SFX Engine)**: `audioSfx.ts` — Chuông *Ding! ✨* khi trả lời đúng, *Bzz* khi sai, *Tada! 🎉* hòa tấu tốt nghiệp, *Tick* đếm ngược battle, *Victory/Defeat* thắng/thua.
+- [x] **2. Bộ Lọc Phân Loại Bộ Thủ Theo Chủ Đề**: Filter Pills Category trong Chương 4 (`[🔍 Tất cả]`, `[🌿 Tự nhiên (7)]`, `[👤 Con người & Cơ thể (3)]`, `[🏠 Đồ vật & Xây dựng]`).
+- [x] **3. Tải Bằng Tốt Nghiệp Dạng Ảnh (.PNG)**: Nút "📥 Tải Bằng Chứng Nhận (.PNG)" trên Modal Tốt Nghiệp, tạo ảnh Canvas API chất lượng cao tải về máy.
 
 ---
 
-### 📍 GIAI ĐOẠN 2: THÁCH ĐẤU REAL-TIME & GAMIFICATION (Sprint 8) — [NGẮN HẠN ⏳]
+### 📍 GIAI ĐOẠN 2: THÁCH ĐẤU REAL-TIME & GAMIFICATION (Sprint 8) — [ĐÃ HOÀN THÀNH ✅]
 
-#### [ ] **Task 8.1: Đấu Trường Thách Đấu Trắc Nghiệm Real-time 1v1 (JLPT Battle Arena)**
-- **Mô tả**: Đấu đối kháng trắc nghiệm 10 câu trực tiếp giữa 2 học viên. Ai trả lời nhanh & đúng hơn sẽ thắng & tăng điểm Elo.
-- **Công nghệ**: Spring WebSocket, STOMP protocol, Redis Pub/Sub, React SockJS/STOMP client.
-- **Luồng chạy**:
-  1. Student bấm "Tìm đối thủ" ➔ Client mở WebSocket `/ws/battle`.
-  2. Matchmaking Service ghép 2 người cùng Elo ➔ Tạo phòng `battle-{roomId}`.
-  3. Gửi đồng thời từng câu ➔ Đếm ngược 10s ➔ Tính điểm tốc độ + độ chính xác.
-  4. Màn hình Knockout/Victory ➔ Cập nhật Rank Elo (Đồng ➔ Bạc ➔ Vàng ➔ Bạch Kim ➔ Kim Cương).
+#### [x] **Task 8.1: Đấu Trường Thách Đấu Trắc Nghiệm Real-time 1v1 (JLPT Battle Arena)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Đấu đối kháng trắc nghiệm 10 câu trực tiếp. AI Bot Fallback ghép cặp tự động sau 3s nếu không có đối thủ thực.
+- **Công nghệ**: React State Machine 3 phases (Lobby → Battle → Result), Web Audio SFX, localStorage Elo persistence.
+- **Tính năng triển khai**:
+  - 30 câu hỏi pool (N5-N4: Vocab, Kanji, Grammar, Numbers).
+  - 5 AI Bot đối thủ theo trình độ (Sora AI, Kenji Bot, Yuki Chan, Sensei AI, Sakura Master).
+  - Hệ thống Elo Rank 5 cấp (🥉 Đồng → 🥈 Bạc → 🥇 Vàng → 💎 Bạch Kim → 👑 Kim Cương).
+  - Đếm ngược 10s/câu, tính điểm tốc độ (Base 100 + Speed Bonus 50), SFX Victory/Defeat.
+  - Màn hình kết quả chi tiết 10 câu & cộng/trừ Elo + Coins thưởng.
 
-#### [ ] **Task 8.2: Nhiệm Vụ Hàng Ngày, Huy Hiệu & Cửa Hàng Theme (Quests & Theme Shop)**
-- **Mô tả**: Daily Quests (Lật 30 Flashcards, làm 1 bài thi, giữ Streak) nhận Coins & EXP. Dùng Coins đổi Theme (Sakura Pink, Cyberpunk Tokyo, Washi Gold).
+#### [x] **Task 8.2: Nhiệm Vụ Hàng Ngày, Huy Hiệu & Cửa Hàng Theme (Quests & Theme Shop)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Daily Quests + Achievement Badges + Multi-Theme Shop Engine.
+- **Tính năng triển khai**:
+  - 5 Daily Quests (Lật Flashcards, Bài thi, Thắng 1v1, Viết Kanji, Streak) + Progress bars + Claim rewards.
+  - 6 Achievement Badges (Vua Từ Vựng, Cao Thủ Kanji, Chiến Thần 1v1, Streak 7 Ngày...).
+  - 5 Theme skins: 📜 Default, 🌸 Sakura Pink (500 Coins), 🏙️ Cyberpunk Tokyo (1000 Coins), ⛩️ Washi Gold (1500 Coins), 🌙 Dark OLED (300 Coins).
+  - Theme Engine dùng Zustand + CSS Variables override toàn cục + localStorage persistence.
 
 ---
 

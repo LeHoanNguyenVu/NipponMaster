@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { Volume2, Check, ArrowRight, RotateCcw, GraduationCap, AlertTriangle } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Volume2, Check, ArrowRight, RotateCcw, GraduationCap, AlertTriangle, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   GRAMMAR_PATTERNS, GRAMMAR_GRADUATION_QUIZ
 } from '../../data/basicGrammarData';
 import { speakJapanese } from '../../data/kanaData';
+import { playCorrectSound, playWrongSound, playFanfareSound } from '../../utils/audioSfx';
 
 interface BasicGrammarHubProps {
   onChapterComplete?: (chapterId: string, scorePercent: number) => void;
@@ -30,8 +31,10 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
     const currentQ = GRAMMAR_GRADUATION_QUIZ[quizIdx];
     if (optionIdx === currentQ.correctIndex) {
       setScore(s => s + 1);
+      playCorrectSound();
       if (currentQ.audioText) speakJapanese(currentQ.audioText);
     } else {
+      playWrongSound();
       setWrongQuestions(prev => [...prev, currentQ]);
     }
   };
@@ -47,6 +50,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
       const pct = Math.round((finalScore / GRAMMAR_GRADUATION_QUIZ.length) * 100);
       if (pct >= 60) {
         setShowGraduationModal(true);
+        playFanfareSound();
         if (onChapterComplete) {
           onChapterComplete('chapter-5', pct);
         }
@@ -63,6 +67,91 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
     setWrongQuestions([]);
     setShowGraduationModal(false);
   };
+
+  // Generate and download graduation certificate as PNG using Canvas API
+  const downloadCertificate = useCallback(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 900;
+    canvas.height = 600;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Background gradient
+    const gradient = ctx.createLinearGradient(0, 0, 900, 600);
+    gradient.addColorStop(0, '#fef7f0');
+    gradient.addColorStop(1, '#fff1f2');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 900, 600);
+
+    // Gold border
+    ctx.strokeStyle = '#c8a455';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(20, 20, 860, 560);
+    ctx.strokeStyle = '#e8c97a';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(30, 30, 840, 540);
+
+    // Header decorations
+    ctx.fillStyle = '#c01538';
+    ctx.font = 'bold 16px "Noto Sans JP", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎓 NIPPONMASTER ACADEMY 🎓', 450, 80);
+
+    // Certificate title
+    ctx.fillStyle = '#231815';
+    ctx.font = 'bold 36px "Noto Sans JP", sans-serif';
+    ctx.fillText('BẰNG CHỨNG NHẬN', 450, 140);
+
+    // Subtitle
+    ctx.fillStyle = '#c01538';
+    ctx.font = 'bold 28px "Noto Sans JP", sans-serif';
+    ctx.fillText('TỐT NGHIỆP NHẬP MÔN TIẾNG NHẬT', 450, 190);
+
+    // Divider
+    ctx.strokeStyle = '#c8a455';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(200, 215);
+    ctx.lineTo(700, 215);
+    ctx.stroke();
+
+    // Body text
+    ctx.fillStyle = '#5a5450';
+    ctx.font = '16px "Noto Sans JP", sans-serif';
+    ctx.fillText('Học viện NipponMaster xác nhận bạn đã hoàn thành', 450, 270);
+    ctx.fillText('xuất sắc toàn bộ 5 Chương Lộ Trình Nhập Môn Tiếng Nhật', 450, 300);
+
+    // Chapters completed
+    ctx.fillStyle = '#2b5f43';
+    ctx.font = 'bold 14px "Noto Sans JP", sans-serif';
+    const chapters = [
+      '📖 Bảng Chữ Cái Kana',
+      '📖 Số Đếm & Thời Gian',
+      '📖 Chào Hỏi Giao Tiếp',
+      '📖 50+ Bộ Thủ Kanji',
+      '📖 Cấu Trúc Ngữ Pháp N5',
+    ];
+    chapters.forEach((ch, i) => {
+      ctx.fillText(ch, 450, 345 + i * 26);
+    });
+
+    // Score
+    const pct = Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100);
+    ctx.fillStyle = '#c01538';
+    ctx.font = 'bold 20px "Noto Sans JP", sans-serif';
+    ctx.fillText(`Điểm thi tốt nghiệp: ${pct}%`, 450, 510);
+
+    // Date
+    ctx.fillStyle = '#8c827b';
+    ctx.font = '13px "Noto Sans JP", sans-serif';
+    ctx.fillText(`Ngày cấp: ${new Date().toLocaleDateString('vi-VN')}`, 450, 545);
+
+    // Download
+    const link = document.createElement('a');
+    link.download = `NipponMaster_Certificate_${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }, [score]);
 
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
@@ -372,6 +461,13 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
             <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 text-xs font-bold text-primary">
               🏆 Đủ điều kiện tự tin bước vào Lộ Trình JLPT N5 Chính Thức!
             </div>
+
+            <button
+              onClick={downloadCertificate}
+              className="w-full py-3 rounded-2xl bg-secondary text-on-secondary font-bold text-sm cursor-pointer hover:bg-secondary/80 transition-colors shadow-md flex items-center justify-center gap-2"
+            >
+              <Download size={16} /> Tải Bằng Chứng Nhận (.PNG)
+            </button>
 
             <button
               onClick={() => setShowGraduationModal(false)}

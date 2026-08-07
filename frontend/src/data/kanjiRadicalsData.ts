@@ -10,6 +10,15 @@ export interface DerivedKanji {
   breakdownStory: string;
 }
 
+export type RadicalCategory = 'nature' | 'human' | 'object';
+
+export const RADICAL_CATEGORIES: { id: RadicalCategory | 'all'; label: string; icon: string }[] = [
+  { id: 'all', label: 'Tất cả', icon: '🔍' },
+  { id: 'nature', label: 'Tự Nhiên', icon: '🌿' },
+  { id: 'human', label: 'Con Người & Cơ Thể', icon: '👤' },
+  { id: 'object', label: 'Đồ Vật & Xây Dựng', icon: '🏠' },
+];
+
 export interface RadicalItem {
   id: string;
   symbol: string;
@@ -17,6 +26,7 @@ export interface RadicalItem {
   reading: string;
   primaryMeaning: string;
   secondaryMeanings: string[];
+  category: RadicalCategory;    // Phân loại chủ đề
   pictogramSymbol: string;      // Icon / Ký tự biểu tượng tượng hình
   pictogramDesc: string;        // Mô tả hình dáng thực tế
   explanation: string;         // Giải thích nghĩa chi tiết
@@ -46,6 +56,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'NHẬT / ひ (hi) / ニチ (nichi)',
     primaryMeaning: 'Mặt Trời',
     secondaryMeanings: ['Ngày (thời gian)', 'Nhật Bản (đất nước)', 'Ánh sáng / Ban ngày'],
+    category: 'nature',
     pictogramSymbol: '☀️',
     pictogramDesc: 'Vòng tròn mặt trời chiếu sáng với vạch ngang ở giữa đại diện cho luồng ánh sáng phát ra.',
     explanation: 'Bộ Nhật là một trong những bộ thủ tượng hình cổ xưa nhất. Vốn vẽ hình mặt trời tròn có chấm ở giữa. Khi dùng làm bộ thủ ghép, nó thường mang ý nghĩa liên quan đến thời gian, ban ngày hoặc mặt trời.',
@@ -63,6 +74,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'NGUYỆT / つき (tsuki) / ゲツ (getsu)',
     primaryMeaning: 'Mặt Trăng',
     secondaryMeanings: ['Tháng (thời gian)', 'Cơ thể / Thịt (khi làm bộ Nhục ⺜)'],
+    category: 'nature',
     pictogramSymbol: '🌙',
     pictogramDesc: 'Hình dáng vầng trăng khuyết với hai vạch mây mờ che ngang.',
     explanation: 'Bộ Nguyệt tượng hình vầng trăng khuyết. Có 2 tầng nghĩa chính: Chỉ mặt trăng/tháng (thời gian) và khi đứng bên trái chữ Hán nó đóng vai trò bộ Nhục (⺜) đại diện cho các bộ phận cơ thể con người (như 胃 - dạ dày, 腹 - bụng).',
@@ -79,6 +91,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'MỘC / き (ki) / モク (moku)',
     primaryMeaning: 'Cây cối',
     secondaryMeanings: ['Gỗ / Đồ gỗ', 'Thứ Tám (Mộc star)'],
+    category: 'nature',
     pictogramSymbol: '🌳',
     pictogramDesc: 'Hình ảnh thân cây đứng thẳng với cành lá xòe ra ở trên và rễ cây cắm sâu xuống đất ở dưới.',
     explanation: 'Bộ Mộc miêu tả một cái cây toàn vẹn: nét dọc là thân cây, nét ngang là cành, 2 nét phẩy mát là rễ cây. Xuất hiện trong hầu hết các từ chỉ thực vật, rừng rậm hoặc đồ dùng làm bằng gỗ.',
@@ -96,6 +109,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'THỦY / みず (mizu) / スイ (sui)',
     primaryMeaning: 'Nước',
     secondaryMeanings: ['Chất lỏng', 'Thứ Tư (Thủy star)', 'Dòng chảy (khi biến thành bộ Ba Chấm Thủy 氵)'],
+    category: 'nature',
     pictogramSymbol: '💧',
     pictogramDesc: 'Dòng nước chảy xiết ở giữa với các giọt nước bắn tung tóe xung quanh.',
     explanation: 'Bộ Thủy vẽ hình dòng nước chảy. Khi đứng độc lập viết là 水. Khi đứng bên trái chữ Hán biến thể thành **Bộ Ba Chấm Thủy (氵)** xuất hiện trong vô số từ liên quan đến nước và chất lỏng (như 海 - biển, 池 - ao, 洗 - rửa).',
@@ -112,6 +126,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'HỎA / ひ (hi) / カ (ka)',
     primaryMeaning: 'Ngọn Lửa',
     secondaryMeanings: ['Cháy / Nóng', 'Thứ Ba (Hỏa star)', 'Hỏa táng (bộ Bốn Đốm Lửa 灬 ở dưới)'],
+    category: 'nature',
     pictogramSymbol: '🔥',
     pictogramDesc: 'Ngọn lửa bốc cháy bùng bùng với các tàn lửa bắn ra xung quanh.',
     explanation: 'Bộ Hỏa tượng hình ngọn lửa đang bốc cháy. Khi nằm bên dưới chữ Hán, nó biến đổi thành **Bộ Bốn Đốm Lửa (灬)** còn gọi là bộ Hỏa chấm (ví dụ: 点 - điểm, 魚 - cá nướng trên lửa).',
@@ -128,6 +143,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'THỔ / つち (tsuchi) / ド (do)',
     primaryMeaning: 'Đất mầm',
     secondaryMeanings: ['Thổ dưỡng / Đất đai', 'Thứ Bảy (Thổ star)', 'Địa điểm / Xây dựng'],
+    category: 'nature',
     pictogramSymbol: '🌱',
     pictogramDesc: 'Mầm cây nhỏ nhú lên từ mặt đất nâu mỡ màu.',
     explanation: 'Bộ Thổ vẽ mầm cây mọc lên trên mặt đất. Nét ngang dưới là mặt đất, nét dọc và ngang trên là mầm cây. Liên quan đến đất đai, xây dựng, gạch đá.',
@@ -144,6 +160,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'NHÂN / ひと (hito) / ジン (jin)',
     primaryMeaning: 'Con Người',
     secondaryMeanings: ['Nhân loại', 'Người nước... (bộ Đứng 亻 bên trái)'],
+    category: 'human',
     pictogramSymbol: '🧍',
     pictogramDesc: 'Hình ảnh con người đang bước đi với 2 chân sải bước vững chãi.',
     explanation: 'Bộ Nhân tượng hình người đứng nghiêng đang sải bước. Khi làm bộ bên trái chữ Hán biến thành **Bộ Nhân Đứng (亻)** (như 他 - người khác, 休 - nghỉ ngơi, 体 - cơ thể).',
@@ -160,6 +177,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'KHẨU / くち (kuchi) / コウ (kou)',
     primaryMeaning: 'Cái Miệng',
     secondaryMeanings: ['Cổng / Cửa vào (bật/tắt)', 'Lời nói / Ngôn ngữ', 'Cửa khẩu'],
+    category: 'human',
     pictogramSymbol: '👄',
     pictogramDesc: 'Hình ô vuông miêu tả cái miệng mở ra khi nói chuyện hoặc ăn uống.',
     explanation: 'Bộ Khẩu hình ô vuông tượng hình cái miệng mở. Xuất hiện trong các từ liên quan đến lời nói, ăn uống, kêu la hoặc cửa ra vào (入口 - lối vào, 出口 - lối ra).',
@@ -176,6 +194,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'NỮ / おんな (onna) / ジョ (jo)',
     primaryMeaning: 'Phụ Nữ',
     secondaryMeanings: ['Con gái / Con nữ', 'Vẻ đẹp / Quý phái'],
+    category: 'human',
     pictogramSymbol: '👩',
     pictogramDesc: 'Hình ảnh người phụ nữ đang ngồi khoanh tay quỳ gối quý phái thời cổ đại.',
     explanation: 'Bộ Nữ miêu tả hình ảnh người phụ nữ. Xuất hiện trong các chữ chỉ phái nữ (好 - yêu thích, 妹 - em gái, 姉 - chị gái, 妻 - vợ).',
@@ -192,6 +211,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
     reading: 'SƠN / やま (yama) / サン (san)',
     primaryMeaning: 'Ngọn Núi',
     secondaryMeanings: ['Sơn hà / Phân núi', 'Cao lớn / Hùng vĩ'],
+    category: 'nature',
     pictogramSymbol: '⛰️',
     pictogramDesc: 'Ba ngọn núi nhấp nhô với đỉnh núi cao nhất đứng chót vót ở giữa.',
     explanation: 'Bộ Sơn vẽ 3 đỉnh núi nhấp nhô. Nét giữa cao nhất đại diện ngọn núi chính, 2 nét hai bên là hai ngọn núi phụ.',

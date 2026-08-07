@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Volume2, Check, ArrowRight, RotateCcw, Info, BookOpen, PenTool, AlertTriangle, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  ESSENTIAL_RADICALS, RADICALS_CHAPTER_QUIZ,
-  type RadicalItem
+  ESSENTIAL_RADICALS, RADICALS_CHAPTER_QUIZ, RADICAL_CATEGORIES,
+  type RadicalItem, type RadicalCategory
 } from '../../data/kanjiRadicalsData';
 import { speakJapanese } from '../../data/kanaData';
 import KanjiInteractiveCanvas from '../../components/KanjiInteractiveCanvas';
 import { kanjiCanvasApi, type DrawnStroke } from '../../api/kanjiCanvasApi';
+import { playCorrectSound, playWrongSound } from '../../utils/audioSfx';
 
 interface KanjiRadicalsHubProps {
   onChapterComplete?: (chapterId: string, scorePercent: number) => void;
@@ -16,6 +17,13 @@ interface KanjiRadicalsHubProps {
 export default function KanjiRadicalsHub({ onChapterComplete }: KanjiRadicalsHubProps) {
   const [activeTab, setActiveTab] = useState<'pictogram' | 'writing' | 'mnemonics' | 'test'>('pictogram');
   const [selectedRadical, setSelectedRadical] = useState<RadicalItem>(ESSENTIAL_RADICALS[0]);
+  const [categoryFilter, setCategoryFilter] = useState<RadicalCategory | 'all'>('all');
+
+  // Filtered radicals by category
+  const filteredRadicals = useMemo(() => {
+    if (categoryFilter === 'all') return ESSENTIAL_RADICALS;
+    return ESSENTIAL_RADICALS.filter(r => r.category === categoryFilter);
+  }, [categoryFilter]);
 
   // Writing Canvas state
   const [evaluating, setEvaluating] = useState(false);
@@ -62,8 +70,10 @@ export default function KanjiRadicalsHub({ onChapterComplete }: KanjiRadicalsHub
     const currentQ = RADICALS_CHAPTER_QUIZ[quizIdx];
     if (optionIdx === currentQ.correctIndex) {
       setScore(s => s + 1);
+      playCorrectSound();
       if (currentQ.audioText) speakJapanese(currentQ.audioText);
     } else {
+      playWrongSound();
       setWrongQuestions(prev => [...prev, currentQ]);
     }
   };
@@ -136,9 +146,39 @@ export default function KanjiRadicalsHub({ onChapterComplete }: KanjiRadicalsHub
         {/* TAB 1: THƯ VIỆN TƯỢNG HÌNH */}
         {activeTab === 'pictogram' && (
           <motion.div key="pictogram" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+            {/* Category Filter Pills */}
+            <div className="flex flex-wrap gap-2">
+              {RADICAL_CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setCategoryFilter(cat.id);
+                    // Auto-select first radical in new category
+                    const newList = cat.id === 'all' ? ESSENTIAL_RADICALS : ESSENTIAL_RADICALS.filter(r => r.category === cat.id);
+                    if (newList.length > 0 && !newList.find(r => r.id === selectedRadical.id)) {
+                      setSelectedRadical(newList[0]);
+                    }
+                  }}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    categoryFilter === cat.id
+                      ? 'bg-primary text-on-primary shadow-sm'
+                      : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high border border-outline-variant/30'
+                  }`}
+                >
+                  <span>{cat.icon}</span>
+                  <span>{cat.label}</span>
+                  {cat.id !== 'all' && (
+                    <span className="text-[10px] opacity-70">
+                      ({ESSENTIAL_RADICALS.filter(r => r.category === cat.id).length})
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
             {/* Radical Selector Pills */}
             <div className="flex flex-wrap gap-2">
-              {ESSENTIAL_RADICALS.map(r => (
+              {filteredRadicals.map(r => (
                 <button
                   key={r.id}
                   onClick={() => setSelectedRadical(r)}
