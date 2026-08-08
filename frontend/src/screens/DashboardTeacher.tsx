@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { 
   BookOpen, Users, Star, TrendingUp, PlusCircle, 
   UserPlus, Copy, Check, Sparkles, Languages, Shapes, BookType, 
-  ShieldCheck, GraduationCap
+  ShieldCheck, GraduationCap, FileText, Upload
 } from 'lucide-react';
+import ExamBuilderStudio from './ExamBuilderStudio';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -17,7 +18,14 @@ interface DashboardTeacherProps {
 
 export default function DashboardTeacher({ username }: DashboardTeacherProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'studio'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'studio' | 'exams'>('overview');
+  const [showExamStudio, setShowExamStudio] = useState(false);
+  const [editingExam, setEditingExam] = useState<any>(null);
+
+  // Exam List & Filter state
+  const [examList, setExamList] = useState<any[]>([]);
+  const [examSearch, setExamSearch] = useState('');
+  const [examLevelFilter, setExamLevelFilter] = useState<string>('ALL');
   const [stats, setStats] = useState<TeacherStats | null>(null);
   const [classes, setClasses] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,12 +77,14 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
   const fetchTeacherData = async () => {
     setLoading(true);
     try {
-      const [statsData, classesData] = await Promise.all([
+      const [statsData, classesData, examsData] = await Promise.all([
         teacherApi.getStats().catch(() => null),
         teacherApi.getClasses().catch(() => []),
+        teacherApi.getExams().catch(() => []),
       ]);
       if (statsData) setStats(statsData);
       setClasses(classesData || []);
+      setExamList(examsData || []);
       if (classesData.length > 0 && !selectedClassId) {
         setSelectedClassId(classesData[0].id);
       }
@@ -217,8 +227,9 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
         <div className="flex bg-surface-container-low p-1.5 rounded-2xl border border-outline-variant/60 gap-1">
           {[
             { id: 'overview', label: 'Tổng quan', icon: TrendingUp },
-            { id: 'classes', label: 'Lớp học & Học viên', icon: Users },
+            { id: 'classes', label: 'Lớp học', icon: Users },
             { id: 'studio', label: 'Soạn bài học', icon: Sparkles },
+            { id: 'exams', label: 'Soạn Đề thi JLPT', icon: FileText },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -343,6 +354,9 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
                 </Button>
                 <Button variant="secondary" className="w-full" icon={<BookType size={16} />} onClick={() => { setContentType('grammar'); setActiveTab('studio'); }}>
                   Soạn Ngữ pháp mới
+                </Button>
+                <Button variant="primary" className="w-full mt-2" icon={<FileText size={16} />} onClick={() => setShowExamStudio(true)}>
+                  ✍️ Studio Tạo Đề Thi JLPT
                 </Button>
               </div>
             </div>
@@ -625,6 +639,165 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
               </Button>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* TAB 4: EXAM MANAGEMENT & BUILDER STUDIO */}
+      {activeTab === 'exams' && (
+        <div className="space-y-6 gsap-fade-tab">
+          {showExamStudio ? (
+            <ExamBuilderStudio
+              initialExam={editingExam}
+              onBack={() => {
+                setShowExamStudio(false);
+                setEditingExam(null);
+              }}
+              onSuccess={() => {
+                setShowExamStudio(false);
+                setEditingExam(null);
+                fetchTeacherData();
+              }}
+            />
+          ) : (
+            <div className="space-y-6">
+              {/* Header & Create Button */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-on-surface">Quản lý Kho Đề Thi JLPT</h2>
+                  <p className="text-sm text-on-surface-variant">Tạo mới, chỉnh sửa, import câu hỏi hàng loạt và quản lý đề thi JLPT N5-N1.</p>
+                </div>
+
+                <Button
+                  variant="primary"
+                  icon={<PlusCircle size={16} />}
+                  onClick={() => {
+                    setEditingExam(null);
+                    setShowExamStudio(true);
+                  }}
+                >
+                  Tạo đề thi mới
+                </Button>
+              </div>
+
+              {/* Search Bar & Filter Pills */}
+              <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/30 shadow-sm">
+                {/* Search input */}
+                <input
+                  type="text"
+                  placeholder="🔍 Tìm kiếm đề thi theo tên hoặc nội dung..."
+                  value={examSearch}
+                  onChange={e => setExamSearch(e.target.value)}
+                  className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-outline-variant bg-surface text-xs font-semibold focus:outline-none focus:border-primary"
+                />
+
+                {/* Level Filter Pills */}
+                <div className="flex flex-wrap gap-1.5">
+                  {['ALL', 'N5', 'N4', 'N3', 'N2', 'N1'].map(lvl => (
+                    <button
+                      key={lvl}
+                      onClick={() => setExamLevelFilter(lvl)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                        examLevelFilter === lvl
+                          ? 'bg-primary text-on-primary shadow-sm'
+                          : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                      }`}
+                    >
+                      {lvl === 'ALL' ? '🔍 Tất cả' : lvl}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Exam Cards Grid */}
+              {(() => {
+                const filtered = examList.filter(e => {
+                  const matchSearch = !examSearch || e.title?.toLowerCase().includes(examSearch.toLowerCase());
+                  const matchLevel = examLevelFilter === 'ALL' || e.jlptLevel === examLevelFilter;
+                  return matchSearch && matchLevel;
+                });
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="text-center py-16 border border-dashed border-outline-variant/60 rounded-3xl p-6 bg-surface-container-lowest text-on-surface-variant text-sm space-y-3">
+                      <p>Không tìm thấy đề thi nào phù hợp với bộ lọc.</p>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        icon={<PlusCircle size={16} />}
+                        onClick={() => {
+                          setEditingExam(null);
+                          setShowExamStudio(true);
+                        }}
+                      >
+                        Tạo đề thi mới ngay
+                      </Button>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filtered.map(ex => (
+                      <div key={ex.id} className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 space-y-3 shadow-sm flex flex-col justify-between hover:border-primary/50 transition-all">
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <Badge variant="crimson">{ex.jlptLevel || 'N5'}</Badge>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              ex.isPublished ? 'bg-secondary/15 text-secondary' : 'bg-surface-container text-on-surface-variant'
+                            }`}>
+                              {ex.isPublished ? '✅ Đã xuất bản' : '📝 Bản nháp'}
+                            </span>
+                          </div>
+
+                          <h3 className="font-bold text-on-surface text-base line-clamp-2">{ex.title}</h3>
+                          <p className="text-xs text-on-surface-variant line-clamp-2 mt-1">{ex.description || 'Chưa có mô tả'}</p>
+
+                          <div className="flex items-center gap-3 text-[11px] text-on-surface-variant font-medium mt-3 pt-3 border-t border-outline-variant/20">
+                            <span>⏱️ {ex.durationMinutes || 60} phút</span>
+                            <span>❓ {ex.questions?.length || 0} câu hỏi</span>
+                            <span>🏆 {ex.totalScore || 100} điểm</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-3 border-t border-outline-variant/30">
+                          <button
+                            onClick={async () => {
+                              try {
+                                const detail = await teacherApi.getExamById(ex.id);
+                                setEditingExam(detail);
+                                setShowExamStudio(true);
+                              } catch {
+                                setEditingExam(ex);
+                                setShowExamStudio(true);
+                              }
+                            }}
+                            className="flex-1 py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 cursor-pointer text-center"
+                          >
+                            Chỉnh sửa
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (confirm(`Bạn có chắc chắn muốn xóa đề thi "${ex.title}"?`)) {
+                                try {
+                                  await teacherApi.deleteExam(ex.id);
+                                  fetchTeacherData();
+                                } catch (err: any) {
+                                  alert(err.message || 'Lỗi khi xóa đề thi');
+                                }
+                              }
+                            }}
+                            className="px-3 py-2 rounded-xl bg-error/10 text-error text-xs font-bold hover:bg-error/20 cursor-pointer"
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
       )}
 

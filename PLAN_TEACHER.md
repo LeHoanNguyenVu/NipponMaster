@@ -17,16 +17,20 @@ Tài liệu chi tiết quản lý toàn bộ công cụ tạo đề thi, biên s
 
 ## 🏃 2. Lộ Trình Sprints & Tasks Chi Tiết (Từ Hiện Tại Đến Tương Lai Dài Hạn)
 
-### 📍 GIAI ĐOẠN 1: STUDIO BIÊN SOẠN & NHẬP ĐỀ THI (Sprint 11) — [NGẮN HẠN ⏳]
+### 📍 GIAI ĐOẠN 1: STUDIO BIÊN SOẠN & NHẬP ĐỀ THI (Sprint 11) — [ĐÃ HOÀN THÀNH ✅]
 
-#### [ ] **Task 11.1: Trình Soạn Thảo Đề Thi JLPT Đa Định Dạng (JLPT Exam Builder Studio)**
-- **Mô tả**: Cho phép giảng viên tạo đề thi JLPT mới (N5-N1), tự thiết lập thời gian làm bài, số lượng câu hỏi và phân bổ theo các phần (Từ vựng, Ngữ pháp, Đọc hiểu, Nghe hiểu).
-- **Công nghệ**: React Form, Rich Text Editor (Tiptap), Spring Boot REST API.
-- **Luồng chạy**: DashboardTeacher ➔ Bấm "Tạo Đề Thi Mới" ➔ Nhập thông tin & câu hỏi/đáp án/lời giải ➔ Gọi `POST /api/v1/teacher/exams` ➔ Lưu bảng `exams` & `exam_questions`.
+#### [x] **Task 11.1: Trình Soạn Thảo Đề Thi JLPT Đa Định Dạng (JLPT Exam Builder Studio)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Studio biên soạn đề thi tương tác dành cho Giảng viên (`ExamBuilderStudio.tsx`). Cấu hình đề thi (Tiêu đề, Level N5-N1, Loại đề FULL/VOCABULARY/GRAMMAR/READING/LISTENING, Thời gian, Tổng điểm), quản lý danh sách câu hỏi kéo thả/di chuyển vị trí, nhập nội dung, 4 đáp án A/B/C/D, chọn đáp án đúng và lời giải chi tiết.
+- **Công nghệ**: React State Engine, Spring Boot REST APIs (`POST /api/v1/exams`, `PUT /api/v1/exams/{id}`, `DELETE /api/v1/exams/{id}`).
 
-#### [ ] **Task 11.2: Nhập Đề Thi Hàng Loạt Từ File Excel / JSON (Bulk Question Import)**
-- **Mô tả**: Giảng viên tải file mẫu Excel (.xlsx) hoặc JSON, điền hàng trăm câu hỏi và upload trực tiếp lên hệ thống chỉ trong vài giây.
-- **Công nghệ**: Apache POI (Java Excel Parser), SheetJS (Frontend preview grid).
+#### [x] **Task 11.2: Nhập Đề Thi Hàng Loạt Từ File Excel / JSON (Bulk Question Import)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Tải file mẫu `.json`, Drag & drop file upload parser, ô dán trực tiếp JSON/CSV và **Bảng Live Preview Grid** kiểm tra tính hợp lệ của từng câu hỏi (báo lỗi nếu thiếu nội dung hoặc đáp án) trước khi Nạp 1-Click hàng chục/hàng trăm câu vào đề thi.
+- **Công nghệ**: Frontend JSON/CSV Parser Engine, Interactive Preview Grid.
+
+#### 💡 **[CÁC ĐIỂM TỐI ƯU UX/UI ĐÃ BỔ SUNG ✅]**:
+- [x] **1. Nút Trộn Ngẫu Nhiên (Randomize Shuffle Toggles)**: Thêm tùy chọn `[x] Trộn thứ tự câu hỏi` và `[x] Đảo ngẫu nhiên 4 đáp án A, B, C, D` chống học vẹt khi làm bài thi.
+- [x] **2. Xuất File In Đề Thi (.doc / Word Print-Ready)**: Nút **"📥 Xuất File Word In Đề (.doc)"** sinh tài liệu in ấn chuẩn gồm Trang đề bài + Trang Đáp án & Hướng dẫn giải chi tiết cho lớp học Offline.
+- [x] **3. Thanh Tìm Kiếm & Lọc Đề Thi Theo Cấp Độ (Search Bar & Level Filter Pills)**: Thêm ô tìm kiếm đề thi theo tên & bộ lọc cấp độ `[🔍 Tất cả]`, `[N5]`, `[N4]`, `[N3]`, `[N2]`, `[N1]` trên `DashboardTeacher.tsx`.
 
 ---
 
