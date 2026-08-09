@@ -27,13 +27,17 @@ const LEVEL_COLOR: Record<JlptLevel, string> = {
 
 export default function PlacementResultView({ result, onConfirm, onRetry, onTakeTestLevel, isConfirming }: Props) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
-  const [chosenLevel, setChosenLevel] = useState<JlptLevel>(result.recommendedLevel);
+  const pct = result.scorePercent;
+  const isIntroRecommended = result.targetLevel === 'N5' && pct < 50;
+
+  const [chosenLevel, setChosenLevel] = useState<JlptLevel | 'INTRO'>(
+    isIntroRecommended ? 'INTRO' : result.recommendedLevel
+  );
   const [filterTab, setFilterTab] = useState<'all' | 'wrong' | 'correct'>('all');
 
-  const pct = result.scorePercent;
   const scoreColor = pct >= 80 ? '#2b5f43' : pct >= 50 ? '#7c5c2e' : '#ba1a1a';
   const scoreEmoji = pct >= 80 ? '🎉' : pct >= 50 ? '📚' : '💪';
-  const isNeedsLowerTest = pct < 40 || result.recommendedLevel !== result.targetLevel;
+  const isNeedsLowerTest = (pct < 40 || result.recommendedLevel !== result.targetLevel) && !isIntroRecommended;
 
   // Circle progress for overall score
   const radius = 52;
@@ -48,6 +52,16 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
     if (filterTab === 'correct') return q.isCorrect;
     return true;
   });
+
+  const handleConfirmSubmit = (level: JlptLevel | 'INTRO') => {
+    if (level === 'INTRO') {
+      localStorage.setItem('nippon_user_mode', 'beginner');
+      onConfirm('N5');
+    } else {
+      localStorage.removeItem('nippon_user_mode');
+      onConfirm(level);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
@@ -90,18 +104,41 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
               {scoreEmoji} {result.overallFeedback}
             </p>
           </div>
-          <div style={{
-            padding: '14px 18px', borderRadius: 14, background: '#fff',
-            border: '1.5px solid #e2dbce', display: 'flex', alignItems: 'center', gap: 12,
-          }}>
-            <span style={{ fontSize: 20 }}>🎯</span>
-            <div>
-              <div style={{ fontSize: 12, color: '#8c827b', marginBottom: 2 }}>Đề xuất phù hợp</div>
-              <div style={{ fontWeight: 800, fontSize: 17, color: LEVEL_COLOR[result.recommendedLevel] }}>
-                Trình độ {result.recommendedLevel}
+
+          {/* Recommended Card */}
+          {isIntroRecommended ? (
+            <div style={{
+              padding: '14px 18px', borderRadius: 14, background: '#e6f4ea',
+              border: '1.5px solid #34a853', display: 'flex', alignItems: 'center', gap: 12,
+            }}>
+              <span style={{ fontSize: 24 }}>🌱</span>
+              <div>
+                <div style={{ fontSize: 11, color: '#137333', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>
+                  Đề xuất ưu tiên hàng đầu
+                </div>
+                <div style={{ fontWeight: 800, fontSize: 16, color: '#0d5225' }}>
+                  Khóa Tiếng Nhật Nhập Môn (Cơ Bản Từ 0)
+                </div>
+                <div style={{ fontSize: 11, color: '#1e8e3e', marginTop: 2 }}>
+                  Học 50 bảng chữ cái Hiragana/Katakana, Số đếm, Aisatsu & Bộ thủ Kanji
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div style={{
+              padding: '14px 18px', borderRadius: 14, background: '#fff',
+              border: '1.5px solid #e2dbce', display: 'flex', alignItems: 'center', gap: 12,
+            }}>
+              <span style={{ fontSize: 20 }}>🎯</span>
+              <div>
+                <div style={{ fontSize: 12, color: '#8c827b', marginBottom: 2 }}>Đề xuất phù hợp</div>
+                <div style={{ fontWeight: 800, fontSize: 17, color: LEVEL_COLOR[result.recommendedLevel] }}>
+                  Trình độ {result.recommendedLevel}
+                </div>
+              </div>
+            </div>
+          )}
+
           <p style={{ fontSize: 13, color: '#5a5450', marginTop: 10, lineHeight: 1.6 }}>
             💡 {result.actionSuggestion}
           </p>
@@ -112,13 +149,13 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
       {(result.diagnosticSummary || result.levelDropReason) && (
         <div style={{
           padding: '20px 22px', borderRadius: 18,
-          background: pct < 40 ? '#fff5f5' : '#f7f5f0',
-          border: pct < 40 ? '1.5px solid #f87171' : '1.5px solid #e2dbce',
+          background: isIntroRecommended ? '#fff5f5' : pct < 40 ? '#fff5f5' : '#f7f5f0',
+          border: isIntroRecommended ? '1.5px solid #ba1a1a' : pct < 40 ? '1.5px solid #f87171' : '1.5px solid #e2dbce',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-            <span style={{ fontSize: 20 }}>🔬</span>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: '#231815', margin: 0 }}>
-              Phân Tích Chẩn Đoán Lỗi Sai & Đánh Giá Năng Lực
+            <span style={{ fontSize: 20 }}>{isIntroRecommended ? '⚠️' : '🔬'}</span>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: isIntroRecommended ? '#ba1a1a' : '#231815', margin: 0 }}>
+              {isIntroRecommended ? 'Chẩn Đoán: Bạn Cần Xây Lại Nền Tảng Tiếng Nhật Căn Bản' : 'Phân Tích Chẩn Đoán Lỗi Sai & Đánh Giá Năng Lực'}
             </h3>
           </div>
           {result.diagnosticSummary && (
@@ -185,9 +222,26 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
       {/* ── LEVEL CONFIRMATION ────────────────────────────────────── */}
       <div style={{ padding: '20px 22px', borderRadius: 18, background: '#f7f5f0', border: '1.5px solid #e2dbce' }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, color: '#5a5450', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
-          Xác nhận trình độ học tập của bạn
+          Xác nhận lộ trình học tập phù hợp
         </h3>
+
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+          {/* Introductory Option Pill */}
+          <button
+            id="confirm-level-intro"
+            onClick={() => setChosenLevel('INTRO')}
+            style={{
+              padding: '8px 16px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+              border: chosenLevel === 'INTRO' ? '2.5px solid #137333' : '2px solid #e2dbce',
+              background: chosenLevel === 'INTRO' ? '#e6f4ea' : '#fff',
+              color: chosenLevel === 'INTRO' ? '#137333' : '#5a5450',
+              transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}
+          >
+            🌱 Tiếng Nhật Nhập Môn {isIntroRecommended ? '⭐ (Khuyên dùng)' : ''}
+          </button>
+
           {(['N5', 'N4', 'N3', 'N2', 'N1'] as JlptLevel[]).map(lv => (
             <button
               key={lv}
@@ -201,23 +255,28 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                 transition: 'all 0.15s',
               }}
             >
-              {lv} {lv === result.recommendedLevel ? '⭐' : ''}
+              {lv} {!isIntroRecommended && lv === result.recommendedLevel ? '⭐' : ''}
             </button>
           ))}
         </div>
+
         <div style={{ display: 'flex', gap: 10 }}>
           <button
             id="confirm-level-btn"
-            onClick={() => onConfirm(chosenLevel)}
+            onClick={() => handleConfirmSubmit(chosenLevel)}
             disabled={isConfirming}
             style={{
               flex: 1, padding: '12px 0', borderRadius: 12, border: 'none',
-              background: isConfirming ? '#8c827b' : '#c01538',
+              background: isConfirming ? '#8c827b' : chosenLevel === 'INTRO' ? '#137333' : '#c01538',
               color: '#fff', fontWeight: 700, fontSize: 15, cursor: isConfirming ? 'wait' : 'pointer',
               transition: 'background 0.2s',
             }}
           >
-            {isConfirming ? '⏳ Đang lưu...' : `🎌 Bắt đầu học ${chosenLevel}!`}
+            {isConfirming
+              ? '⏳ Đang lưu...'
+              : chosenLevel === 'INTRO'
+              ? '🌱 Bắt Đầu Học Tiếng Nhật Nhập Môn (Từ 0)!'
+              : `🎌 Bắt đầu học ${chosenLevel}!`}
           </button>
           <button
             id="retry-test-btn"

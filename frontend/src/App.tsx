@@ -148,6 +148,7 @@ export default function App() {
           {currentScreen === 'dashboard' && (!user?.role || user?.role === 'student') && (
             <DashboardStudent
               onStartStudy={() => setCurrentScreen('flashcards')}
+              onOpenBeginnerCourse={() => setCurrentScreen('beginner')}
               username={user?.username}
             />
           )}

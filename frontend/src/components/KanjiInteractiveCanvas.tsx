@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { RotateCcw, Trash2, Eye, EyeOff, Sparkles, PenTool } from 'lucide-react';
 import type { DrawnStroke, Point } from '../api/kanjiCanvasApi';
+import KanjiStrokeWriter from './KanjiStrokeWriter';
 
 interface KanjiInteractiveCanvasProps {
   guideCharacter?: string;
@@ -181,19 +182,10 @@ export default function KanjiInteractiveCanvas({
           </svg>
         </div>
 
-        {/* Faint Target Guide Character SVG or Text */}
-        {showGuide && (guideCharacter || guideSvgContent) && (
-          <div className="absolute inset-2 flex items-center justify-center pointer-events-none z-0 opacity-20 select-none">
-            {guideSvgContent ? (
-              <div
-                className="w-full h-full flex items-center justify-center text-primary"
-                dangerouslySetInnerHTML={{ __html: guideSvgContent }}
-              />
-            ) : (
-              <span className="text-[160px] font-jp font-bold text-primary leading-none">
-                {guideCharacter}
-              </span>
-            )}
+        {/* Faint Target Guide Character SVG with Animated Stroke Order & Numbers */}
+        {showGuide && guideCharacter && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-70 select-none p-4">
+            <KanjiStrokeWriter key={guideCharacter} character={guideCharacter} standalone={false} />
           </div>
         )}
 

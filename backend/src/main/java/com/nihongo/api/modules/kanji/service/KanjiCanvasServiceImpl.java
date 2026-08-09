@@ -91,26 +91,58 @@ public class KanjiCanvasServiceImpl implements KanjiCanvasService {
                 ? kanjiRepository.findByCharacter(targetChar)
                 : Optional.empty();
 
-        int expectedStrokes = targetOpt.map(Kanji::getStrokeCount).orElse(drawnCount);
+        int expectedStrokes = targetOpt.map(Kanji::getStrokeCount).orElse(0);
+
+        // Fallback expected stroke count based on character unicode / kana map
+        if (expectedStrokes == 0 && targetChar != null && !targetChar.isEmpty()) {
+            expectedStrokes = estimateExpectedStrokes(targetChar);
+        }
+
         boolean strokeCountMatched = (drawnCount == expectedStrokes);
 
         List<StrokeFeedback> feedbacks = new ArrayList<>();
-        int correctStrokes = 0;
+        double totalStrokeScore = 0.0;
+        boolean hasAnySevereIssue = false;
 
         for (int i = 0; i < drawnCount; i++) {
             DrawnStroke stroke = drawnStrokes.get(i);
-            boolean correctDir = analyzeStrokeDirection(stroke);
             boolean correctOrder = (i < expectedStrokes);
 
-            if (correctDir && correctOrder) {
-                correctStrokes++;
+            // Detailed Stroke Analysis: Direction, Smoothness, Wiggle distortion, Turning angles
+            StrokeQualityQuality quality = analyzeStrokeQuality(stroke);
+            boolean correctDir = quality.isCorrectDirection && quality.isSmooth;
+
+            double strokeScore = 1.0;
+            List<String> issues = new ArrayList<>();
+
+            if (!correctOrder) {
+                strokeScore -= 0.50;
+                issues.add("thừa nét so với mẫu");
+                hasAnySevereIssue = true;
+            }
+            if (!quality.isCorrectDirection) {
+                strokeScore -= 0.45;
+                issues.add("hướng vẽ ngược/lệch");
+                hasAnySevereIssue = true;
+            }
+            if (quality.isDistorted) {
+                strokeScore -= 0.55;
+                issues.add("nét vẽ bị méo mó/thừa nhánh");
+                hasAnySevereIssue = true;
+            } else if (!quality.isSmooth) {
+                strokeScore -= 0.30;
+                issues.add("nét vẽ bị rung lắc");
             }
 
-            String comment = String.format("Nét thứ %d: %s, hướng vẽ %s.",
-                    i + 1,
-                    correctOrder ? "đúng thứ tự" : "vượt quá số nét chuẩn",
-                    correctDir ? "chuẩn xác" : "cần điều chỉnh"
-            );
+            strokeScore = Math.max(0.05, strokeScore);
+            totalStrokeScore += strokeScore;
+
+            String comment;
+            if (issues.isEmpty()) {
+                comment = String.format("Nét thứ %d: đúng thứ tự, đường nét vẽ đẹp và chuẩn xác.", i + 1);
+            } else {
+                comment = String.format("Nét thứ %d: ⚠️ %s.", i + 1, String.join(", ", issues));
+            }
 
             feedbacks.add(StrokeFeedback.builder()
                     .strokeIndex(i + 1)
@@ -120,19 +152,42 @@ public class KanjiCanvasServiceImpl implements KanjiCanvasService {
                     .build());
         }
 
-        // Calculate overall accuracy score
-        double countRatio = expectedStrokes > 0 ? 1.0 - Math.min(1.0, Math.abs(drawnCount - expectedStrokes) * 0.2) : 1.0;
-        double strokeRatio = drawnCount > 0 ? (double) correctStrokes / drawnCount : 0.0;
-        int overallScore = (int) Math.round((countRatio * 0.4 + strokeRatio * 0.6) * 100);
-
-        String feedbackMsg;
-        if (overallScore >= 85) {
-            feedbackMsg = "🎉 Xuất sắc! Nét vẽ và thứ tự nét của bạn rất chuẩn xác.";
-        } else if (overallScore >= 65) {
-            feedbackMsg = "👍 Khá tốt! Hình chữ đúng dạng, hãy chú ý thứ tự và độ cong của từng nét nhé.";
-        } else {
-            feedbackMsg = "✍️ Cần luyện thêm! Hãy theo dõi đường nét mờ mẫu và thứ tự nét đánh số.";
+        // Ultra-Strict Stroke Count Penalty Multiplier
+        double countMultiplier = 1.0;
+        if (expectedStrokes > 0) {
+            int diff = Math.abs(drawnCount - expectedStrokes);
+            if (diff == 1) {
+                countMultiplier = 0.50; // 50% penalty for stroke count mismatch
+                hasAnySevereIssue = true;
+            } else if (diff >= 2) {
+                countMultiplier = 0.25; // 75% penalty for heavy stroke count mismatch
+                hasAnySevereIssue = true;
+            }
         }
+
+        int maxStrokesCount = Math.max(drawnCount, expectedStrokes);
+        double strokeQualityAvg = maxStrokesCount > 0 ? totalStrokeScore / maxStrokesCount : 0.0;
+        int rawScore = (int) Math.round(strokeQualityAvg * countMultiplier * 100);
+
+        // Cap maximum score if there are severe issues (extra stroke, distortion, wrong direction)
+        int overallScore = rawScore;
+        if (hasAnySevereIssue && overallScore > 35) {
+            overallScore = Math.min(overallScore, 35);
+        }
+
+        // Strict Score Classification
+        String feedbackMsg;
+        if (overallScore >= 90) {
+            feedbackMsg = "🎉 Xuất sắc! Nét vẽ sắc sảo, đúng thứ tự và vị trí rất chuẩn xác.";
+        } else if (overallScore >= 75) {
+            feedbackMsg = "👍 Đạt yêu cầu! Hình chữ khá tốt, hãy chú ý uốn mượt các nét vẽ hơn nữa nhé.";
+        } else if (overallScore >= 45) {
+            feedbackMsg = "⚠️ Cần rèn thêm! Nét vẽ còn bị méo hoặc chưa đúng tỷ lệ khuôn chữ.";
+        } else {
+            feedbackMsg = "❌ Chưa đạt yêu cầu! Nét vẽ bị sai nét, méo nét hoặc thừa/thiếu nét nghiêm trọng.";
+        }
+
+        final int finalOverallScore = overallScore;
 
         MatchedKanji targetMatched = targetOpt.map(k -> MatchedKanji.builder()
                 .character(k.getCharacter())
@@ -141,7 +196,7 @@ public class KanjiCanvasServiceImpl implements KanjiCanvasService {
                 .kunReading(k.getKunReading() != null ? k.getKunReading() : "")
                 .strokeCount(k.getStrokeCount() != null ? k.getStrokeCount() : 0)
                 .jlptLevel(k.getJlptLevel() != null ? k.getJlptLevel().name() : "N5")
-                .confidencePercent(overallScore)
+                .confidencePercent(finalOverallScore)
                 .build()).orElse(null);
 
         List<MatchedKanji> topMatches = targetMatched != null ? List.of(targetMatched) : List.of();
@@ -210,6 +265,97 @@ public class KanjiCanvasServiceImpl implements KanjiCanvasService {
             }
         }
         return (double) validDirectionCount / strokes.size();
+    }
+
+    private static class StrokeQualityQuality {
+        boolean isCorrectDirection;
+        boolean isSmooth;
+        boolean isDistorted;
+    }
+
+    private StrokeQualityQuality analyzeStrokeQuality(DrawnStroke stroke) {
+        StrokeQualityQuality res = new StrokeQualityQuality();
+        res.isCorrectDirection = true;
+        res.isSmooth = true;
+        res.isDistorted = false;
+
+        if (stroke == null || stroke.getPoints() == null || stroke.getPoints().size() < 2) {
+            return res;
+        }
+
+        List<PointDto> points = stroke.getPoints();
+        PointDto start = points.get(0);
+        PointDto end = points.get(points.size() - 1);
+
+        double dx = end.getX() - start.getX();
+        double dy = end.getY() - start.getY();
+        double euclidean = Math.sqrt(dx * dx + dy * dy);
+
+        // 1. Calculate cumulative path length and turning angle sum
+        double totalPathLength = 0;
+        double totalTurnAngleDegree = 0;
+
+        for (int i = 1; i < points.size(); i++) {
+            double pdx = points.get(i).getX() - points.get(i - 1).getX();
+            double pdy = points.get(i).getY() - points.get(i - 1).getY();
+            totalPathLength += Math.sqrt(pdx * pdx + pdy * pdy);
+
+            if (i > 1) {
+                double prevDx = points.get(i - 1).getX() - points.get(i - 2).getX();
+                double prevDy = points.get(i - 1).getY() - points.get(i - 2).getY();
+                double angle1 = Math.atan2(prevDy, prevDx);
+                double angle2 = Math.atan2(pdy, pdx);
+                double diff = Math.abs(Math.toDegrees(angle2 - angle1));
+                if (diff > 180) diff = 360 - diff;
+                totalTurnAngleDegree += diff;
+            }
+        }
+
+        // 2. Check stroke Wiggle / Distortion Ratio & Sharp Corner Branches
+        if (euclidean > 5) {
+            double wiggleRatio = totalPathLength / euclidean;
+            if (wiggleRatio > 1.45 || totalTurnAngleDegree > 75.0) {
+                res.isDistorted = true;
+                res.isSmooth = false;
+            } else if (wiggleRatio > 1.25 || totalTurnAngleDegree > 45.0) {
+                res.isSmooth = false;
+            }
+        } else if (totalPathLength > 20) {
+            // Drawn back and forth over a tiny spot
+            res.isDistorted = true;
+            res.isSmooth = false;
+        }
+
+        // 3. Strict Direction Analysis (Top-to-Bottom / Left-to-Right)
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx < -10) {
+                res.isCorrectDirection = false;
+            }
+        } else {
+            if (dy < -10) {
+                res.isCorrectDirection = false;
+            }
+        }
+
+        return res;
+    }
+
+    private int estimateExpectedStrokes(String character) {
+        if (character == null || character.isEmpty()) return 1;
+        Map<String, Integer> kanaStrokes = Map.ofEntries(
+            Map.entry("あ", 3), Map.entry("い", 2), Map.entry("う", 2), Map.entry("え", 2), Map.entry("お", 3),
+            Map.entry("か", 3), Map.entry("き", 4), Map.entry("く", 1), Map.entry("け", 3), Map.entry("こ", 2),
+            Map.entry("さ", 3), Map.entry("し", 1), Map.entry("す", 2), Map.entry("せ", 3), Map.entry("そ", 1),
+            Map.entry("た", 4), Map.entry("ち", 2), Map.entry("つ", 1), Map.entry("て", 1), Map.entry("と", 2),
+            Map.entry("な", 4), Map.entry("に", 3), Map.entry("ぬ", 2), Map.entry("ね", 2), Map.entry("の", 1),
+            Map.entry("は", 3), Map.entry("ひ", 1), Map.entry("ふ", 4), Map.entry("へ", 1), Map.entry("ほ", 4),
+            Map.entry("ま", 3), Map.entry("み", 2), Map.entry("む", 3), Map.entry("め", 2), Map.entry("も", 3),
+            Map.entry("や", 3), Map.entry("ゆ", 2), Map.entry("よ", 2),
+            Map.entry("ら", 2), Map.entry("り", 2), Map.entry("る", 1), Map.entry("れ", 2), Map.entry("ろ", 1),
+            Map.entry("わ", 2), Map.entry("を", 3), Map.entry("ん", 1),
+            Map.entry("ア", 2), Map.entry("イ", 2), Map.entry("ウ", 3), Map.entry("エ", 3), Map.entry("オ", 3)
+        );
+        return kanaStrokes.getOrDefault(character, 3);
     }
 
     private boolean analyzeStrokeDirection(DrawnStroke stroke) {

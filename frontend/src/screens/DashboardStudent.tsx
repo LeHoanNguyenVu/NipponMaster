@@ -25,12 +25,19 @@ interface Stats {
   dueCards: any[];
 }
 
-export default function DashboardStudent({ onStartStudy, username }: { onStartStudy: () => void, username?: string }) {
+interface DashboardStudentProps {
+  onStartStudy: () => void;
+  onOpenBeginnerCourse?: () => void;
+  username?: string;
+}
+
+export default function DashboardStudent({ onStartStudy, onOpenBeginnerCourse, username }: DashboardStudentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { user } = useAuthStore();
   const targetLevel = user?.targetLevel || 'N5';
+  const isBeginnerMode = localStorage.getItem('nippon_user_mode') === 'beginner';
 
   useEffect(() => {
     let active = true;
@@ -135,6 +142,47 @@ export default function DashboardStudent({ onStartStudy, username }: { onStartSt
           </div>
         </div>
       </header>
+
+      {/* Beginner Course Recommendation Banner */}
+      {(isBeginnerMode || targetLevel === 'N5') && (
+        <div className="bg-emerald-500/10 border-2 border-emerald-500/40 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm gsap-fade-in">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-2xl flex-shrink-0 shadow-md">
+              🌱
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 text-[11px] font-bold uppercase tracking-wider">
+                  Khóa Học Nhập Môn Bắt Bắt Đầu Từ 0
+                </span>
+                <span className="text-xs font-semibold text-emerald-600">Được chẩn đoán cho bạn</span>
+              </div>
+              <h3 className="text-lg font-extrabold text-on-surface mt-1">
+                Sách Giáo Khoa Nhập Môn Tiếng Nhật (5 Chương Căn Bản)
+              </h3>
+              <p className="text-xs text-on-surface-variant mt-0.5 max-w-2xl leading-relaxed">
+                Học 50 bảng chữ cái Hiragana/Katakana có AI Canvas luyện viết chữ, Số đếm, Aisatsu giao tiếp hàng ngày & 214 Bộ thủ Kanji trước khi vào bài thi N5 chính thức.
+              </p>
+            </div>
+          </div>
+
+          <Button
+            variant="primary"
+            size="md"
+            icon={<BookOpen size={18} />}
+            onClick={() => {
+              if (onOpenBeginnerCourse) {
+                onOpenBeginnerCourse();
+              } else {
+                window.location.hash = '#beginner';
+              }
+            }}
+            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-md flex-shrink-0 cursor-pointer"
+          >
+            Học Sách Giáo Khoa Nhập Môn Ngay
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* SRS Card */}

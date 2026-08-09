@@ -6,6 +6,7 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import axiosClient from '../api/axiosClient';
 import { useAuthStore } from '../store/useAuthStore';
+import KanjiStrokeWriter from '../components/KanjiStrokeWriter';
 import gsap from 'gsap';
 
 interface VocabularyItem {
@@ -631,6 +632,21 @@ export default function Vocabulary() {
               </div>
 
               <div className="h-px w-full bg-outline-variant/30"></div>
+
+              {/* Stroke Order Animated Practice */}
+              <div>
+                <h3 className="text-xs text-on-surface-variant uppercase font-bold tracking-widest mb-3">
+                  ✍️ Thứ Tự Nét Vẽ Từ Vựng (Stroke Order)
+                </h3>
+                <div className="flex flex-wrap justify-center gap-3 bg-surface-container-low p-4 rounded-2xl border border-outline-variant/40">
+                  {Array.from(selectedWord.word).map((char, cIdx) => (
+                    <div key={cIdx} className="flex flex-col items-center gap-1">
+                      <KanjiStrokeWriter character={char} size={150} />
+                      <span className="text-[11px] font-bold text-on-surface-variant font-jp">{char}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* Kanji Breakdown */}
               {getKanjiBreakdown(selectedWord.word).length > 0 && (

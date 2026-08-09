@@ -360,6 +360,12 @@ public class PlacementTestService {
                     "Hệ thống đề xuất bạn học ở trình độ %s để luyện tập kỹ càng trước khi nâng bậc.",
                     scorePercent, levelName, recommended.name());
         } else {
+            if (tested == User.JlptLevel.N5) {
+                return String.format(
+                        "⚠️ Hổng nặng nền tảng! Bạn đạt %.1f%% ở bài test N5. Bạn bị hổng hoàn toàn kiến thức căn bản. " +
+                        "Hệ thống đề xuất bạn học ngay từ Sách Giáo Khoa Nhập Môn (50 Bảng chữ cái Hiragana/Katakana, Số đếm, Aisatsu & Bộ thủ Kanji)!",
+                        scorePercent);
+            }
             return String.format(
                     "⚠️ Hổng nền tảng! Bạn đạt %.1f%% ở bài test %s. " +
                     "Nền tảng kiến thức cấp độ này chưa đạt yêu cầu. " +
@@ -381,6 +387,9 @@ public class PlacementTestService {
         } else if (scorePercent >= 50.0) {
             return String.format("Đăng ký học %s để ôn luyện và củng cố kiến thức!", recommended.name());
         } else {
+            if (tested == User.JlptLevel.N5) {
+                return "Học ngay Khóa Tiếng Nhật Nhập Môn (Bắt đầu từ con số 0 với 50 Bảng chữ cái & Aisatsu) để xây lại gốc chắc chắn!";
+            }
             return String.format("Học trình độ %s trước để có nền tảng vững chắc hơn nhé!", recommended.name());
         }
     }

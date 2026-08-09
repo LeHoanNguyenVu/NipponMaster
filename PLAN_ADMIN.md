@@ -21,15 +21,15 @@ Tài liệu chi tiết quản lý toàn bộ hạ tầng hệ thống, phân quy
 
 ## 🏃 2. Lộ Trình Sprints & Tasks Chi Tiết (Từ Hiện Tại Đến Tương Lai Dài Hạn)
 
-### 📍 GIAI ĐOẠN 1: QUẢN LÝ USER & PHÂN QUYỀN (Sprint 14) — [NGẮN HẠN ⏳]
+### 📍 GIAI ĐOẠN 1: QUẢN LÝ USER & PHÂN QUYỀN (Sprint 14) — [ĐÃ HOÀN THÀNH ✅]
 
-#### [ ] **Task 14.1: Trung Tâm Quản Lý Người Dùng (Admin User Management Console)**
-- **Mô tả**: Cho phép Admin tìm kiếm, lọc danh sách người dùng theo vai trò (Student, Teacher, Admin, Guest), xem chi tiết hồ sơ, khóa/mở khóa tài khoản (Lock/Unlock) và reset mật khẩu.
-- **Công nghệ**: Spring Data Specifications (Dynamic filtering), DataTables, React Query / Axios.
-- **Luồng chạy**: Admin chọn "Quản lý User" ➔ `GET /api/v1/admin/users?role=STUDENT` ➔ Bấm "Khóa tài khoản" ➔ `PUT /api/v1/admin/users/{id}/status` với `{ isActive: false }` ➔ Hủy JWT Token lập tức.
+#### [x] **Task 14.1: Trung Tâm Quản Lý Người Dùng (Admin User Management Console)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Màn hình Console quản lý người dùng cao cấp (`UserManagementConsole.tsx`). Tìm kiếm theo tên/email, bộ lọc Role Pills (`[Tất cả]`, `[Student]`, `[Teacher]`, `[Admin]`, `[Guest]`), khóa/mở khóa tài khoản 1-Click (`PUT /api/v1/admin/users/{id}/status`), Admin đặt lại mật khẩu (`POST /api/v1/admin/users/{id}/reset-password`) và thao tác hàng loạt (Bulk Lock/Unlock).
+- **Công nghệ**: Spring Data Specification dynamic filtering, `@PreAuthorize("hasRole('ADMIN')")`, React Axios Client.
 
-#### [ ] **Task 14.2: Hệ Thống Phân Quyền Động (Dynamic Role & Permission Assignment)**
-- **Mô tả**: Cho phép Admin nâng cấp tài khoản từ Student lên Teacher hoặc cấp quyền Admin hệ thống.
+#### [x] **Task 14.2: Hệ Thống Phân Quyền Động (Dynamic Role & Permission Assignment)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Cho phép Admin thay đổi vai trò (Role) của người dùng trực tiếp trên giao diện (`PUT /api/v1/admin/users/{id}/role`). Hỗ trợ nâng cấp từ Student thành Teacher hoặc cấp quyền Admin hệ thống kèm cảnh báo an toàn.
+- **Công nghệ**: Spring Security Role Assignment, React Role Switcher Modal.
 
 ---
 
