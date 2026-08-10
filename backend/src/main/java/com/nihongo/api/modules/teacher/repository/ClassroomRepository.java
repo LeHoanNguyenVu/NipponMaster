@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
 
+    List<Classroom> findByTeacherId(Long teacherId);
     List<Classroom> findByTeacherIdOrderByCreatedAtDesc(Long teacherId);
 
     Optional<Classroom> findByJoinCode(String joinCode);

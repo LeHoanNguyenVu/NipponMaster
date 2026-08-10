@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface ClassroomStudentRepository extends JpaRepository<ClassroomStudent, Long> {
 
+    List<ClassroomStudent> findByClassroomId(Long classroomId);
     List<ClassroomStudent> findByClassroomIdOrderByJoinedAtDesc(Long classroomId);
 
     boolean existsByClassroomIdAndStudentId(Long classroomId, Long studentId);

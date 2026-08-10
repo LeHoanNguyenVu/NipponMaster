@@ -34,15 +34,15 @@ Tài liệu chi tiết quản lý toàn bộ công cụ tạo đề thi, biên s
 
 ---
 
-### 📍 GIAI ĐOẠN 2: THƯ VIỆN BÀI HỌC & BẢNG ĐIỂM LỚP HỌC (Sprints 12 - 13) — [NGẮN HẠN ⏳]
+### 📍 GIAI ĐOẠN 2: THƯ VIỆN BÀI HỌC & BẢNG ĐIỂM LỚP HỌC (Sprints 12 - 13) — [ĐÃ HOÀN THÀNH ✅]
 
-#### [ ] **Task 12.1: Bộ Công Cụ Biên Soạn Từ Vựng, Kanji & Ngữ Pháp (Content CMS Studio)**
-- **Mô tả**: Cho phép giảng viên bổ sung từ vựng mới, cập nhật âm đọc On/Kun của Kanji, thêm hình ảnh minh họa và câu ví dụ mẫu.
-- **Công nghệ**: Cloudinary Storage, Spring Data JPA.
+#### [x] **Task 12.1: Bộ Công Cụ Biên Soạn Từ Vựng, Kanji & Ngữ Pháp (Content CMS Studio)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Studio biên soạn bài học giao diện Tab (`ContentCmsStudio.tsx`) dành cho Giảng viên. Thêm mới, cập nhật âm đọc On/Kun của Kanji, chỉnh sửa từ vựng, tạo câu ví dụ minh họa và bổ sung các cấu trúc ngữ pháp N5-N1.
+- **Công nghệ**: Spring Boot REST APIs (`/api/v1/teacher/content/...`), `@PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")`, React Axios Client.
 
-#### [ ] **Task 13.1: Dashboard Thống Kê & Bảng Điểm Lớp Học (Teacher Analytics & Gradebook)**
-- **Mô tả**: Giảng viên theo dõi danh sách học viên trong lớp, xem biểu đồ phổ điểm các bài thi thử JLPT, phát hiện học viên yếu kém để hỗ trợ.
-- **Công nghệ**: Recharts, Export PDF/Excel Report.
+#### [x] **Task 13.1: Dashboard Thống Kê & Bảng Điểm Lớp Học (Teacher Analytics & Gradebook)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Console quản lý bảng điểm lớp học (`TeacherGradebookConsole.tsx`). Giảng viên theo dõi sĩ số sinh viên, phổ điểm trung bình, phát hiện học viên học yếu (`<50%` điểm bài thi) kèm cảnh báo `⚠️ Cần Hỗ Trợ` và xuất file báo cáo điểm số `.CSV` 1-Click.
+- **Công nghệ**: Spring Data Aggregation APIs, Gradebook Table View, CSV Export Engine.
 
 ---
 

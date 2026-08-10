@@ -5,6 +5,8 @@ import {
   ShieldCheck, GraduationCap, FileText, Upload
 } from 'lucide-react';
 import ExamBuilderStudio from './ExamBuilderStudio';
+import ContentCmsStudio from './teacher/ContentCmsStudio';
+import TeacherGradebookConsole from './teacher/TeacherGradebookConsole';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -224,12 +226,13 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex bg-surface-container-low p-1.5 rounded-2xl border border-outline-variant/60 gap-1">
+        <div className="flex flex-wrap bg-surface-container-low p-1.5 rounded-2xl border border-outline-variant/60 gap-1">
           {[
             { id: 'overview', label: 'Tổng quan', icon: TrendingUp },
             { id: 'classes', label: 'Lớp học', icon: Users },
-            { id: 'studio', label: 'Soạn bài học', icon: Sparkles },
-            { id: 'exams', label: 'Soạn Đề thi JLPT', icon: FileText },
+            { id: 'studio', label: 'Studio Bài Học (CMS)', icon: Sparkles },
+            { id: 'exams', label: 'Soạn Đề Thi JLPT', icon: FileText },
+            { id: 'gradebook', label: 'Bảng Điểm & Analytics', icon: GraduationCap },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -465,180 +468,10 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
         </div>
       )}
 
-      {/* TAB 3: CONTENT STUDIO */}
+      {/* TAB 3: CONTENT STUDIO (CMS) */}
       {activeTab === 'studio' && (
-        <div className="space-y-8 gsap-fade-tab">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-on-surface">Soạn bài học & Học liệu</h2>
-              <p className="text-sm text-on-surface-variant">Tạo mới Từ vựng, Chữ Hán hoặc Ngữ pháp để đưa vào hệ thống học tập.</p>
-            </div>
-
-            {/* Type selector */}
-            <div className="flex bg-surface-container-low p-1 rounded-xl border border-outline-variant/60 gap-1">
-              {[
-                { id: 'vocab', label: 'Từ vựng', icon: Languages },
-                { id: 'kanji', label: 'Chữ Hán', icon: Shapes },
-                { id: 'grammar', label: 'Ngữ pháp', icon: BookType },
-              ].map(t => {
-                const Icon = t.icon;
-                const isActive = contentType === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setContentType(t.id as any)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      isActive
-                        ? 'bg-primary text-on-primary shadow-sm'
-                        : 'text-on-surface-variant hover:bg-surface-container-high'
-                    }`}
-                  >
-                    <Icon size={14} />
-                    {t.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Form Container */}
-          <div className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 border border-outline-variant shadow-sm max-w-3xl mx-auto">
-            <form onSubmit={handleCreateContent} className="space-y-6">
-              {/* Vocab Form */}
-              {contentType === 'vocab' && (
-                <>
-                  <h3 className="text-lg font-bold text-on-surface flex items-center gap-2 border-b border-outline-variant/40 pb-3">
-                    <Languages className="text-primary" size={20} />
-                    Soạn Từ vựng mới
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Từ gốc (Kanji/Word) *</label>
-                      <Input placeholder="Ví dụ: 食べる" value={vocabWord} onChange={e => setVocabWord(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Cách đọc (Furigana/Reading) *</label>
-                      <Input placeholder="Ví dụ: たべる" value={vocabReading} onChange={e => setVocabReading(e.target.value)} required />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-on-surface mb-1 block">Nghĩa tiếng Việt *</label>
-                    <Input placeholder="Ví dụ: Ăn" value={vocabMeaning} onChange={e => setVocabMeaning(e.target.value)} required />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Trình độ JLPT</label>
-                      <select className="w-full p-2.5 rounded-xl border border-outline-variant bg-surface text-sm font-bold" value={vocabLevel} onChange={e => setVocabLevel(e.target.value)}>
-                        {['N5', 'N4', 'N3', 'N2', 'N1'].map(l => <option key={l} value={l}>{l}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Loại từ</label>
-                      <select className="w-full p-2.5 rounded-xl border border-outline-variant bg-surface text-sm font-bold" value={vocabWordType} onChange={e => setVocabWordType(e.target.value)}>
-                        <option value="NOUN">Danh từ (NOUN)</option>
-                        <option value="VERB">Động từ (VERB)</option>
-                        <option value="I_ADJECTIVE">Tính từ đuôi -i (I_ADJECTIVE)</option>
-                        <option value="NA_ADJECTIVE">Tính từ đuôi -na (NA_ADJECTIVE)</option>
-                        <option value="ADVERB">Trạng từ (ADVERB)</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="space-y-3 pt-2">
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Câu ví dụ (Tiếng Nhật)</label>
-                      <Input placeholder="Ví dụ: 朝ご飯を食べます。" value={vocabExampleSentence} onChange={e => setVocabExampleSentence(e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Nghĩa câu ví dụ</label>
-                      <Input placeholder="Ví dụ: Tôi ăn cơm sáng." value={vocabExampleMeaning} onChange={e => setVocabExampleMeaning(e.target.value)} />
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Kanji Form */}
-              {contentType === 'kanji' && (
-                <>
-                  <h3 className="text-lg font-bold text-on-surface flex items-center gap-2 border-b border-outline-variant/40 pb-3">
-                    <Shapes className="text-tertiary" size={20} />
-                    Soạn Hán tự (Kanji) mới
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Chữ Kanji *</label>
-                      <Input placeholder="Ví dụ: 食" value={kanjiCharacter} onChange={e => setKanjiCharacter(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Âm On (Onyomi)</label>
-                      <Input placeholder="Ví dụ: ショク" value={kanjiOn} onChange={e => setKanjiOn(e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Âm Kun (Kunyomi)</label>
-                      <Input placeholder="Ví dụ: た.べる" value={kanjiKun} onChange={e => setKanjiKun(e.target.value)} />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-on-surface mb-1 block">Nghĩa tiếng Việt / Hán Việt *</label>
-                    <Input placeholder="Ví dụ: Thực (Ăn)" value={kanjiMeaning} onChange={e => setKanjiMeaning(e.target.value)} required />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Số nét vẽ</label>
-                      <Input type="number" min={1} value={kanjiStrokeCount} onChange={e => setKanjiStrokeCount(Number(e.target.value))} />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Trình độ JLPT</label>
-                      <select className="w-full p-2.5 rounded-xl border border-outline-variant bg-surface text-sm font-bold" value={kanjiLevel} onChange={e => setKanjiLevel(e.target.value)}>
-                        {['N5', 'N4', 'N3', 'N2', 'N1'].map(l => <option key={l} value={l}>{l}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Grammar Form */}
-              {contentType === 'grammar' && (
-                <>
-                  <h3 className="text-lg font-bold text-on-surface flex items-center gap-2 border-b border-outline-variant/40 pb-3">
-                    <BookType className="text-secondary" size={20} />
-                    Soạn Cấu trúc Ngữ pháp mới
-                  </h3>
-                  <div>
-                    <label className="text-xs font-bold text-on-surface mb-1 block">Mẫu ngữ pháp (Pattern) *</label>
-                    <Input placeholder="Ví dụ: ～てはいけません" value={grammarPattern} onChange={e => setGrammarPattern(e.target.value)} required />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-on-surface mb-1 block">Cấu trúc kết hợp (Structure) *</label>
-                    <Input placeholder="Ví dụ: V-て + はいけません" value={grammarStructure} onChange={e => setGrammarStructure(e.target.value)} required />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-on-surface mb-1 block">Giải nghĩa & Cách dùng *</label>
-                    <Input placeholder="Ví dụ: Không được làm... (Cấm đoán)" value={grammarMeaning} onChange={e => setGrammarMeaning(e.target.value)} required />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-on-surface mb-1 block">Trình độ JLPT</label>
-                    <select className="w-full p-2.5 rounded-xl border border-outline-variant bg-surface text-sm font-bold" value={grammarLevel} onChange={e => setGrammarLevel(e.target.value)}>
-                      {['N5', 'N4', 'N3', 'N2', 'N1'].map(l => <option key={l} value={l}>{l}</option>)}
-                    </select>
-                  </div>
-                  <div className="space-y-3 pt-2">
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Ví dụ minh họa (Tiếng Nhật)</label>
-                      <Input placeholder="Ví dụ: ここで写真を撮ってはいけません。" value={grammarExampleSentence} onChange={e => setGrammarExampleSentence(e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-on-surface mb-1 block">Dịch câu ví dụ</label>
-                      <Input placeholder="Ví dụ: Không được chụp ảnh ở đây." value={grammarExampleMeaning} onChange={e => setGrammarExampleMeaning(e.target.value)} />
-                    </div>
-                  </div>
-                </>
-              )}
-
-              <Button type="submit" variant="primary" size="lg" className="w-full" isLoading={formLoading} icon={<Sparkles size={18} />}>
-                Xuất bản bài học ngay
-              </Button>
-            </form>
-          </div>
+        <div className="gsap-fade-tab">
+          <ContentCmsStudio />
         </div>
       )}
 
@@ -649,10 +482,6 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
             <ExamBuilderStudio
               initialExam={editingExam}
               onBack={() => {
-                setShowExamStudio(false);
-                setEditingExam(null);
-              }}
-              onSuccess={() => {
                 setShowExamStudio(false);
                 setEditingExam(null);
                 fetchTeacherData();
@@ -798,6 +627,13 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
               })()}
             </div>
           )}
+        </div>
+      )}
+
+      {/* TAB 5: TEACHER GRADEBOOK & ANALYTICS */}
+      {activeTab === 'gradebook' && (
+        <div className="gsap-fade-tab">
+          <TeacherGradebookConsole />
         </div>
       )}
 
