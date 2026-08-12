@@ -15,39 +15,67 @@ const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmit, isSubmitting }: QuizPlayerProps) {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [timeLeft, setTimeLeft] = useState(timeLimitMinutes * 60);
   const [submitted, setSubmitted] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Fallback to 15 minutes if timeLimitMinutes is missing or <= 0
+  const validTimeLimit = timeLimitMinutes && timeLimitMinutes > 0 ? timeLimitMinutes : 15;
+  const initialSeconds = validTimeLimit * 60;
+  const [timeLeft, setTimeLeft] = useState(initialSeconds);
+
+  const endTimeRef = useRef<number>(Date.now() + initialSeconds * 1000);
+
+  const answersRef = useRef(answers);
+  answersRef.current = answers;
+
+  const questionsRef = useRef(questions);
+  questionsRef.current = questions;
+
+  const onSubmitRef = useRef(onSubmit);
+  onSubmitRef.current = onSubmit;
+
+  const submittedRef = useRef(submitted);
+  submittedRef.current = submitted;
 
   const handleSubmit = useCallback(() => {
-    if (submitted) return;
+    if (submittedRef.current) return;
     setSubmitted(true);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    const answerList = questions.map(q => ({
-      questionId: q.id,
-      chosenOption: answers[q.id] ?? -1,
-    }));
-    onSubmit(answerList);
-  }, [submitted, questions, answers, onSubmit]);
+    submittedRef.current = true;
 
+    const answerList = questionsRef.current.map(q => ({
+      questionId: q.id,
+      chosenOption: answersRef.current[q.id] ?? -1,
+    }));
+    onSubmitRef.current(answerList);
+  }, []);
+
+  // Timer Effect: Runs smoothly based on absolute system time (Date.now())
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setTimeLeft(t => {
-        if (t <= 1) { handleSubmit(); return 0; }
-        return t - 1;
-      });
+    const totalMs = validTimeLimit * 60 * 1000;
+    endTimeRef.current = Date.now() + totalMs;
+    setTimeLeft(validTimeLimit * 60);
+
+    const timer = setInterval(() => {
+      const remainingSecs = Math.max(0, Math.ceil((endTimeRef.current - Date.now()) / 1000));
+      setTimeLeft(remainingSecs);
+
+      if (remainingSecs <= 0) {
+        clearInterval(timer);
+        handleSubmit();
+      }
     }, 1000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [handleSubmit]);
+
+    return () => clearInterval(timer);
+  }, [validTimeLimit, handleSubmit]);
 
   const mins = Math.floor(timeLeft / 60);
   const secs = timeLeft % 60;
   const timerColor = timeLeft <= 60 ? '#ba1a1a' : timeLeft <= 180 ? '#92541a' : '#2b5f43';
   const q = questions[current];
   const answeredCount = Object.keys(answers).length;
-  const progress = (answeredCount / questions.length) * 100;
+  const progress = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
 
   const handleAnswer = (optionIdx: number) => {
+    if (!q) return;
     setAnswers(prev => ({ ...prev, [q.id]: optionIdx }));
   };
 

@@ -33,6 +33,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
   const [chosenLevel, setChosenLevel] = useState<JlptLevel | 'INTRO'>(
     isIntroRecommended ? 'INTRO' : result.recommendedLevel
   );
+  const [showWarningModal, setShowWarningModal] = useState(false);
   const [filterTab, setFilterTab] = useState<'all' | 'wrong' | 'correct'>('all');
 
   const scoreColor = pct >= 80 ? '#2b5f43' : pct >= 50 ? '#7c5c2e' : '#ba1a1a';
@@ -61,6 +62,22 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
       localStorage.removeItem('nippon_user_mode');
       onConfirm(level);
     }
+  };
+
+  const handleStartLearningClick = () => {
+    if (chosenLevel === 'INTRO') {
+      handleConfirmSubmit('INTRO');
+      return;
+    }
+
+    // If user passed the test for the chosen level, proceed directly
+    if (chosenLevel === result.targetLevel && pct >= 50) {
+      handleConfirmSubmit(chosenLevel);
+      return;
+    }
+
+    // Otherwise, show warning modal!
+    setShowWarningModal(true);
   };
 
   return (
@@ -225,6 +242,42 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
           Xác nhận lộ trình học tập phù hợp
         </h3>
 
+        {/* INLINE WARNING BANNER FOR UNTESTED / UNPASSED LEVEL */}
+        {chosenLevel !== 'INTRO' && (chosenLevel !== result.targetLevel || pct < 50) && (
+          <div style={{
+            padding: '14px 16px', borderRadius: 14, background: '#fff8e6',
+            border: '1.5px solid #ffe0b2', color: '#7c5c2e', fontSize: 13,
+            lineHeight: 1.6, marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 10
+          }}>
+            <span style={{ fontSize: 20, flexShrink: 0 }}>⚠️</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 800, color: '#b78103', fontSize: 13, marginBottom: 2 }}>
+                Khuyến nghị: Bạn chưa làm bài test trình độ {chosenLevel}!
+              </div>
+              <div style={{ color: '#5a5450' }}>
+                Do bạn chưa kiểm tra thực lực ở bài test <b>{chosenLevel}</b> (vừa đạt {pct.toFixed(1)}% ở bài test {result.targetLevel}), hệ thống chưa thể đảm bảo bạn không bị hỏng kiến thức từ trình độ {chosenLevel} trở xuống.
+              </div>
+              {onTakeTestLevel && (
+                <div style={{ marginTop: 8 }}>
+                  <button
+                    id="inline-take-test-btn"
+                    onClick={() => onTakeTestLevel(chosenLevel as JlptLevel)}
+                    style={{
+                      padding: '6px 14px', borderRadius: 8,
+                      background: '#b78103', color: '#fff', border: 'none',
+                      fontWeight: 700, fontSize: 12, cursor: 'pointer',
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      boxShadow: '0 2px 8px rgba(183,129,3,0.25)',
+                    }}
+                  >
+                    📝 Làm bài test {chosenLevel} ngay (Khuyên dùng)
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
           {/* Introductory Option Pill */}
           <button
@@ -263,7 +316,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
         <div style={{ display: 'flex', gap: 10 }}>
           <button
             id="confirm-level-btn"
-            onClick={() => handleConfirmSubmit(chosenLevel)}
+            onClick={handleStartLearningClick}
             disabled={isConfirming}
             style={{
               flex: 1, padding: '12px 0', borderRadius: 12, border: 'none',
@@ -292,6 +345,112 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
           </button>
         </div>
       </div>
+
+      {/* ── UNTESTED / UNPASSED LEVEL WARNING MODAL ────────────────── */}
+      {showWarningModal && chosenLevel !== 'INTRO' && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 20, animation: 'fadeIn 0.2s ease',
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: 24, maxWidth: 500, width: '100%',
+            padding: '28px 26px', border: '2px solid #e2dbce',
+            boxShadow: '0 24px 48px rgba(0,0,0,0.25)',
+            display: 'flex', flexDirection: 'column', gap: 18,
+          }}>
+            {/* Modal Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 14, background: '#fff5f5',
+                border: '1.5px solid #f87171', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', fontSize: 24, flexShrink: 0,
+              }}>
+                ⚠️
+              </div>
+              <div>
+                <h3 style={{ fontSize: 17, fontWeight: 800, color: '#ba1a1a', margin: 0, lineHeight: 1.3 }}>
+                  Cảnh Báo Nền Tảng Kiến Thức
+                </h3>
+                <div style={{ fontSize: 12, color: '#8c827b', marginTop: 2 }}>
+                  Khuyên dùng: Nên làm bài test {chosenLevel} trước khi bắt đầu học
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ fontSize: 14, color: '#231815', lineHeight: 1.65 }}>
+              <p style={{ margin: 0, marginBottom: 12 }}>
+                Bạn chưa thực hiện bài test đánh giá trình độ <b>{chosenLevel}</b> (kết quả bài test <b>{result.targetLevel}</b> vừa rồi đạt <b>{pct.toFixed(1)}%</b>).
+              </p>
+              <div style={{
+                padding: '12px 16px', borderRadius: 12, background: '#fff5f5',
+                border: '1px solid #fecaca', color: '#7f1d1d', fontSize: 13, lineHeight: 1.6,
+              }}>
+                💡 <b>Vì sao nên làm bài test {chosenLevel}?</b><br />
+                Chưa có gì đảm bảo bạn không bị hỏng kiến thức từ trình độ {chosenLevel} hoặc Tiếng Nhật Nhập Môn. Nếu chưa đo lại thực lực mà nhảy vào học ngay, bạn có thể bị rỗng kiến thức căn bản và gặp khó khăn sau này.
+              </div>
+            </div>
+
+            {/* Modal Options */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
+              {/* Recommended action: take test */}
+              {onTakeTestLevel && (
+                <button
+                  id="modal-take-test-btn"
+                  onClick={() => {
+                    setShowWarningModal(false);
+                    onTakeTestLevel(chosenLevel as JlptLevel);
+                  }}
+                  style={{
+                    padding: '14px 18px', borderRadius: 14, border: 'none',
+                    background: '#c01538', color: '#fff', fontWeight: 800, fontSize: 14,
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    boxShadow: '0 4px 14px rgba(192,21,56,0.25)',
+                    transition: 'transform 0.15s ease',
+                  }}
+                >
+                  🎯 Làm bài test {chosenLevel} ngay (Khuyên dùng)
+                </button>
+              )}
+
+              {/* Start Intro option */}
+              <button
+                id="modal-start-intro-btn"
+                onClick={() => {
+                  setShowWarningModal(false);
+                  handleConfirmSubmit('INTRO');
+                }}
+                style={{
+                  padding: '12px 18px', borderRadius: 14,
+                  border: '2px solid #137333', background: '#e6f4ea', color: '#137333',
+                  fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}
+              >
+                🌱 Học Tiếng Nhật Nhập Môn (Xây gốc từ 0)
+              </button>
+
+              {/* Bypass option */}
+              <button
+                id="modal-bypass-btn"
+                onClick={() => {
+                  setShowWarningModal(false);
+                  handleConfirmSubmit(chosenLevel);
+                }}
+                style={{
+                  padding: '10px 18px', borderRadius: 12, border: 'none',
+                  background: 'none', color: '#8c827b', fontWeight: 600, fontSize: 12,
+                  cursor: 'pointer', textDecoration: 'underline', marginTop: 2,
+                }}
+              >
+                Vẫn bắt đầu học {chosenLevel} ngay (Tôi đã hiểu rủi ro)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── ANSWER ACCORDION WITH FILTER TABS ─────────────────────── */}
       {result.questionReviews && result.questionReviews.length > 0 && (

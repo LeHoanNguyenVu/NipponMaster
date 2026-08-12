@@ -74,17 +74,23 @@ export default function AlphabetExplorer() {
   /* ── Start Quiz ── */
   const startQuiz = (scope: 'row' | 'all-h' | 'all-k' | 'mix') => {
     let pool: KanaChar[] = [];
+    let questionCount = 35;
+
     if (scope === 'row' && lessonRow) {
       pool = lessonChars;
+      questionCount = pool.length;
     } else if (scope === 'all-h') {
-      pool = [...HIRAGANA_SEION, ...HIRAGANA_DAKUON, ...HIRAGANA_HANDAKUON];
+      pool = ALL_HIRAGANA;
+      questionCount = pool.length; // Tất cả 71 chữ cái Hiragana
     } else if (scope === 'all-k') {
-      pool = [...KATAKANA_SEION, ...KATAKANA_DAKUON, ...KATAKANA_HANDAKUON];
+      pool = ALL_KATAKANA;
+      questionCount = pool.length; // Tất cả 71 chữ cái Katakana
     } else {
-      pool = [...HIRAGANA_SEION, ...KATAKANA_SEION];
+      pool = [...ALL_HIRAGANA, ...ALL_KATAKANA];
+      questionCount = 35; // 35 câu trộn lẫn ngẫu nhiên cả 2 bảng chữ cái
     }
-    // Shuffle and take 20
-    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 20);
+
+    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, questionCount);
     setQuizChars(shuffled);
     setQuizIdx(0);
     setQuizInput('');
@@ -696,10 +702,10 @@ function LessonMode({
 
 function QuizScopePicker({ onStart, hasLessonRow }: { onStart: (scope: 'row' | 'all-h' | 'all-k' | 'mix') => void; hasLessonRow: boolean }) {
   const scopes = [
-    ...(hasLessonRow ? [{ id: 'row' as const, label: '📖 Hàng vừa học', desc: 'Kiểm tra hàng chữ cái bạn vừa học xong' }] : []),
-    { id: 'all-h' as const, label: 'あ Toàn bộ Hiragana', desc: '20 câu ngẫu nhiên từ toàn bộ bảng Hiragana' },
-    { id: 'all-k' as const, label: 'ア Toàn bộ Katakana', desc: '20 câu ngẫu nhiên từ toàn bộ bảng Katakana' },
-    { id: 'mix' as const, label: '🔀 Trộn lẫn', desc: '20 câu trộn cả Hiragana và Katakana' },
+    ...(hasLessonRow ? [{ id: 'row' as const, label: '📖 Hàng vừa học', desc: 'Kiểm tra nhanh hàng chữ cái bạn vừa học xong' }] : []),
+    { id: 'all-h' as const, label: `あ Toàn bộ Hiragana (${ALL_HIRAGANA.length} câu)`, desc: `Luyện tập đầy đủ toàn bộ ${ALL_HIRAGANA.length} chữ cái Hiragana (Âm trong, Âm đục, Bán đục)` },
+    { id: 'all-k' as const, label: `ア Toàn bộ Katakana (${ALL_KATAKANA.length} câu)`, desc: `Luyện tập đầy đủ toàn bộ ${ALL_KATAKANA.length} chữ cái Katakana (Âm trong, Âm đục, Bán đục)` },
+    { id: 'mix' as const, label: '🔀 Trộn lẫn Hiragana & Katakana (35 câu)', desc: '35 câu hỏi ngẫu nhiên xáo trộn từ cả 2 bảng chữ cái Hiragana & Katakana' },
   ];
 
   return (
@@ -707,7 +713,7 @@ function QuizScopePicker({ onStart, hasLessonRow }: { onStart: (scope: 'row' | '
       <div className="text-center mb-8">
         <div className="text-5xl mb-3">🃏</div>
         <h2 className="text-xl font-bold text-on-surface mb-2">Chọn phạm vi luyện tập</h2>
-        <p className="text-sm text-on-surface-variant">Gõ romaji tương ứng với ký tự hiển thị. 20 câu mỗi lượt.</p>
+        <p className="text-sm text-on-surface-variant">Gõ romaji tương ứng với ký tự hiển thị.</p>
       </div>
       <div className="space-y-3">
         {scopes.map(s => (
