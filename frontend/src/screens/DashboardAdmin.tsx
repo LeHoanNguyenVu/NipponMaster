@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Users, BookOpen, ShieldCheck, AlertTriangle, Activity, Settings2, Sparkles, LayoutDashboard } from 'lucide-react';
+import { Users, BookOpen, ShieldCheck, AlertTriangle, Activity, LayoutDashboard, CreditCard } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import UserManagementConsole from './admin/UserManagementConsole';
+import SubscriptionPlanConsole from './admin/SubscriptionPlanConsole';
 
 interface DashboardAdminProps {
   username?: string;
 }
 
 export default function DashboardAdmin({ username }: DashboardAdminProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'users'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'subscriptions'>('overview');
 
   return (
     <div className="max-w-[1280px] mx-auto p-6 md:p-8 space-y-8 font-sans">
@@ -22,15 +23,16 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
             Quản trị viên, {username || 'Admin'}
           </h1>
           <p className="text-lg text-on-surface-variant">
-            Tổng quan hệ thống NipponMaster — giám sát, phân quyền và cấu hình.
+            Tổng quan hệ thống NipponMaster — giám sát, phân quyền và gói dịch vụ.
           </p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex bg-surface-container-low p-1.5 rounded-2xl border border-outline-variant/60 gap-1">
+        <div className="flex bg-surface-container-low p-1.5 rounded-2xl border border-outline-variant/60 gap-1 flex-wrap">
           {[
             { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
             { id: 'users', label: 'Quản lý Người dùng', icon: Users },
+            { id: 'subscriptions', label: 'Gói Dịch Vụ & Thanh Toán', icon: CreditCard },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -94,12 +96,20 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
 
             <Card className="p-6 flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-on-surface">Nhật ký Hoạt động Hệ thống</h2>
-                <Activity size={18} className="text-outline" />
+                <h2 className="text-lg font-bold text-on-surface">Lối tắt Gói Dịch Vụ & Thanh Toán</h2>
+                <CreditCard size={18} className="text-secondary" />
               </div>
-              <div className="flex-1 flex items-center justify-center py-8 text-on-surface-variant text-xs italic">
-                Hạ tầng ghi nhận nhật ký (System Logs) đang được kết nối...
-              </div>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Tạo gói học mới, đổi bảng giá, bật/tắt hiển thị gói và cấp quyền VIP thủ công cho học viên xuất sắc.
+              </p>
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={<CreditCard size={16} />}
+                onClick={() => setActiveTab('subscriptions')}
+              >
+                Mở Console Gói Dịch Vụ
+              </Button>
             </Card>
           </div>
         </div>
@@ -109,6 +119,13 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
       {activeTab === 'users' && (
         <div className="animate-fade-in">
           <UserManagementConsole />
+        </div>
+      )}
+
+      {/* TAB 3: SUBSCRIPTION PLAN CONSOLE */}
+      {activeTab === 'subscriptions' && (
+        <div className="animate-fade-in">
+          <SubscriptionPlanConsole />
         </div>
       )}
     </div>

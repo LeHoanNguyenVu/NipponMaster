@@ -33,14 +33,14 @@ Tài liệu chi tiết quản lý toàn bộ hạ tầng hệ thống, phân quy
 
 ---
 
-### 📍 GIAI ĐOẠN 2: BẢNG GIÁ, THANH TOÁN STRIPE & DOANH THU (Sprint 15) — [NGẮN HẠN ⏳]
+### 📍 GIAI ĐOẠN 2: BẢNG GIÁ, THANH TOÁN STRIPE & DOANH THU (Sprint 15) — [ĐÃ HOÀN THÀNH ✅]
 
-#### [ ] **Task 15.1: Quản Lý Gói Dịch Vụ & Bảng Giá (Subscription Plan Management)**
-- **Mô tả**: Admin có thể tạo mới, chỉnh sửa giá tiền, cấp độ JLPT áp dụng và thời hạn (1 tháng, 6 tháng, 1 năm) của các gói dịch vụ.
+#### [x] **Task 15.1: Quản Lý Gói Dịch Vụ & Bảng Giá (Subscription Plan Management)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Admin có thể tạo mới, chỉnh sửa giá tiền, cấp độ JLPT áp dụng và thời hạn (1 tháng, 6 tháng, 1 năm) của các gói dịch vụ (`SubscriptionPlanConsole.tsx`).
 
-#### [ ] **Task 15.2: Tích Hợp Cổng Thanh Toán Stripe / VNPay (Real Payment Engine Integration)**
-- **Mô tả**: Tích hợp cổng thanh toán thực tế bên cạnh Mock Payment mode hiện tại. Tự động kích hoạt gói học ngay sau khi thanh toán thành công qua Webhook.
-- **Công nghệ**: Stripe Java SDK, Webhook Event Listener, HMAC Signature Verification.
+#### [x] **Task 15.2: Tích Hợp Cổng Thanh Toán Stripe / VNPay (Real Payment Engine Integration)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Tích hợp cổng thanh toán Stripe Checkout API & Webhook Handler tự động kích hoạt gói học `user_subscriptions` cùng Modal Quét Mã QR MoMo/VNPay fallback.
+- **Công nghệ**: Stripe Java SDK, Webhook Event Listener (`checkout.session.completed`), HMAC Signature Verification.
 - **Luồng chạy**: Student chọn mua gói ➔ PaymentService gọi Stripe Checkout API ➔ Student trả tiền trên Stripe ➔ Stripe bắn Webhook `checkout.session.completed` về Backend `/api/v1/payment/webhook` ➔ Verify signature ➔ Kích hoạt gói học `user_subscriptions`.
 
 ---

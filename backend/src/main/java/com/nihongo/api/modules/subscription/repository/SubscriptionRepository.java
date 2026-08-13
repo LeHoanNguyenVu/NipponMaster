@@ -23,4 +23,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     @Query("SELECT s FROM Subscription s WHERE s.userId = :userId AND s.status = 'ACTIVE'")
     List<Subscription> findActiveByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(s) FROM Subscription s WHERE s.status = 'ACTIVE'")
+    long countActiveSubscriptions();
 }
