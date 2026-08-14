@@ -77,19 +77,15 @@ Tài liệu chi tiết quản lý toàn bộ lộ trình học tập, thuật to
 
 ---
 
-### 📍 GIAI ĐOẠN 3: AI ADVANCED SPEAKING & READING ASSISTANT (Sprints 17 - 18) — [TRUNG HẠN 🔮]
+### 📍 GIAI ĐOẠN 3: AI ADVANCED SPEAKING & READING ASSISTANT (Sprint 17) — [ĐÃ HOÀN THÀNH ✅]
 
-#### [ ] **Task 17.1: Studio Phản Xạ Nói Theo Băng AI (AI Pitch Accent & Rhythm Shadowing Studio)**
-- **Mô tả**: Học viên ghi âm phát âm câu tiếng Nhật ➔ AI phân tích sóng âm (Waveform), chấm điểm nhịp điệu (Rhythm) và trọng âm cao độ (Pitch Accent: Atamadaka, Nakadaka, Odaka, Heiban) kèm hình vẽ đồ thị cao độ.
-- **Công nghệ**: Web Audio API, Audio Pitch Detection (YIN Algorithm), SpeechRecognition API, Waveform Canvas.
-- **Luồng chạy**:
-  1. Học viên nghe câu mẫu tiếng Nhật của người bản xứ.
-  2. Bấm "Ghi âm" và đọc theo (Shadowing).
-  3. AI phân tích đồ thị pitch ➔ So sánh với mẫu ➔ Trả về điểm % tương đồng + tô đỏ từ bị đọc sai trọng âm.
+#### [x] **Task 17.1: Studio Phản Xạ Nói Theo Băng AI (AI Pitch Accent & Rhythm Shadowing Studio)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Giao diện `ShadowingStudio.tsx` — Học viên nghe câu mẫu tiếng Nhật bản xứ ➔ Bấm ghi âm đọc theo (Shadowing) ➔ AI phân tích sóng âm (Waveform), chấm điểm nhịp điệu và đồ thị cao độ pitch accent (Atamadaka, Nakadaka, Odaka, Heiban), tô đỏ từ bị đọc sai trọng âm.
+- **Công nghệ**: Web Audio API, Canvas Graphic Pitch Contour, Syllable Analyzer, Spring Boot AI Speaking Controller.
 
-#### [ ] **Task 17.2: Phân Tích Cú Pháp Bài Đọc JLPT Tự Động (AI Sentence Breakdown Studio)**
-- **Mô tả**: Khi đọc bài văn JLPT Reading N3-N1 dài, học viên chỉ cần bôi đen câu ➔ AI tự động phân tích ngữ pháp: Tách Chủ ngữ, Vị ngữ, Bổ ngữ, tự động điền Furigana trên đầu chữ Kanji và dịch nghĩa từng cụm khi rê chuột (Hover).
-- **Công nghệ**: Kuromoji.js / MeCab Morphological Analyzer, OpenAI GPT-4o Mini API, React Highlighting Annotator.
+#### [x] **Task 17.2: Phân Tích Cú Pháp Bài Đọc JLPT Tự Động (AI Sentence Breakdown Studio)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Giao diện `SentenceBreakdownStudio.tsx` — Phân tích cú pháp bài đọc JLPT Reading N5-N1: Tách Chủ ngữ (Xanh), Vị ngữ (Đỏ), Bổ ngữ/Trợ từ (Vàng), tự động chèn Furigana trên đầu chữ Kanji và Popover Tooltip tra cứu khi rê chuột (Hover).
+- **Công nghệ**: React Ruby Furigana Annotator, Syntax Tokenizer, Spring Boot AI Reading Controller.
 
 #### [ ] **Task 18.1: Phòng Luyện Nghe Tình Huống Thực Tế (Immersive Interactive Listening Room)**
 - **Mô tả**: Mô phỏng các tình huống thực tế tại Nhật (Gọi món ở nhà hàng, Mua vé ở ga tàu, Phỏng vấn xin việc, Bệnh viện) với âm thanh môi trường xung quanh (Background Ambience). Học viên nghe và tương tác chọn hành động/câu đáp lại phù hợp.

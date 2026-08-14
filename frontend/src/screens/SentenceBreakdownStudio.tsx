@@ -1,300 +1,184 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Search, BookOpen, ToggleLeft, ToggleRight, ArrowRight, Info, Layers, RefreshCw } from 'lucide-react';
-import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
-import { Button } from '../components/ui/Button';
-import { motion } from 'motion/react';
-import { sentenceBreakdownApi, type SentenceAnalyzeResponse, type TokenDto } from '../api/sentenceBreakdownApi';
+import { Sparkles, BookOpen, Layers, Info, CheckCircle2, ChevronRight, HelpCircle } from 'lucide-react';
+import { aiStudioApi, type BreakdownResponse, type SyntaxToken } from '../api/aiStudioApi';
 
-interface SentenceBreakdownStudioProps {
-  initialSentence?: string;
-  onNavigateToGrammar?: (grammarId: number) => void;
-}
-
-const SAMPLE_SENTENCES = [
-  { level: 'N5', text: '日本語を勉強してから、日本へ行きたいです。' },
-  { level: 'N4', text: '毎日薬を飲まなければなりません。' },
-  { level: 'N5', text: '図書館で本を借りることができますか。' },
-  { level: 'N4', text: '先生はやさしいので、話すのが好きです。' },
-  { level: 'N3', text: '雨が降っているにもかかわらず、出かけました。' }
+const SAMPLE_PASSAGES = [
+  { label: 'Sơ cấp N5', text: '私は毎日日本語を勉強します。' },
+  { label: 'Trung cấp N4', text: '来週のテストのために、図書館で友達と一緒に勉強する予定です。' },
+  { label: 'Trung cấp N3', text: '日本の文化に興味があるので、将来は日本で仕事をしたいと思っています。' },
+  { label: 'Cao cấp N2-N1', text: '経済のグローバル化に伴い、異文化コミュニケーション能力の重要性がますます高まっている。' },
 ];
 
-export default function SentenceBreakdownStudio({ initialSentence, onNavigateToGrammar }: SentenceBreakdownStudioProps) {
-  const [inputText, setInputText] = useState(initialSentence || '日本語を勉強してから、日本へ行きたいです。');
-  const [showFurigana, setShowFurigana] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<SentenceAnalyzeResponse | null>(null);
-  const [selectedToken, setSelectedToken] = useState<TokenDto | null>(null);
+const ROLE_BADGE_STYLE: Record<string, { bg: string; text: string; border: string; label: string }> = {
+  SUBJECT: { bg: 'bg-blue-500/10', text: 'text-blue-600', border: 'border-blue-500/30', label: '主語 (Chủ ngữ)' },
+  PREDICATE: { bg: 'bg-rose-500/10', text: 'text-rose-600', border: 'border-rose-500/30', label: '述語 (Vị ngữ)' },
+  COMPLEMENT: { bg: 'bg-amber-500/10', text: 'text-amber-600', border: 'border-amber-500/30', label: '補語/助詞 (Trợ từ)' },
+  OBJECT: { bg: 'bg-emerald-500/10', text: 'text-emerald-600', border: 'border-emerald-500/30', label: '目的語 (Tân ngữ)' },
+  MODIFIER: { bg: 'bg-purple-500/10', text: 'text-purple-600', border: 'border-purple-500/30', label: '修飾語 (Bổ nghĩa)' },
+};
 
-  const handleAnalyze = async (textToAnalyze = inputText) => {
-    const trimmed = textToAnalyze.trim();
-    if (!trimmed) return;
-    setIsLoading(true);
+export default function SentenceBreakdownStudio({ initialSentence }: { initialSentence?: string }) {
+  const [inputText, setInputText] = useState(initialSentence && initialSentence.trim() ? initialSentence : '私は毎日日本語を勉強します。');
+  const [breakdown, setBreakdown] = useState<BreakdownResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [hoveredToken, setHoveredToken] = useState<SyntaxToken | null>(null);
+
+  const handleBreakdown = async (textToAnalyze: string) => {
     try {
-      const data = await sentenceBreakdownApi.analyzeSentence(trimmed);
-      setResult(data);
-      if (data.tokens && data.tokens.length > 0) {
-        setSelectedToken(data.tokens[0]);
-      }
+      setLoading(true);
+      const res = await aiStudioApi.breakdownSentence(textToAnalyze);
+      setBreakdown(res);
     } catch (err) {
-      console.error('Lỗi khi phân tích cú pháp câu:', err);
+      console.error(err);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    handleAnalyze(inputText);
+    handleBreakdown(inputText);
   }, []);
 
-  const getTokenColorClass = (pos: string) => {
-    switch (pos) {
-      case 'VERB_CONJUGATED':
-        return 'bg-rose-500/10 text-rose-600 border-rose-500/30 dark:bg-rose-500/20 dark:text-rose-400 hover:bg-rose-500/20';
-      case 'NOUN':
-        return 'bg-teal-500/10 text-teal-600 border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-400 hover:bg-teal-500/20';
-      case 'PARTICLE':
-        return 'bg-amber-500/10 text-amber-600 border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-400 hover:bg-amber-500/20';
-      case 'ADJECTIVE':
-        return 'bg-purple-500/10 text-purple-600 border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-400 hover:bg-purple-500/20';
-      default:
-        return 'bg-blue-500/10 text-blue-600 border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-400 hover:bg-blue-500/20';
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Search Input & Controls */}
-      <Card className="p-6 border-outline-variant/30 bg-surface-container-low shadow-sm">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold">
-                🧩
-              </div>
-              <h2 className="text-lg font-bold text-on-surface">Phân Tích Cú Pháp Câu Tiếng Nhật</h2>
-            </div>
-            <button
-              onClick={() => setShowFurigana(!showFurigana)}
-              className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant hover:bg-surface-variant transition-colors cursor-pointer"
-            >
-              {showFurigana ? <ToggleRight size={18} className="text-primary" /> : <ToggleLeft size={18} />}
-              <span>Furigana: {showFurigana ? 'Bật' : 'Tắt'}</span>
-            </button>
-          </div>
+    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
+      {/* ── Header ── */}
+      <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/10 text-secondary rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+          <Sparkles size={14} /> AI Syntax Parser & Reading Studio
+        </div>
+        <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight">
+          📄 Studio Phân Tích Cú Pháp & Cấu Trúc Câu JLPT
+        </h1>
+        <p className="text-xs md:text-sm text-on-surface-variant mt-1">
+          Tự động phân tách Chủ ngữ / Vị ngữ, chèn Furigana trên đầu Kanji & tra cứu từ điển khi rê chuột
+        </p>
+      </div>
 
-          <div className="relative flex items-center">
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
-              placeholder="Nhập câu tiếng Nhật cần phân tích... (Ví dụ: 日本語を勉強してから、日本へ行きたいです。)"
-              className="w-full px-4 py-3.5 pr-28 rounded-xl bg-surface-container-lowest border border-outline-variant/40 focus:border-primary focus:outline-none text-on-surface font-jp font-medium text-base shadow-inner transition-colors"
-            />
-            <Button
-              onClick={() => handleAnalyze()}
-              disabled={isLoading}
-              className="absolute right-2 text-sm px-4 py-2 flex items-center gap-1.5 shadow-md cursor-pointer"
-            >
-              {isLoading ? (
-                <RefreshCw size={16} className="animate-spin" />
-              ) : (
-                <>
-                  <Search size={16} />
-                  <span>Phân tích</span>
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Quick Sample Sentences */}
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider flex items-center gap-1">
-              <Sparkles size={12} className="text-amber-500" /> Câu mẫu:
-            </span>
-            {SAMPLE_SENTENCES.map((item, idx) => (
+      {/* ── Sample Passages & Input ── */}
+      <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
+            Nhập Hoặc Chọn Bài Đọc Tiếng Nhật
+          </label>
+          <div className="flex gap-2 flex-wrap">
+            {SAMPLE_PASSAGES.map((s, idx) => (
               <button
                 key={idx}
-                onClick={() => {
-                  setInputText(item.text);
-                  handleAnalyze(item.text);
-                }}
-                className="text-xs px-2.5 py-1 rounded-md bg-surface-container-highest/60 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all font-jp font-medium border border-outline-variant/20 flex items-center gap-1.5 cursor-pointer"
+                onClick={() => { setInputText(s.text); handleBreakdown(s.text); }}
+                className="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant text-xs font-semibold hover:bg-surface-container-high cursor-pointer transition-colors"
               >
-                <Badge variant="primary" className="text-[10px] py-0 px-1">{item.level}</Badge>
-                <span>{item.text}</span>
+                {s.label}
               </button>
             ))}
           </div>
         </div>
-      </Card>
 
-      {/* Analysis Results Display */}
-      {result && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          {/* Main Sentence Display Box */}
-          <Card className="p-6 border-primary/20 bg-gradient-to-br from-surface-container-low via-surface-container-lowest to-surface-container-low shadow-md relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <textarea
+            rows={3}
+            value={inputText}
+            onChange={e => setInputText(e.target.value)}
+            placeholder="Dán câu hoặc đoạn văn tiếng Nhật ở đây..."
+            className="flex-1 p-4 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest text-on-surface font-jp text-base focus:outline-none focus:border-primary resize-none"
+          />
+          <button
+            onClick={() => handleBreakdown(inputText)}
+            disabled={loading || !inputText.trim()}
+            className="px-6 py-3 rounded-2xl bg-primary text-on-primary font-bold text-sm cursor-pointer hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 self-end sm:self-stretch shadow-md transition-opacity"
+          >
+            {loading ? '⏳ Đang phân tích...' : '🤖 AI Phân Tích Cú Pháp'}
+          </button>
+        </div>
+      </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Kết quả phân tích cú pháp</span>
-                <Badge variant="crimson" className="text-xs">Tiếng Nhật ➔ Tiếng Việt</Badge>
-              </div>
-
-              {/* Furigana Ruby Sentence Container */}
-              <div className="p-6 bg-surface-container-lowest/80 rounded-2xl border border-outline-variant/30 shadow-inner">
-                {showFurigana ? (
-                  <div
-                    dangerouslySetInnerHTML={{ __html: result.furiganaRubyHtml }}
-                    className="font-jp text-3xl font-bold leading-relaxed text-on-surface selection:bg-primary/20 tracking-wide [&>ruby]:px-1 [&>ruby>rt]:text-xs [&>ruby>rt]:text-primary [&>ruby>rt]:font-semibold"
-                  />
-                ) : (
-                  <div className="font-jp text-3xl font-bold leading-relaxed text-on-surface tracking-wide">
-                    {result.originalSentence}
-                  </div>
-                )}
-              </div>
-
-              {/* Translation Text */}
-              <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-start gap-3">
-                <Info size={18} className="text-primary mt-0.5 shrink-0" />
-                <div>
-                  <div className="text-xs font-bold uppercase text-primary tracking-wider">Bản dịch tiếng Việt</div>
-                  <div className="text-base font-semibold text-on-surface mt-0.5">{result.translatedSentence}</div>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Interactive Token Blocks */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2 p-6 border-outline-variant/30 bg-surface-container-low space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Layers size={18} className="text-primary" />
-                  <h3 className="text-base font-bold text-on-surface">Các thành phần trong câu (Tokens)</h3>
-                </div>
-                <span className="text-xs text-on-surface-variant">Click vào khối từ để xem chi tiết</span>
-              </div>
-
-              {/* Token Chips Grid */}
-              <div className="flex flex-wrap gap-2.5 p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/20 min-h-[100px] items-center">
-                {result.tokens.map((token, idx) => {
-                  const isSelected = selectedToken?.surface === token.surface;
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedToken(token)}
-                      className={`px-3.5 py-2 rounded-xl border font-jp font-bold text-lg transition-all duration-200 cursor-pointer flex flex-col items-center shadow-sm ${getTokenColorClass(
-                        token.partOfSpeech
-                      )} ${isSelected ? 'ring-2 ring-primary ring-offset-2 shadow-md scale-105' : ''}`}
-                    >
-                      <span className="text-xs font-normal opacity-80 font-sans tracking-tight">{token.reading}</span>
-                      <span>{token.surface}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Legend Badges */}
-              <div className="flex flex-wrap items-center gap-3 pt-2 text-xs font-medium text-on-surface-variant">
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-teal-500" /> Danh từ</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500" /> Động từ chia thể</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Trợ từ</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Tính từ</span>
-              </div>
-            </Card>
-
-            {/* Token Detail Inspector */}
-            <Card className="p-6 border-primary/20 bg-surface-container-lowest shadow-sm flex flex-col justify-between">
-              {selectedToken ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-outline-variant/20 pb-3">
-                    <span className="text-xs font-bold uppercase tracking-wider text-primary">Chi tiết từ loại</span>
-                    <Badge variant="primary">{selectedToken.jlptLevel}</Badge>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="text-4xl font-jp font-bold text-on-surface bg-surface-container-low px-4 py-2 rounded-xl border border-outline-variant/20">
-                      {selectedToken.surface}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-primary">Cách đọc: {selectedToken.reading}</div>
-                      <div className="text-xs text-on-surface-variant mt-0.5">Từ gốc: <span className="font-jp font-bold text-on-surface">{selectedToken.baseForm}</span></div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="text-xs font-bold text-on-surface-variant uppercase">Phân loại</div>
-                    <div className="px-3 py-1.5 bg-surface-container-high rounded-lg font-bold text-sm text-on-surface">
-                      {selectedToken.partOfSpeechLabel}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="text-xs font-bold text-on-surface-variant uppercase">Giải thích ý nghĩa & thể chia</div>
-                    <p className="text-xs leading-relaxed text-on-surface font-medium bg-surface-container-low p-3 rounded-xl border border-outline-variant/20">
-                      {selectedToken.explanation}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-on-surface-variant text-xs italic">
-                  Click vào một khối từ trong câu để xem phân tích chi tiết.
-                </div>
-              )}
-            </Card>
+      {/* ── Breakdown Display Area ── */}
+      {breakdown && (
+        <div className="space-y-6">
+          {/* Color Role Legend */}
+          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-4 flex flex-wrap items-center gap-3">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mr-2">Chú giải màu sắc:</span>
+            {Object.entries(ROLE_BADGE_STYLE).map(([key, style]) => (
+              <span key={key} className={`text-xs font-bold px-3 py-1 rounded-full border ${style.bg} ${style.text} ${style.border}`}>
+                {style.label}
+              </span>
+            ))}
           </div>
 
-          {/* Matched Grammar Handbook Rules */}
-          <Card className="p-6 border-outline-variant/30 bg-surface-container-low space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <BookOpen size={18} className="text-primary" />
-                <h3 className="text-base font-bold text-on-surface">Cấu Trúc Ngữ Pháp Nhận Diện Được</h3>
-              </div>
-              <Badge variant="primary">{result.matchedGrammars.length} Mẫu ngữ pháp</Badge>
+          {/* Interactive Sentence Tokens Box */}
+          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+              1. Phân Phân Tách Cụm Từ & Furigana Rê Chuột Tra Cứu
+            </h3>
+
+            <div className="flex flex-wrap gap-3 items-end leading-loose font-jp text-2xl">
+              {breakdown.tokens?.map((token, idx) => {
+                const style = ROLE_BADGE_STYLE[token.role] || ROLE_BADGE_STYLE.MODIFIER;
+                return (
+                  <div
+                    key={idx}
+                    onMouseEnter={() => setHoveredToken(token)}
+                    className={`relative group px-3 py-2 rounded-2xl border-2 cursor-pointer transition-all hover:scale-105 shadow-xs ${style.bg} ${style.border}`}
+                  >
+                    {/* Ruby Furigana */}
+                    <ruby className="font-bold text-on-surface">
+                      {token.surface}
+                      {token.furigana && token.furigana !== token.surface && (
+                        <rt className="text-xs text-primary font-semibold tracking-normal">{token.furigana}</rt>
+                      )}
+                    </ruby>
+                    <div className={`text-[10px] font-bold mt-1 font-sans ${style.text}`}>
+                      {style.label.split(' ')[0]}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {result.matchedGrammars.map((rule, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-primary/30 transition-all shadow-sm space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-jp font-bold text-lg text-primary">{rule.pattern}</span>
-                    <Badge variant="crimson">{rule.jlptLevel}</Badge>
+            {/* Hovered Token Detail Popover Card */}
+            {hoveredToken ? (
+              <div className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/30 space-y-2 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-2xl font-bold font-jp text-primary">{hoveredToken.surface}</span>
+                    <span className="text-sm font-semibold text-on-surface-variant">[{hoveredToken.furigana}]</span>
+                    {hoveredToken.kanjiSinoVietnamese !== '-' && (
+                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-tertiary/15 text-tertiary">
+                        Hán Việt: {hoveredToken.kanjiSinoVietnamese}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-xs font-bold text-on-surface">Cấu trúc: <code className="bg-surface-container-high px-2 py-0.5 rounded font-jp text-primary">{rule.structure}</code></div>
-                  <div className="text-xs font-medium text-on-surface-variant">Nghĩa: {rule.meaning}</div>
-                  <p className="text-xs text-on-surface-variant italic pt-1 border-t border-outline-variant/10">
-                    {rule.explanation}
-                  </p>
-                  <button
-                    onClick={() => {
-                      if (onNavigateToGrammar && rule.grammarId) {
-                        onNavigateToGrammar(rule.grammarId);
-                      } else {
-                        alert(`📖 Mẫu ngữ pháp [${rule.pattern}]:\n- Cấu trúc: ${rule.structure}\n- Nghĩa: ${rule.meaning}\n- Cách dùng: ${rule.explanation}`);
-                      }
-                    }}
-                    className="mt-2 text-xs font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Xem cấu trúc đầy đủ trong Handbook 📖</span>
-                    <ArrowRight size={12} />
-                  </button>
+                  <span className="text-xs font-semibold text-on-surface-variant">{hoveredToken.partOfSpeech}</span>
                 </div>
-              ))}
+                <p className="text-sm text-on-surface font-medium">{hoveredToken.meaning}</p>
+              </div>
+            ) : (
+              <div className="p-4 rounded-2xl bg-surface-container/50 border border-outline-variant/20 text-xs text-on-surface-variant flex items-center gap-2">
+                <HelpCircle size={16} /> Rê chuột vào bất kỳ từ nào ở trên để xem Furigana, âm Hán Việt và nghĩa từ điển chi tiết.
+              </div>
+            )}
+          </div>
+
+          {/* Full Translation & Grammar Notes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 shadow-sm space-y-2">
+              <h4 className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+                <CheckCircle2 size={16} /> Bản Dịch Tiếng Việt Chuẩn
+              </h4>
+              <p className="text-base text-on-surface font-semibold leading-relaxed">
+                "{breakdown.fullVietnameseTranslation}"
+              </p>
             </div>
-          </Card>
-        </motion.div>
+
+            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 shadow-sm space-y-2">
+              <h4 className="text-xs font-bold text-tertiary uppercase tracking-wider flex items-center gap-1.5">
+                <Info size={16} /> Ghi Chú Cấu Trúc Ngữ Pháp
+              </h4>
+              <p className="text-sm text-on-surface-variant leading-relaxed">
+                {breakdown.grammarNotes}
+              </p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -43,9 +43,36 @@ interface SpeechRecognitionAlternative {
   confidence: number;
 }
 
+import ShadowingStudio from './ShadowingStudio';
+
 // ===== Main Component =====
 export default function SpeakingStudio() {
+  const [subTab, setSubTab] = useState<'scenarios' | 'pitch'>('scenarios');
   const [view, setView] = useState<ViewState>('scenarios');
+
+  if (subTab === 'pitch') {
+    return (
+      <div className="space-y-4">
+        <div className="max-w-5xl mx-auto px-4 md:px-8 pt-4">
+          <div className="flex bg-surface-container-low p-1.5 rounded-2xl border border-outline-variant/60 gap-1 w-fit">
+            <button
+              onClick={() => setSubTab('scenarios')}
+              className="px-4 py-2 rounded-xl text-xs font-bold text-on-surface-variant hover:bg-surface-container-high cursor-pointer"
+            >
+              💬 Luyện Nói Thoại AI
+            </button>
+            <button
+              onClick={() => setSubTab('pitch')}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-primary text-on-primary shadow-sm cursor-pointer"
+            >
+              🎙️ Shadowing & Pitch Accent Studio
+            </button>
+          </div>
+        </div>
+        <ShadowingStudio />
+      </div>
+    );
+  }
   const [scenarios, setScenarios] = useState<SpeakingScenario[]>([]);
   const [activeScenario, setActiveScenario] = useState<SpeakingScenario | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -299,6 +326,22 @@ export default function SpeakingStudio() {
     return (
       <div className="p-6 md:p-8 max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          {/* Sub-Tab Bar */}
+          <div className="flex bg-surface-container-low p-1.5 rounded-2xl border border-outline-variant/60 gap-1 w-fit mb-6">
+            <button
+              onClick={() => setSubTab('scenarios')}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-primary text-on-primary shadow-sm cursor-pointer"
+            >
+              💬 Luyện Nói Thoại AI
+            </button>
+            <button
+              onClick={() => setSubTab('pitch')}
+              className="px-4 py-2 rounded-xl text-xs font-bold text-on-surface-variant hover:bg-surface-container-high cursor-pointer"
+            >
+              🎙️ Shadowing & Pitch Accent Studio
+            </button>
+          </div>
+
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">

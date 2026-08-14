@@ -20,7 +20,7 @@ interface DashboardTeacherProps {
 
 export default function DashboardTeacher({ username }: DashboardTeacherProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'studio' | 'exams'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'studio' | 'exams' | 'gradebook'>('overview');
   const [showExamStudio, setShowExamStudio] = useState(false);
   const [editingExam, setEditingExam] = useState<any>(null);
 
