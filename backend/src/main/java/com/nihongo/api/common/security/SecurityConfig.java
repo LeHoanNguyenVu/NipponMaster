@@ -16,8 +16,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Cấu hình bảo mật cho toàn bộ ứng dụng.
  * Tích hợp JWT filter để bảo vệ các API cần đăng nhập.
  */
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -64,6 +67,9 @@ public class SecurityConfig {
 
                         // Cho phép phân tích cú pháp câu AI
                         .requestMatchers("/api/v1/sentence-breakdown/**").permitAll()
+
+                        // Endpoints Admin Dashboard & Consoles
+                        .requestMatchers("/api/v1/admin/**").permitAll()
 
                         // Tất cả endpoint còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()

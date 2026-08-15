@@ -26,4 +26,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     @Query("SELECT COUNT(s) FROM Subscription s WHERE s.status = 'ACTIVE'")
     long countActiveSubscriptions();
+
+    @Query("SELECT COALESCE(SUM(s.plan.price), 0.0) FROM Subscription s WHERE s.status = 'ACTIVE' OR s.status = 'COMPLETED'")
+    Double sumTotalRevenue();
 }

@@ -35,7 +35,7 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "jlpt_level")
     @Builder.Default
-    private JlptLevel jlptLevel = JlptLevel.N5;
+    private JlptLevel jlptLevel = JlptLevel.STARTER;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -46,7 +46,7 @@ public class User extends BaseEntity {
     private Boolean isActive = true;
 
     /**
-     * Trình độ JLPT mục tiêu mà học viên đăng ký học (N5-N1).
+     * Trình độ JLPT mục tiêu mà học viên đăng ký học (STARTER, N5-N1).
      * Được chốt sau khi hoàn tất luồng Onboarding.
      */
     @Enumerated(EnumType.STRING)
@@ -66,6 +66,6 @@ public class User extends BaseEntity {
     }
 
     public enum JlptLevel {
-        N5, N4, N3, N2, N1
+        STARTER, N5, N4, N3, N2, N1
     }
 }

@@ -262,7 +262,7 @@ public class PlacementTestService {
     }
 
     private User.JlptLevel dropLevel(User.JlptLevel current, int steps) {
-        if (current == null) return User.JlptLevel.N5;
+        if (current == null) return User.JlptLevel.STARTER;
         User.JlptLevel level = current;
         for (int i = 0; i < steps; i++) {
             level = switch (level) {
@@ -270,7 +270,7 @@ public class PlacementTestService {
                 case N2 -> User.JlptLevel.N3;
                 case N3 -> User.JlptLevel.N4;
                 case N4 -> User.JlptLevel.N5;
-                case N5 -> User.JlptLevel.N5;
+                case N5, STARTER -> User.JlptLevel.STARTER;
             };
         }
         return level;
