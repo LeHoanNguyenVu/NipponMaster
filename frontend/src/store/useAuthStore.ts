@@ -13,14 +13,23 @@ export interface User {
   subscriptionStatus?: 'NONE' | 'ACTIVE' | 'EXPIRED';
 }
 
+interface SocialLoginData {
+  provider: 'GOOGLE' | 'FACEBOOK';
+  idToken: string;
+  email: string;
+  fullName?: string;
+  avatarUrl?: string;
+}
+
 interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (credentials: any) => Promise<void>;
-  register: (credentials: any) => Promise<void>;
+  login: (credentials: any, rememberDevice?: boolean) => Promise<void>;
+  register: (credentials: any, rememberDevice?: boolean) => Promise<void>;
+  loginWithSocial: (data: SocialLoginData, rememberDevice?: boolean) => Promise<void>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
   changeUserRole: (newRole: string) => Promise<void>;
@@ -28,14 +37,16 @@ interface AuthState {
   completeOnboarding: (targetLevel: string) => Promise<void>;
 }
 
+const getStoredToken = () => localStorage.getItem('token') || sessionStorage.getItem('token');
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: getStoredToken(),
+  isAuthenticated: !!getStoredToken(),
   isLoading: false,
   error: null,
 
-  login: async (credentials) => {
+  login: async (credentials, rememberDevice = true) => {
     set({ isLoading: true, error: null });
     try {
       const payload = {
@@ -51,7 +62,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         role: data.user.role?.toLowerCase()
       };
       
-      localStorage.setItem('token', token);
+      if (rememberDevice) {
+        localStorage.setItem('token', token);
+        sessionStorage.removeItem('token');
+      } else {
+        sessionStorage.setItem('token', token);
+        localStorage.removeItem('token');
+      }
+
       set({
         token,
         user,
@@ -68,7 +86,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  register: async (credentials) => {
+  register: async (credentials, rememberDevice = true) => {
     set({ isLoading: true, error: null });
     try {
       const response = await axiosClient.post<any, any>('/auth/register', credentials);
@@ -80,7 +98,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         role: data.user.role?.toLowerCase()
       };
 
-      localStorage.setItem('token', token);
+      if (rememberDevice) {
+        localStorage.setItem('token', token);
+        sessionStorage.removeItem('token');
+      } else {
+        sessionStorage.setItem('token', token);
+        localStorage.removeItem('token');
+      }
+
       set({
         token,
         user,
@@ -97,14 +122,50 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
+  loginWithSocial: async (data: SocialLoginData, rememberDevice = true) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosClient.post<any, any>('/auth/oauth2/login', data);
+      const resData = response.data;
+      const token = resData.accessToken;
+      const user = {
+        ...resData.user,
+        username: resData.user.fullName || resData.user.email,
+        role: resData.user.role?.toLowerCase()
+      };
+
+      if (rememberDevice) {
+        localStorage.setItem('token', token);
+        sessionStorage.removeItem('token');
+      } else {
+        sessionStorage.setItem('token', token);
+        localStorage.removeItem('token');
+      }
+
+      set({
+        token,
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (err: any) {
+      set({
+        isLoading: false,
+        error: err.message || 'Đăng nhập Social OAuth2 thất bại.',
+      });
+      throw err;
+    }
+  },
+
   logout: async () => {
     try {
       await axiosClient.post('/auth/logout');
     } catch (err) {
-      // Nếu API logout thất bại (ví dụ token hết hạn), vẫn tiếp tục xóa local
       console.warn('Backend logout failed, clearing local session anyway');
     }
     localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     set({
       user: null,
       token: null,
@@ -114,7 +175,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   fetchMe: async () => {
-    const token = localStorage.getItem('token');
+    const token = getStoredToken();
     if (!token) return;
 
     set({ isLoading: true, error: null });

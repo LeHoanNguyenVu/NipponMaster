@@ -12,6 +12,8 @@ public interface AuthService {
 
     AuthResponse login(LoginRequest request);
 
+    AuthResponse socialLogin(SocialLoginRequest request);
+
     UserResponse getCurrentUser(Long userId);
 
     void logout(String token);

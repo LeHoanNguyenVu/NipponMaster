@@ -45,7 +45,7 @@ Tài liệu chi tiết quản lý toàn bộ lộ trình tính năng, luồng d�
   2. Khách chọn ngẫu nhiên 3 câu từ vựng/ngữ pháp ➔ Trả lời xong.
   3. App hiển thị kết quả chẩn đoán: *"Dự đoán trình độ: N4 (Đạt 66%). Đăng ký ngay để làm bài thi chẩn đoán chuyên sâu 20 câu!"*
 
-#### [ ] **Task 17.2: Đăng Nhập Nhanh 1-Click (Social OAuth2 & Magic Link)**
+#### [x] **Task 17.2: Đăng Nhập Nhanh 1-Click (Social OAuth2 & Magic Link)**
 - **Mô tả**: Hỗ trợ đăng nhập nhanh bằng Google, Facebook, Apple ID hoặc gửi đường dẫn đăng nhập không mật khẩu (Magic Link) qua Email.
 - **Công nghệ**: Spring Security OAuth2 Client, Google Identity SDK, Apple Sign-in Web SDK, JavaMailSender.
 - **Luồng chạy**:

@@ -94,6 +94,56 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
+    public AuthResponse socialLogin(SocialLoginRequest request) {
+        String email = request.getEmail().trim().toLowerCase();
+        String provider = request.getProvider().toUpperCase();
+
+        log.info("Social OAuth2 login attempt: provider={}, email={}", provider, email);
+
+        // Tìm user theo email — nếu đã tồn tại thì đăng nhập luôn
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            // Người dùng mới — tự động tạo tài khoản STUDENT với level STARTER
+            user = User.builder()
+                    .email(email)
+                    .password(passwordEncoder.encode(java.util.UUID.randomUUID().toString()))
+                    .fullName(request.getFullName() != null ? request.getFullName() : email.split("@")[0])
+                    .avatarUrl(request.getAvatarUrl())
+                    .role(User.Role.STUDENT)
+                    .jlptLevel(User.JlptLevel.STARTER)
+                    .onboardingCompleted(false)
+                    .build();
+
+            user = userRepository.save(user);
+            log.info("Social OAuth2: Tạo tài khoản mới thành công — email={}, provider={}", email, provider);
+        } else {
+            // Cập nhật avatarUrl nếu chưa có
+            if (user.getAvatarUrl() == null && request.getAvatarUrl() != null) {
+                user.setAvatarUrl(request.getAvatarUrl());
+                userRepository.save(user);
+            }
+
+            // Kiểm tra tài khoản có bị khóa không
+            if (!user.getIsActive()) {
+                throw new BusinessException("Tài khoản đã bị vô hiệu hóa");
+            }
+
+            log.info("Social OAuth2: Đăng nhập tài khoản hiện có — email={}, provider={}", email, provider);
+        }
+
+        // Cấp JWT token
+        String token = jwtTokenProvider.generateToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        return AuthResponse.of(token, UserResponse.from(user));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser(Long userId) {
         User user = userRepository.findById(userId)

@@ -41,7 +41,8 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         try {
             jdbcTemplate.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
-            log.info("Dropped check constraint users_role_check on users table");
+            jdbcTemplate.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_jlpt_level_check");
+            log.info("Dropped check constraints users_role_check & users_jlpt_level_check on users table");
         } catch (Exception e) {
             log.warn("Could not drop constraint: {}", e.getMessage());
         }

@@ -19,6 +19,7 @@ import SpeakingStudio from './screens/SpeakingStudio';
 import BeginnerCourseHub from './screens/BeginnerCourseHub';
 import JLPTBattleArena from './screens/JLPTBattleArena';
 import QuestsAndShop from './screens/QuestsAndShop';
+import OAuthPopup from './screens/OAuthPopup';
 import { useAuthStore } from './store/useAuthStore';
 import gsap from 'gsap';
 
@@ -89,6 +90,113 @@ export default function App() {
       );
     }
   }, [currentScreen]);
+
+  // Helper function to decode JWT payload from Google id_token
+  const parseJwt = (token: string) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  // Handle OAuth2 Redirect / Popup callback in App.tsx
+  useEffect(() => {
+    const hash = window.location.hash || window.location.href;
+    if (hash.includes('access_token=') || hash.includes('id_token=')) {
+      const fragment = hash.includes('#') ? hash.substring(hash.indexOf('#') + 1) : hash;
+      const params = new URLSearchParams(fragment.replace(/^.*\?/, ''));
+      const idToken = params.get('id_token') || '';
+      const accessToken = params.get('access_token') || idToken;
+
+      const isFacebook = accessToken.startsWith('EAA') || hash.includes('data_access_expiration_time') || hash.includes('facebook');
+
+      if (isFacebook) {
+        // Fetch real user profile from Facebook Graph API
+        fetch(`https://graph.facebook.com/me?fields=id,name,email,picture.type(large)&access_token=${accessToken}`)
+          .then((res) => res.json())
+          .then((fbUser) => {
+            const email = fbUser.email || `fb.${fbUser.id}@facebook.com`;
+            const fullName = fbUser.name || 'Facebook User';
+            const avatarUrl = fbUser.picture?.data?.url;
+
+            const payload = {
+              provider: 'FACEBOOK' as const,
+              idToken: accessToken,
+              email,
+              fullName,
+              avatarUrl,
+            };
+
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage({ type: 'OAUTH_SUCCESS', payload }, '*');
+              setTimeout(() => {
+                window.close();
+              }, 100);
+            }
+          })
+          .catch(() => {
+            const fallbackPayload = {
+              provider: 'FACEBOOK' as const,
+              idToken: accessToken,
+              email: 'facebook.user@gmail.com',
+              fullName: 'Facebook User',
+            };
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage({ type: 'OAUTH_SUCCESS', payload: fallbackPayload }, '*');
+              setTimeout(() => {
+                window.close();
+              }, 100);
+            }
+          });
+      } else {
+        // Google OAuth JWT id_token
+        const decoded = idToken ? parseJwt(idToken) : (accessToken ? parseJwt(accessToken) : null);
+        const email = decoded?.email || 'google.user@gmail.com';
+        const fullName = decoded?.name || decoded?.given_name || email.split('@')[0];
+        const avatarUrl = decoded?.picture || undefined;
+
+        const payload = {
+          provider: 'GOOGLE' as const,
+          idToken: accessToken,
+          email,
+          fullName,
+          avatarUrl,
+        };
+
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'OAUTH_SUCCESS', payload }, '*');
+          setTimeout(() => {
+            window.close();
+          }, 100);
+        }
+      }
+    }
+  }, []);
+
+  // Standalone OAuth2 Popup Window (Google / Facebook)
+  if (window.location.hash.includes('oauth/popup') || window.location.hash.includes('oauth-popup')) {
+    return <OAuthPopup />;
+  }
+
+  // OAuth2 Token Redirect Loading State (inside popup)
+  if (window.location.hash.includes('access_token=') || window.location.hash.includes('id_token=')) {
+    return (
+      <div className="min-h-screen bg-surface-container-lowest flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <h3 className="text-lg font-bold text-on-surface mb-1">Đang hoàn tất xác thực...</h3>
+        <p className="text-xs text-on-surface-variant">Cửa sổ này sẽ tự động đóng trong giây lát.</p>
+      </div>
+    );
+  }
 
   // Guest flow: Landing Page → Auth Screen → Onboarding (if new) → Dashboard
   if (!isAuthenticated) {

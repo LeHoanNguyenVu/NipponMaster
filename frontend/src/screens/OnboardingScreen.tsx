@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LogOut, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { placementApi } from '../api/placementApi';
 import type { JlptLevel, PlacementTestData, PlacementResult } from '../api/placementApi';
@@ -20,7 +21,7 @@ interface OnboardingScreenProps {
 }
 
 export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
-  const { user, completeOnboarding } = useAuthStore();
+  const { user, completeOnboarding, logout } = useAuthStore();
   const [step, setStep] = useState<Step>('hub');
   const [testData, setTestData] = useState<PlacementTestData | null>(null);
   const [testLevel, setTestLevel] = useState<JlptLevel | null>(null);
@@ -41,6 +42,17 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
       const msg = err?.message || 'Có lỗi xảy ra khi lưu trình độ. Vui lòng thử lại!';
       setError(msg);
       setStep('level-select');
+    }
+  };
+
+  const handleSkip = async () => {
+    setError(null);
+    setStep('confirming');
+    try {
+      await completeOnboarding('STARTER');
+      onDone();
+    } catch (err: any) {
+      onDone();
     }
   };
 
@@ -109,17 +121,48 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
         {/* Decorative corner */}
         <div style={{
           position: 'absolute', top: 0, right: 0,
-          width: 120, height: 120,
-          background: 'linear-gradient(135deg, #c0153812, #fff0)',
-          borderRadius: '0 24px 0 120px',
+          width: 140, height: 140,
+          background: 'linear-gradient(135deg, #c0153815, #fff0)',
+          borderRadius: '0 24px 0 140px',
+          pointerEvents: 'none',
+          zIndex: 1,
         }} />
 
-        {/* Logo & brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-          <div style={{ width: 38, height: 38, background: '#c01538', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18, fontFamily: '"Noto Sans JP"' }}>
-            日
+        {/* Logo & brand + Logout Button */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, position: 'relative', zIndex: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 38, height: 38, background: '#c01538', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18, fontFamily: '"Noto Sans JP"' }}>
+              日
+            </div>
+            <span style={{ fontWeight: 800, fontSize: 18, color: '#231815', letterSpacing: '-0.02em' }}>NipponMaster</span>
           </div>
-          <span style={{ fontWeight: 800, fontSize: 18, color: '#231815', letterSpacing: '-0.02em' }}>NipponMaster</span>
+
+          <button
+            type="button"
+            onClick={() => logout()}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: '#f5f2eb', border: '1px solid #d9d2c5',
+              padding: '8px 14px', borderRadius: 12,
+              fontSize: 13, fontWeight: 700, color: '#443e3a',
+              cursor: 'pointer', transition: 'all 0.15s ease',
+              position: 'relative', zIndex: 20,
+              userSelect: 'none',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLButtonElement).style.background = '#fee2e2';
+              (e.currentTarget as HTMLButtonElement).style.borderColor = '#fca5a5';
+              (e.currentTarget as HTMLButtonElement).style.color = '#dc2626';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.background = '#f5f2eb';
+              (e.currentTarget as HTMLButtonElement).style.borderColor = '#d9d2c5';
+              (e.currentTarget as HTMLButtonElement).style.color = '#443e3a';
+            }}
+          >
+            <LogOut size={15} />
+            <span>Đăng xuất</span>
+          </button>
         </div>
 
         {/* Error */}
@@ -203,6 +246,25 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
                 </div>
               </button>
             </div>
+
+            {/* Skip option */}
+            <div style={{ marginTop: 24, textAlign: 'center' }}>
+              <button
+                type="button"
+                onClick={handleSkip}
+                style={{
+                  background: 'none', border: 'none',
+                  color: '#8c827b', fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', textDecoration: 'underline',
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#c01538'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#8c827b'; }}
+              >
+                <span>Bỏ qua bước này (Bắt đầu với trình độ Nhập môn)</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
           </div>
         )}
 
@@ -212,9 +274,24 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
             <button
               id="onboarding-back-to-hub"
               onClick={() => setStep('hub')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8c827b', fontSize: 14, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: '#f5f2eb', border: '1px solid #d9d2c5',
+                padding: '6px 14px', borderRadius: 10,
+                fontSize: 13, fontWeight: 700, color: '#5a5450',
+                cursor: 'pointer', marginBottom: 20, transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#e7e2d6';
+                (e.currentTarget as HTMLButtonElement).style.color = '#231815';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#f5f2eb';
+                (e.currentTarget as HTMLButtonElement).style.color = '#5a5450';
+              }}
             >
-              ← Quay lại
+              <ArrowLeft size={14} />
+              <span>Quay lại</span>
             </button>
             <LevelSelector onSelect={handleDirectSelect} isLoading={false} />
           </>
@@ -226,9 +303,24 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
             <button
               id="onboarding-back-to-hub-2"
               onClick={() => setStep('hub')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8c827b', fontSize: 14, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: '#f5f2eb', border: '1px solid #d9d2c5',
+                padding: '6px 14px', borderRadius: 10,
+                fontSize: 13, fontWeight: 700, color: '#5a5450',
+                cursor: 'pointer', marginBottom: 20, transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#e7e2d6';
+                (e.currentTarget as HTMLButtonElement).style.color = '#231815';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#f5f2eb';
+                (e.currentTarget as HTMLButtonElement).style.color = '#5a5450';
+              }}
             >
-              ← Quay lại
+              <ArrowLeft size={14} />
+              <span>Quay lại</span>
             </button>
             {loadingTest ? (
               <div style={{ textAlign: 'center', padding: '60px 0', color: '#5a5450' }}>

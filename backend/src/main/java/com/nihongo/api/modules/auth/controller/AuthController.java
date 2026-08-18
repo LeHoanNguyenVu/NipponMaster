@@ -40,6 +40,15 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("Đăng nhập thành công", response));
     }
 
+    @PostMapping("/oauth2/login")
+    @Operation(summary = "Đăng nhập 1-Click qua Social OAuth2 (Google / Facebook)")
+    public ResponseEntity<ApiResponse<AuthResponse>> socialLogin(
+            @Valid @RequestBody SocialLoginRequest request) {
+
+        AuthResponse response = authService.socialLogin(request);
+        return ResponseEntity.ok(ApiResponse.ok("Đăng nhập Social OAuth2 thành công", response));
+    }
+
     @GetMapping("/me")
     @Operation(summary = "Lấy thông tin user hiện tại (cần JWT)")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser(Authentication authentication) {
