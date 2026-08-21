@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, CreditCard, Play, LogOut, X, Mic, GraduationCap, Swords, Trophy } from 'lucide-react';
+import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, CreditCard, Play, LogOut, X, Mic, GraduationCap, Swords, Trophy, Headphones } from 'lucide-react';
 import type { ScreenType } from '../App';
 import { useAuthStore } from '../store/useAuthStore';
 import gsap from 'gsap';
@@ -27,6 +27,7 @@ export default function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, o
     { id: 'exams', label: 'Exams', icon: Target },
     { id: 'translation', label: 'Translation', icon: BookType },
     { id: 'speaking', label: 'Speaking', icon: Mic },
+    { id: 'listening', label: 'Luyện Nghe', icon: Headphones },
     { id: 'quests', label: 'Nhiệm Vụ & Store', icon: Trophy },
     { id: 'pricing', label: 'Gói học', icon: CreditCard },
   ];

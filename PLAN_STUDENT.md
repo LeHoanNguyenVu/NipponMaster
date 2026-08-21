@@ -87,9 +87,9 @@ Tài liệu chi tiết quản lý toàn bộ lộ trình học tập, thuật to
 - **Mô tả**: Giao diện `SentenceBreakdownStudio.tsx` — Phân tích cú pháp bài đọc JLPT Reading N5-N1: Tách Chủ ngữ (Xanh), Vị ngữ (Đỏ), Bổ ngữ/Trợ từ (Vàng), tự động chèn Furigana trên đầu chữ Kanji và Popover Tooltip tra cứu khi rê chuột (Hover).
 - **Công nghệ**: React Ruby Furigana Annotator, Syntax Tokenizer, Spring Boot AI Reading Controller.
 
-#### [ ] **Task 18.1: Phòng Luyện Nghe Tình Huống Thực Tế (Immersive Interactive Listening Room)**
-- **Mô tả**: Mô phỏng các tình huống thực tế tại Nhật (Gọi món ở nhà hàng, Mua vé ở ga tàu, Phỏng vấn xin việc, Bệnh viện) với âm thanh môi trường xung quanh (Background Ambience). Học viên nghe và tương tác chọn hành động/câu đáp lại phù hợp.
-- **Công nghệ**: Web Audio Spatial Panning, Branching Interactive Dialogue Tree.
+#### [x] **Task 18.1: Phòng Luyện Nghe Tình Huống Thực Tế (Immersive Interactive Listening Room)** — [ĐÃ HOÀN THÀNH ✅]
+- **Mô tả**: Giao diện `ListeningRoom.tsx` — Kho 200 bài nghe tình huống thực tế phân bổ 5 cấp độ (N5: 20 bài, N4: 30 bài, N3: 40 bài, N2: 50 bài, N1: 60 bài) mô phỏng chân thực đời sống Nhật Bản (Quán mì Ramen, ga Shinkansen, Konbini, phỏng vấn việc làm, bệnh viện...). Tích hợp Web Audio Ambience Sound Engine 3D (chuông cửa Konbini, tiếng xì xèo chảo, còi tàu ga điện), cây hội thoại rẽ nhánh phân vai NPC, điều chỉnh tốc độ đọc (0.75x, 1.0x, 1.25x), chế độ Blind Listening luyện tai không phụ đề và mini-quiz kiểm tra nghe hiểu phản xạ.
+- **Công nghệ**: Web Audio Ambience Sound Generator, Web Speech API TTS, Branching Decision Tree Engine, Spring Boot Listening Controller & Data Repository (200 Scenarios).
 
 ---
 

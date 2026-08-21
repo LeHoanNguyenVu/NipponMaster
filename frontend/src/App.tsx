@@ -19,11 +19,12 @@ import SpeakingStudio from './screens/SpeakingStudio';
 import BeginnerCourseHub from './screens/BeginnerCourseHub';
 import JLPTBattleArena from './screens/JLPTBattleArena';
 import QuestsAndShop from './screens/QuestsAndShop';
+import ListeningRoom from './screens/ListeningRoom';
 import OAuthPopup from './screens/OAuthPopup';
 import { useAuthStore } from './store/useAuthStore';
 import gsap from 'gsap';
 
-export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation' | 'pricing' | 'speaking' | 'beginner' | 'battle' | 'quests';
+export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation' | 'pricing' | 'speaking' | 'listening' | 'beginner' | 'battle' | 'quests';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
@@ -267,6 +268,7 @@ export default function App() {
           {currentScreen === 'translation' && <Translation />}
           {currentScreen === 'pricing' && <Pricing />}
           {currentScreen === 'speaking' && <SpeakingStudio />}
+          {currentScreen === 'listening' && <ListeningRoom />}
           {currentScreen === 'beginner' && <BeginnerCourseHub />}
           {currentScreen === 'battle' && <JLPTBattleArena />}
           {currentScreen === 'quests' && <QuestsAndShop />}
