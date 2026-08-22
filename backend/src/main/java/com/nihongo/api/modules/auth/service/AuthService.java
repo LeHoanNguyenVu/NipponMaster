@@ -16,5 +16,9 @@ public interface AuthService {
 
     UserResponse getCurrentUser(Long userId);
 
+    void changePassword(Long userId, ChangePasswordRequest request);
+
+    UserResponse updateAvatar(Long userId, String avatarUrl);
+
     void logout(String token);
 }

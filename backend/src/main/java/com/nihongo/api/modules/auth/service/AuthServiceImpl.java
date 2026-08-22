@@ -154,6 +154,46 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng", userId));
+
+        // Kiểm tra mật khẩu hiện tại
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BusinessException("Mật khẩu hiện tại không chính xác");
+        }
+
+        // Kiểm tra xác nhận mật khẩu
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BusinessException("Mật khẩu xác nhận không khớp");
+        }
+
+        // Kiểm tra mật khẩu mới không được trùng mật khẩu cũ
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new BusinessException("Mật khẩu mới không được trùng với mật khẩu hiện tại");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        log.info("Đổi mật khẩu thành công cho user: {}", user.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateAvatar(Long userId, String avatarUrl) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng", userId));
+
+        user.setAvatarUrl(avatarUrl);
+        User savedUser = userRepository.save(user);
+        log.info("Cập nhật ảnh đại diện thành công cho user: {}", user.getEmail());
+
+        String subStatus = subscriptionService.getSubscriptionStatus(userId);
+        return UserResponse.from(savedUser, subStatus);
+    }
+
+    @Override
     public void logout(String token) {
         long remainingMs = jwtTokenProvider.getRemainingExpirationMs(token);
         jwtBlacklistService.blacklistToken(token, remainingMs);

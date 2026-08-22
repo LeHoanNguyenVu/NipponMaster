@@ -58,6 +58,26 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
+    @PostMapping("/change-password")
+    @Operation(summary = "Đổi mật khẩu tài khoản (cần JWT)")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        Long userId = (Long) authentication.getPrincipal();
+        authService.changePassword(userId, request);
+        return ResponseEntity.ok(ApiResponse.ok("Đổi mật khẩu thành công", null));
+    }
+
+    @PutMapping("/avatar")
+    @Operation(summary = "Cập nhật ảnh đại diện (cần JWT)")
+    public ResponseEntity<ApiResponse<UserResponse>> updateAvatar(
+            Authentication authentication,
+            @Valid @RequestBody UpdateAvatarRequest request) {
+        Long userId = (Long) authentication.getPrincipal();
+        UserResponse response = authService.updateAvatar(userId, request.getAvatarUrl());
+        return ResponseEntity.ok(ApiResponse.ok("Cập nhật ảnh đại diện thành công", response));
+    }
+
     @PostMapping("/logout")
     @Operation(summary = "Đăng xuất — vô hiệu hóa JWT token hiện tại")
     public ResponseEntity<ApiResponse<Void>> logout(

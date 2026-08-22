@@ -238,12 +238,14 @@ export default function App() {
       <Sidebar 
         currentScreen={currentScreen} 
         onNavigate={setCurrentScreen} 
-        onLogout={logout}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
       <div className="flex flex-col flex-1 min-w-0">
-        <TopBar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <TopBar 
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
+          onNavigate={setCurrentScreen} 
+        />
         <main ref={mainRef} className="flex-1 overflow-y-auto">
           {currentScreen === 'dashboard' && user?.role === 'teacher' && (
             <DashboardTeacher username={user?.username} />

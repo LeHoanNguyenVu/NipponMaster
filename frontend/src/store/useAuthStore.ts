@@ -5,6 +5,8 @@ export interface User {
   id: number;
   username: string;
   email: string;
+  fullName?: string;
+  avatarUrl?: string;
   role?: string;
   streak?: number;
   jlptLevel?: string;
@@ -35,6 +37,8 @@ interface AuthState {
   changeUserRole: (newRole: string) => Promise<void>;
   clearError: () => void;
   completeOnboarding: (targetLevel: string) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
+  updateUserAvatar: (avatarUrl: string) => Promise<void>;
 }
 
 const getStoredToken = () => localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -182,8 +186,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const response = await axiosClient.get<any, any>('/auth/me');
       const data = response.data;
+      const cachedAvatar = localStorage.getItem(`user_avatar_${data.email || data.id}`) || data.avatarUrl;
       const user = {
         ...data,
+        avatarUrl: cachedAvatar || data.avatarUrl,
         username: data.fullName || data.email,
         role: data.role?.toLowerCase(),
         targetLevel: data.targetLevel ?? null,
@@ -239,6 +245,35 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (err: any) {
       console.error('Onboarding completion failed:', err);
       throw err;
+    }
+  },
+
+  changePassword: async (currentPassword: string, newPassword: string, confirmPassword: string) => {
+    try {
+      await axiosClient.post('/auth/change-password', {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+    } catch (err: any) {
+      const msg = err?.message || err?.error || (typeof err === 'string' ? err : 'Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.');
+      throw new Error(msg);
+    }
+  },
+
+  updateUserAvatar: async (avatarUrl: string) => {
+    set((state) => ({
+      user: state.user ? { ...state.user, avatarUrl } : null,
+    }));
+    try {
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser) {
+        localStorage.setItem(`user_avatar_${currentUser.email || currentUser.id}`, avatarUrl);
+      }
+      localStorage.setItem('user_avatar_global', avatarUrl);
+      await axiosClient.put('/auth/avatar', { avatarUrl });
+    } catch (e) {
+      console.error('Failed to sync avatar to backend:', e);
     }
   },
 }));

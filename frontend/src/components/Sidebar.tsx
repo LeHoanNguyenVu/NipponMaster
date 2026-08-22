@@ -1,19 +1,16 @@
 import { useRef, useEffect } from 'react';
-import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, CreditCard, Play, LogOut, X, Mic, GraduationCap, Swords, Trophy, Headphones } from 'lucide-react';
+import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, CreditCard, X, Mic, GraduationCap, Swords, Trophy, Headphones } from 'lucide-react';
 import type { ScreenType } from '../App';
-import { useAuthStore } from '../store/useAuthStore';
 import gsap from 'gsap';
 
 interface SidebarProps {
   currentScreen: ScreenType;
   onNavigate: (screen: ScreenType) => void;
-  onLogout: () => void;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onClose }: SidebarProps) {
-  const { user } = useAuthStore();
+export default function Sidebar({ currentScreen, onNavigate, isOpen, onClose }: SidebarProps) {
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   const navItems = [
@@ -84,11 +81,6 @@ export default function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, o
               </button>
             </div>
             
-            <div className="mb-6">
-              <div className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Learning Path</div>
-              <div className="text-sm text-on-surface font-medium">Current Level: {user?.jlptLevel || 'N5'}</div>
-            </div>
-
             <ul className="space-y-1">
               {navItems.map((item) => {
                 const isActive = currentScreen === item.id;
@@ -117,29 +109,6 @@ export default function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, o
               })}
             </ul>
           </div>
-        </div>
-
-        <div className="p-6 border-t border-outline-variant/30 space-y-2">
-          <button 
-            onClick={() => {
-              onNavigate('flashcards');
-              onClose();
-            }}
-            className="w-full py-3 bg-primary text-on-primary rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <Play size={16} />
-            Study Now
-          </button>
-          <button 
-            onClick={() => {
-              onLogout();
-              onClose();
-            }}
-            className="w-full py-2 border border-outline-variant text-on-surface-variant rounded-lg text-xs font-medium hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <LogOut size={14} />
-            Đăng xuất
-          </button>
         </div>
       </nav>
     </>
