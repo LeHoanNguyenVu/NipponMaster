@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Headphones, Volume2, VolumeX, Play, RotateCcw, ArrowLeft, 
-  Sparkles, CheckCircle2, AlertCircle, HelpCircle, Trophy, 
-  Search, SlidersHorizontal, BookOpen, Clock, Zap, Star,
-  Eye, EyeOff, Radio, ChevronRight, Award, Flame, MessageSquare
+  Sparkles, HelpCircle, 
+  Search, Clock, Zap, 
+  Eye, EyeOff, Radio, ChevronRight, Flame, MessageSquare
 } from 'lucide-react';
 import { 
   listeningApi, 
@@ -14,7 +14,6 @@ import {
 } from '../api/listeningApi';
 import { ambienceEngine, speakJapaneseVoice } from '../utils/listeningAmbience';
 import { playCorrectSound, playWrongSound } from '../utils/audioSfx';
-import gsap from 'gsap';
 
 export default function ListeningRoom() {
   // --- View States ---
@@ -36,7 +35,7 @@ export default function ListeningRoom() {
 
   // --- Audio & Playback Controls ---
   const [ambienceEnabled, setAmbienceEnabled] = useState<boolean>(true);
-  const [ambienceVolume, setAmbienceVolume] = useState<number>(0.35);
+  const ambienceVolume = 0.35;
   const [speechSpeed, setSpeechSpeed] = useState<number>(1.0);
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
 
@@ -55,7 +54,6 @@ export default function ListeningRoom() {
   const [sessionResult, setSessionResult] = useState<any>(null);
 
   const roomRef = useRef<HTMLDivElement>(null);
-  const audioAnimationRef = useRef<HTMLDivElement>(null);
 
   // 1. Fetch Scenarios Catalog
   const fetchScenarios = useCallback(async () => {

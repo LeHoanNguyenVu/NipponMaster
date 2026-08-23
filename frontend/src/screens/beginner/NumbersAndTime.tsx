@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { Volume2, Check, ArrowRight, RotateCcw, Award, Info, Sparkles, BookOpen, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+import { Volume2, Check, ArrowRight, RotateCcw, AlertTriangle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   BASIC_NUMBERS, COUNTERS, HOURS_DATA, MINUTES_SPECIAL, DAYS_OF_WEEK,

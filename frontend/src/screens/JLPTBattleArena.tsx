@@ -3,7 +3,7 @@
  * 3 màn hình: Sảnh Ghép Cặp → Sàn Đấu Split 1v1 → Kết Quả Chiến Đấu
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Swords, Shield, Zap, Trophy, RotateCcw, ArrowLeft, Timer, Star } from 'lucide-react';
+import { Swords, Zap, Trophy, RotateCcw, ArrowLeft, Timer, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   getRandomBattleQuestions, selectBotForElo, getRankForElo, calculateEloDelta,
@@ -85,7 +85,7 @@ export default function JLPTBattleArena() {
   // ════════════════════════════════════════════════
   // BATTLE START
   // ════════════════════════════════════════════════
-  const startBattle = useCallback((bot: BotOpponent) => {
+  const startBattle = useCallback((_bot?: BotOpponent) => {
     const qs = getRandomBattleQuestions(10);
     setQuestions(qs);
     setCurrentQIdx(0);

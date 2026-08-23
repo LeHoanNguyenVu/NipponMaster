@@ -24,6 +24,10 @@ class ListeningAmbienceEngine {
     return this.ctx;
   }
 
+  public getCurrentAmbienceType(): string | null {
+    return this.currentAmbienceType;
+  }
+
   public setVolume(val: number) {
     this.volume = Math.max(0, Math.min(1, val));
     if (this.masterGain && this.ctx) {
@@ -44,7 +48,7 @@ class ListeningAmbienceEngine {
     this.stop();
     this.currentAmbienceType = type;
     this.isPlaying = true;
-    const ctx = this.getContext();
+    this.getContext();
 
     switch (type) {
       case 'KONBINI':

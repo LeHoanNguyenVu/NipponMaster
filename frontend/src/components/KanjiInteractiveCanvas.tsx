@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { RotateCcw, Trash2, Eye, EyeOff, Sparkles, PenTool } from 'lucide-react';
+import { RotateCcw, Trash2, Eye, EyeOff, PenTool } from 'lucide-react';
 import type { DrawnStroke, Point } from '../api/kanjiCanvasApi';
 import KanjiStrokeWriter from './KanjiStrokeWriter';
 
@@ -13,7 +13,6 @@ interface KanjiInteractiveCanvasProps {
 
 export default function KanjiInteractiveCanvas({
   guideCharacter,
-  guideSvgContent,
   onStrokesChange,
   width = 300,
   height = 300,
@@ -23,8 +22,8 @@ export default function KanjiInteractiveCanvas({
   const [strokes, setStrokes] = useState<DrawnStroke[]>([]);
   const [currentPoints, setCurrentPoints] = useState<Point[]>([]);
   const [showGuide, setShowGuide] = useState(true);
-  const [penColor, setPenColor] = useState('#c01538'); // Traditional Washi Crimson Red
-  const [penWidth, setPenWidth] = useState(6);
+  const penColor = '#c01538'; // Traditional Washi Crimson Red
+  const penWidth = 6;
 
   // Redraw canvas content
   const redrawCanvas = useCallback(() => {

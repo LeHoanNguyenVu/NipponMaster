@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, BookOpen, Layers, Info, CheckCircle2, ChevronRight, HelpCircle } from 'lucide-react';
+import { Sparkles, Info, CheckCircle2, HelpCircle } from 'lucide-react';
 import { aiStudioApi, type BreakdownResponse, type SyntaxToken } from '../api/aiStudioApi';
 
 const SAMPLE_PASSAGES = [

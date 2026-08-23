@@ -4,7 +4,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { 
-  Users, UserCheck, UserX, Shield, GraduationCap, Search, Filter, 
+  Users, UserCheck, UserX, Shield, GraduationCap, Search, 
   Lock, Unlock, Key, RefreshCw, CheckCircle2, ShieldAlert, Sparkles, Check, X
 } from 'lucide-react';
 import { adminApi, type AdminUser } from '../../api/adminApi';
@@ -190,27 +190,51 @@ export default function UserManagementConsole() {
             />
           </div>
 
-          {/* Role Filter Pills */}
-          <div className="flex flex-wrap gap-1.5 w-full md:w-auto">
-            {[
-              { id: 'ALL', label: '🔍 Tất cả' },
-              { id: 'STUDENT', label: '🎓 Học viên' },
-              { id: 'TEACHER', label: '👨‍🏫 Giảng viên' },
-              { id: 'ADMIN', label: '⚙️ Admin' },
-              { id: 'GUEST', label: '🌐 Khách' },
-            ].map(r => (
-              <button
-                key={r.id}
-                onClick={() => setRoleFilter(r.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  roleFilter === r.id
-                    ? 'bg-primary text-on-primary shadow-sm'
-                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                }`}
-              >
-                {r.label}
-              </button>
-            ))}
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            {/* Role Filter Pills */}
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { id: 'ALL', label: '🔍 Tất cả' },
+                { id: 'STUDENT', label: '🎓 Học viên' },
+                { id: 'TEACHER', label: '👨‍🏫 Giảng viên' },
+                { id: 'ADMIN', label: '⚙️ Admin' },
+                { id: 'GUEST', label: '🌐 Khách' },
+              ].map(r => (
+                <button
+                  key={r.id}
+                  onClick={() => setRoleFilter(r.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    roleFilter === r.id
+                      ? 'bg-primary text-on-primary shadow-sm'
+                      : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Status Filter Pills */}
+            <div className="flex flex-wrap gap-1 border-l border-outline-variant/40 pl-2">
+              {[
+                { id: 'ALL', label: 'Toàn bộ' },
+                { id: 'ACTIVE', label: 'Active' },
+                { id: 'LOCKED', label: 'Locked' },
+              ].map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setStatusFilter(s.id)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    statusFilter === s.id
+                      ? 'bg-secondary text-on-secondary'
+                      : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

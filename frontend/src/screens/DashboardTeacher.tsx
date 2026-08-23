@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { 
-  BookOpen, Users, Star, TrendingUp, PlusCircle, 
-  UserPlus, Copy, Check, Sparkles, Languages, Shapes, BookType, 
-  ShieldCheck, GraduationCap, FileText, Upload
+  Users, TrendingUp, PlusCircle, 
+  UserPlus, Copy, Check, Sparkles, 
+  GraduationCap, FileText, BookOpen, Star,
+  Languages, Shapes, BookType, ShieldCheck
 } from 'lucide-react';
 import ExamBuilderStudio from './ExamBuilderStudio';
 import ContentCmsStudio from './teacher/ContentCmsStudio';
@@ -31,6 +32,7 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
   const [stats, setStats] = useState<TeacherStats | null>(null);
   const [classes, setClasses] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState<string | null>(null);
 
   // Classroom Modal & Selection State
   const [showCreateClassModal, setShowCreateClassModal] = useState(false);
@@ -41,36 +43,6 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
   const [studentsInSelectedClass, setStudentsInSelectedClass] = useState<ClassroomStudent[]>([]);
   const [newStudentEmail, setNewStudentEmail] = useState('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-
-  // Content Studio Form State
-  const [contentType, setContentType] = useState<'vocab' | 'kanji' | 'grammar'>('vocab');
-  const [formSuccessMessage, setFormSuccessMessage] = useState<string | null>(null);
-  const [formLoading, setFormLoading] = useState(false);
-
-  // Vocab Form
-  const [vocabWord, setVocabWord] = useState('');
-  const [vocabReading, setVocabReading] = useState('');
-  const [vocabMeaning, setVocabMeaning] = useState('');
-  const [vocabLevel, setVocabLevel] = useState('N5');
-  const [vocabWordType, setVocabWordType] = useState('NOUN');
-  const [vocabExampleSentence, setVocabExampleSentence] = useState('');
-  const [vocabExampleMeaning, setVocabExampleMeaning] = useState('');
-
-  // Kanji Form
-  const [kanjiCharacter, setKanjiCharacter] = useState('');
-  const [kanjiOn, setKanjiOn] = useState('');
-  const [kanjiKun, setKanjiKun] = useState('');
-  const [kanjiMeaning, setKanjiMeaning] = useState('');
-  const [kanjiStrokeCount, setKanjiStrokeCount] = useState(5);
-  const [kanjiLevel, setKanjiLevel] = useState('N5');
-
-  // Grammar Form
-  const [grammarPattern, setGrammarPattern] = useState('');
-  const [grammarStructure, setGrammarStructure] = useState('');
-  const [grammarMeaning, setGrammarMeaning] = useState('');
-  const [grammarLevel, setGrammarLevel] = useState('N5');
-  const [grammarExampleSentence, setGrammarExampleSentence] = useState('');
-  const [grammarExampleMeaning, setGrammarExampleMeaning] = useState('');
 
   useEffect(() => {
     fetchTeacherData();
@@ -150,58 +122,9 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
       setNewStudentEmail('');
       const updated = await teacherApi.getStudentsInClass(selectedClassId);
       setStudentsInSelectedClass(updated || []);
-      setFormSuccessMessage('Thêm học viên thành công!');
-      setTimeout(() => setFormSuccessMessage(null), 3000);
+      alert('Thêm học viên thành công!');
     } catch (err: any) {
       alert(err.message || 'Lỗi khi thêm học viên');
-    }
-  };
-
-  const handleCreateContent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormLoading(true);
-    try {
-      if (contentType === 'vocab') {
-        await teacherApi.createVocabulary({
-          word: vocabWord,
-          reading: vocabReading,
-          meaning: vocabMeaning,
-          jlptLevel: vocabLevel,
-          wordType: vocabWordType,
-          exampleSentence: vocabExampleSentence,
-          exampleMeaning: vocabExampleMeaning,
-        });
-        setVocabWord(''); setVocabReading(''); setVocabMeaning('');
-        setVocabExampleSentence(''); setVocabExampleMeaning('');
-      } else if (contentType === 'kanji') {
-        await teacherApi.createKanji({
-          character: kanjiCharacter,
-          onReading: kanjiOn,
-          kunReading: kanjiKun,
-          meaning: kanjiMeaning,
-          strokeCount: kanjiStrokeCount,
-          jlptLevel: kanjiLevel,
-        });
-        setKanjiCharacter(''); setKanjiOn(''); setKanjiKun(''); setKanjiMeaning('');
-      } else if (contentType === 'grammar') {
-        await teacherApi.createGrammar({
-          pattern: grammarPattern,
-          structure: grammarStructure,
-          meaning: grammarMeaning,
-          jlptLevel: grammarLevel,
-          exampleSentence: grammarExampleSentence,
-          exampleMeaning: grammarExampleMeaning,
-        });
-        setGrammarPattern(''); setGrammarStructure(''); setGrammarMeaning('');
-        setGrammarExampleSentence(''); setGrammarExampleMeaning('');
-      }
-      setFormSuccessMessage('Tạo nội dung thành công và đã xuất bản vào hệ thống!');
-      setTimeout(() => setFormSuccessMessage(null), 4000);
-      fetchTeacherData();
-    } catch (err: any) {
-      alert(err.message || 'Lỗi tạo bài học');
-    } finally {
-      setFormLoading(false);
     }
   };
 
@@ -255,13 +178,13 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
       </header>
 
       {/* Notifications */}
-      {formSuccessMessage && (
+      {notification && (
         <div className="p-4 bg-secondary/15 border border-secondary text-secondary rounded-2xl flex items-center justify-between text-sm font-semibold animate-fade-in">
           <div className="flex items-center gap-2">
             <ShieldCheck size={20} />
-            {formSuccessMessage}
+            {notification}
           </div>
-          <button onClick={() => setFormSuccessMessage(null)} className="text-xs underline cursor-pointer">Đóng</button>
+          <button onClick={() => setNotification(null)} className="text-xs underline cursor-pointer">Đóng</button>
         </div>
       )}
 
@@ -349,16 +272,16 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
               </div>
 
               <div className="space-y-2">
-                <Button variant="primary" className="w-full" icon={<Languages size={16} />} onClick={() => { setContentType('vocab'); setActiveTab('studio'); }}>
+                <Button variant="primary" className="w-full" icon={<Languages size={16} />} onClick={() => setActiveTab('studio')}>
                   Soạn Từ vựng mới
                 </Button>
-                <Button variant="secondary" className="w-full" icon={<Shapes size={16} />} onClick={() => { setContentType('kanji'); setActiveTab('studio'); }}>
+                <Button variant="secondary" className="w-full" icon={<Shapes size={16} />} onClick={() => setActiveTab('studio')}>
                   Soạn Chữ Hán mới
                 </Button>
-                <Button variant="secondary" className="w-full" icon={<BookType size={16} />} onClick={() => { setContentType('grammar'); setActiveTab('studio'); }}>
+                <Button variant="secondary" className="w-full" icon={<BookType size={16} />} onClick={() => setActiveTab('studio')}>
                   Soạn Ngữ pháp mới
                 </Button>
-                <Button variant="primary" className="w-full mt-2" icon={<FileText size={16} />} onClick={() => setShowExamStudio(true)}>
+                <Button variant="primary" className="w-full mt-2" icon={<FileText size={16} />} onClick={() => { setActiveTab('exams'); setShowExamStudio(true); }}>
                   ✍️ Studio Tạo Đề Thi JLPT
                 </Button>
               </div>

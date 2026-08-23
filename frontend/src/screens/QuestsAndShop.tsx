@@ -71,7 +71,7 @@ export default function QuestsAndShop() {
     const raw = localStorage.getItem('nippon_claimed_quests');
     return raw ? JSON.parse(raw) : [];
   });
-  const [earnedBadges, setEarnedBadges] = useState<string[]>(() => {
+  const [earnedBadges] = useState<string[]>(() => {
     const raw = localStorage.getItem('nippon_badges');
     return raw ? JSON.parse(raw) : [];
   });
@@ -124,7 +124,6 @@ export default function QuestsAndShop() {
     });
   }, []);
 
-  const totalDailyCoins = DAILY_QUESTS.reduce((sum, q) => sum + q.rewardCoins, 0);
   const claimedCount = claimedQuests.length;
 
   return (

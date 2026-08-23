@@ -8,7 +8,6 @@ import {
   Loader2,
   X,
   Save,
-  CheckCircle2,
   Sparkles,
   Layers,
   FileText,

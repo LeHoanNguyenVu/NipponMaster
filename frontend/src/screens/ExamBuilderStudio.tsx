@@ -2,12 +2,11 @@
  * ExamBuilderStudio.tsx — Trình Soạn Thảo Đề Thi JLPT & Bulk Question Import (Excel/JSON)
  * Dành cho Role TEACHER (Giảng viên).
  */
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { 
-  FileText, Upload, Plus, Trash2, CheckCircle2, AlertTriangle, 
-  Download, ArrowLeft, Save, Sparkles, Layers, Eye, HelpCircle, ArrowUp, ArrowDown
+  FileText, Upload, Plus, Trash2, CheckCircle2, 
+  Download, ArrowLeft, Save, Sparkles, HelpCircle, ArrowUp, ArrowDown, Eye
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { teacherApi, type ExamPayload, type ExamQuestionPayload } from '../api/teacherApi';
 
 interface ExamBuilderStudioProps {
@@ -136,6 +135,27 @@ export default function ExamBuilderStudio({ onBack, onSuccess, initialExam }: Ex
       })),
     };
 
+    try {
+      let saved: ExamPayload;
+      if (examId) {
+        saved = await teacherApi.updateExam(examId, payload);
+      } else {
+        saved = await teacherApi.createExam(payload);
+      }
+      setExamId(saved.id);
+      setIsPublished(publish);
+      setFeedbackMsg({
+        type: 'success',
+        text: `Đã ${publish ? 'xuất bản' : 'lưu nháp'} đề thi thành công! (${questions.length} câu hỏi)`,
+      });
+      if (onSuccess) setTimeout(onSuccess, 1500);
+    } catch (err: any) {
+      setFeedbackMsg({ type: 'error', text: err.message || 'Lỗi khi lưu đề thi!' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // ════════════════════════════════════════════════
   // OPTIMIZATION 2: EXPORT EXAM PRINT DOC (.doc/HTML)
   // ════════════════════════════════════════════════
@@ -222,27 +242,6 @@ export default function ExamBuilderStudio({ onBack, onSuccess, initialExam }: Ex
     a.click();
     URL.revokeObjectURL(url);
     setFeedbackMsg({ type: 'success', text: 'Đã xuất file Word (.doc) in đề thi thành công!' });
-  };
-
-    try {
-      let saved: ExamPayload;
-      if (examId) {
-        saved = await teacherApi.updateExam(examId, payload);
-      } else {
-        saved = await teacherApi.createExam(payload);
-      }
-      setExamId(saved.id);
-      setIsPublished(publish);
-      setFeedbackMsg({
-        type: 'success',
-        text: `Đã ${publish ? 'xuất bản' : 'lưu nháp'} đề thi thành công! (${questions.length} câu hỏi)`,
-      });
-      if (onSuccess) setTimeout(onSuccess, 1500);
-    } catch (err: any) {
-      setFeedbackMsg({ type: 'error', text: err.message || 'Lỗi khi lưu đề thi!' });
-    } finally {
-      setSaving(false);
-    }
   };
 
   // ════════════════════════════════════════════════
@@ -406,8 +405,13 @@ export default function ExamBuilderStudio({ onBack, onSuccess, initialExam }: Ex
             <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-widest">
               <Sparkles size={14} /> EXAM BUILDER STUDIO
             </div>
-            <h1 className="text-2xl font-extrabold text-on-surface mt-0.5">
+            <h1 className="text-2xl font-extrabold text-on-surface mt-0.5 flex items-center gap-2">
               {examId ? 'Chỉnh Sửa Đề Thi JLPT' : 'Tạo Đề Thi JLPT Mới'}
+              {isPublished && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-secondary/15 text-secondary font-bold">
+                  Đã xuất bản
+                </span>
+              )}
             </h1>
           </div>
         </div>

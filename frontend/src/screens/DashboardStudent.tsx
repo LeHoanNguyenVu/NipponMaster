@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { 
   Flame, Clock, Trophy, Play,
-  Languages, Shapes, BookOpen, Headphones,
-  CheckCircle2, AlertCircle, ArrowRight, Compass,
-  BookMarked, RefreshCw, BarChart3, Star, Sparkles,
-  Award, ChevronRight, RotateCw, Volume2, HelpCircle,
+  Languages, Headphones,
+  CheckCircle2, ArrowRight,
+  RefreshCw, BarChart3, Star, Sparkles,
+  RotateCw, Volume2,
   PenTool, Info
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
@@ -54,201 +54,45 @@ interface FlashcardItem {
   exampleVi: string;
 }
 
-// Flashcard Library strictly scoped by JLPT level / stage
-const LEVEL_CARDS_MAP: Record<string, FlashcardItem[]> = {
-  STARTER: [
-    {
-      kanji: 'あ',
-      kana: 'あ',
-      romaji: 'a',
-      hanViet: 'Ký tự Hiragana "A"',
-      meaning: 'Chữ cái "A" trong bảng chữ cái Hiragana',
-      strokeCount: 3,
-      strokeGuide: 'Nét ngang ➔ Nét sổ cong ➔ Nét vòng tròn xoắn ốc',
-      exampleJp: 'ありがとう ございます。',
-      exampleRomaji: 'Arigatou gozaimasu.',
-      exampleVi: 'Cảm ơn bạn rất nhiều.',
-    },
-    {
-      kanji: '一',
-      kana: 'いち',
-      romaji: 'ichi',
-      hanViet: 'NHẤT',
-      meaning: 'Số 1, một',
-      strokeCount: 1,
-      strokeGuide: '1 nét ngang từ trái sang phải dứt khoát',
-      exampleJp: '一つ ください。',
-      exampleRomaji: 'Hitotsu kudasai.',
-      exampleVi: 'Xin vui lòng cho tôi một cái.',
-    },
-    {
-      kanji: '本',
-      kana: 'ほん',
-      romaji: 'hon',
-      hanViet: 'BẢN / BỔN',
-      meaning: 'Quyển sách, nguồn gốc',
-      strokeCount: 5,
-      strokeGuide: 'Bộ Mộc (木) thêm nét ngang ngắn ở chân',
-      exampleJp: '毎日 日本語の本を 読みます。',
-      exampleRomaji: 'Mainichi nihongo no hon o yomimasu.',
-      exampleVi: 'Mỗi ngày tôi đều đọc sách tiếng Nhật.',
-    },
-    {
-      kanji: '猫',
-      kana: 'ねこ',
-      romaji: 'neko',
-      hanViet: 'MIÊU',
-      meaning: 'Con mèo',
-      strokeCount: 11,
-      strokeGuide: 'Bộ Khuyển (犭) bên trái + Chữ Miêu (苗) bên phải',
-      exampleJp: '可愛い猫が 庭で寝ています。',
-      exampleRomaji: 'Kawaii neko ga niwa de nete imasu.',
-      exampleVi: 'Con mèo đáng yêu đang ngủ trong sân vườn.',
-    },
-    {
-      kanji: '川',
-      kana: 'かわ',
-      romaji: 'kawa',
-      hanViet: 'XUYÊN',
-      meaning: 'Dòng sông',
-      strokeCount: 3,
-      strokeGuide: '3 nét thẳng đứng uốn lượn tượng trưng cho dòng nước',
-      exampleJp: '川の水が とても綺麗です。',
-      exampleRomaji: 'Kawa no mizu ga totemo kirei desu.',
-      exampleVi: 'Nước sông rất trong và đẹp.',
-    },
-    {
-      kanji: '山',
-      kana: 'やま',
-      romaji: 'yama',
-      hanViet: 'SƠN',
-      meaning: 'Ngọn núi',
-      strokeCount: 3,
-      strokeGuide: 'Nét giữa cao nhất, 2 nét hai bên cân xứng',
-      exampleJp: '富士山は 日本で一番高い山です。',
-      exampleRomaji: 'Fujisan wa Nihon de ichiban takai yama desu.',
-      exampleVi: 'Núi Phú Sĩ là ngọn núi cao nhất Nhật Bản.',
-    },
-  ],
-  N5: [
-    {
-      kanji: '日',
-      kana: 'ひ / にち',
-      romaji: 'hi / nichi',
-      hanViet: 'NHẬT',
-      meaning: 'Mặt trời, ngày, Nhật Bản',
-      strokeCount: 4,
-      strokeGuide: 'Khung chữ nhật đóng mở từ trái sang phải, nét ngang ở giữa',
-      exampleJp: '日曜日に 友達と遊びます。',
-      exampleRomaji: 'Nichiyoubi ni tomodachi to asobimasu.',
-      exampleVi: 'Tôi đi chơi với bạn vào ngày Chủ nhật.',
-    },
-    {
-      kanji: '学',
-      kana: 'がく / まな・ぶ',
-      romaji: 'gaku / manabu',
-      hanViet: 'HỌC',
-      meaning: 'Học tập, học vấn, trường học',
-      strokeCount: 8,
-      strokeGuide: '3 chấm trên đầu ➔ Mái che ➔ Bộ Tử (子) phía dưới',
-      exampleJp: '大学で 日本語を勉強しています。',
-      exampleRomaji: 'Daigaku de nihongo o benkyou shite imasu.',
-      exampleVi: 'Tôi đang học tiếng Nhật ở trường đại học.',
-    },
-    {
-      kanji: '食',
-      kana: 'た・べる / しょく',
-      romaji: 'taberu / shoku',
-      hanViet: 'THỰC',
-      meaning: 'Ăn, món ăn, thực phẩm',
-      strokeCount: 9,
-      strokeGuide: 'Nón trên đầu ➔ Bộ Cấn (艮) phía dưới',
-      exampleJp: '朝ごはんを しっかり食べます。',
-      exampleRomaji: 'Asagohan o shikkari tabemasu.',
-      exampleVi: 'Tôi ăn sáng rất đầy đủ.',
-    },
-    {
-      kanji: '友',
-      kana: 'ともだち / ゆう',
-      romaji: 'tomodachi / yuu',
-      hanViet: 'HỮU',
-      meaning: 'Bạn bè, tình bạn',
-      strokeCount: 4,
-      strokeGuide: 'Nét ngang ➔ Nét phẩy cong ➔ Bộ Hựu (又) đan chéo',
-      exampleJp: '友達と一緒に 旅行に行きます。',
-      exampleRomaji: 'Tomodachi to issho ni ryokou ni ikimasu.',
-      exampleVi: 'Tôi đi du lịch cùng với bạn bè.',
-    },
-  ],
-  N4: [
-    {
-      kanji: '旅',
-      kana: 'たび / りょ',
-      romaji: 'tabi / ryo',
-      hanViet: 'LỮ',
-      meaning: 'Chuyến đi, du lịch',
-      strokeCount: 10,
-      strokeGuide: 'Bộ Phương (方) bên trái + Bộ Nhân phụ bên phải',
-      exampleJp: '来月、日本へ 旅行に行きます。',
-      exampleRomaji: 'Raigetsu, Nihon e ryokou ni ikimasu.',
-      exampleVi: 'Tháng sau tôi sẽ đi du lịch Nhật Bản.',
-    },
-    {
-      kanji: '店',
-      kana: 'みせ / てん',
-      romaji: 'mise / ten',
-      hanViet: 'ĐIẾM',
-      meaning: 'Cửa hàng, tiệm',
-      strokeCount: 8,
-      strokeGuide: 'Bộ Quảng (广) che phía trên + Chữ Chiếm (占) bên trong',
-      exampleJp: 'この店のラーメンは とても美味しいです。',
-      exampleRomaji: 'Kono mise no raamen wa totemo oishii desu.',
-      exampleVi: 'Mì ramen ở quán này rất ngon.',
-    },
-  ],
-  N3: [
-    {
-      kanji: '政',
-      kana: 'まつりごと / せい',
-      romaji: 'sei / shou',
-      hanViet: 'CHÍNH',
-      meaning: 'Chính trị, chính phủ, chính sách',
-      strokeCount: 9,
-      strokeGuide: 'Bộ Chính (正) bên trái + Bộ Phác (攵) bên phải',
-      exampleJp: '国の政治について 深く考えます。',
-      exampleRomaji: 'Kuni no seiji ni tsuite fukaku kangaemasu.',
-      exampleVi: 'Tôi suy nghĩ sâu sắc về nền chính trị quốc gia.',
-    },
-  ],
-  N2: [
-    {
-      kanji: '契',
-      kana: 'ちぎ・る / けい',
-      romaji: 'chigiru / kei',
-      hanViet: 'KHẾ',
-      meaning: 'Hợp đồng, khế ước, giao ước',
-      strokeCount: 9,
-      strokeGuide: 'Chữ Cầm phía trên + Bộ Đại (大) phía dưới',
-      exampleJp: '新しい会社と 契約を結びました。',
-      exampleRomaji: 'Atarashii kaisha to keiyaku o musubimashita.',
-      exampleVi: 'Tôi đã ký kết hợp đồng với công ty mới.',
-    },
-  ],
-  N1: [
-    {
-      kanji: '鑑',
-      kana: 'かがみ / かん',
-      romaji: 'kagami / kan',
-      hanViet: 'GIÁM',
-      meaning: 'Gương mẫu, thẩm định, giám định',
-      strokeCount: 23,
-      strokeGuide: 'Bộ Kim (金) bên trái + Bộ Giám (監) bên phải',
-      exampleJp: '美術品の真贋を 鑑識する。',
-      exampleRomaji: 'Bijutsuhin no shingan o kanshiki suru.',
-      exampleVi: 'Giám định tính thật giả của tác phẩm nghệ thuật.',
-    },
-  ],
-};
+// Default Initial Cards used only while Supabase data is loading
+const INITIAL_FALLBACK_CARDS: FlashcardItem[] = [
+  {
+    kanji: 'あ',
+    kana: 'あ',
+    romaji: 'a',
+    hanViet: 'Hiragana A',
+    meaning: 'Chữ cái A trong bảng chữ cái Hiragana',
+    strokeCount: 3,
+    strokeGuide: 'Nét ngang ➔ Nét sổ cong ➔ Nét vòng tròn xoắn ốc',
+    exampleJp: 'ありがとう ございます。',
+    exampleRomaji: 'Arigatou gozaimasu.',
+    exampleVi: 'Cảm ơn bạn rất nhiều.',
+  },
+  {
+    kanji: '一',
+    kana: 'いち',
+    romaji: 'ichi',
+    hanViet: 'NHẤT',
+    meaning: 'Số 1, một',
+    strokeCount: 1,
+    strokeGuide: '1 nét ngang từ trái sang phải dứt khoát',
+    exampleJp: '一つ ください。',
+    exampleRomaji: 'Hitotsu kudasai.',
+    exampleVi: 'Xin vui lòng cho tôi một cái.',
+  },
+  {
+    kanji: '本',
+    kana: 'ほん',
+    romaji: 'hon',
+    hanViet: 'BẢN',
+    meaning: 'Quyển sách, nguồn gốc',
+    strokeCount: 5,
+    strokeGuide: 'Bộ Mộc (木) thêm nét ngang ngắn ở chân',
+    exampleJp: '毎日 日本語の本を 読みます。',
+    exampleRomaji: 'Mainichi nihongo no hon o yomimasu.',
+    exampleVi: 'Mỗi ngày tôi đều đọc sách tiếng Nhật.',
+  },
+];
 
 export default function DashboardStudent({
   onStartStudy,
@@ -291,6 +135,42 @@ export default function DashboardStudent({
   const [strokeKey, setStrokeKey] = useState<number>(0);
   const [isDealing, setIsDealing] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [cards, setCards] = useState<FlashcardItem[]>(() => {
+    try {
+      const cached = localStorage.getItem('nippon_quick_cards_cache');
+      if (cached) return JSON.parse(cached);
+    } catch {}
+    return INITIAL_FALLBACK_CARDS;
+  });
+
+  const rawLevel = stats.jlptLevel || user?.jlptLevel || 'STARTER';
+  const normalizedLevelKey = rawLevel.toUpperCase();
+
+  // Fetch quick practice cards from Supabase Database via API
+  useEffect(() => {
+    let active = true;
+    const fetchQuickPracticeCards = async () => {
+      try {
+        const res = await axiosClient.get('/flashcards/quick-practice', {
+          params: { level: normalizedLevelKey, limit: 30 },
+        });
+        const data = res.data.data ?? res.data;
+        if (active && Array.isArray(data) && data.length > 0) {
+          setCards(data);
+          try {
+            localStorage.setItem('nippon_quick_cards_cache', JSON.stringify(data));
+          } catch {}
+        }
+      } catch (err) {
+        console.warn('Could not fetch quick practice cards from backend, using cache', err);
+      }
+    };
+
+    fetchQuickPracticeCards();
+    return () => {
+      active = false;
+    };
+  }, [normalizedLevelKey]);
 
   // Fetch updated stats from backend
   useEffect(() => {
@@ -354,13 +234,34 @@ export default function DashboardStudent({
     }
   };
 
-  // Card Deal / Swap Animation with Hand Placement effect
+  // Pure Vietnamese level conversion
+  const formatLevel = (lvl?: string) => {
+    if (!lvl || lvl.toUpperCase() === 'STARTER') return 'Nhập Môn';
+    return lvl.toUpperCase();
+  };
+
+  const levelDisplay = formatLevel(rawLevel);
+  const hasCustomTarget = user?.targetLevel && user.targetLevel.toUpperCase() !== 'STARTER';
+
+  // Dynamic Supabase Flashcards Deck
+  const currentDeck = cards.length > 0 ? cards : INITIAL_FALLBACK_CARDS;
+  const activeCard = currentDeck[cardIndex % currentDeck.length];
+
+  // Card Deal / Swap Animation with Hand Placement effect & Random Card Selection
   const handleDealNextCard = () => {
     setIsFlipped(false);
     setCardTab('info');
     setIsDealing(true);
     setTimeout(() => {
-      setCardIndex((prev) => prev + 1);
+      setCardIndex((prev) => {
+        if (currentDeck.length <= 1) return 0;
+        let nextIndex = prev;
+        // Pick random index different from current card
+        while (nextIndex === (prev % currentDeck.length)) {
+          nextIndex = Math.floor(Math.random() * currentDeck.length);
+        }
+        return nextIndex;
+      });
     }, 150);
     setTimeout(() => {
       setIsDealing(false);
@@ -375,26 +276,12 @@ export default function DashboardStudent({
     return 'Chào buổi tối 🌙';
   };
 
-  // Pure Vietnamese level conversion
-  const formatLevel = (lvl?: string) => {
-    if (!lvl || lvl.toUpperCase() === 'STARTER') return 'Nhập Môn';
-    return lvl.toUpperCase();
-  };
-
-  const rawLevel = stats.jlptLevel || user?.jlptLevel || 'STARTER';
-  const levelDisplay = formatLevel(rawLevel);
-  const hasCustomTarget = user?.targetLevel && user.targetLevel.toUpperCase() !== 'STARTER';
-
   // Percentage calculations
   const vocabPct = stats.vocabTotal > 0 ? Math.min(100, Math.round((stats.vocabLearned / stats.vocabTotal) * 100)) : 0;
   const kanjiPct = stats.kanjiTotal > 0 ? Math.min(100, Math.round((stats.kanjiLearned / stats.kanjiTotal) * 100)) : 0;
   const grammarPct = stats.grammarTotal > 0 ? Math.min(100, Math.round((stats.grammarLearned / stats.grammarTotal) * 100)) : 0;
   const overallMastery = Math.max(5, Math.round((vocabPct + kanjiPct + grammarPct) / 3));
 
-  // Determine current user level key
-  const normalizedLevelKey = rawLevel.toUpperCase();
-  const currentDeck = LEVEL_CARDS_MAP[normalizedLevelKey] || LEVEL_CARDS_MAP.STARTER;
-  const activeCard = currentDeck[cardIndex % currentDeck.length];
   const displayStreak = Math.max(userStreak, stats.streakDays);
 
   // 7-Day Consistency tracker
@@ -797,13 +684,20 @@ export default function DashboardStudent({
               >
                 {/* Header: Mode Tabs (Thông tin vs Cách viết nét) */}
                 <div className="flex items-center justify-between pb-2 border-b border-outline-variant/30">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <span className="text-3xl font-black text-primary font-serif">{activeCard.kanji}</span>
                     <div>
-                      <p className="text-base font-black text-amber-600 dark:text-amber-400">
-                        {activeCard.kana} <span className="text-xs font-medium text-outline">[{activeCard.romaji}]</span>
+                      <p className="text-base font-black text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                        <span>{activeCard.kana}</span>
+                        {activeCard.romaji && activeCard.romaji.trim() !== '' && (
+                          <span className="text-xs font-semibold text-outline">[{activeCard.romaji}]</span>
+                        )}
                       </p>
-                      <p className="text-[11px] font-semibold text-outline">Âm Hán: {activeCard.hanViet}</p>
+                      {activeCard.hanViet && activeCard.hanViet.trim() !== '' && (
+                        <p className="text-[11px] font-semibold text-outline">
+                          Âm Hán: <span className="font-bold text-on-surface">{activeCard.hanViet}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -838,7 +732,7 @@ export default function DashboardStudent({
                         Nghĩa: <span className="text-primary font-black text-base">{activeCard.meaning}</span>
                       </p>
                       <button
-                        onClick={(e) => speakJapanese(activeCard.kana, e)}
+                        onClick={(e) => speakJapanese(activeCard.kana || activeCard.kanji, e)}
                         title="Phát âm từ vựng"
                         className="p-1.5 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-500 hover:text-white transition-all cursor-pointer shadow-2xs"
                       >
@@ -846,32 +740,50 @@ export default function DashboardStudent({
                       </button>
                     </div>
 
-                    {/* Example Box with Enhanced Font Size */}
-                    <div className="p-2.5 rounded-xl bg-surface-container-lowest/90 border border-outline-variant/40 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-extrabold text-on-surface leading-snug tracking-wide">
-                          {activeCard.exampleJp}
-                        </p>
+                    {/* Example Box with Enhanced Font Size & Safe Fallbacks */}
+                    {activeCard.exampleJp && activeCard.exampleJp.trim() !== '' ? (
+                      <div className="p-2.5 rounded-xl bg-surface-container-lowest/90 border border-outline-variant/40 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-extrabold text-on-surface leading-snug tracking-wide">
+                            {activeCard.exampleJp}
+                          </p>
+                          <button
+                            onClick={(e) => speakJapanese(activeCard.exampleJp, e)}
+                            title="Phát âm câu ví dụ"
+                            className="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors cursor-pointer flex-shrink-0"
+                          >
+                            <Volume2 size={14} />
+                          </button>
+                        </div>
+                        {activeCard.exampleRomaji && activeCard.exampleRomaji.trim() !== '' && (
+                          <p className="text-xs text-outline italic">({activeCard.exampleRomaji})</p>
+                        )}
+                        {activeCard.exampleVi && activeCard.exampleVi.trim() !== '' && (
+                          <p className="text-xs font-bold text-primary">➔ {activeCard.exampleVi}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="p-2.5 rounded-xl bg-surface-container-lowest/70 border border-outline-variant/30 flex items-center justify-between text-xs text-on-surface-variant">
+                        <span>Nhấn loa 🔊 để nghe cách phát âm chính xác</span>
                         <button
-                          onClick={(e) => speakJapanese(activeCard.exampleJp, e)}
-                          title="Phát âm câu ví dụ"
-                          className="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors cursor-pointer flex-shrink-0"
+                          onClick={(e) => speakJapanese(activeCard.kanji, e)}
+                          className="text-primary font-bold hover:underline cursor-pointer"
                         >
-                          <Volume2 size={14} />
+                          Nghe ngay
                         </button>
                       </div>
-                      <p className="text-xs text-outline italic">({activeCard.exampleRomaji})</p>
-                      <p className="text-xs font-bold text-primary">➔ {activeCard.exampleVi}</p>
-                    </div>
+                    )}
                   </div>
                 ) : (
-                  /* Tab 2: Interactive Stroke Writer with Replay Button */
+                  /* Tab 2: Interactive Stroke Writer with Replay & Multi-character Selector */
                   <div className="py-1 flex items-center justify-between gap-3">
                     <div className="flex-1 space-y-1.5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600">
                           <PenTool size={13} />
-                          <span>Quy tắc: {activeCard.strokeCount} nét</span>
+                          <span>
+                            Quy tắc: {activeCard.strokeCount > 0 ? `${activeCard.strokeCount} nét` : 'Nét bút thuận'}
+                          </span>
                         </div>
                         {/* Replay Stroke Animation Button */}
                         <button
@@ -887,12 +799,14 @@ export default function DashboardStudent({
                         </button>
                       </div>
                       <p className="text-xs text-on-surface-variant font-medium leading-relaxed bg-surface-container-lowest/90 p-2 rounded-xl border border-outline-variant/30">
-                        {activeCard.strokeGuide}
+                        {activeCard.strokeGuide && activeCard.strokeGuide.trim() !== ''
+                          ? activeCard.strokeGuide
+                          : 'Viết theo thứ tự từ trên xuống dưới, từ trái sang phải chuẩn nét bút tiếng Nhật.'}
                       </p>
                     </div>
 
-                    <div className="w-24 h-24 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center p-1 shadow-inner flex-shrink-0">
-                      <KanjiStrokeWriter key={strokeKey} character={activeCard.kanji} size={88} standalone={false} />
+                    <div className="w-28 h-28 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center p-1 shadow-inner flex-shrink-0">
+                      <KanjiStrokeWriter key={strokeKey} character={activeCard.kanji} size={96} standalone={false} />
                     </div>
                   </div>
                 )}

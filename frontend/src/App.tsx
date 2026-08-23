@@ -32,7 +32,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
   
-  const { isAuthenticated, logout, user, fetchMe } = useAuthStore();
+  const { isAuthenticated, user, fetchMe } = useAuthStore();
 
   // Configure GSAP globally for prefers-reduced-motion
   useEffect(() => {

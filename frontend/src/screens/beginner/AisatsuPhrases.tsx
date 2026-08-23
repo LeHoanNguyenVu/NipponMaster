@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Volume2, Check, ArrowRight, RotateCcw, Info, Sparkles, BookOpen, AlertTriangle } from 'lucide-react';
+import { Volume2, Check, ArrowRight, RotateCcw, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  GREETINGS, PRONOUNS, HONORIFIC_SUFFIXES, AISATSU_CHAPTER_QUIZ,
-  type GreetingItem
+  GREETINGS, PRONOUNS, HONORIFIC_SUFFIXES, AISATSU_CHAPTER_QUIZ
 } from '../../data/aisatsuData';
 import { speakJapanese } from '../../data/kanaData';
 

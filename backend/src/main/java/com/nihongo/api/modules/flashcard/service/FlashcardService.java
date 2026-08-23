@@ -236,4 +236,104 @@ public class FlashcardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Flashcard", id));
         flashcardRepository.delete(existing);
     }
+
+    /**
+     * Lấy danh sách thẻ luyện trí nhớ nhanh ngẫu nhiên trực tiếp từ Supabase Database.
+     * Tự động truy vấn từ bảng `vocabularies` & `kanjis` theo đúng Level của học viên.
+     */
+    @Transactional(readOnly = true)
+    public List<com.nihongo.api.modules.flashcard.dto.QuickPracticeCardDto> getQuickPracticeCards(User.JlptLevel level, int limit) {
+        User.JlptLevel targetLevel = (level != null) ? level : User.JlptLevel.STARTER;
+        int fetchSize = Math.max(limit, 20);
+
+        List<Vocabulary> vocabs = vocabularyRepository.findByJlptLevel(targetLevel, PageRequest.of(0, fetchSize)).getContent();
+        List<Kanji> kanjis = kanjiRepository.findByJlptLevel(targetLevel, PageRequest.of(0, fetchSize)).getContent();
+
+        List<com.nihongo.api.modules.flashcard.dto.QuickPracticeCardDto> result = new ArrayList<>();
+
+        // Map Vocabularies
+        for (Vocabulary v : vocabs) {
+            String word = v.getWord();
+            String reading = (v.getReading() != null && !v.getReading().isBlank()) ? v.getReading() : word;
+            String meaning = (v.getMeaning() != null && !v.getMeaning().isBlank()) ? v.getMeaning() : "Từ vựng tiếng Nhật";
+
+            String exJp = (v.getExampleSentence() != null && !v.getExampleSentence().isBlank())
+                    ? v.getExampleSentence()
+                    : (word + "を 使います。");
+            String exRomaji = (v.getExampleRomaji() != null && !v.getExampleRomaji().isBlank())
+                    ? v.getExampleRomaji()
+                    : "";
+            String exVi = (v.getExampleMeaning() != null && !v.getExampleMeaning().isBlank())
+                    ? v.getExampleMeaning()
+                    : ("Sử dụng " + meaning.toLowerCase() + " trong đời sống.");
+
+            int strokes = (v.getStrokeCount() != null && v.getStrokeCount() > 0)
+                    ? v.getStrokeCount()
+                    : Math.max(1, word.length() * 3);
+
+            String guide = (v.getStrokeGuide() != null && !v.getStrokeGuide().isBlank())
+                    ? v.getStrokeGuide()
+                    : "Quy tắc viết nét bút thuận chuẩn tiếng Nhật (từ trên xuống dưới, từ trái qua phải)";
+
+            result.add(com.nihongo.api.modules.flashcard.dto.QuickPracticeCardDto.builder()
+                    .id(v.getId())
+                    .kanji(word)
+                    .kana(reading)
+                    .romaji(v.getRomaji() != null ? v.getRomaji() : "")
+                    .hanViet(v.getHanViet() != null ? v.getHanViet() : "")
+                    .meaning(meaning)
+                    .strokeCount(strokes)
+                    .strokeGuide(guide)
+                    .exampleJp(exJp)
+                    .exampleRomaji(exRomaji)
+                    .exampleVi(exVi)
+                    .level(targetLevel.name())
+                    .cardType("VOCABULARY")
+                    .build());
+        }
+
+        // Map Kanjis
+        for (Kanji k : kanjis) {
+            String charStr = k.getCharacter();
+            String reading = (k.getKunReading() != null && !k.getKunReading().isBlank()) ? k.getKunReading() : (k.getOnReading() != null ? k.getOnReading() : charStr);
+            String meaning = (k.getMeaning() != null && !k.getMeaning().isBlank()) ? k.getMeaning() : "Chữ Hán Kanji";
+
+            String exJp = (k.getExampleSentence() != null && !k.getExampleSentence().isBlank())
+                    ? k.getExampleSentence()
+                    : (k.getRelatedWords() != null && !k.getRelatedWords().isBlank() ? k.getRelatedWords() : charStr + "の 漢字を勉強します。");
+            String exRomaji = (k.getExampleRomaji() != null && !k.getExampleRomaji().isBlank())
+                    ? k.getExampleRomaji()
+                    : "";
+            String exVi = (k.getExampleMeaning() != null && !k.getExampleMeaning().isBlank())
+                    ? k.getExampleMeaning()
+                    : ("Học chữ Hán mang ý nghĩa " + meaning.toLowerCase() + ".");
+
+            int strokes = (k.getStrokeCount() != null && k.getStrokeCount() > 0)
+                    ? k.getStrokeCount()
+                    : 4;
+
+            String guide = (k.getStrokeGuide() != null && !k.getStrokeGuide().isBlank())
+                    ? k.getStrokeGuide()
+                    : "Thứ tự nét viết chữ Hán chuẩn bút thuận";
+
+            result.add(com.nihongo.api.modules.flashcard.dto.QuickPracticeCardDto.builder()
+                    .id(k.getId())
+                    .kanji(charStr)
+                    .kana(reading)
+                    .romaji(k.getRomaji() != null ? k.getRomaji() : "")
+                    .hanViet(k.getHanViet() != null ? k.getHanViet() : "")
+                    .meaning(meaning)
+                    .strokeCount(strokes)
+                    .strokeGuide(guide)
+                    .exampleJp(exJp)
+                    .exampleRomaji(exRomaji)
+                    .exampleVi(exVi)
+                    .level(targetLevel.name())
+                    .cardType("KANJI")
+                    .build());
+        }
+
+        Collections.shuffle(result);
+        return result.stream().limit(limit).toList();
+    }
 }

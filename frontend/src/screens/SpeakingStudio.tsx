@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Mic, MicOff, Volume2, ArrowLeft, Send, MessageCircle, Star, Award, RotateCcw, ChevronRight, Loader2, AlertTriangle, Sparkles } from 'lucide-react';
+import { Mic, MicOff, Volume2, ArrowLeft, Send, MessageCircle, Award, RotateCcw, ChevronRight, Loader2, AlertTriangle, Sparkles } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -450,7 +450,7 @@ export default function SpeakingStudio() {
               </div>
             </div>
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={handleFinishConversation}
               className="text-xs"
@@ -783,7 +783,7 @@ export default function SpeakingStudio() {
               <RotateCcw size={16} className="mr-2" />
               Thử lại kịch bản này
             </Button>
-            <Button variant="outline" onClick={handleBackToScenarios} className="w-full sm:w-auto">
+            <Button variant="secondary" onClick={handleBackToScenarios} className="w-full sm:w-auto">
               <ArrowLeft size={16} className="mr-2" />
               Chọn kịch bản khác
             </Button>

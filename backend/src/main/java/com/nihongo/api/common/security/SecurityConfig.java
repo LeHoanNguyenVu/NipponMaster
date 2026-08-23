@@ -46,10 +46,12 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
 
-                        // Cho phép GET public cho Vocabulary, Kanji, Grammar (tra cứu không cần login)
+                        // Cho phép GET public cho Vocabulary, Kanji, Grammar, Quick Practice (tra cứu không cần login)
                         .requestMatchers(HttpMethod.GET, "/api/v1/vocabularies/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/kanjis/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/grammars/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/flashcards/quick-practice").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/flashcards/quick-practice/**").permitAll()
 
                         // Cho phép xem cấu trúc đề thi (không cần login, submit thì cần)
                         .requestMatchers(HttpMethod.GET, "/api/v1/placement-test/questions").permitAll()

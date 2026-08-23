@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Volume2, Mic, Square, Sparkles, RefreshCw, CheckCircle2, AlertTriangle, Music, Info } from 'lucide-react';
+import { Volume2, Mic, Square, Sparkles, Music } from 'lucide-react';
 import { aiStudioApi, type PitchAccentResponse, type EvaluatePitchResponse } from '../api/aiStudioApi';
 
 const SAMPLE_SENTENCES = [
@@ -12,7 +12,6 @@ const SAMPLE_SENTENCES = [
 
 export default function ShadowingStudio() {
   const [selectedText, setSelectedText] = useState('さくら');
-  const [customText, setCustomText] = useState('');
   const [pitchData, setPitchData] = useState<PitchAccentResponse | null>(null);
   const [evaluation, setEvaluation] = useState<EvaluatePitchResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,7 +19,6 @@ export default function ShadowingStudio() {
   const [recordingTime, setRecordingTime] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const waveCanvasRef = useRef<HTMLCanvasElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchPitchData = async (text: string) => {
@@ -88,7 +86,7 @@ export default function ShadowingStudio() {
     ctx.stroke();
 
     // Draw nodes & labels
-    points.forEach((pt, i) => {
+    points.forEach((pt) => {
       ctx.beginPath();
       ctx.arc(pt.x, pt.y, 7, 0, Math.PI * 2);
       ctx.fillStyle = pt.isHigh ? '#c01538' : '#2b5f43';
@@ -171,7 +169,7 @@ export default function ShadowingStudio() {
           {SAMPLE_SENTENCES.map((s, idx) => (
             <button
               key={idx}
-              onClick={() => { setSelectedText(s.text); setCustomText(''); }}
+              onClick={() => setSelectedText(s.text)}
               className={`p-4 rounded-2xl border text-left cursor-pointer transition-all ${
                 selectedText === s.text
                   ? 'bg-primary/8 border-primary shadow-sm scale-101'

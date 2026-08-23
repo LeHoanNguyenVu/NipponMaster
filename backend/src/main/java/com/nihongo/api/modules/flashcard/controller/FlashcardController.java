@@ -34,6 +34,16 @@ public class FlashcardController {
     }
 
     /**
+     * Lấy danh sách thẻ luyện trí nhớ nhanh ngẫu nhiên trực tiếp từ Supabase Database.
+     */
+    @GetMapping("/quick-practice")
+    public ResponseEntity<ApiResponse<List<com.nihongo.api.modules.flashcard.dto.QuickPracticeCardDto>>> getQuickPractice(
+            @RequestParam(required = false, defaultValue = "STARTER") com.nihongo.api.modules.auth.entity.User.JlptLevel level,
+            @RequestParam(required = false, defaultValue = "20") int limit) {
+        return ResponseEntity.ok(ApiResponse.ok("Danh sách thẻ luyện trí nhớ từ Supabase", flashcardService.getQuickPracticeCards(level, limit)));
+    }
+
+    /**
      * Endpoint kiểu Anki: tự động tạo phiên ôn tập
      * Gồm: thẻ mới (từ Vocabulary + Kanji) + thẻ cần ôn lại (SRS due)
      */
