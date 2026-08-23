@@ -7,48 +7,13 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useThemeStore, THEME_CATALOG } from '../store/useThemeStore';
+import { useNotificationStore, type NotificationItem } from '../store/useNotificationStore';
 import type { ScreenType } from '../App';
 
 interface TopBarProps {
   onToggleSidebar?: () => void;
   onNavigate?: (screen: ScreenType) => void;
 }
-
-interface NotificationItem {
-  id: string;
-  icon: string;
-  title: string;
-  desc: string;
-  time: string;
-  screen?: ScreenType;
-}
-
-const STATIC_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: 'notif-listening-200',
-    icon: '🎧',
-    title: 'Phòng Luyện Nghe Tình Huống Thực Tế',
-    desc: 'Kho 200 bài nghe tình huống chuẩn JLPT N5-N1 đã mở khóa sẵn sàng cho bạn luyện tập!',
-    time: '5 phút trước',
-    screen: 'listening',
-  },
-  {
-    id: 'notif-battle-1v1',
-    icon: '⚔️',
-    title: 'Đấu Trường Đối Kháng 1v1',
-    desc: 'Sora AI đang thách đấu bạn tại Đấu Trường Xếp Hạng Tiếng Nhật.',
-    time: '1 giờ trước',
-    screen: 'battle',
-  },
-  {
-    id: 'notif-daily-streak',
-    icon: '🔥',
-    title: 'Chuỗi Ngày Học (Streak)',
-    desc: 'Hoàn thành bài học hôm nay để duy trì chuỗi và nhận thưởng 50 Coins!',
-    time: 'Hôm nay',
-    screen: 'dashboard',
-  },
-];
 
 // Preset Avatars: Japanese Landscapes & Animals (100% Verified URLs)
 const PRESET_AVATARS = [
@@ -99,37 +64,14 @@ const PRESET_AVATARS = [
   },
 ];
 
-const NOTIF_GLOBAL_KEY = 'nippon_read_notifications_v1';
-
 export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
   const { user, logout, updateUserAvatar, changePassword } = useAuthStore();
   const { activeTheme, setTheme } = useThemeStore();
+  const { notifications, readIds, markAsRead, markAllAsRead } = useNotificationStore();
 
   // Active Dropdowns & Modals
   const [activeDropdown, setActiveDropdown] = useState<'notifications' | 'avatar' | null>(null);
   const [activeModal, setActiveModal] = useState<'avatar' | 'password' | 'deposit' | 'theme' | 'security' | null>(null);
-
-  // Persistent Notification Read IDs in LocalStorage
-  const [readNotifIds, setReadNotifIds] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem(NOTIF_GLOBAL_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  // Re-sync read notifications when user changes
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(NOTIF_GLOBAL_KEY);
-      if (stored) {
-        setReadNotifIds(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.error('Failed to load read notifications:', e);
-    }
-  }, [user?.id, user?.email]);
 
   const [imgError, setImgError] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -147,35 +89,15 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Sync notification read states to localStorage
-  const saveReadNotifs = (ids: string[]) => {
-    setReadNotifIds(ids);
-    try {
-      localStorage.setItem(NOTIF_GLOBAL_KEY, JSON.stringify(ids));
-      if (user?.email) {
-        localStorage.setItem(`nippon_read_notifs_${user.email}`, JSON.stringify(ids));
-      }
-    } catch (e) {
-      console.error('Error saving read notifications:', e);
-    }
-  };
-
-  const markAllAsRead = () => {
-    const allIds = STATIC_NOTIFICATIONS.map((n) => n.id);
-    saveReadNotifs(allIds);
-  };
-
   const handleNotificationClick = (item: NotificationItem) => {
-    if (!readNotifIds.includes(item.id)) {
-      saveReadNotifs([...readNotifIds, item.id]);
-    }
+    markAsRead(item.id);
     if (item.screen && onNavigate) {
       onNavigate(item.screen);
     }
     setActiveDropdown(null);
   };
 
-  const unreadCount = STATIC_NOTIFICATIONS.filter((n) => !readNotifIds.includes(n.id)).length;
+  const unreadCount = notifications.filter((n) => !readIds.includes(n.id)).length;
 
   // Close dropdowns on outside click or ESC
   useEffect(() => {
@@ -405,8 +327,8 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
                 </div>
 
                 <div className="space-y-2 max-h-72 overflow-y-auto no-scrollbar">
-                  {STATIC_NOTIFICATIONS.map((item) => {
-                    const isRead = readNotifIds.includes(item.id);
+                  {notifications.map((item) => {
+                    const isRead = readIds.includes(item.id);
                     return (
                       <div
                         key={item.id}

@@ -11,6 +11,8 @@ public interface GrammarRepository extends JpaRepository<Grammar, Long> {
 
     Page<Grammar> findByJlptLevel(User.JlptLevel level, Pageable pageable);
 
+    long countByJlptLevel(User.JlptLevel level);
+
     @Query("SELECT g FROM Grammar g WHERE " +
             "LOWER(g.pattern) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(g.meaning) LIKE LOWER(CONCAT('%', :keyword, '%'))")

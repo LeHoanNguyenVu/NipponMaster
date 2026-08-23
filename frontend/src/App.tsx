@@ -260,6 +260,7 @@ export default function App() {
             <DashboardStudent
               onStartStudy={() => setCurrentScreen('flashcards')}
               onOpenBeginnerCourse={() => setCurrentScreen('beginner')}
+              onNavigate={setCurrentScreen}
               username={user?.username}
             />
           )}

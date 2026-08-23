@@ -17,6 +17,8 @@ public interface KanjiRepository extends JpaRepository<Kanji, Long> {
 
     Page<Kanji> findByJlptLevel(User.JlptLevel level, Pageable pageable);
 
+    long countByJlptLevel(User.JlptLevel level);
+
     Page<Kanji> findByRadical(String radical, Pageable pageable);
 
     @Query("SELECT k FROM Kanji k WHERE " +
