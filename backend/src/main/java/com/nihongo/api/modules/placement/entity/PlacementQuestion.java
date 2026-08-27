@@ -22,7 +22,7 @@ public class PlacementQuestion extends BaseEntity {
      * Cấp độ JLPT của câu hỏi này (N5, N4, N3, N2, N1).
      */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 5)
+    @Column(nullable = false, length = 20)
     private User.JlptLevel level;
 
     /**

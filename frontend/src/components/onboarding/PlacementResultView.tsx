@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 import type { PlacementResult, JlptLevel, Section } from '../../api/placementApi';
 
 interface Props {
@@ -22,13 +23,19 @@ const SECTION_EMOJI: Record<Section, string> = {
 };
 
 const LEVEL_COLOR: Record<JlptLevel, string> = {
-  N5: '#2b5f43', N4: '#1d6b9b', N3: '#7c5c2e', N2: '#8b1a1a', N1: '#5a1a7a',
+  STARTER: '#137333', N5: '#2b5f43', N4: '#1d6b9b', N3: '#7c5c2e', N2: '#8b1a1a', N1: '#5a1a7a',
+};
+
+const isQuestionCorrect = (q: any): boolean => {
+  if (typeof q?.isCorrect === 'boolean') return q.isCorrect;
+  if (typeof q?.correct === 'boolean') return q.correct;
+  return q?.chosenOption !== undefined && q?.correctOption !== undefined && q.chosenOption === q.correctOption && q.chosenOption !== -1;
 };
 
 export default function PlacementResultView({ result, onConfirm, onRetry, onTakeTestLevel, isConfirming }: Props) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const pct = result.scorePercent;
-  const isIntroRecommended = result.targetLevel === 'N5' && pct < 50;
+  const isIntroRecommended = (result.targetLevel === 'N5' && pct < 50) || result.recommendedLevel === 'STARTER';
 
   const [chosenLevel, setChosenLevel] = useState<JlptLevel | 'INTRO'>(
     isIntroRecommended ? 'INTRO' : result.recommendedLevel
@@ -45,19 +52,19 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (pct / 100) * circumference;
 
-  const wrongCount = result.questionReviews ? result.questionReviews.filter(q => !q.isCorrect).length : 0;
-  const correctCount = result.questionReviews ? result.questionReviews.filter(q => q.isCorrect).length : 0;
+  const wrongCount = result.questionReviews ? result.questionReviews.filter(q => !isQuestionCorrect(q)).length : 0;
+  const correctCount = result.questionReviews ? result.questionReviews.filter(q => isQuestionCorrect(q)).length : 0;
 
   const filteredReviews = (result.questionReviews || []).filter(q => {
-    if (filterTab === 'wrong') return !q.isCorrect;
-    if (filterTab === 'correct') return q.isCorrect;
+    if (filterTab === 'wrong') return !isQuestionCorrect(q);
+    if (filterTab === 'correct') return isQuestionCorrect(q);
     return true;
   });
 
   const handleConfirmSubmit = (level: JlptLevel | 'INTRO') => {
     if (level === 'INTRO') {
       localStorage.setItem('nippon_user_mode', 'beginner');
-      onConfirm('N5');
+      onConfirm('STARTER');
     } else {
       localStorage.removeItem('nippon_user_mode');
       onConfirm(level);
@@ -149,16 +156,12 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
               <span style={{ fontSize: 20 }}>🎯</span>
               <div>
                 <div style={{ fontSize: 12, color: '#8c827b', marginBottom: 2 }}>Đề xuất phù hợp</div>
-                <div style={{ fontWeight: 800, fontSize: 17, color: LEVEL_COLOR[result.recommendedLevel] }}>
-                  Trình độ {result.recommendedLevel}
+                <div style={{ fontWeight: 800, fontSize: 17, color: LEVEL_COLOR[result.recommendedLevel] || '#137333' }}>
+                  Trình độ {result.recommendedLevel === 'STARTER' ? 'Nhập môn (STARTER)' : result.recommendedLevel}
                 </div>
               </div>
             </div>
           )}
-
-          <p style={{ fontSize: 13, color: '#5a5450', marginTop: 10, lineHeight: 1.6 }}>
-            💡 {result.actionSuggestion}
-          </p>
         </div>
       </div>
 
@@ -348,20 +351,62 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
 
       {/* ── UNTESTED / UNPASSED LEVEL WARNING MODAL ────────────────── */}
       {showWarningModal && chosenLevel !== 'INTRO' && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 9999,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 20, animation: 'fadeIn 0.2s ease',
-        }}>
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) setShowWarningModal(false); }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 20, animation: 'fadeIn 0.2s ease',
+          }}
+        >
           <div style={{
             background: '#fff', borderRadius: 24, maxWidth: 500, width: '100%',
             padding: '28px 26px', border: '2px solid #e2dbce',
             boxShadow: '0 24px 48px rgba(0,0,0,0.25)',
             display: 'flex', flexDirection: 'column', gap: 18,
+            position: 'relative',
           }}>
+            {/* Close Button X (Top Right) */}
+            <button
+              id="modal-close-btn"
+              type="button"
+              onClick={() => setShowWarningModal(false)}
+              aria-label="Đóng cảnh báo"
+              title="Đóng để chọn trình độ khác"
+              style={{
+                position: 'absolute',
+                top: 18,
+                right: 18,
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                border: '1px solid #e2dbce',
+                background: '#f7f5f0',
+                color: '#5a5450',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                zIndex: 10,
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#fee2e2';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#fca5a5';
+                (e.currentTarget as HTMLButtonElement).style.color = '#dc2626';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#f7f5f0';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#e2dbce';
+                (e.currentTarget as HTMLButtonElement).style.color = '#5a5450';
+              }}
+            >
+              <X size={18} />
+            </button>
+
             {/* Modal Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingRight: 36 }}>
               <div style={{
                 width: 44, height: 44, borderRadius: 14, background: '#fff5f5',
                 border: '1.5px solid #f87171', display: 'flex', alignItems: 'center',
@@ -529,10 +574,10 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                         width: 26, height: 26, borderRadius: 8, flexShrink: 0,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 14, fontWeight: 700,
-                        background: review.isCorrect ? '#2b5f4318' : '#ba1a1a18',
-                        color: review.isCorrect ? '#2b5f43' : '#ba1a1a',
+                        background: isQuestionCorrect(review) ? '#2b5f4318' : '#ba1a1a18',
+                        color: isQuestionCorrect(review) ? '#2b5f43' : '#ba1a1a',
                       }}>
-                        {review.isCorrect ? '✓' : '✗'}
+                        {isQuestionCorrect(review) ? '✓' : '✗'}
                       </span>
                       <span style={{ flex: 1, fontSize: 13, color: '#231815', lineHeight: 1.5, fontFamily: '"Noto Sans JP", sans-serif' }}>
                         <b style={{ color: '#8c827b', marginRight: 6 }}>Câu {idx + 1}.</b>

@@ -29,7 +29,7 @@ public class PlacementResult extends BaseEntity {
      * Cấp độ JLPT học viên đã chọn test (N5, N4, N3, N2, N1).
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "target_level", nullable = false, length = 5)
+    @Column(name = "target_level", nullable = false, length = 20)
     private User.JlptLevel targetLevel;
 
     /**
@@ -57,7 +57,7 @@ public class PlacementResult extends BaseEntity {
      * - > 80%: giữ nguyên hoặc thử level cao hơn
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "recommended_level", length = 5)
+    @Column(name = "recommended_level", length = 20)
     private User.JlptLevel recommendedLevel;
 
     /**

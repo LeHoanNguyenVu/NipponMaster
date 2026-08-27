@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { LogOut, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { placementApi } from '../api/placementApi';
+import axiosClient from '../api/axiosClient';
 import type { JlptLevel, PlacementTestData, PlacementResult } from '../api/placementApi';
 import LevelSelector from '../components/onboarding/LevelSelector';
 import LevelTestSelector from '../components/onboarding/LevelTestSelector';
 import QuizPlayer from '../components/onboarding/QuizPlayer';
 import PlacementResultView from '../components/onboarding/PlacementResultView';
+import JapaneseWelcomeTransition from '../components/onboarding/JapaneseWelcomeTransition';
 
 type Step =
   | 'hub'               // Trang chọn Option 1 hoặc 2
@@ -14,7 +16,8 @@ type Step =
   | 'test-level-pick'   // Option 2 bước 1: Chọn cấp độ muốn test
   | 'quiz'              // Option 2 bước 2: Làm bài
   | 'result'            // Option 2 bước 3: Xem kết quả + đáp án
-  | 'confirming';       // Đang gọi API hoàn tất onboarding
+  | 'confirming'        // Đang gọi API hoàn tất onboarding
+  | 'welcome';          // Màn hình Lazy load chào mừng phong cách Nhật Bản
 
 interface OnboardingScreenProps {
   onDone: () => void;
@@ -26,34 +29,24 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
   const [testData, setTestData] = useState<PlacementTestData | null>(null);
   const [testLevel, setTestLevel] = useState<JlptLevel | null>(null);
   const [resultData, setResultData] = useState<PlacementResult | null>(null);
+  const [confirmedLevel, setConfirmedLevel] = useState<JlptLevel | 'STARTER'>('N5');
   const [loadingTest, setLoadingTest] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // ── Option 1: Chọn trực tiếp ──────────────────────────────────────────────
-  const handleDirectSelect = async (level: JlptLevel) => {
+  const handleDirectSelect = (level: JlptLevel) => {
     setError(null);
-    setStep('confirming');
-    try {
-      await completeOnboarding(level);
-      onDone();
-    } catch (err: any) {
-      const msg = err?.message || 'Có lỗi xảy ra khi lưu trình độ. Vui lòng thử lại!';
-      setError(msg);
-      setStep('level-select');
-    }
+    setConfirmedLevel(level);
+    axiosClient.put('/users/me/onboarding', { targetLevel: level }).catch(() => {});
+    setStep('welcome');
   };
 
-  const handleSkip = async () => {
+  const handleSkip = () => {
     setError(null);
-    setStep('confirming');
-    try {
-      await completeOnboarding('STARTER');
-      onDone();
-    } catch (err: any) {
-      onDone();
-    }
+    setConfirmedLevel('STARTER');
+    axiosClient.put('/users/me/onboarding', { targetLevel: 'STARTER' }).catch(() => {});
+    setStep('welcome');
   };
 
   // ── Option 2: Tải đề thi theo level ───────────────────────────────────────
@@ -86,27 +79,44 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
       const result = await placementApi.submitTest(testLevel, answers);
       setResultData(result);
       setStep('result');
-    } catch {
-      setError('Không thể nộp bài. Vui lòng thử lại!');
+    } catch (err: any) {
+      const msg = err?.message || err?.error || (typeof err === 'string' ? err : 'Không thể nộp bài. Vui lòng thử lại!');
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
   // ── Xác nhận level sau khi xem kết quả ───────────────────────────────────
-  const handleConfirmLevel = async (level: JlptLevel) => {
-    setConfirming(true);
+  const handleConfirmLevel = (level: JlptLevel) => {
     setError(null);
+    setConfirmedLevel(level);
+    // Pre-save to backend in background so user doesn't wait
+    axiosClient.put('/users/me/onboarding', { targetLevel: level }).catch(() => {});
+    // Render the Japanese welcome transition screen
+    setStep('welcome');
+  };
+
+  const handleWelcomeComplete = async () => {
     try {
-      await completeOnboarding(level);
-      onDone();
+      await completeOnboarding(confirmedLevel);
     } catch {
-      setError('Có lỗi khi lưu trình độ. Vui lòng thử lại!');
-      setConfirming(false);
+      // ignore
     }
+    onDone();
   };
 
   const firstName = user?.username?.split(' ').pop() || 'bạn';
+
+  if (step === 'welcome') {
+    return (
+      <JapaneseWelcomeTransition
+        level={confirmedLevel}
+        userName={user?.fullName || user?.username || firstName}
+        onComplete={handleWelcomeComplete}
+      />
+    );
+  }
 
   return (
     <div style={{
@@ -356,7 +366,7 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
               onConfirm={handleConfirmLevel}
               onRetry={() => { setResultData(null); setStep('test-level-pick'); }}
               onTakeTestLevel={handleLoadTest}
-              isConfirming={confirming}
+              isConfirming={false}
             />
           </>
         )}

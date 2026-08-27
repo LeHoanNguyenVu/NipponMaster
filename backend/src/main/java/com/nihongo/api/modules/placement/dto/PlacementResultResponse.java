@@ -1,5 +1,6 @@
 package com.nihongo.api.modules.placement.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nihongo.api.modules.auth.entity.User.JlptLevel;
 import com.nihongo.api.modules.placement.entity.PlacementQuestion.Section;
 import lombok.Builder;
@@ -79,7 +80,10 @@ public class PlacementResultResponse {
         private int chosenOption;
         /** Đáp án đúng (0-3). */
         private int correctOption;
+
+        @JsonProperty("isCorrect")
         private boolean isCorrect;
+
         /** Giải thích chi tiết lý do đáp án đúng. */
         private String explanation;
     }

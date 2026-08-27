@@ -1,6 +1,6 @@
 import axiosClient from './axiosClient';
 
-export type JlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
+export type JlptLevel = 'STARTER' | 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
 export type Section = 'VOCAB' | 'GRAMMAR' | 'READING';
 
 export interface PlacementQuestion {
@@ -36,7 +36,8 @@ export interface QuestionReview {
   options: string[];
   chosenOption: number;
   correctOption: number;
-  isCorrect: boolean;
+  isCorrect?: boolean;
+  correct?: boolean;
   explanation: string;
 }
 

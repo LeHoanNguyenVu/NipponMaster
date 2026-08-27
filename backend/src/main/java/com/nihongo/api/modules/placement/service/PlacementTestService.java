@@ -255,8 +255,9 @@ public class PlacementTestService {
             return dropLevel(tested, 2);
         } else {
             return switch (tested) {
-                case N1, N2, N3 -> User.JlptLevel.N4;
-                default -> User.JlptLevel.N5;
+                case N1, N2 -> User.JlptLevel.N4;
+                case N3, N4, N5 -> User.JlptLevel.STARTER;
+                default -> User.JlptLevel.STARTER;
             };
         }
     }
@@ -333,6 +334,9 @@ public class PlacementTestService {
     }
 
     private User.JlptLevel computeRecommendedTestLevel(User.JlptLevel tested, User.JlptLevel recommended) {
+        if (recommended == User.JlptLevel.STARTER) {
+            return User.JlptLevel.N5;
+        }
         if (recommended != tested) {
             return recommended;
         }

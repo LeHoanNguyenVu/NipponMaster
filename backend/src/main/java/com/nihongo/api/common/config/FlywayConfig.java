@@ -39,8 +39,24 @@ public class FlywayConfig {
             stmt.execute("ALTER TABLE placement_questions DROP CONSTRAINT IF EXISTS placement_questions_section_check");
             stmt.execute("ALTER TABLE subscription_plans DROP CONSTRAINT IF EXISTS subscription_plans_jlpt_level_check");
             stmt.execute("ALTER TABLE subscription_plans DROP CONSTRAINT IF EXISTS subscription_plans_plan_type_check");
+            stmt.execute("ALTER TABLE placement_results DROP CONSTRAINT IF EXISTS placement_results_recommended_level_check");
+            stmt.execute("ALTER TABLE placement_results DROP CONSTRAINT IF EXISTS placement_results_target_level_check");
+            stmt.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_target_level_check");
+            stmt.execute("ALTER TABLE classrooms DROP CONSTRAINT IF EXISTS classrooms_level_check");
+
+            log.info("Ensuring VARCHAR(20) column length for JlptLevel columns...");
+            stmt.execute("ALTER TABLE placement_results ALTER COLUMN target_level TYPE VARCHAR(20)");
+            stmt.execute("ALTER TABLE placement_results ALTER COLUMN recommended_level TYPE VARCHAR(20)");
+            stmt.execute("ALTER TABLE placement_questions ALTER COLUMN level TYPE VARCHAR(20)");
+            stmt.execute("ALTER TABLE users ALTER COLUMN jlpt_level TYPE VARCHAR(20)");
+            stmt.execute("ALTER TABLE users ALTER COLUMN target_level TYPE VARCHAR(20)");
+            stmt.execute("ALTER TABLE subscription_plans ALTER COLUMN jlpt_level TYPE VARCHAR(20)");
+            stmt.execute("ALTER TABLE classrooms ALTER COLUMN level TYPE VARCHAR(20)");
+            stmt.execute("ALTER TABLE vocabularies ALTER COLUMN jlpt_level TYPE VARCHAR(20)");
+            stmt.execute("ALTER TABLE kanjis ALTER COLUMN jlpt_level TYPE VARCHAR(20)");
+            stmt.execute("ALTER TABLE grammars ALTER COLUMN jlpt_level TYPE VARCHAR(20)");
         } catch (Exception e) {
-            log.warn("Could not drop legacy check constraints before migration: {}", e.getMessage());
+            log.warn("Could not execute DDL updates before migration: {}", e.getMessage());
         }
 
         try {

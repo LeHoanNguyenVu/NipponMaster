@@ -86,11 +86,11 @@ export default function App() {
   useEffect(() => {
     if (mainRef.current) {
       gsap.fromTo(mainRef.current,
-        { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', overwrite: 'auto' }
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out', overwrite: 'auto' }
       );
     }
-  }, [currentScreen]);
+  }, [currentScreen, user?.onboardingCompleted]);
 
   // Helper function to decode JWT payload from Google id_token
   const parseJwt = (token: string) => {
