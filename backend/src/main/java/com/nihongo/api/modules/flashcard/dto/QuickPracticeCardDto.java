@@ -26,4 +26,8 @@ public class QuickPracticeCardDto {
     private String exampleVi;
     private String level;
     private String cardType;
+    private String imageUrl;
+    private String mnemonicHint;
+    private String mnemonicTitle;
+    private String mnemonicIcon;
 }

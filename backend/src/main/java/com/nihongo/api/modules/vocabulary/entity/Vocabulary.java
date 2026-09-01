@@ -72,6 +72,22 @@ public class Vocabulary extends BaseEntity {
     @Column(length = 100)
     private String topic;
 
+    /** URL ảnh minh họa (lưu trên Supabase hoặc CDN) */
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
+    /** Câu mẹo nhớ siêu trí nhớ (Mnemonic Hint) */
+    @Column(name = "mnemonic_hint", columnDefinition = "TEXT")
+    private String mnemonicHint;
+
+    /** Tiêu đề hình ảnh liên tưởng (ví dụ: "Quả Táo (Apple)") */
+    @Column(name = "mnemonic_title", length = 200)
+    private String mnemonicTitle;
+
+    /** Icon emoji đại diện (ví dụ: "🍎") */
+    @Column(name = "mnemonic_icon", length = 20)
+    private String mnemonicIcon;
+
     public enum WordType {
         NOUN, VERB, I_ADJECTIVE, NA_ADJECTIVE, ADVERB, PARTICLE, CONJUNCTION, COUNTER, EXPRESSION, ALPHABET, NUMBER
     }

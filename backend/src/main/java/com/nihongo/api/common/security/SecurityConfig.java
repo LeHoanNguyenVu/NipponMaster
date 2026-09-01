@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/grammars/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/flashcards/quick-practice").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/flashcards/quick-practice/**").permitAll()
+                        .requestMatchers("/api/v1/tts/**").permitAll()
 
                         // Cho phép xem cấu trúc đề thi (không cần login, submit thì cần)
                         .requestMatchers(HttpMethod.GET, "/api/v1/placement-test/questions").permitAll()

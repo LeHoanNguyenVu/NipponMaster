@@ -73,4 +73,20 @@ public class Kanji extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "jlpt_level", nullable = false)
     private User.JlptLevel jlptLevel;
+
+    /** URL ảnh minh họa (lưu trên Supabase hoặc CDN) */
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
+    /** Câu mẹo nhớ siêu trí nhớ (Mnemonic Hint) */
+    @Column(name = "mnemonic_hint", columnDefinition = "TEXT")
+    private String mnemonicHint;
+
+    /** Tiêu đề hình ảnh liên tưởng (ví dụ: "Ngọn Sao" hay "Quả Táo") */
+    @Column(name = "mnemonic_title", length = 200)
+    private String mnemonicTitle;
+
+    /** Icon emoji đại diện */
+    @Column(name = "mnemonic_icon", length = 20)
+    private String mnemonicIcon;
 }

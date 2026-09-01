@@ -289,13 +289,21 @@ public class FlashcardService {
                     .exampleVi(exVi)
                     .level(targetLevel.name())
                     .cardType("VOCABULARY")
+                    .imageUrl(v.getImageUrl())
+                    .mnemonicHint(v.getMnemonicHint())
+                    .mnemonicTitle(v.getMnemonicTitle())
+                    .mnemonicIcon(v.getMnemonicIcon())
                     .build());
         }
 
         // Map Kanjis
         for (Kanji k : kanjis) {
             String charStr = k.getCharacter();
-            String reading = (k.getKunReading() != null && !k.getKunReading().isBlank()) ? k.getKunReading() : (k.getOnReading() != null ? k.getOnReading() : charStr);
+            // Lấy cách đọc chuẩn, loại bỏ các ký tự dấu chấm '・' hoặc phân tách phẩy để phát âm chuẩn 100%
+            String rawReading = (k.getOnReading() != null && !k.getOnReading().isBlank())
+                    ? k.getOnReading().split("[,/、]")[0].trim()
+                    : (k.getKunReading() != null && !k.getKunReading().isBlank() ? k.getKunReading().split("[,/、]")[0].trim() : charStr);
+            String reading = rawReading.replace("・", "").replace("·", "");
             String meaning = (k.getMeaning() != null && !k.getMeaning().isBlank()) ? k.getMeaning() : "Chữ Hán Kanji";
 
             String exJp = (k.getExampleSentence() != null && !k.getExampleSentence().isBlank())
@@ -330,6 +338,10 @@ public class FlashcardService {
                     .exampleVi(exVi)
                     .level(targetLevel.name())
                     .cardType("KANJI")
+                    .imageUrl(k.getImageUrl())
+                    .mnemonicHint(k.getMnemonicHint())
+                    .mnemonicTitle(k.getMnemonicTitle())
+                    .mnemonicIcon(k.getMnemonicIcon())
                     .build());
         }
 
