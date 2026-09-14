@@ -48,6 +48,14 @@ public class Exam extends BaseEntity {
     @Builder.Default
     private Boolean isPublished = false;
 
+    @Column(name = "is_shuffle_questions")
+    @Builder.Default
+    private Boolean isShuffleQuestions = false;
+
+    @Column(name = "is_shuffle_options")
+    @Builder.Default
+    private Boolean isShuffleOptions = false;
+
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Question> questions = new ArrayList<>();

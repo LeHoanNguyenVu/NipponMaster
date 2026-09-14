@@ -311,7 +311,12 @@ export default function LandingPage({ onNavigateAuth }: LandingPageProps) {
                   </div>
 
                   {/* SVG - Cành hoa mới, bắt đầu từ sát lề trái (x=0) */}
-                  <svg viewBox="0 0 700 550" className="w-full select-none relative z-20">
+                  <svg 
+                    viewBox="0 0 700 550" 
+                    role="img"
+                    aria-label="Roadmap of JLPT levels from N5 to N1 designed as a blooming cherry blossom branch"
+                    className="w-full select-none relative z-20"
+                  >
                     <defs>
                       <radialGradient id="sakuraGlow" cx="50%" cy="50%" r="50%">
                         <stop offset="0%" stopColor="#ffb7c5" />

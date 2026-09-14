@@ -35,21 +35,37 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "jlpt_level")
     @Builder.Default
-    private JlptLevel jlptLevel = JlptLevel.N5;
+    private JlptLevel jlptLevel = JlptLevel.STARTER;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Role role = Role.USER;
+    private Role role = Role.GUEST;
 
     @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;
 
+    /**
+     * Trình độ JLPT mục tiêu mà học viên đăng ký học (STARTER, N5-N1).
+     * Được chốt sau khi hoàn tất luồng Onboarding.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_level")
+    private JlptLevel targetLevel;
+
+    /**
+     * Đánh dấu học viên đã hoàn thành bước Onboarding chưa.
+     * false = lần đầu đăng nhập, cần đi qua Onboarding Hub.
+     */
+    @Column(name = "onboarding_completed")
+    @Builder.Default
+    private Boolean onboardingCompleted = false;
+
     public enum Role {
-        USER, ADMIN
+        ADMIN, STUDENT, TEACHER, GUEST, USER
     }
 
     public enum JlptLevel {
-        N5, N4, N3, N2, N1
+        STARTER, N5, N4, N3, N2, N1
     }
 }

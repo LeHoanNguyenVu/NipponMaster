@@ -12,7 +12,7 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
 
     // Variants configuration
     const variants = {
-      primary: 'bg-primary-container text-primary border border-primary/20',
+      primary: 'bg-primary/10 text-primary border border-primary/20',
       secondary: 'bg-surface-container-high text-on-surface-variant',
       outline: 'bg-transparent text-on-surface-variant border border-outline-variant',
       crimson: 'bg-primary text-on-primary',

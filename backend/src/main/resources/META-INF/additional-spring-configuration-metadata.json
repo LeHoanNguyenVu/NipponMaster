@@ -1,0 +1,44 @@
+{
+  "properties": [
+    {
+      "name": "spring.flyway.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Bật/Tắt tính năng Flyway Database Migration."
+    },
+    {
+      "name": "spring.flyway.baseline-on-migrate",
+      "type": "java.lang.Boolean",
+      "description": "Tự động baseline database nếu đã có dữ liệu từ trước."
+    },
+    {
+      "name": "spring.flyway.baseline-version",
+      "type": "java.lang.String",
+      "description": "Phiên bản baseline khởi đầu của Flyway."
+    },
+    {
+      "name": "spring.flyway.locations",
+      "type": "java.lang.String",
+      "description": "Đường dẫn chứa các file SQL Migration."
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Mã khóa bí mật dùng để mã hóa và giải mã JWT Tokens."
+    },
+    {
+      "name": "jwt.expiration-ms",
+      "type": "java.lang.Long",
+      "description": "Thời gian sống (milliseconds) của JWT Token."
+    },
+    {
+      "name": "stripe.api.key",
+      "type": "java.lang.String",
+      "description": "Secret API Key cho dịch vụ thanh toán Stripe."
+    },
+    {
+      "name": "stripe.webhook.secret",
+      "type": "java.lang.String",
+      "description": "Webhook signing secret cho Stripe."
+    }
+  ]
+}

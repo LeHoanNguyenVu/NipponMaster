@@ -5,13 +5,22 @@ export interface User {
   id: number;
   username: string;
   email: string;
+  fullName?: string;
+  avatarUrl?: string;
   role?: string;
   streak?: number;
+  jlptLevel?: string;
+  targetLevel?: string;
+  onboardingCompleted?: boolean;
+  subscriptionStatus?: 'NONE' | 'ACTIVE' | 'EXPIRED';
 }
 
-interface AuthResponse {
-  token: string;
-  user: User;
+interface SocialLoginData {
+  provider: 'GOOGLE' | 'FACEBOOK';
+  idToken: string;
+  email: string;
+  fullName?: string;
+  avatarUrl?: string;
 }
 
 interface AuthState {
@@ -20,28 +29,54 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (credentials: any) => Promise<void>;
-  register: (credentials: any) => Promise<void>;
-  logout: () => void;
+  login: (credentials: any, rememberDevice?: boolean) => Promise<void>;
+  register: (credentials: any, rememberDevice?: boolean) => Promise<void>;
+  loginWithSocial: (data: SocialLoginData, rememberDevice?: boolean) => Promise<void>;
+  logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
+  changeUserRole: (newRole: string) => Promise<void>;
   clearError: () => void;
+  completeOnboarding: (targetLevel: string) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
+  updateUserAvatar: (avatarUrl: string) => Promise<void>;
 }
+
+const getStoredToken = () => localStorage.getItem('token') || sessionStorage.getItem('token');
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: getStoredToken(),
+  isAuthenticated: !!getStoredToken(),
   isLoading: false,
   error: null,
 
-  login: async (credentials) => {
+  login: async (credentials, rememberDevice = true) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosClient.post<any, AuthResponse>('/auth/login', credentials);
-      localStorage.setItem('token', response.token);
+      const payload = {
+        email: credentials.email || credentials.username || credentials.usernameOrEmail,
+        password: credentials.password
+      };
+      const response = await axiosClient.post<any, any>('/auth/login', payload);
+      const data = response.data;
+      const token = data.accessToken;
+      const user = {
+        ...data.user,
+        username: data.user.fullName || data.user.email,
+        role: data.user.role?.toLowerCase()
+      };
+      
+      if (rememberDevice) {
+        localStorage.setItem('token', token);
+        sessionStorage.removeItem('token');
+      } else {
+        sessionStorage.setItem('token', token);
+        localStorage.removeItem('token');
+      }
+
       set({
-        token: response.token,
-        user: response.user,
+        token,
+        user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -55,14 +90,29 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  register: async (credentials) => {
+  register: async (credentials, rememberDevice = true) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosClient.post<any, AuthResponse>('/auth/register', credentials);
-      localStorage.setItem('token', response.token);
+      const response = await axiosClient.post<any, any>('/auth/register', credentials);
+      const data = response.data;
+      const token = data.accessToken;
+      const user = {
+        ...data.user,
+        username: data.user.fullName || data.user.email,
+        role: data.user.role?.toLowerCase()
+      };
+
+      if (rememberDevice) {
+        localStorage.setItem('token', token);
+        sessionStorage.removeItem('token');
+      } else {
+        sessionStorage.setItem('token', token);
+        localStorage.removeItem('token');
+      }
+
       set({
-        token: response.token,
-        user: response.user,
+        token,
+        user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -76,8 +126,50 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  logout: () => {
+  loginWithSocial: async (data: SocialLoginData, rememberDevice = true) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosClient.post<any, any>('/auth/oauth2/login', data);
+      const resData = response.data;
+      const token = resData.accessToken;
+      const user = {
+        ...resData.user,
+        username: resData.user.fullName || resData.user.email,
+        role: resData.user.role?.toLowerCase()
+      };
+
+      if (rememberDevice) {
+        localStorage.setItem('token', token);
+        sessionStorage.removeItem('token');
+      } else {
+        sessionStorage.setItem('token', token);
+        localStorage.removeItem('token');
+      }
+
+      set({
+        token,
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (err: any) {
+      set({
+        isLoading: false,
+        error: err.message || 'Đăng nhập Social OAuth2 thất bại.',
+      });
+      throw err;
+    }
+  },
+
+  logout: async () => {
+    try {
+      await axiosClient.post('/auth/logout');
+    } catch (err) {
+      console.warn('Backend logout failed, clearing local session anyway');
+    }
     localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     set({
       user: null,
       token: null,
@@ -87,12 +179,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   fetchMe: async () => {
-    const token = localStorage.getItem('token');
+    const token = getStoredToken();
     if (!token) return;
 
     set({ isLoading: true, error: null });
     try {
-      const user = await axiosClient.get<any, User>('/auth/me');
+      const response = await axiosClient.get<any, any>('/auth/me');
+      const data = response.data;
+      const cachedAvatar = localStorage.getItem(`user_avatar_${data.email || data.id}`) || data.avatarUrl;
+      const user = {
+        ...data,
+        avatarUrl: cachedAvatar || data.avatarUrl,
+        username: data.fullName || data.email,
+        role: data.role?.toLowerCase(),
+        targetLevel: data.targetLevel ?? null,
+        onboardingCompleted: data.onboardingCompleted ?? true,
+        subscriptionStatus: data.subscriptionStatus ?? 'NONE',
+      };
       set({
         user,
         isAuthenticated: true,
@@ -109,5 +212,68 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
+  changeUserRole: async (newRole: string) => {
+    try {
+      const response = await axiosClient.put<any, any>(`/dashboard/change-role?role=${newRole.toUpperCase()}`);
+      const data = response.data.data ?? response.data;
+      const user = {
+        ...data,
+        username: data.fullName || data.email,
+        role: data.role?.toLowerCase()
+      };
+      set({ user });
+    } catch (err: any) {
+      console.error('Failed to change user role:', err);
+    }
+  },
+
   clearError: () => set({ error: null }),
+
+  completeOnboarding: async (targetLevel: string) => {
+    try {
+      await axiosClient.put('/users/me/onboarding', { targetLevel });
+      set((state) => ({
+        user: state.user
+          ? {
+              ...state.user,
+              targetLevel,
+              onboardingCompleted: true,
+              role: 'student',
+            }
+          : null,
+      }));
+    } catch (err: any) {
+      console.error('Onboarding completion failed:', err);
+      throw err;
+    }
+  },
+
+  changePassword: async (currentPassword: string, newPassword: string, confirmPassword: string) => {
+    try {
+      await axiosClient.post('/auth/change-password', {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+    } catch (err: any) {
+      const msg = err?.message || err?.error || (typeof err === 'string' ? err : 'Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.');
+      throw new Error(msg);
+    }
+  },
+
+  updateUserAvatar: async (avatarUrl: string) => {
+    set((state) => ({
+      user: state.user ? { ...state.user, avatarUrl } : null,
+    }));
+    try {
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser) {
+        localStorage.setItem(`user_avatar_${currentUser.email || currentUser.id}`, avatarUrl);
+      }
+      localStorage.setItem('user_avatar_global', avatarUrl);
+      await axiosClient.put('/auth/avatar', { avatarUrl });
+    } catch (e) {
+      console.error('Failed to sync avatar to backend:', e);
+    }
+  },
 }));

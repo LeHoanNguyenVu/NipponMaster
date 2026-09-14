@@ -7,7 +7,7 @@ import lombok.*;
 
 /**
  * Entity Kanji (chữ Hán Nhật).
- * Lưu trữ: ký tự, âm On/Kun, nghĩa, số nét, bộ thủ, trình độ JLPT.
+ * Lưu trữ: ký tự, âm On/Kun, âm Hán Việt, nghĩa, số nét, hướng dẫn nét viết, bộ thủ, câu ví dụ, trình độ JLPT.
  */
 @Entity
 @Table(name = "kanjis")
@@ -22,13 +22,21 @@ public class Kanji extends BaseEntity {
     @Column(nullable = false, length = 10)
     private String character;
 
-    /** Âm ON (âm Hán Việt), ví dụ: ショク */
+    /** Âm ON (âm Hán Nhật), ví dụ: ショク */
     @Column(name = "on_reading", length = 200)
     private String onReading;
 
     /** Âm KUN (âm thuần Nhật), ví dụ: た.べる */
     @Column(name = "kun_reading", length = 200)
     private String kunReading;
+
+    /** Phiên âm Romaji */
+    @Column(length = 100)
+    private String romaji;
+
+    /** Âm Hán Việt, ví dụ: THỰC */
+    @Column(name = "han_viet", length = 100)
+    private String hanViet;
 
     /** Nghĩa tiếng Việt */
     @Column(nullable = false, length = 500)
@@ -38,6 +46,10 @@ public class Kanji extends BaseEntity {
     @Column(name = "stroke_count")
     private Integer strokeCount;
 
+    /** Hướng dẫn thứ tự nét viết */
+    @Column(name = "stroke_guide", length = 500)
+    private String strokeGuide;
+
     /** Bộ thủ (radical), ví dụ: 食 */
     @Column(length = 50)
     private String radical;
@@ -46,7 +58,35 @@ public class Kanji extends BaseEntity {
     @Column(name = "related_words", columnDefinition = "TEXT")
     private String relatedWords;
 
+    /** Câu ví dụ tiếng Nhật */
+    @Column(name = "example_sentence", length = 1000)
+    private String exampleSentence;
+
+    /** Phiên âm Romaji của câu ví dụ */
+    @Column(name = "example_romaji", length = 1000)
+    private String exampleRomaji;
+
+    /** Dịch nghĩa câu ví dụ */
+    @Column(name = "example_meaning", length = 1000)
+    private String exampleMeaning;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "jlpt_level", nullable = false)
     private User.JlptLevel jlptLevel;
+
+    /** URL ảnh minh họa (lưu trên Supabase hoặc CDN) */
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
+    /** Câu mẹo nhớ siêu trí nhớ (Mnemonic Hint) */
+    @Column(name = "mnemonic_hint", columnDefinition = "TEXT")
+    private String mnemonicHint;
+
+    /** Tiêu đề hình ảnh liên tưởng (ví dụ: "Ngọn Sao" hay "Quả Táo") */
+    @Column(name = "mnemonic_title", length = 200)
+    private String mnemonicTitle;
+
+    /** Icon emoji đại diện */
+    @Column(name = "mnemonic_icon", length = 20)
+    private String mnemonicIcon;
 }

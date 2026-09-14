@@ -66,6 +66,14 @@ public class JwtTokenProvider {
     }
 
     /**
+     * Trích xuất role từ token.
+     */
+    public String getRoleFromToken(String token) {
+        Claims claims = parseToken(token);
+        return claims.get("role", String.class);
+    }
+
+    /**
      * Kiểm tra token có hợp lệ không.
      */
     public boolean validateToken(String token) {
@@ -82,6 +90,22 @@ public class JwtTokenProvider {
             log.warn("JWT claims trống: {}", ex.getMessage());
         }
         return false;
+    }
+
+    /**
+     * Trích xuất thời gian hết hạn từ token.
+     */
+    public java.util.Date getExpirationFromToken(String token) {
+        Claims claims = parseToken(token);
+        return claims.getExpiration();
+    }
+
+    /**
+     * Tính thời gian còn lại (ms) trước khi token hết hạn.
+     */
+    public long getRemainingExpirationMs(String token) {
+        java.util.Date expiration = getExpirationFromToken(token);
+        return Math.max(0, expiration.getTime() - System.currentTimeMillis());
     }
 
     private Claims parseToken(String token) {

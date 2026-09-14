@@ -143,3 +143,215 @@ body {
   background-color: var(--color-surface);
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='30' viewBox='0 0 60 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 15 A 15 15 0 0 1 30 15 A 15 15 0 0 1 60 15' fill='none' stroke='%23d3c9be' stroke-width='1' opacity='0.3'/%3E%3Cpath d='M-15 30 A 15 15 0 0 1 15 30 A 15 15 0 0 1 45 30 A 15 15 0 0 1 75 30' fill='none' stroke='%23d3c9be' stroke-width='1' opacity='0.3'/%3E%3C/svg%3E");
 }
+
+/* Global Prefers-Reduced-Motion Accessibility Support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* MULTI-THEME SYSTEM: Override CSS variables per theme */
+/* ═══════════════════════════════════════════════════ */
+
+/* 🌸 Sakura Pink Theme */
+.theme-sakura {
+  --color-primary: #e91e8c;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #f06ab0;
+  --color-on-primary-container: #fff0f5;
+  --color-secondary: #7b2d8e;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #f0d0f7;
+  --color-on-secondary-container: #4a0e5c;
+  --color-tertiary: #d4599a;
+  --color-on-tertiary: #ffffff;
+  --color-surface: #fff0f5;
+  --color-surface-dim: #f5dce8;
+  --color-surface-bright: #fff8fb;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #fff5f9;
+  --color-surface-container: #fce8f0;
+  --color-surface-container-high: #f5d5e2;
+  --color-surface-container-highest: #eec5d5;
+  --color-on-surface: #2d1524;
+  --color-on-surface-variant: #6e4060;
+  --color-outline: #b07898;
+  --color-outline-variant: #e8c0d5;
+}
+
+/* 🏙️ Cyberpunk Tokyo Theme */
+.theme-cyberpunk {
+  --color-primary: #00f0ff;
+  --color-on-primary: #001517;
+  --color-primary-container: #005a60;
+  --color-on-primary-container: #b0f5ff;
+  --color-secondary: #ff00ff;
+  --color-on-secondary: #1a001a;
+  --color-secondary-container: #3d003d;
+  --color-on-secondary-container: #ffa0ff;
+  --color-tertiary: #ffcc00;
+  --color-on-tertiary: #1a1500;
+  --color-surface: #0a0a14;
+  --color-surface-dim: #06060e;
+  --color-surface-bright: #16162a;
+  --color-surface-container-lowest: #050510;
+  --color-surface-container-low: #0e0e1e;
+  --color-surface-container: #141428;
+  --color-surface-container-high: #1e1e38;
+  --color-surface-container-highest: #282848;
+  --color-on-surface: #e0e0ff;
+  --color-on-surface-variant: #a0a0d0;
+  --color-outline: #505080;
+  --color-outline-variant: #303055;
+  --color-error: #ff4060;
+  --color-on-error: #ffffff;
+}
+
+/* ⛩️ Traditional Washi Gold Theme */
+.theme-washi-gold {
+  --color-primary: #b8860b;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #d4a430;
+  --color-on-primary-container: #faf0d0;
+  --color-secondary: #6b4226;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e0c8a0;
+  --color-on-secondary-container: #3a2010;
+  --color-tertiary: #8b6914;
+  --color-on-tertiary: #ffffff;
+  --color-surface: #faf6e8;
+  --color-surface-dim: #f0e8d0;
+  --color-surface-bright: #fffdf5;
+  --color-surface-container-lowest: #fffef8;
+  --color-surface-container-low: #f8f2e0;
+  --color-surface-container: #f0e8d0;
+  --color-surface-container-high: #e8ddc0;
+  --color-surface-container-highest: #dfd2b0;
+  --color-on-surface: #2a1f00;
+  --color-on-surface-variant: #6b5c3a;
+  --color-outline: #a09070;
+  --color-outline-variant: #d8c8a8;
+}
+
+/* 🌙 Dark Mode OLED Theme */
+.theme-dark {
+  --color-primary: #ff6b6b;
+  --color-on-primary: #1a0000;
+  --color-primary-container: #8b2020;
+  --color-on-primary-container: #ffd0d0;
+  --color-secondary: #4ecdc4;
+  --color-on-secondary: #001a18;
+  --color-secondary-container: #1a4a46;
+  --color-on-secondary-container: #b0f0e8;
+  --color-tertiary: #ffe66d;
+  --color-on-tertiary: #1a1500;
+  --color-surface: #0a0a0a;
+  --color-surface-dim: #050505;
+  --color-surface-bright: #181818;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #0e0e0e;
+  --color-surface-container: #161616;
+  --color-surface-container-high: #202020;
+  --color-surface-container-highest: #2a2a2a;
+  --color-on-surface: #f0f0f0;
+  --color-on-surface-variant: #a8a8a8;
+  --color-outline: #505050;
+  --color-outline-variant: #303030;
+  --color-error: #ff4444;
+  --color-on-error: #ffffff;
+}
+
+/* 🔥 Realistic Burning Flame Animation */
+@keyframes flameFlicker {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.7)) drop-shadow(0 0 10px rgba(239, 68, 68, 0.4));
+  }
+  25% {
+    transform: scale(1.12, 0.94) rotate(-3deg);
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.9)) drop-shadow(0 0 14px rgba(239, 68, 68, 0.6));
+  }
+  50% {
+    transform: scale(0.94, 1.1) rotate(3deg);
+    filter: drop-shadow(0 0 12px rgba(251, 191, 36, 1)) drop-shadow(0 0 16px rgba(239, 68, 68, 0.7));
+  }
+  75% {
+    transform: scale(1.06, 0.96) rotate(-2deg);
+    filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.5));
+  }
+}
+
+.animate-flame {
+  animation: flameFlicker 1.4s infinite ease-in-out;
+  transform-origin: bottom center;
+  display: inline-block;
+}
+
+/* 🎴 Card Dealing Hand Slide-In Animation */
+@keyframes dealCardIn {
+  0% {
+    transform: translateY(-45px) translateX(30px) rotate(14deg) scale(0.88);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  60% {
+    transform: translateY(6px) translateX(-4px) rotate(-2deg) scale(1.02);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+.animate-deal-card {
+  animation: dealCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 🖐️ Dealing Hand Animation */
+@keyframes handDealMotion {
+  0% {
+    transform: translateY(-50px) translateX(40px) scale(0.8);
+    opacity: 0;
+  }
+  40% {
+    transform: translateY(-10px) translateX(10px) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px) translateX(-20px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.animate-hand-deal {
+  animation: handDealMotion 0.6s ease-out forwards;
+}
+
+/* ✨ Gentle Fade In & Up for screen elements */
+@keyframes fadeInUpMotion {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUpMotion 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+

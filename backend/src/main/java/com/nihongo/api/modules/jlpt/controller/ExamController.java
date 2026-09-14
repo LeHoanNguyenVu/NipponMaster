@@ -44,6 +44,17 @@ public class ExamController {
                 .body(ApiResponse.ok("Tạo đề thi thành công", examService.create(exam)));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Exam>> update(@PathVariable Long id, @RequestBody Exam exam) {
+        return ResponseEntity.ok(ApiResponse.ok("Cập nhật đề thi thành công", examService.update(id, exam)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        examService.delete(id);
+        return ResponseEntity.ok(ApiResponse.ok("Xóa đề thi thành công", null));
+    }
+
     @PostMapping("/{id}/submit")
     public ResponseEntity<ApiResponse<ExamResult>> submit(
             @PathVariable Long id,

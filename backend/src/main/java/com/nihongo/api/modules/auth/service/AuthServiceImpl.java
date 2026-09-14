@@ -2,10 +2,12 @@ package com.nihongo.api.modules.auth.service;
 
 import com.nihongo.api.common.exception.BusinessException;
 import com.nihongo.api.common.exception.ResourceNotFoundException;
+import com.nihongo.api.common.security.JwtBlacklistService;
 import com.nihongo.api.common.security.JwtTokenProvider;
 import com.nihongo.api.modules.auth.dto.*;
 import com.nihongo.api.modules.auth.entity.User;
 import com.nihongo.api.modules.auth.repository.UserRepository;
+import com.nihongo.api.modules.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +22,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final SubscriptionService subscriptionService;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Override
     @Transactional
@@ -29,11 +33,22 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException("Email đã được sử dụng: " + request.getEmail());
         }
 
-        // Tạo user mới
+        // Tạo user mới dựa trên từ khóa trong email (tiện lợi cho kiểm thử và phát triển)
+        User.Role assignedRole = User.Role.STUDENT;
+        String emailLower = request.getEmail().toLowerCase();
+        if (emailLower.contains("admin")) {
+            assignedRole = User.Role.ADMIN;
+        } else if (emailLower.contains("teacher")) {
+            assignedRole = User.Role.TEACHER;
+        } else if (emailLower.contains("guest")) {
+            assignedRole = User.Role.GUEST;
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
+                .role(assignedRole)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -79,11 +94,109 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
+    public AuthResponse socialLogin(SocialLoginRequest request) {
+        String email = request.getEmail().trim().toLowerCase();
+        String provider = request.getProvider().toUpperCase();
+
+        log.info("Social OAuth2 login attempt: provider={}, email={}", provider, email);
+
+        // Tìm user theo email — nếu đã tồn tại thì đăng nhập luôn
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            // Người dùng mới — tự động tạo tài khoản STUDENT với level STARTER
+            user = User.builder()
+                    .email(email)
+                    .password(passwordEncoder.encode(java.util.UUID.randomUUID().toString()))
+                    .fullName(request.getFullName() != null ? request.getFullName() : email.split("@")[0])
+                    .avatarUrl(request.getAvatarUrl())
+                    .role(User.Role.STUDENT)
+                    .jlptLevel(User.JlptLevel.STARTER)
+                    .onboardingCompleted(false)
+                    .build();
+
+            user = userRepository.save(user);
+            log.info("Social OAuth2: Tạo tài khoản mới thành công — email={}, provider={}", email, provider);
+        } else {
+            // Cập nhật avatarUrl nếu chưa có
+            if (user.getAvatarUrl() == null && request.getAvatarUrl() != null) {
+                user.setAvatarUrl(request.getAvatarUrl());
+                userRepository.save(user);
+            }
+
+            // Kiểm tra tài khoản có bị khóa không
+            if (!user.getIsActive()) {
+                throw new BusinessException("Tài khoản đã bị vô hiệu hóa");
+            }
+
+            log.info("Social OAuth2: Đăng nhập tài khoản hiện có — email={}, provider={}", email, provider);
+        }
+
+        // Cấp JWT token
+        String token = jwtTokenProvider.generateToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        return AuthResponse.of(token, UserResponse.from(user));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng", userId));
 
-        return UserResponse.from(user);
+        String subStatus = subscriptionService.getSubscriptionStatus(userId);
+        return UserResponse.from(user, subStatus);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng", userId));
+
+        // Kiểm tra mật khẩu hiện tại
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BusinessException("Mật khẩu hiện tại không chính xác");
+        }
+
+        // Kiểm tra xác nhận mật khẩu
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BusinessException("Mật khẩu xác nhận không khớp");
+        }
+
+        // Kiểm tra mật khẩu mới không được trùng mật khẩu cũ
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new BusinessException("Mật khẩu mới không được trùng với mật khẩu hiện tại");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        log.info("Đổi mật khẩu thành công cho user: {}", user.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateAvatar(Long userId, String avatarUrl) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng", userId));
+
+        user.setAvatarUrl(avatarUrl);
+        User savedUser = userRepository.save(user);
+        log.info("Cập nhật ảnh đại diện thành công cho user: {}", user.getEmail());
+
+        String subStatus = subscriptionService.getSubscriptionStatus(userId);
+        return UserResponse.from(savedUser, subStatus);
+    }
+
+    @Override
+    public void logout(String token) {
+        long remainingMs = jwtTokenProvider.getRemainingExpirationMs(token);
+        jwtBlacklistService.blacklistToken(token, remainingMs);
+        log.info("Đăng xuất thành công, token đã được vô hiệu hóa");
     }
 }

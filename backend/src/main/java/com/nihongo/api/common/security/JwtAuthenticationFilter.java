@@ -28,6 +28,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -37,15 +38,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = extractTokenFromRequest(request);
 
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+            // Kiểm tra token có bị blacklist (đã đăng xuất) không
+            if (jwtBlacklistService.isBlacklisted(token)) {
+                log.debug("Token đã bị vô hiệu hóa (blacklisted), bỏ qua xác thực");
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             Long userId = jwtTokenProvider.getUserIdFromToken(token);
             String email = jwtTokenProvider.getEmailFromToken(token);
+            String role = jwtTokenProvider.getRoleFromToken(token);
+            if (role == null) {
+                role = "GUEST";
+            }
+            if ("USER".equals(role)) {
+                role = "STUDENT";
+            }
+            String authorityName = "ROLE_" + role.toUpperCase();
 
-            // Tạo Authentication object với userId làm principal
+            // Tạo Authentication object với userId làm principal và authority từ role thực tế
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userId,       // principal = userId
                             null,         // credentials (không cần vì đã validate token)
-                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                            List.of(new SimpleGrantedAuthority(authorityName))
                     );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

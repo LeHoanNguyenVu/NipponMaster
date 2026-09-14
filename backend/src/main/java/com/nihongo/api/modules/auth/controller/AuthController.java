@@ -40,6 +40,15 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("Đăng nhập thành công", response));
     }
 
+    @PostMapping("/oauth2/login")
+    @Operation(summary = "Đăng nhập 1-Click qua Social OAuth2 (Google / Facebook)")
+    public ResponseEntity<ApiResponse<AuthResponse>> socialLogin(
+            @Valid @RequestBody SocialLoginRequest request) {
+
+        AuthResponse response = authService.socialLogin(request);
+        return ResponseEntity.ok(ApiResponse.ok("Đăng nhập Social OAuth2 thành công", response));
+    }
+
     @GetMapping("/me")
     @Operation(summary = "Lấy thông tin user hiện tại (cần JWT)")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser(Authentication authentication) {
@@ -47,5 +56,36 @@ public class AuthController {
         Long userId = (Long) authentication.getPrincipal();
         UserResponse response = authService.getCurrentUser(userId);
         return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @PostMapping("/change-password")
+    @Operation(summary = "Đổi mật khẩu tài khoản (cần JWT)")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        Long userId = (Long) authentication.getPrincipal();
+        authService.changePassword(userId, request);
+        return ResponseEntity.ok(ApiResponse.ok("Đổi mật khẩu thành công", null));
+    }
+
+    @PutMapping("/avatar")
+    @Operation(summary = "Cập nhật ảnh đại diện (cần JWT)")
+    public ResponseEntity<ApiResponse<UserResponse>> updateAvatar(
+            Authentication authentication,
+            @Valid @RequestBody UpdateAvatarRequest request) {
+        Long userId = (Long) authentication.getPrincipal();
+        UserResponse response = authService.updateAvatar(userId, request.getAvatarUrl());
+        return ResponseEntity.ok(ApiResponse.ok("Cập nhật ảnh đại diện thành công", response));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Đăng xuất — vô hiệu hóa JWT token hiện tại")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @RequestHeader("Authorization") String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            authService.logout(token);
+        }
+        return ResponseEntity.ok(ApiResponse.ok("Đăng xuất thành công", null));
     }
 }

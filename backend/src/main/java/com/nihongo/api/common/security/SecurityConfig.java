@@ -16,8 +16,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Cấu hình bảo mật cho toàn bộ ứng dụng.
  * Tích hợp JWT filter để bảo vệ các API cần đăng nhập.
  */
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -43,10 +46,34 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
 
-                        // Cho phép GET public cho Vocabulary, Kanji, Grammar (tra cứu không cần login)
+                        // Cho phép GET public cho Vocabulary, Kanji, Grammar, Quick Practice (tra cứu không cần login)
                         .requestMatchers(HttpMethod.GET, "/api/v1/vocabularies/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/kanjis/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/grammars/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/flashcards/quick-practice").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/flashcards/quick-practice/**").permitAll()
+                        .requestMatchers("/api/v1/tts/**").permitAll()
+
+                        // Cho phép xem cấu trúc đề thi (không cần login, submit thì cần)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/placement-test/questions").permitAll()
+
+                        // Cho phép xem danh sách gói học (public pricing) và webhook thanh toán & trial status
+                        .requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/plans").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/trial-status").permitAll()
+                        .requestMatchers("/api/v1/payments/webhook").permitAll()
+
+                        // Cho phép xem danh sách kịch bản Speaking & Listening
+                        .requestMatchers(HttpMethod.GET, "/api/v1/speaking/scenarios").permitAll()
+                        .requestMatchers("/api/v1/listening/**").permitAll()
+
+                        // Cho phép thử nghiệm vẽ Kanji Canvas & OCR
+                        .requestMatchers("/api/v1/kanjis/canvas/**").permitAll()
+
+                        // Cho phép phân tích cú pháp câu AI
+                        .requestMatchers("/api/v1/sentence-breakdown/**").permitAll()
+
+                        // Endpoints Admin Dashboard & Consoles
+                        .requestMatchers("/api/v1/admin/**").permitAll()
 
                         // Tất cả endpoint còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()

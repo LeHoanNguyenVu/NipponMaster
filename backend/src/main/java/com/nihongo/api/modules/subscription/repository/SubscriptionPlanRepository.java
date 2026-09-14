@@ -1,0 +1,19 @@
+package com.nihongo.api.modules.subscription.repository;
+
+import com.nihongo.api.modules.subscription.entity.SubscriptionPlan;
+import com.nihongo.api.modules.auth.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+import java.util.Optional;
+
+public interface SubscriptionPlanRepository extends JpaRepository<SubscriptionPlan, Long> {
+
+    List<SubscriptionPlan> findByIsActiveTrueOrderByPriceAsc();
+
+    List<SubscriptionPlan> findAllByOrderByPriceAsc();
+
+    Optional<SubscriptionPlan> findByPlanTypeAndJlptLevel(
+            SubscriptionPlan.PlanType planType, User.JlptLevel jlptLevel);
+
+    Optional<SubscriptionPlan> findByPlanType(SubscriptionPlan.PlanType planType);
+}
