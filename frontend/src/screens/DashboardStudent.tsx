@@ -1,14 +1,14 @@
 import { useEffect, useState, useMemo } from 'react';
 import { 
   Flame, Clock, Trophy, Play,
-  Languages, Headphones,
-  CheckCircle2, ArrowRight,
+  Headphones, BookOpen,
+  ArrowRight,
   RefreshCw, BarChart3, Star, Sparkles,
   RotateCw, Volume2,
   PenTool, Info, SlidersHorizontal
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
-import { useDailyQuestsStore } from '../store/useDailyQuestsStore';
+
 import KanjiStrokeWriter from '../components/KanjiStrokeWriter';
 import axiosClient from '../api/axiosClient';
 import { playBoostedJapaneseAudio } from '../utils/audioBoost';
@@ -378,7 +378,7 @@ export default function DashboardStudent({
   username,
 }: DashboardStudentProps) {
   const { user } = useAuthStore();
-  const { quests, userStreak, isTodayStreakCompleted, claimReward, updateProgress } = useDailyQuestsStore();
+  const userStreak = 0;
 
   // Instant Stale-While-Revalidate
   const [stats, setStats] = useState<Stats>(() => {
@@ -497,7 +497,7 @@ export default function DashboardStudent({
   const navigateTo = (screen: ScreenType) => {
     if (onNavigate) {
       onNavigate(screen);
-    } else if (screen === 'flashcards' && onStartStudy) {
+    } else if (screen === 'kanji' && onStartStudy) {
       onStartStudy();
     } else if (screen === 'beginner' && onOpenBeginnerCourse) {
       onOpenBeginnerCourse();
@@ -678,7 +678,7 @@ export default function DashboardStudent({
               <div className="flex items-center justify-between text-[11px] text-outline">
                 <span>Điểm danh 7 ngày qua:</span>
                 <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">
-                  {isTodayStreakCompleted ? '✓ Đã xong 3/3 task hôm nay' : 'Xong 3 task/ngày'}
+                  {displayStreak > 0 ? '✓ Đã điểm danh hôm nay' : 'Duy trì học mỗi ngày'}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-1.5">
@@ -746,25 +746,25 @@ export default function DashboardStudent({
             </div>
           </div>
 
-          {/* Card 2: Từ Vựng */}
+          {/* Card 2: Ngữ Pháp */}
           <div 
-            onClick={() => navigateTo('vocabulary')}
+            onClick={() => navigateTo('grammar')}
             className="group p-5 rounded-3xl bg-gradient-to-br from-primary/10 via-surface-container-lowest to-surface-container-lowest border border-primary/30 hover:border-primary hover:shadow-lg transition-all cursor-pointer space-y-3 relative overflow-hidden"
           >
             <div className="flex items-center justify-between">
               <div className="w-11 h-11 rounded-2xl bg-primary/15 text-primary flex items-center justify-center font-bold shadow-2xs border border-primary/30">
-                <Languages size={20} />
+                <BookOpen size={20} />
               </div>
-              <span className="text-xs font-black text-primary">{vocabPct}%</span>
+              <span className="text-xs font-black text-primary">{grammarPct}%</span>
             </div>
             <div>
               <h3 className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
-                Từ Vựng Căn Bản
+                Ngữ Pháp Trọng Tâm
               </h3>
-              <p className="text-xs text-outline mt-0.5">{stats.vocabLearned} / {stats.vocabTotal} từ đã học</p>
+              <p className="text-xs text-outline mt-0.5">{stats.grammarLearned} / {stats.grammarTotal} cấu trúc đã học</p>
             </div>
             <div className="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden">
-              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${Math.max(6, vocabPct)}%` }} />
+              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${Math.max(6, grammarPct)}%` }} />
             </div>
           </div>
 
@@ -820,83 +820,90 @@ export default function DashboardStudent({
       {/* 3. INTERACTIVE SECTION: NHIỆM VỤ HÀNG NGÀY & THẺ LUYỆN TRÍ NHỚ NHANH      */}
       {/* ========================================================================= */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left (7 Cols): Nhiệm Vụ Hàng Ngày (Nhận Thưởng Coins & Chuông Báo) */}
+        {/* Left (7 Cols): Mục Tiêu Học Tập Đề Xuất Hôm Nay */}
         <div className="lg:col-span-7 bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/60 space-y-4 shadow-xs">
           <div className="flex items-center justify-between pb-2 border-b border-outline-variant/30">
             <div className="flex items-center gap-2">
               <Trophy size={19} className="text-amber-500" />
-              <h3 className="text-base font-bold text-on-surface">Nhiệm Vụ Hàng Ngày (Nhận Thưởng)</h3>
+              <h3 className="text-base font-bold text-on-surface">Mục Tiêu Học Tập Hôm Nay</h3>
             </div>
-            <span className="text-xs font-bold text-primary bg-primary/15 px-2.5 py-0.5 rounded-full">
-              Thưởng Coins
+            <span className="text-xs font-bold text-emerald-600 bg-emerald-500/15 px-2.5 py-0.5 rounded-full">
+              Lộ trình tối ưu
             </span>
           </div>
 
           <div className="space-y-3">
-            {quests.map((quest) => (
-              <div
-                key={quest.id}
-                className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                  quest.claimed
-                    ? 'bg-surface-container-low/50 border-outline-variant/30 opacity-80'
-                    : quest.completed
-                    ? 'bg-emerald-500/10 border-emerald-500/40 shadow-xs'
-                    : 'bg-surface-container-low border-outline-variant/40 hover:border-primary/40'
-                }`}
-              >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-                    quest.claimed || quest.completed 
-                      ? 'bg-emerald-500 text-white shadow-xs' 
-                      : 'border-2 border-outline-variant text-outline'
-                  }`}>
-                    {quest.claimed || quest.completed ? (
-                      <CheckCircle2 size={18} />
-                    ) : (
-                      <span className="text-xs font-bold">{quest.current}/{quest.max}</span>
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className={`text-xs sm:text-sm font-bold truncate ${
-                      quest.claimed ? 'line-through text-outline' : 'text-on-surface'
-                    }`}>
-                      {quest.title}
-                    </p>
-                    <p className="text-[11px] font-semibold text-amber-500 mt-0.5">
-                      Thưởng: <strong>{quest.reward}</strong>
-                    </p>
-                  </div>
+            {/* Action 1: Kanji Writing */}
+            <div className="p-4 rounded-2xl border bg-surface-container-low border-outline-variant/40 hover:border-amber-500/40 transition-all flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center font-bold text-base flex-shrink-0">
+                  漢
                 </div>
-
-                {/* Quest Action / Claim Button */}
-                <div className="flex-shrink-0">
-                  {quest.claimed ? (
-                    <span className="text-xs font-bold text-emerald-600 bg-emerald-500/15 px-3 py-1.5 rounded-xl inline-block">
-                      Đã nhận
-                    </span>
-                  ) : quest.completed ? (
-                    <button
-                      onClick={() => claimReward(quest.id)}
-                      className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm animate-bounce cursor-pointer flex items-center gap-1"
-                    >
-                      <Sparkles size={13} />
-                      <span>Nhận thưởng</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        updateProgress(quest.id, 1);
-                        navigateTo(quest.screen);
-                      }}
-                      className="px-3.5 py-1.5 rounded-xl bg-primary text-on-primary hover:bg-primary/90 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1"
-                    >
-                      <span>{quest.actionLabel}</span>
-                      <ArrowRight size={13} />
-                    </button>
-                  )}
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-bold text-on-surface truncate">
+                    Luyện viết Hán tự Kanji Canvas AI
+                  </p>
+                  <p className="text-[11px] font-semibold text-outline mt-0.5">
+                    Nhận diện nét vẽ AI và gợi ý thứ tự chuẩn
+                  </p>
                 </div>
               </div>
-            ))}
+              <button
+                onClick={() => navigateTo('kanji')}
+                className="px-3.5 py-1.5 rounded-xl bg-primary text-on-primary hover:bg-primary/90 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1 flex-shrink-0"
+              >
+                <span>Luyện tập</span>
+                <ArrowRight size={13} />
+              </button>
+            </div>
+
+            {/* Action 2: Listening Practice */}
+            <div className="p-4 rounded-2xl border bg-surface-container-low border-outline-variant/40 hover:border-sky-500/40 transition-all flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-600 flex items-center justify-center flex-shrink-0">
+                  <Headphones size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-bold text-on-surface truncate">
+                    Luyện nghe tình huống thực tế
+                  </p>
+                  <p className="text-[11px] font-semibold text-outline mt-0.5">
+                    Hội thoại chuẩn giọng Tokyo có Furigana & Audio
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigateTo('listening')}
+                className="px-3.5 py-1.5 rounded-xl bg-primary text-on-primary hover:bg-primary/90 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1 flex-shrink-0"
+              >
+                <span>Vào nghe</span>
+                <ArrowRight size={13} />
+              </button>
+            </div>
+
+            {/* Action 3: Grammar */}
+            <div className="p-4 rounded-2xl border bg-surface-container-low border-outline-variant/40 hover:border-emerald-500/40 transition-all flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                  <BookOpen size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-bold text-on-surface truncate">
+                    Học cấu trúc ngữ pháp mới
+                  </p>
+                  <p className="text-[11px] font-semibold text-outline mt-0.5">
+                    Ví dụ thực tế và giải thích ngữ cảnh chi tiết
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigateTo('grammar')}
+                className="px-3.5 py-1.5 rounded-xl bg-primary text-on-primary hover:bg-primary/90 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1 flex-shrink-0"
+              >
+                <span>Học ngay</span>
+                <ArrowRight size={13} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1236,11 +1243,11 @@ export default function DashboardStudent({
           </div>
 
           <button
-            onClick={() => navigateTo('flashcards')}
+            onClick={() => navigateTo('kanji')}
             className="w-full py-2.5 bg-primary text-on-primary rounded-xl text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1.5 group"
           >
             <Play size={14} className="fill-current group-hover:translate-x-0.5 transition-transform" />
-            <span>Vào Kho Thẻ Flashcards (Ôn Tập Thêm)</span>
+            <span>Luyện Kanji Ngay</span>
           </button>
         </div>
       </section>

@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { LayoutDashboard, Languages, Shapes, BookOpen, Layers, Target, BookType, CreditCard, X, Mic, GraduationCap, Swords, Trophy, Headphones } from 'lucide-react';
+import { LayoutDashboard, Shapes, BookOpen, Target, BookType, CreditCard, X, GraduationCap, Headphones } from 'lucide-react';
 import type { ScreenType } from '../App';
 import gsap from 'gsap';
 
@@ -16,16 +16,11 @@ export default function Sidebar({ currentScreen, onNavigate, isOpen, onClose }: 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'beginner', label: 'Nhập Môn', icon: GraduationCap },
-    { id: 'battle', label: 'Đấu Trường 1v1', icon: Swords },
-    { id: 'vocabulary', label: 'Vocabulary', icon: Languages },
     { id: 'kanji', label: 'Kanji', icon: Shapes },
     { id: 'grammar', label: 'Grammar', icon: BookOpen },
-    { id: 'flashcards', label: 'Flashcards', icon: Layers },
     { id: 'exams', label: 'Exams', icon: Target },
     { id: 'translation', label: 'Translation', icon: BookType },
-    { id: 'speaking', label: 'Speaking', icon: Mic },
     { id: 'listening', label: 'Luyện Nghe', icon: Headphones },
-    { id: 'quests', label: 'Nhiệm Vụ & Store', icon: Trophy },
     { id: 'pricing', label: 'Gói học', icon: CreditCard },
   ];
 

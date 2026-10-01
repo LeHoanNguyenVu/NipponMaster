@@ -6,8 +6,6 @@ import com.nihongo.api.modules.grammar.repository.GrammarRepository;
 import com.nihongo.api.modules.kanji.entity.Kanji;
 import com.nihongo.api.modules.kanji.repository.KanjiRepository;
 import com.nihongo.api.modules.teacher.dto.TeacherContentDTO.*;
-import com.nihongo.api.modules.vocabulary.entity.Vocabulary;
-import com.nihongo.api.modules.vocabulary.repository.VocabularyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,9 +21,6 @@ import static org.mockito.Mockito.*;
 class TeacherContentServiceTest {
 
     @Mock
-    private VocabularyRepository vocabularyRepository;
-
-    @Mock
     private KanjiRepository kanjiRepository;
 
     @Mock
@@ -34,20 +29,11 @@ class TeacherContentServiceTest {
     @InjectMocks
     private TeacherContentServiceImpl teacherContentService;
 
-    private CreateVocabularyRequest vocabRequest;
     private CreateKanjiRequest kanjiRequest;
     private CreateGrammarRequest grammarRequest;
 
     @BeforeEach
     void setUp() {
-        vocabRequest = CreateVocabularyRequest.builder()
-                .word("食べる")
-                .reading("たべる")
-                .meaning("Ăn")
-                .jlptLevel(User.JlptLevel.N5)
-                .wordType(Vocabulary.WordType.VERB)
-                .build();
-
         kanjiRequest = CreateKanjiRequest.builder()
                 .character("食")
                 .meaning("Thực")
@@ -63,19 +49,6 @@ class TeacherContentServiceTest {
                 .meaning("Sau khi làm V thì...")
                 .jlptLevel(User.JlptLevel.N5)
                 .build();
-    }
-
-    @Test
-    void testCreateVocabulary_Success() {
-        Vocabulary vocab = Vocabulary.builder().word("食べる").reading("たべる").meaning("Ăn").jlptLevel(User.JlptLevel.N5).build();
-        vocab.setId(1L);
-        when(vocabularyRepository.save(any(Vocabulary.class))).thenReturn(vocab);
-
-        Vocabulary created = teacherContentService.createVocabulary(vocabRequest);
-
-        assertNotNull(created);
-        assertEquals("食べる", created.getWord());
-        verify(vocabularyRepository, times(1)).save(any(Vocabulary.class));
     }
 
     @Test
@@ -105,11 +78,11 @@ class TeacherContentServiceTest {
     }
 
     @Test
-    void testDeleteVocabulary_Success() {
-        when(vocabularyRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(vocabularyRepository).deleteById(1L);
+    void testDeleteKanji_Success() {
+        when(kanjiRepository.existsById(1L)).thenReturn(true);
+        doNothing().when(kanjiRepository).deleteById(1L);
 
-        assertDoesNotThrow(() -> teacherContentService.deleteVocabulary(1L));
-        verify(vocabularyRepository, times(1)).deleteById(1L);
+        assertDoesNotThrow(() -> teacherContentService.deleteKanji(1L));
+        verify(kanjiRepository, times(1)).deleteById(1L);
     }
 }

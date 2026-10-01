@@ -5,7 +5,6 @@ import com.nihongo.api.modules.grammar.entity.Grammar;
 import com.nihongo.api.modules.kanji.entity.Kanji;
 import com.nihongo.api.modules.teacher.dto.TeacherContentDTO.*;
 import com.nihongo.api.modules.teacher.service.TeacherContentService;
-import com.nihongo.api.modules.vocabulary.entity.Vocabulary;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,36 +18,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/teacher/content")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
-@Tag(name = "Teacher Content Studio", description = "Quản lý bài học Từ vựng, Kanji, Ngữ pháp cho Giảng viên")
+@Tag(name = "Teacher Content Studio", description = "Quản lý bài học Kanji, Ngữ pháp cho Giảng viên")
 public class TeacherContentController {
 
     private final TeacherContentService teacherContentService;
-
-    // ===== VOCABULARY ENDPOINTS =====
-
-    @PostMapping("/vocabulary")
-    @Operation(summary = "Tạo mới Từ vựng (Role TEACHER/ADMIN)")
-    public ResponseEntity<ApiResponse<Vocabulary>> createVocabulary(@Valid @RequestBody CreateVocabularyRequest request) {
-        Vocabulary vocabulary = teacherContentService.createVocabulary(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok("Tạo từ vựng thành công", vocabulary));
-    }
-
-    @PutMapping("/vocabulary/{id}")
-    @Operation(summary = "Cập nhật Từ vựng (Role TEACHER/ADMIN)")
-    public ResponseEntity<ApiResponse<Vocabulary>> updateVocabulary(
-            @PathVariable Long id,
-            @Valid @RequestBody CreateVocabularyRequest request) {
-        Vocabulary vocabulary = teacherContentService.updateVocabulary(id, request);
-        return ResponseEntity.ok(ApiResponse.ok("Cập nhật từ vựng thành công", vocabulary));
-    }
-
-    @DeleteMapping("/vocabulary/{id}")
-    @Operation(summary = "Xóa Từ vựng (Role TEACHER/ADMIN)")
-    public ResponseEntity<ApiResponse<Void>> deleteVocabulary(@PathVariable Long id) {
-        teacherContentService.deleteVocabulary(id);
-        return ResponseEntity.ok(ApiResponse.ok("Xóa từ vựng thành công", null));
-    }
 
     // ===== KANJI ENDPOINTS =====
 

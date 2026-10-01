@@ -1,7 +1,11 @@
 package com.nihongo.api.modules.teacher.controller;
 
 import com.nihongo.api.common.dto.ApiResponse;
-import com.nihongo.api.modules.teacher.dto.*;
+import com.nihongo.api.modules.teacher.dto.AddStudentRequest;
+import com.nihongo.api.modules.teacher.dto.ClassroomResponse;
+import com.nihongo.api.modules.teacher.dto.ClassroomStudentResponse;
+import com.nihongo.api.modules.teacher.dto.CreateClassroomRequest;
+import com.nihongo.api.modules.teacher.dto.TeacherStatsResponse;
 import com.nihongo.api.modules.teacher.service.TeacherService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

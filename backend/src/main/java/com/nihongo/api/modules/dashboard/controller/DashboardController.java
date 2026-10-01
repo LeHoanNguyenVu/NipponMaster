@@ -1,11 +1,11 @@
 package com.nihongo.api.modules.dashboard.controller;
 
 import com.nihongo.api.common.dto.ApiResponse;
-import com.nihongo.api.modules.dashboard.dto.DashboardStatsResponse;
-import com.nihongo.api.modules.dashboard.service.DashboardService;
+import com.nihongo.api.modules.auth.dto.UserResponse;
 import com.nihongo.api.modules.auth.entity.User;
 import com.nihongo.api.modules.auth.repository.UserRepository;
-import com.nihongo.api.modules.auth.dto.UserResponse;
+import com.nihongo.api.modules.dashboard.dto.DashboardStatsResponse;
+import com.nihongo.api.modules.dashboard.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

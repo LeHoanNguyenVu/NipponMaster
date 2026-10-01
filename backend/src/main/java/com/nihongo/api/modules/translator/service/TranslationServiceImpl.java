@@ -3,8 +3,8 @@ package com.nihongo.api.modules.translator.service;
 import com.nihongo.api.modules.translator.dto.TranslateRequest;
 import com.nihongo.api.modules.translator.dto.TranslateResponse;
 import com.nihongo.api.modules.translator.dto.TranslateResponse.WordAnalysis;
-import com.nihongo.api.modules.vocabulary.entity.Vocabulary;
-import com.nihongo.api.modules.vocabulary.repository.VocabularyRepository;
+import com.nihongo.api.modules.kanji.entity.Kanji;
+import com.nihongo.api.modules.kanji.repository.KanjiRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -18,7 +18,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TranslationServiceImpl implements TranslationService {
 
-    private final VocabularyRepository vocabularyRepository;
+    private final KanjiRepository kanjiRepository;
     private final RestTemplate restTemplate = createRestTemplateWithTimeout();
 
     private static RestTemplate createRestTemplateWithTimeout() {
@@ -180,31 +180,20 @@ public class TranslationServiceImpl implements TranslationService {
         String pronunciationHtml = null;
 
         if (japaneseText != null && !japaneseText.isEmpty()) {
-            List<Vocabulary> allVocab = vocabularyRepository.findAll();
+            List<Kanji> allKanji = kanjiRepository.findAll();
             Set<Long> matchedIds = new HashSet<>();
 
-            // Tìm kiếm các từ khớp (bao gồm khớp chính xác và khớp theo thân từ)
-            for (Vocabulary v : allVocab) {
-                boolean isMatch = false;
-                String word = v.getWord();
-
-                if (japaneseText.contains(word)) {
-                    isMatch = true;
-                } else if (word.length() > 1) {
-                    // Hỗ trợ chia thì/thể đơn giản (ví dụ: 食べる -> 食べます, stem là 食べ)
-                    String stem = word.substring(0, word.length() - 1);
-                    if (containsKanji(stem) && japaneseText.contains(stem)) {
-                        isMatch = true;
-                    }
-                }
-
-                if (isMatch && !matchedIds.contains(v.getId())) {
-                    matchedIds.add(v.getId());
+            for (Kanji k : allKanji) {
+                if (k.getCharacter() != null && japaneseText.contains(k.getCharacter()) && !matchedIds.contains(k.getId())) {
+                    matchedIds.add(k.getId());
+                    String reading = (k.getOnReading() != null && !k.getOnReading().isBlank()) 
+                            ? k.getOnReading() 
+                            : (k.getKunReading() != null ? k.getKunReading() : "");
                     matchedWords.add(WordAnalysis.builder()
-                            .word(v.getWord())
-                            .reading(v.getReading())
-                            .meaning(v.getMeaning())
-                            .partOfSpeech(v.getWordType() != null ? v.getWordType().name() : "OTHER")
+                            .word(k.getCharacter())
+                            .reading(reading)
+                            .meaning(k.getMeaning())
+                            .partOfSpeech("KANJI")
                             .build());
                 }
             }

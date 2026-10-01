@@ -11,7 +11,6 @@ import com.nihongo.api.modules.teacher.entity.Classroom;
 import com.nihongo.api.modules.teacher.entity.ClassroomStudent;
 import com.nihongo.api.modules.teacher.repository.ClassroomRepository;
 import com.nihongo.api.modules.teacher.repository.ClassroomStudentRepository;
-import com.nihongo.api.modules.vocabulary.repository.VocabularyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,6 @@ public class TeacherService {
     private final ClassroomRepository classroomRepository;
     private final ClassroomStudentRepository classroomStudentRepository;
     private final UserRepository userRepository;
-    private final VocabularyRepository vocabularyRepository;
     private final KanjiRepository kanjiRepository;
     private final GrammarRepository grammarRepository;
 
@@ -37,10 +35,9 @@ public class TeacherService {
     public TeacherStatsResponse getTeacherStats(Long teacherId) {
         long totalClasses = classroomRepository.countByTeacherId(teacherId);
         long totalStudents = classroomStudentRepository.countTotalStudentsForTeacher(teacherId);
-        long vocabCount = vocabularyRepository.count();
         long kanjiCount = kanjiRepository.count();
         long grammarCount = grammarRepository.count();
-        long totalLessons = vocabCount + kanjiCount + grammarCount;
+        long totalLessons = kanjiCount + grammarCount;
 
         return TeacherStatsResponse.builder()
                 .totalClasses(totalClasses > 0 ? totalClasses : 2) // Default baseline for teacher demo

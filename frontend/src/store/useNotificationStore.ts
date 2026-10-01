@@ -22,12 +22,12 @@ const DEFAULT_NOTIFICATIONS: NotificationItem[] = [
     createdAt: Date.now() - 5 * 60 * 1000,
   },
   {
-    id: 'notif-battle-1v1',
-    icon: '⚔️',
-    title: 'Đấu Trường Đối Kháng 1v1',
-    desc: 'Sora AI đang thách đấu bạn tại Đấu Trường Xếp Hạng Tiếng Nhật.',
+    id: 'notif-jlpt-exam',
+    icon: '📝',
+    title: 'Đề Thi Thử JLPT Mới',
+    desc: 'Đề thi thử JLPT các cấp độ N5 - N1 đã sẵn sàng để bạn thử sức.',
     time: '1 giờ trước',
-    screen: 'battle',
+    screen: 'exams',
     createdAt: Date.now() - 60 * 60 * 1000,
   },
 ];

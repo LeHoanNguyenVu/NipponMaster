@@ -1,6 +1,5 @@
 package com.nihongo.api.modules.dashboard.dto;
 
-import com.nihongo.api.modules.flashcard.entity.Flashcard;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,5 +31,5 @@ public class DashboardStatsResponse {
     private int todayXp;
     private int dueCardCount;
     private int streakDays;
-    private List<Flashcard> dueCards;
+    private List<Object> dueCards;
 }

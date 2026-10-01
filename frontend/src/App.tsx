@@ -5,9 +5,9 @@ import DashboardStudent from './screens/DashboardStudent';
 import DashboardTeacher from './screens/DashboardTeacher';
 import DashboardAdmin from './screens/DashboardAdmin';
 import DashboardGuest from './screens/DashboardGuest';
-import Vocabulary from './screens/Vocabulary';
+
 import Exams from './screens/Exams';
-import Flashcards from './screens/Flashcards';
+
 import Auth from './screens/Auth';
 import LandingPage from './screens/LandingPage';
 import Kanji from './screens/Kanji';
@@ -15,16 +15,14 @@ import Grammar from './screens/Grammar';
 import Translation from './screens/Translation';
 import OnboardingScreen from './screens/OnboardingScreen';
 import Pricing from './screens/Pricing';
-import SpeakingStudio from './screens/SpeakingStudio';
 import BeginnerCourseHub from './screens/BeginnerCourseHub';
-import JLPTBattleArena from './screens/JLPTBattleArena';
-import QuestsAndShop from './screens/QuestsAndShop';
+
 import ListeningRoom from './screens/ListeningRoom';
 import OAuthPopup from './screens/OAuthPopup';
 import { useAuthStore } from './store/useAuthStore';
 import gsap from 'gsap';
 
-export type ScreenType = 'dashboard' | 'vocabulary' | 'kanji' | 'grammar' | 'flashcards' | 'exams' | 'translation' | 'pricing' | 'speaking' | 'listening' | 'beginner' | 'battle' | 'quests';
+export type ScreenType = 'dashboard' | 'kanji' | 'grammar' | 'exams' | 'translation' | 'pricing' | 'listening' | 'beginner';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
@@ -229,9 +227,6 @@ export default function App() {
     );
   }
 
-  if (currentScreen === 'flashcards') {
-    return <Flashcards onExit={() => setCurrentScreen('dashboard')} />;
-  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface font-sans">
@@ -258,23 +253,21 @@ export default function App() {
           )}
           {currentScreen === 'dashboard' && (!user?.role || user?.role === 'student') && (
             <DashboardStudent
-              onStartStudy={() => setCurrentScreen('flashcards')}
+              onStartStudy={() => setCurrentScreen('kanji')}
               onOpenBeginnerCourse={() => setCurrentScreen('beginner')}
               onNavigate={setCurrentScreen}
               username={user?.username}
             />
           )}
-          {currentScreen === 'vocabulary' && <Vocabulary />}
+
           {currentScreen === 'exams' && <Exams />}
           {currentScreen === 'kanji' && <Kanji />}
           {currentScreen === 'grammar' && <Grammar />}
           {currentScreen === 'translation' && <Translation />}
           {currentScreen === 'pricing' && <Pricing />}
-          {currentScreen === 'speaking' && <SpeakingStudio />}
           {currentScreen === 'listening' && <ListeningRoom />}
           {currentScreen === 'beginner' && <BeginnerCourseHub />}
-          {currentScreen === 'battle' && <JLPTBattleArena />}
-          {currentScreen === 'quests' && <QuestsAndShop />}
+
         </main>
       </div>
     </div>

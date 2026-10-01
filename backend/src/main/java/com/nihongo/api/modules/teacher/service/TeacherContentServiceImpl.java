@@ -6,8 +6,6 @@ import com.nihongo.api.modules.grammar.repository.GrammarRepository;
 import com.nihongo.api.modules.kanji.entity.Kanji;
 import com.nihongo.api.modules.kanji.repository.KanjiRepository;
 import com.nihongo.api.modules.teacher.dto.TeacherContentDTO.*;
-import com.nihongo.api.modules.vocabulary.entity.Vocabulary;
-import com.nihongo.api.modules.vocabulary.repository.VocabularyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,57 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TeacherContentServiceImpl implements TeacherContentService {
 
-    private final VocabularyRepository vocabularyRepository;
     private final KanjiRepository kanjiRepository;
     private final GrammarRepository grammarRepository;
-
-    // ===== VOCABULARY MANAGEMENT =====
-
-    @Override
-    @Transactional
-    public Vocabulary createVocabulary(CreateVocabularyRequest request) {
-        log.info("👨‍🏫 Giảng viên tạo Từ Vựng mới: {}", request.getWord());
-        Vocabulary vocab = Vocabulary.builder()
-                .word(request.getWord())
-                .reading(request.getReading())
-                .meaning(request.getMeaning())
-                .exampleSentence(request.getExampleSentence())
-                .exampleMeaning(request.getExampleMeaning())
-                .jlptLevel(request.getJlptLevel())
-                .wordType(request.getWordType() != null ? request.getWordType() : Vocabulary.WordType.NOUN)
-                .topic(request.getTopic() != null ? request.getTopic() : "GENERAL")
-                .build();
-        return vocabularyRepository.save(vocab);
-    }
-
-    @Override
-    @Transactional
-    public Vocabulary updateVocabulary(Long id, CreateVocabularyRequest request) {
-        log.info("👨‍🏫 Giảng viên cập nhật Từ Vựng ID {}", id);
-        Vocabulary vocab = vocabularyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy từ vựng ID: " + id));
-
-        vocab.setWord(request.getWord());
-        vocab.setReading(request.getReading());
-        vocab.setMeaning(request.getMeaning());
-        vocab.setExampleSentence(request.getExampleSentence());
-        vocab.setExampleMeaning(request.getExampleMeaning());
-        vocab.setJlptLevel(request.getJlptLevel());
-        if (request.getWordType() != null) vocab.setWordType(request.getWordType());
-        if (request.getTopic() != null) vocab.setTopic(request.getTopic());
-
-        return vocabularyRepository.save(vocab);
-    }
-
-    @Override
-    @Transactional
-    public void deleteVocabulary(Long id) {
-        log.info("👨‍🏫 Giảng viên xóa Từ Vựng ID {}", id);
-        if (!vocabularyRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Không tìm thấy từ vựng ID: " + id);
-        }
-        vocabularyRepository.deleteById(id);
-    }
 
     // ===== KANJI MANAGEMENT =====
 

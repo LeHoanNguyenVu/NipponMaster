@@ -1,7 +1,6 @@
 package com.nihongo.api.modules.teacher.dto;
 
 import com.nihongo.api.modules.auth.entity.User;
-import com.nihongo.api.modules.vocabulary.entity.Vocabulary;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,31 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 public class TeacherContentDTO {
-
-    // ===== VOCABULARY DTOs =====
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CreateVocabularyRequest {
-        @NotBlank(message = "Từ vựng không được để trống")
-        private String word;
-
-        @NotBlank(message = "Cách đọc (hiragana/katakana) không được để trống")
-        private String reading;
-
-        @NotBlank(message = "Ý nghĩa không được để trống")
-        private String meaning;
-
-        private String exampleSentence;
-        private String exampleMeaning;
-
-        @NotNull(message = "Cấp độ JLPT không được để trống")
-        private User.JlptLevel jlptLevel;
-
-        private Vocabulary.WordType wordType;
-        private String topic;
-    }
 
     // ===== KANJI DTOs =====
     @Data

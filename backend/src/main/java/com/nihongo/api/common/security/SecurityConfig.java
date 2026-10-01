@@ -46,12 +46,9 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
 
-                        // Cho phép GET public cho Vocabulary, Kanji, Grammar, Quick Practice (tra cứu không cần login)
-                        .requestMatchers(HttpMethod.GET, "/api/v1/vocabularies/**").permitAll()
+                        // Cho phép GET public cho Kanji, Grammar (tra cứu không cần login)
                         .requestMatchers(HttpMethod.GET, "/api/v1/kanjis/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/grammars/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/flashcards/quick-practice").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/flashcards/quick-practice/**").permitAll()
                         .requestMatchers("/api/v1/tts/**").permitAll()
 
                         // Cho phép xem cấu trúc đề thi (không cần login, submit thì cần)
@@ -62,8 +59,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/trial-status").permitAll()
                         .requestMatchers("/api/v1/payments/webhook").permitAll()
 
-                        // Cho phép xem danh sách kịch bản Speaking & Listening
-                        .requestMatchers(HttpMethod.GET, "/api/v1/speaking/scenarios").permitAll()
+                        // Cho phép xem danh sách kịch bản Listening
                         .requestMatchers("/api/v1/listening/**").permitAll()
 
                         // Cho phép thử nghiệm vẽ Kanji Canvas & OCR
