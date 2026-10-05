@@ -1,4 +1,5 @@
-import { Flame, Clock, Award, BookCheck, RefreshCw } from 'lucide-react';
+import { Flame, Clock, Award, BookCheck, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { type StreakState, getCurrentWeekDays } from '../../utils/streakManager';
 
 interface HeroCockpitProps {
   fullName?: string;
@@ -6,7 +7,7 @@ interface HeroCockpitProps {
   targetLevel?: string;
   overallMastery: number;
   isRefreshing: boolean;
-  displayStreak: number;
+  streakState: StreakState;
   weeklyStudyMinutes: number;
 }
 
@@ -16,7 +17,7 @@ export default function HeroCockpit({
   targetLevel,
   overallMastery,
   isRefreshing,
-  displayStreak,
+  streakState,
   weeklyStudyMinutes,
 }: HeroCockpitProps) {
   // Lời chào theo giờ
@@ -29,16 +30,12 @@ export default function HeroCockpit({
 
   const hasCustomTarget = targetLevel && targetLevel.toUpperCase() !== 'STARTER';
 
-  // 7 ngày điểm danh trong tuần
-  const daysOfWeek = [
-    { label: 'T2', active: true },
-    { label: 'T3', active: true },
-    { label: 'T4', active: displayStreak >= 3 },
-    { label: 'T5', active: displayStreak >= 4 },
-    { label: 'T6', active: displayStreak >= 5 },
-    { label: 'T7', active: displayStreak >= 6 },
-    { label: 'CN', active: displayStreak >= 7 },
-  ];
+  const todayReviewedCount = streakState.todayReviewedCards.length;
+  const todayGoal = streakState.todayGoalCards;
+  const progressPct = Math.min(100, Math.round((todayReviewedCount / todayGoal) * 100));
+
+  // 7 ngày trong tuần (T2 đến CN)
+  const weekDays = getCurrentWeekDays(streakState.streakHistory);
 
   return (
     <section className="space-y-4">
@@ -80,35 +77,81 @@ export default function HeroCockpit({
 
       {/* 2. Horizontal Stats Metric Cards Grid (4 Cột) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1: Chuỗi học tập (Streak) */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/60 shadow-xs flex flex-col justify-between space-y-3">
+        {/* Metric 1: Chuỗi học tập Duolingo Style (Streak vô hạn) */}
+        <div className={`p-4 sm:p-5 rounded-2xl bg-surface-container-lowest border shadow-xs flex flex-col justify-between space-y-3 transition-all ${
+          streakState.checkedInToday
+            ? 'border-amber-500/50 shadow-amber-500/5'
+            : 'border-outline-variant/60'
+        }`}>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-outline">Chuỗi Học Tập</span>
-            <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500">
-              <Flame size={20} className="fill-current" />
+            <span className="text-xs font-bold text-outline">Chuỗi Học Tập (Streak)</span>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+              streakState.checkedInToday
+                ? 'bg-amber-500/20 border border-amber-500/40 text-amber-500 shadow-2xs'
+                : 'bg-surface-container-high text-outline border border-outline-variant/30'
+            }`}>
+              <Flame size={20} className={streakState.checkedInToday ? 'fill-current animate-pulse' : ''} />
             </div>
           </div>
+
           <div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl sm:text-3xl font-black text-amber-500">{displayStreak}</span>
-              <span className="text-xs font-bold text-outline">Ngày liên tiếp</span>
+            <div className="flex items-baseline justify-between">
+              <div className="flex items-baseline gap-1.5">
+                <span className={`text-2xl sm:text-3xl font-black ${
+                  streakState.checkedInToday ? 'text-amber-500' : 'text-on-surface'
+                }`}>
+                  {streakState.currentStreak}
+                </span>
+                <span className="text-xs font-bold text-outline">Ngày liên tiếp</span>
+              </div>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                streakState.checkedInToday
+                  ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                  : 'bg-surface-container-high text-outline'
+              }`}>
+                {streakState.checkedInToday ? '✓ Đã giữ lửa' : 'Chưa điểm danh'}
+              </span>
             </div>
-            {/* 7-day dot checklist */}
+
+            {/* Dải 7 ngày tuần hiện tại */}
             <div className="flex items-center gap-1 mt-2.5">
-              {daysOfWeek.map((d, i) => (
+              {weekDays.map((d, i) => (
                 <div
                   key={i}
-                  title={`${d.label}: ${d.active ? 'Đã điểm danh' : 'Chưa điểm danh'}`}
+                  title={`${d.label} (${d.dateStr}): ${d.active ? 'Đã điểm danh' : 'Chưa điểm danh'}`}
                   className={`flex-1 py-1 rounded-md text-center text-[10px] font-bold transition-all ${
                     d.active
                       ? 'bg-amber-500 text-white shadow-2xs'
-                      : 'bg-surface-container-high text-outline'
+                      : d.isToday
+                        ? 'border border-amber-500 text-amber-600 bg-amber-500/10'
+                        : 'bg-surface-container-high text-outline'
                   }`}
                 >
                   {d.label}
                 </div>
               ))}
             </div>
+
+            {/* Tiến độ hoàn thành flashcard trong ngày */}
+            <div className="mt-2.5 pt-2 border-t border-outline-variant/30 space-y-1">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-outline">Tiến độ hôm nay:</span>
+                <span className="font-extrabold text-primary">{todayReviewedCount}/{todayGoal} thẻ</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    streakState.checkedInToday ? 'bg-amber-500' : 'bg-primary'
+                  }`}
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Dòng note bắt buộc theo yêu cầu */}
+            <p className="text-[10.5px] text-amber-700 dark:text-amber-300 font-medium mt-2 p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 leading-tight">
+              * Bạn phải tối thiểu hoàn thành hết flashcard hôm nay mới được tính điểm danh nhé
+            </p>
           </div>
         </div>
 
@@ -126,7 +169,7 @@ export default function HeroCockpit({
               <span className="text-xs font-bold text-outline">Phút</span>
             </div>
             <p className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 mt-2">
-              ✓ Đạt 100% mục tiêu tuần
+              ✓ Duy trì luyện tập đều đặn
             </p>
           </div>
         </div>
@@ -155,21 +198,28 @@ export default function HeroCockpit({
           </div>
         </div>
 
-        {/* Metric 4: Thẻ nhớ Flashcard hôm nay */}
+        {/* Metric 4: Trạng thái Flashcard */}
         <div className="p-4 sm:p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/60 shadow-xs flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-outline">Bộ Thẻ Ôn Tập</span>
+            <span className="text-xs font-bold text-outline">Nhiệm Vụ Flashcard</span>
             <div className="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-600">
               <BookCheck size={20} />
             </div>
           </div>
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl sm:text-3xl font-black text-on-surface">10</span>
-              <span className="text-xs font-bold text-outline">Thẻ chọn lọc hôm nay</span>
+              <span className="text-2xl sm:text-3xl font-black text-on-surface">{todayGoal}</span>
+              <span className="text-xs font-bold text-outline">Thẻ mục tiêu hôm nay</span>
             </div>
-            <p className="text-[11px] font-medium text-sky-600 dark:text-sky-400 mt-2">
-              Lật thẻ ôn phản xạ bên dưới
+            <p className="text-[11px] font-medium text-sky-600 dark:text-sky-400 mt-2 flex items-center gap-1">
+              {streakState.checkedInToday ? (
+                <>
+                  <CheckCircle2 size={13} className="text-emerald-500" />
+                  <span>Đã hoàn thành xuất sắc!</span>
+                </>
+              ) : (
+                <span>Còn {Math.max(0, todayGoal - todayReviewedCount)} thẻ cần học</span>
+              )}
             </p>
           </div>
         </div>

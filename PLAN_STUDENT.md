@@ -63,10 +63,11 @@
   - [x] Gỡ bỏ các module Battle Arena, Bot đấu 1v1, Quests 5 nhiệm vụ hàng ngày.
   - [x] Gỡ bỏ hệ thống Theme Shop local và các logic dính líu đến AI canvas.
   - [x] Tái cấu trúc file thành các component sạch sẽ, duy trì file chính < 350 dòng.
-- [ ] **Task 1.2: Xây dựng component StreakTracker**
-  - [ ] Viết logic tính streak liên tiếp dựa trên `lastStudyDate` và ngày hiện tại.
-  - [ ] Xử lý logic reset streak về 1 khi đứt chuỗi (bỏ cách > 1 ngày).
-  - [ ] Render giao diện 7 ngày trong tuần trực quan (đánh dấu ngày đã học).
+- [x] **Task 1.2: Xây dựng cơ chế Streak Duolingo & Điểm danh Flashcard**
+  - [x] Triển khai logic Streak vô hạn: Tăng dần theo ngày, tự động mất chuỗi (reset về 0) nếu quên điểm danh quá 1 ngày.
+  - [x] Điều kiện điểm danh nghiêm ngặt: Phải hoàn thành tối thiểu 10/10 thẻ flashcard trong ngày mới được tính điểm danh.
+  - [x] Hiển thị dòng ghi chú bắt buộc: *"Bạn phải tối thiểu hoàn thành hết flashcard hôm nay mới được tính điểm danh nhé"*.
+  - [x] Render giao diện ngọn lửa rực sáng khi giữ lửa, thanh tiến độ thẻ và dải 7 ngày tuần hiện tại.
 - [ ] **Task 1.3: Xây dựng component ModuleProgressOverview**
   - [ ] Tính toán % tiến độ tích lũy thực tế của 4 kỹ năng (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện nghe).
   - [ ] Render 4 card tiến độ kèm hiệu ứng progress bar động.
@@ -77,13 +78,15 @@
   - [ ] Tạo bộ dữ liệu 50 thẻ cốt lõi và 2 nút "Đã nhớ" / "Chưa thuộc" đếm số thẻ đã học.
 
 #### 3. Góc nhìn Kiểm thử (Tester Perspective)
-- **Kỹ thuật áp dụng**: Boundary Value Analysis (BVA), State Transition Testing.
-- **Test Scenarios**:
-  - `TC_DASH_01`: Kiểm tra tính streak khi học ngày đầu tiên (Streak = 1).
-  - `TC_DASH_02`: Kiểm tra tính streak khi học liên tiếp ngày thứ 2, 3 (Streak tăng tuần tự).
-  - `TC_DASH_03`: Kiểm tra tính streak khi học nhiều lần trong cùng 1 ngày (Streak không được cộng dồn 2 lần).
-  - `TC_DASH_04`: Kiểm tra đứt chuỗi (nghỉ 1 ngày không học) → Ngày tiếp theo học lại streak reset về 1.
-  - `TC_DASH_05`: Kiểm tra thanh % tiến độ: giá trị biên 0%, 50%, 99%, 100%.
+- **Kỹ thuật áp dụng**: Boundary Value Analysis (BVA), Equivalence Partitioning (EP), State Transition Testing.
+- **Test Scenarios cho Cơ chế Streak Duolingo & Điểm danh**:
+  - `TC_DASH_01 (EP - Thiếu điều kiện)`: Học 0 đến 9 thẻ flashcard (biên dưới 9/10) → Hệ thống hiển thị tiến độ N/10 thẻ, badge "Chưa điểm danh", Streak không tăng.
+  - `TC_DASH_02 (BVA - Đạt ngưỡng)`: Vừa học đạt thẻ thứ 10/10 trong ngày → Hệ thống kích hoạt điểm danh: Streak tăng +1, icon lửa rực sáng, dải ngày hôm nay được đánh dấu active, badge chuyển thành "✓ Đã giữ lửa".
+  - `TC_DASH_03 (Idempotency)`: Tiếp tục học thẻ thứ 11, 12... trong cùng một ngày → Streak không được cộng dồn thêm (chỉ tính 1 lần/ngày).
+  - `TC_DASH_04 (State Transition - Giữ chuỗi)`: Sang ngày hôm sau (khoảng cách 1 ngày) → Streak ngày cũ được bảo toàn, trạng thái ngày mới reset về "Chưa điểm danh" (0/10 thẻ).
+  - `TC_DASH_05 (State Transition - Mất chuỗi)`: Quên điểm danh từ 1 ngày trở lên (khoảng cách ngày > 1, ví dụ 2 ngày không vào học) → Streak lập tức bị đứt và reset về 0.
+  - `TC_DASH_06 (UI Requirement)`: Kiểm tra sự tồn tại của dòng ghi chú điều kiện: *"Bạn phải tối thiểu hoàn thành hết flashcard hôm nay mới được tính điểm danh nhé"*.
+  - `TC_DASH_07 (UI Interaction)`: Kiểm tra widget Flashcard lật 2 mặt khi click vào bất kỳ khoảng trống nào trên thẻ, không bị che khuất và phản hồi mượt mà.
 
 ---
 

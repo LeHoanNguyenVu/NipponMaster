@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Star, RotateCw, Volume2, Sparkles, SlidersHorizontal, ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Star, RotateCw, Volume2, Sparkles, SlidersHorizontal, ArrowRight, CheckCircle2, Flame } from 'lucide-react';
 import type { ScreenType } from '../../App';
 import type { FlashcardItem } from '../../data/flashcardMnemonics';
 import { STANDARD_KANJI_INFO, resolveMnemonicInfo } from '../../data/flashcardMnemonics';
@@ -9,12 +9,20 @@ interface QuickFlashcardWidgetProps {
   currentDeck: FlashcardItem[];
   levelDisplay: string;
   onNavigate: (screen: ScreenType) => void;
+  todayReviewedCards: number[];
+  todayGoalCards: number;
+  checkedInToday: boolean;
+  onCardReviewed: (cardIndex: number) => void;
 }
 
 export default function QuickFlashcardWidget({
   currentDeck,
   levelDisplay,
   onNavigate,
+  todayReviewedCards,
+  todayGoalCards,
+  checkedInToday,
+  onCardReviewed,
 }: QuickFlashcardWidgetProps) {
   const [cardIndex, setCardIndex] = useState<number>(0);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
@@ -39,6 +47,11 @@ export default function QuickFlashcardWidget({
   const deckLength = Math.max(1, currentDeck.length);
   const currentCardNumber = (cardIndex % deckLength) + 1;
   const activeCard = currentDeck[cardIndex % deckLength] || currentDeck[0];
+
+  // Tự động ghi nhận thẻ hiện tại đã được học
+  useEffect(() => {
+    onCardReviewed(cardIndex % deckLength);
+  }, [cardIndex, deckLength, onCardReviewed]);
 
   // Chuẩn hóa phát âm và cách đọc
   const kanjiKey = (activeCard?.kanji || '').trim();
@@ -65,6 +78,8 @@ export default function QuickFlashcardWidget({
     }, 550);
   };
 
+  const reviewedCount = todayReviewedCards.length;
+
   return (
     <section className="w-full bg-surface-container-lowest rounded-3xl p-6 md:p-8 border border-outline-variant/60 space-y-5 shadow-xs relative">
       {/* 1. Header Toolbar */}
@@ -80,9 +95,22 @@ export default function QuickFlashcardWidget({
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
             {levelDisplay}
           </span>
-          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface border border-outline-variant/40">
             Thẻ {currentCardNumber} / {deckLength}
           </span>
+
+          {/* Badge tiến độ điểm danh hôm nay */}
+          {checkedInToday ? (
+            <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+              <CheckCircle2 size={13} />
+              <span>Đã hoàn thành 10/10 thẻ & Điểm danh!</span>
+            </span>
+          ) : (
+            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1">
+              <Flame size={13} className="text-amber-500 fill-amber-500" />
+              <span>Điểm danh: {reviewedCount}/{todayGoalCards} thẻ</span>
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -147,7 +175,6 @@ export default function QuickFlashcardWidget({
 
                 <button
                   onClick={(e) => {
-                    e.stopPropagation();
                     playBoostedJapaneseAudio(playableWord, ttsVolume, e);
                   }}
                   className="w-full py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
@@ -173,18 +200,25 @@ export default function QuickFlashcardWidget({
         </div>
       </div>
 
-      {/* 2. Mini Segmented Progress Bar */}
+      {/* 2. Mini Segmented Progress Bar (Đánh dấu các thẻ đã học) */}
       <div className="w-full flex items-center gap-1.5">
-        {Array.from({ length: Math.min(10, deckLength) }).map((_, idx) => (
-          <div
-            key={idx}
-            className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-              idx < currentCardNumber
-                ? 'bg-gradient-to-r from-primary to-amber-500 shadow-2xs'
-                : 'bg-surface-container-high'
-            }`}
-          />
-        ))}
+        {Array.from({ length: Math.min(10, deckLength) }).map((_, idx) => {
+          const isReviewed = todayReviewedCards.includes(idx);
+          const isCurrent = idx === (cardIndex % deckLength);
+          return (
+            <div
+              key={idx}
+              title={`Thẻ ${idx + 1}: ${isReviewed ? 'Đã học hôm nay' : 'Chưa học'}`}
+              className={`h-2 flex-1 rounded-full transition-all duration-300 ${
+                isCurrent
+                  ? 'bg-primary ring-2 ring-primary/40'
+                  : isReviewed
+                    ? 'bg-amber-500 shadow-2xs'
+                    : 'bg-surface-container-high'
+              }`}
+            />
+          );
+        })}
       </div>
 
       {/* 3. Full-width 3D Flip Card: Click anywhere on the card to flip! */}
@@ -227,7 +261,7 @@ export default function QuickFlashcardWidget({
             </div>
           </div>
 
-          {/* Mặt Sau (Back Face) - Không stopPropagation để click vào thẻ tự lật lại */}
+          {/* Mặt Sau (Back Face) - Click vào thẻ tự lật lại */}
           <div 
             style={{
               position: 'absolute',
@@ -334,7 +368,6 @@ export default function QuickFlashcardWidget({
                 )}
               </div>
             </div>
-
           </div>
         </div>
       </div>

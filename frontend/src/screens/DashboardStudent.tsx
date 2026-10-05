@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import axiosClient from '../api/axiosClient';
 import type { ScreenType } from '../App';
@@ -6,6 +6,7 @@ import HeroCockpit from '../components/dashboard/HeroCockpit';
 import SkillMatrixSection from '../components/dashboard/SkillMatrixSection';
 import QuickFlashcardWidget from '../components/dashboard/QuickFlashcardWidget';
 import { INITIAL_FALLBACK_CARDS, type FlashcardItem } from '../data/flashcardMnemonics';
+import { loadStreakState, recordFlashcardReviewed, type StreakState } from '../utils/streakManager';
 
 interface Stats {
   jlptLevel: string;
@@ -39,7 +40,9 @@ export default function DashboardStudent({
   username,
 }: DashboardStudentProps) {
   const { user } = useAuthStore();
-  const userStreak = 0;
+
+  // 1. Quản lý trạng thái Streak vô hạn chuẩn Duolingo
+  const [streakState, setStreakState] = useState<StreakState>(() => loadStreakState());
 
   // Stale-While-Revalidate Stats
   const [stats, setStats] = useState<Stats>(() => {
@@ -60,7 +63,7 @@ export default function DashboardStudent({
       listeningTotal: 20,
       weeklyStudyMinutes: 30,
       dueCardCount: 0,
-      streakDays: userStreak || 0,
+      streakDays: streakState.currentStreak,
     };
   });
 
@@ -130,6 +133,17 @@ export default function DashboardStudent({
     };
   }, []);
 
+  // Xử lý khi học viên lật/xem 1 thẻ flashcard
+  const handleCardReviewed = useCallback((cardIndex: number) => {
+    const { justCheckedIn, state: updatedState } = recordFlashcardReviewed(cardIndex);
+    setStreakState(updatedState);
+
+    if (justCheckedIn) {
+      // Bắn alert/thông báo chúc mừng giữ lửa streak hôm nay
+      console.log('🎉 Đã hoàn thành 10/10 flashcard và giữ lửa chuỗi streak hôm nay!');
+    }
+  }, []);
+
   const navigateTo = (screen: ScreenType) => {
     if (onNavigate) {
       onNavigate(screen);
@@ -169,18 +183,16 @@ export default function DashboardStudent({
   const grammarPct = stats.grammarTotal > 0 ? Math.min(100, Math.round((stats.grammarLearned / stats.grammarTotal) * 100)) : 0;
   const overallMastery = Math.max(5, Math.round((vocabPct + kanjiPct + grammarPct) / 3));
 
-  const displayStreak = Math.max(userStreak, stats.streakDays);
-
   return (
     <div className="max-w-[1360px] mx-auto p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 font-sans pb-16 animate-fade-in">
-      {/* Tầng 1: Header chào mừng & Thanh 4 chỉ số thống kê (Streak, Giờ học, Lộ trình, Thẻ hôm nay) */}
+      {/* Tầng 1: Header chào mừng & Thanh 4 chỉ số thống kê (Streak Duolingo, Giờ học, Lộ trình, Thẻ hôm nay) */}
       <HeroCockpit
         fullName={user?.fullName || username || 'Học viên'}
         levelDisplay={levelDisplay}
         targetLevel={user?.targetLevel}
         overallMastery={overallMastery}
         isRefreshing={isRefreshing}
-        displayStreak={displayStreak}
+        streakState={streakState}
         weeklyStudyMinutes={stats.weeklyStudyMinutes}
       />
 
@@ -196,11 +208,15 @@ export default function DashboardStudent({
         onNavigate={navigateTo}
       />
 
-      {/* Tầng 3: Thẻ ghi nhớ nhanh Flashcard full chiều rộng */}
+      {/* Tầng 3: Thẻ ghi nhớ nhanh Flashcard full chiều rộng, theo dõi tiến độ điểm danh */}
       <QuickFlashcardWidget
         currentDeck={daily10Cards}
         levelDisplay={levelDisplay}
         onNavigate={navigateTo}
+        todayReviewedCards={streakState.todayReviewedCards}
+        todayGoalCards={streakState.todayGoalCards}
+        checkedInToday={streakState.checkedInToday}
+        onCardReviewed={handleCardReviewed}
       />
     </div>
   );
