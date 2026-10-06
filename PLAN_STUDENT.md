@@ -54,9 +54,12 @@
   - Tiến độ Luyện nghe (số bài nghe đã hoàn thành).
   - Lịch sử bài thi gần nhất (điểm số, ngày thi, kết quả Pass/Fail).
 - **Flashcard ôn tập nhanh (Quick Review Deck)**:
-  - Widget lật thẻ tương tác 2 mặt: Mặt trước (Chữ cái / Kanji / Từ vựng cơ bản), Mặt sau (Âm đọc Hán Việt, Kana, Nghĩa, Câu ví dụ, Nút loa phát âm TTS).
-  - Nút đánh giá đơn giản: "Đã nhớ" / "Chưa thuộc" để chuyển sang thẻ tiếp theo.
-  - Bộ đếm số thẻ đã ôn trong ngày.
+  - Widget lật thẻ tương tác 2 mặt: Chạm vào khoảng trống trên thẻ để lật qua lại giữa mặt trước (Ký tự/Từ vựng) và mặt sau (Chi tiết, âm đọc, nghĩa, ví dụ, loa phát âm). Giữ nguyên cơ chế lật thẻ này.
+  - **Thuật toán Spaced Repetition (SRS - Lặp lại ngắt quãng)** với 3 nút đánh giá xuất hiện ở mặt sau thẻ:
+    * **Dễ** (Easy): Ôn lại sau 7 ngày (`nextReviewDate = today + 7`).
+    * **Thường** (Medium): Ôn lại sau 3 ngày (`nextReviewDate = today + 3`).
+    * **Khó** (Hard): Ôn lại vào ngày hôm sau (`nextReviewDate = today + 1`).
+  - **Cơ chế 10 thẻ thay đổi mỗi ngày (Daily Rotation)**: Mỗi ngày hệ thống tự động bốc 10 thẻ mới/thẻ đến hạn ôn tập từ kho dữ liệu, đảm bảo mỗi ngày 10 thẻ luôn có sự thay đổi mới và không lặp lại các thẻ đã được lên lịch trong tương lai.
 
 #### 2. Phân chia Task thực hiện (Checklist)
 - [x] **Task 1.1: Tinh gọn DashboardStudent.tsx**
@@ -68,14 +71,16 @@
   - [x] Điều kiện điểm danh nghiêm ngặt: Phải hoàn thành tối thiểu 10/10 thẻ flashcard trong ngày mới được tính điểm danh.
   - [x] Hiển thị dòng ghi chú bắt buộc: *"Bạn phải tối thiểu hoàn thành hết flashcard hôm nay mới được tính điểm danh nhé"*.
   - [x] Render giao diện ngọn lửa rực sáng khi giữ lửa, thanh tiến độ thẻ và dải 7 ngày tuần hiện tại.
-- [ ] **Task 1.3: Xây dựng component ModuleProgressOverview**
-  - [ ] Tính toán % tiến độ tích lũy thực tế của 4 kỹ năng (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện nghe).
-  - [ ] Render 4 card tiến độ kèm hiệu ứng progress bar động.
-  - [ ] Xử lý sự kiện click chuyển hướng trực tiếp đến từng màn hình tương ứng.
-- [ ] **Task 1.4: Hoàn thiện component QuickFlashcardWidget**
-  - [ ] Xây dựng widget lật thẻ 3D 2 mặt (Mặt trước: Ký tự/Từ vựng; Mặt sau: Nghĩa, Romaji, Hán Việt).
-  - [ ] Tích hợp phát âm giọng native qua Web Speech API (không phụ thuộc external AI).
-  - [ ] Tạo bộ dữ liệu 50 thẻ cốt lõi và 2 nút "Đã nhớ" / "Chưa thuộc" đếm số thẻ đã học.
+- [x] **Task 1.3: Xây dựng component ModuleProgressOverview**
+  - [x] Tính toán % tiến độ tích lũy thực tế của 4 kỹ năng (Nhập môn: 5 chương, 214 Bộ thủ Khang Hy, Ngữ pháp: 50 bài giảng, Luyện nghe: 20 kịch bản).
+  - [x] Render 4 card tiến độ kèm hiệu ứng progress bar động, đa sắc màu riêng biệt (Emerald, Amber, Indigo, Cyan) kết hợp Watermark chữ Hán/Kana chìm (`あ`, `漢`, `文`, `聴`) và nút hành động trực quan.
+  - [x] Xử lý sự kiện click chuyển hướng trực tiếp đến từng màn hình tương ứng (`beginner`, `kanji`, `grammar`, `listening`).
+  - [x] Tối ưu HeroCockpit: Gỡ bỏ card "Thời gian học tuần", tinh gọn thanh thống kê thành 3 card cân đối (Streak, Lộ trình, Flashcard).
+- [x] **Task 1.4: Triển khai thuật toán Spaced Repetition (SRS) & Bộ 10 Flashcard thay đổi mỗi ngày**
+  - [x] Giữ nguyên cơ chế tương tác lật thẻ 3D khi click vào khoảng trống trên thẻ.
+  - [x] Xây dựng 3 nút đánh giá ở mặt sau thẻ: "Dễ" (+7 ngày), "Thường" (+3 ngày), "Khó" (+1 ngày).
+  - [x] Xây dựng cơ chế cấp 10 thẻ hàng ngày: Ưu tiên thẻ đến hạn ôn tập (`dueDate <= today`) + bù đắp thẻ mới chưa học, đảm bảo mỗi ngày 10 thẻ hoàn toàn mới và không xuất hiện các thẻ đã hẹn lịch tương lai.
+  - [x] Lưu trữ trạng thái SRS vào `localStorage` (`nippon_card_srs_records_v1`), tự động cập nhật tiến độ điểm danh hôm nay và chuyển thẻ tiếp theo sau khi chọn mức độ.
 
 #### 3. Góc nhìn Kiểm thử (Tester Perspective)
 - **Kỹ thuật áp dụng**: Boundary Value Analysis (BVA), Equivalence Partitioning (EP), State Transition Testing.
@@ -87,6 +92,16 @@
   - `TC_DASH_05 (State Transition - Mất chuỗi)`: Quên điểm danh từ 1 ngày trở lên (khoảng cách ngày > 1, ví dụ 2 ngày không vào học) → Streak lập tức bị đứt và reset về 0.
   - `TC_DASH_06 (UI Requirement)`: Kiểm tra sự tồn tại của dòng ghi chú điều kiện: *"Bạn phải tối thiểu hoàn thành hết flashcard hôm nay mới được tính điểm danh nhé"*.
   - `TC_DASH_07 (UI Interaction)`: Kiểm tra widget Flashcard lật 2 mặt khi click vào bất kỳ khoảng trống nào trên thẻ, không bị che khuất và phản hồi mượt mà.
+- **Test Scenarios cho Tiến độ 4 Module Cốt lõi (Task 1.3)**:
+  - `TC_DASH_08 (BVA - % Tiến độ Module)`: Kiểm tra tính toán % tiến độ các giá trị biên: 0% (chưa học), 20% (1/5 chương Nhập môn), 50%, 100% (hoàn thành toàn bộ).
+  - `TC_DASH_09 (UI Navigation)`: Click vào từng thẻ trong 4 card tiến độ → Điều hướng chính xác tới các màn hình tương ứng (`beginner`, `kanji`, `grammar`, `listening`).
+  - `TC_DASH_10 (Calculation - Overall Mastery)`: % Lộ trình tổng thể hiển thị chính xác bằng trung bình cộng của 4 module: `(P_beg + P_kan + P_gra + P_lis) / 4`.
+- **Test Scenarios cho Thuật toán SRS & Đổi thẻ Hàng ngày (Task 1.4)**:
+  - `TC_DASH_11 (SRS Interval - Dễ)`: Bấm "Dễ" → Kiểm tra `nextReviewDate = today + 7 ngày`, thẻ biến mất khỏi deck hôm nay và 6 ngày kế tiếp.
+  - `TC_DASH_12 (SRS Interval - Thường)`: Bấm "Thường" → Kiểm tra `nextReviewDate = today + 3 ngày`.
+  - `TC_DASH_13 (SRS Interval - Khó)`: Bấm "Khó" → Kiểm tra `nextReviewDate = today + 1 ngày` (xuất hiện lại vào ngày mai).
+  - `TC_DASH_14 (Daily Deck Rotation)`: Sang ngày hôm sau (hoặc giả lập ngày) → Deck 10 thẻ được cập nhật với các thẻ mới hoặc thẻ đã đến hạn review, không bị lặp lại các thẻ chưa đến hạn.
+  - `TC_DASH_15 (UI Interaction - Mặt sau 3 nút)`: Mặt trước chỉ hiển thị từ và nút nghe âm thanh; khi click thẻ lật ra mặt sau thì 3 nút "Dễ - Thường - Khó" xuất hiện nổi bật; click nút không gây xung đột lật ngược thẻ.
 
 ---
 

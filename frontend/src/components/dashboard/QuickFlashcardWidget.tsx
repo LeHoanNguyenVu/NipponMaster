@@ -4,6 +4,7 @@ import type { ScreenType } from '../../App';
 import type { FlashcardItem } from '../../data/flashcardMnemonics';
 import { STANDARD_KANJI_INFO, resolveMnemonicInfo } from '../../data/flashcardMnemonics';
 import { playBoostedJapaneseAudio } from '../../utils/audioBoost';
+import { recordCardReviewSRS, type SrsDifficulty } from '../../utils/srsCardManager';
 
 interface QuickFlashcardWidgetProps {
   currentDeck: FlashcardItem[];
@@ -76,6 +77,27 @@ export default function QuickFlashcardWidget({
     setTimeout(() => {
       setIsDealing(false);
     }, 550);
+  };
+
+  // Đánh giá ghi nhớ theo Spaced Repetition (SRS): Dễ (+7d), Thường (+3d), Khó (+1d)
+  const handleRateSRS = (difficulty: SrsDifficulty) => {
+    if (!activeCard) return;
+
+    // 1. Ghi nhận SRS
+    recordCardReviewSRS(activeCard, difficulty);
+
+    // 2. Ghi nhận thẻ đã học để tích lũy điểm danh
+    onCardReviewed(cardIndex % deckLength);
+
+    // 3. Tự động lật lại mặt trước & chuyển thẻ tiếp theo
+    setIsFlipped(false);
+    setIsDealing(true);
+    setTimeout(() => {
+      setCardIndex((prev) => (prev + 1) % deckLength);
+    }, 200);
+    setTimeout(() => {
+      setIsDealing(false);
+    }, 600);
   };
 
   const reviewedCount = todayReviewedCards.length;
@@ -224,16 +246,16 @@ export default function QuickFlashcardWidget({
       {/* 3. Full-width 3D Flip Card: Click anywhere on the card to flip! */}
       <div 
         style={{ perspective: '1200px' }}
-        className="w-full min-h-[290px] cursor-pointer select-none relative group"
+        className="w-full min-h-[350px] cursor-pointer select-none relative group"
         onClick={() => setIsFlipped((prev) => !prev)}
-        title="Nhấn chuột để lật thẻ"
+        title="Nhấn chuột vào khoảng trống để lật thẻ"
       >
         <div 
           style={{
             position: 'relative',
             width: '100%',
             height: '100%',
-            minHeight: '290px',
+            minHeight: '350px',
             transition: 'transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1)',
             transformStyle: 'preserve-3d',
             transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
@@ -366,6 +388,59 @@ export default function QuickFlashcardWidget({
                     Chưa có câu ví dụ cho thẻ này. Nhấn nút Loa 🔊 để nghe phát âm.
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* 3 Nút Đánh Giá Spaced Repetition (SRS) ở Mặt Sau: Dễ (+7d), Thường (+3d), Khó (+1d) */}
+            <div className="pt-3.5 border-t border-outline-variant/30 z-20">
+              <div className="grid grid-cols-3 gap-2.5 sm:gap-3 w-full">
+                {/* Nút Khó: +1 ngày */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRateSRS('hard');
+                  }}
+                  title="Thẻ này khó, ngày mai sẽ ôn tập lại (+1 ngày)"
+                  className="py-2.5 px-3 rounded-2xl bg-rose-500/15 hover:bg-rose-500 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-500/35 hover:border-rose-500 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center gap-0.5 group/btn"
+                >
+                  <span className="text-xs sm:text-sm font-black">🔴 Khó</span>
+                  <span className="text-[10px] opacity-80 group-hover/btn:opacity-100 font-medium">
+                    +1 ngày (mai ôn)
+                  </span>
+                </button>
+
+                {/* Nút Thường: +3 ngày */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRateSRS('medium');
+                  }}
+                  title="Thẻ ở mức bình thường, 3 ngày sau sẽ ôn tập lại (+3 ngày)"
+                  className="py-2.5 px-3 rounded-2xl bg-amber-500/15 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-white border border-amber-500/35 hover:border-amber-500 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center gap-0.5 group/btn"
+                >
+                  <span className="text-xs sm:text-sm font-black">🟡 Thường</span>
+                  <span className="text-[10px] opacity-80 group-hover/btn:opacity-100 font-medium">
+                    +3 ngày sau
+                  </span>
+                </button>
+
+                {/* Nút Dễ: +7 ngày */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRateSRS('easy');
+                  }}
+                  title="Thẻ dễ đã thuộc, 1 tuần sau mới xuất hiện lại (+7 ngày)"
+                  className="py-2.5 px-3 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-500/35 hover:border-emerald-500 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center gap-0.5 group/btn"
+                >
+                  <span className="text-xs sm:text-sm font-black">🟢 Dễ</span>
+                  <span className="text-[10px] opacity-80 group-hover/btn:opacity-100 font-medium">
+                    +7 ngày (tuần sau)
+                  </span>
+                </button>
               </div>
             </div>
           </div>

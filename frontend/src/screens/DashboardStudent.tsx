@@ -3,10 +3,12 @@ import { useAuthStore } from '../store/useAuthStore';
 import axiosClient from '../api/axiosClient';
 import type { ScreenType } from '../App';
 import HeroCockpit from '../components/dashboard/HeroCockpit';
-import SkillMatrixSection from '../components/dashboard/SkillMatrixSection';
+import ModuleProgressOverview from '../components/dashboard/ModuleProgressOverview';
 import QuickFlashcardWidget from '../components/dashboard/QuickFlashcardWidget';
 import { INITIAL_FALLBACK_CARDS, type FlashcardItem } from '../data/flashcardMnemonics';
 import { loadStreakState, recordFlashcardReviewed, type StreakState } from '../utils/streakManager';
+import { loadAllModulesProgress } from '../utils/moduleProgressManager';
+import { getDaily10CardsDeck } from '../utils/srsCardManager';
 
 interface Stats {
   jlptLevel: string;
@@ -162,30 +164,27 @@ export default function DashboardStudent({
 
   const levelDisplay = formatLevel(rawLevel);
 
-  // 10 Cards Daily Deck - strictly filtered for current level and capped at 10
+  // 10 Cards Daily Deck - Bốc theo thuật toán Spaced Repetition (SRS) đảm bảo đổi mới mỗi ngày
   const daily10Cards = useMemo(() => {
     const rawDeck = cards.filter(c => !c.jlptLevel || c.jlptLevel.toUpperCase() === normalizedLevelKey);
     const sourceDeck = rawDeck.length > 0 ? rawDeck : (cards.length > 0 ? cards : INITIAL_FALLBACK_CARDS);
-    
-    // Deterministic daily shuffle based on today's date so deck is consistent throughout the day
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const shuffled = [...sourceDeck].sort((a, b) => {
-      const hashA = (a.kanji + todayStr).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const hashB = (b.kanji + todayStr).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      return (hashA % 17) - (hashB % 17);
-    });
-    return shuffled.slice(0, 10);
+    return getDaily10CardsDeck(sourceDeck);
   }, [cards, normalizedLevelKey]);
 
-  // Percentage calculations
-  const vocabPct = stats.vocabTotal > 0 ? Math.min(100, Math.round((stats.vocabLearned / stats.vocabTotal) * 100)) : 0;
-  const kanjiPct = stats.kanjiTotal > 0 ? Math.min(100, Math.round((stats.kanjiLearned / stats.kanjiTotal) * 100)) : 0;
-  const grammarPct = stats.grammarTotal > 0 ? Math.min(100, Math.round((stats.grammarLearned / stats.grammarTotal) * 100)) : 0;
-  const overallMastery = Math.max(5, Math.round((vocabPct + kanjiPct + grammarPct) / 3));
+  // Tiến độ tích lũy thực tế của 4 Module Cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện nghe)
+  const modulesProgress = useMemo(() => {
+    return loadAllModulesProgress({
+      kanjiLearned: stats.kanjiLearned,
+      grammarLearned: stats.grammarLearned,
+      listeningCompleted: stats.listeningCompleted,
+    });
+  }, [stats.kanjiLearned, stats.grammarLearned, stats.listeningCompleted]);
+
+  const overallMastery = modulesProgress.overallMasteryPercent;
 
   return (
     <div className="max-w-[1360px] mx-auto p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 font-sans pb-16 animate-fade-in">
-      {/* Tầng 1: Header chào mừng & Thanh 4 chỉ số thống kê (Streak Duolingo, Giờ học, Lộ trình, Thẻ hôm nay) */}
+      {/* Tầng 1: Header chào mừng & Thanh 3 chỉ số thống kê (Streak Duolingo, Lộ trình, Thẻ hôm nay) */}
       <HeroCockpit
         fullName={user?.fullName || username || 'Học viên'}
         levelDisplay={levelDisplay}
@@ -193,18 +192,12 @@ export default function DashboardStudent({
         overallMastery={overallMastery}
         isRefreshing={isRefreshing}
         streakState={streakState}
-        weeklyStudyMinutes={stats.weeklyStudyMinutes}
       />
 
-      {/* Tầng 2: Ma trận tiến độ 4 chức năng cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện nghe) */}
-      <SkillMatrixSection
+      {/* Tầng 2: Tiến độ 4 chức năng cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện nghe) */}
+      <ModuleProgressOverview
         levelDisplay={levelDisplay}
-        kanjiLearned={stats.kanjiLearned}
-        kanjiTotal={stats.kanjiTotal}
-        grammarLearned={stats.grammarLearned}
-        grammarTotal={stats.grammarTotal}
-        listeningCompleted={stats.listeningCompleted}
-        listeningTotal={stats.listeningTotal}
+        modulesProgress={modulesProgress}
         onNavigate={navigateTo}
       />
 
