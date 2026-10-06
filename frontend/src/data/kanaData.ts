@@ -264,32 +264,344 @@ export const KATAKANA_HANDAKUON: KanaChar[] = [
 ];
 
 // ══════════════════════════════════════════════════════
+// KATAKANA — Âm ghép (Yōon) — 33 ký tự
+// ══════════════════════════════════════════════════════
+
+export const KATAKANA_YOON: KanaChar[] = [
+  { char: 'キャ', romaji: 'kya', type: 'katakana', category: 'yoon', row: 'kya', strokeCount: 4, exampleWord: 'キャンプ', exampleReading: 'kyanpu', exampleMeaning: 'Cắm trại' },
+  { char: 'キュ', romaji: 'kyu', type: 'katakana', category: 'yoon', row: 'kya', strokeCount: 4, exampleWord: 'キューブ', exampleReading: 'kyuubu', exampleMeaning: 'Khối lập phương' },
+  { char: 'キョ', romaji: 'kyo', type: 'katakana', category: 'yoon', row: 'kya', strokeCount: 4, exampleWord: 'キロ', exampleReading: 'kiro', exampleMeaning: 'Kilomet' },
+  { char: 'シャ', romaji: 'sha', type: 'katakana', category: 'yoon', row: 'sha', strokeCount: 4, exampleWord: 'シャツ', exampleReading: 'shatsu', exampleMeaning: 'Áo sơ mi' },
+  { char: 'シュ', romaji: 'shu', type: 'katakana', category: 'yoon', row: 'sha', strokeCount: 4, exampleWord: 'シュークリーム', exampleReading: 'shuukuriimu', exampleMeaning: 'Bánh su kem' },
+  { char: 'ショ', romaji: 'sho', type: 'katakana', category: 'yoon', row: 'sha', strokeCount: 4, exampleWord: 'シャンプー', exampleReading: 'shanpuu', exampleMeaning: 'Dầu gội' },
+  { char: 'チャ', romaji: 'cha', type: 'katakana', category: 'yoon', row: 'cha', strokeCount: 4, exampleWord: 'チャンス', exampleReading: 'chansu', exampleMeaning: 'Cơ hội' },
+  { char: 'チュ', romaji: 'chu', type: 'katakana', category: 'yoon', row: 'cha', strokeCount: 4, exampleWord: 'チューリップ', exampleReading: 'chuurippu', exampleMeaning: 'Hoa tulip' },
+  { char: 'チョ', romaji: 'cho', type: 'katakana', category: 'yoon', row: 'cha', strokeCount: 4, exampleWord: 'チョコレート', exampleReading: 'chokoreeto', exampleMeaning: 'Sô-cô-la' },
+  { char: 'ニャ', romaji: 'nya', type: 'katakana', category: 'yoon', row: 'nya', strokeCount: 3, exampleWord: 'ニャー', exampleReading: 'nyaa', exampleMeaning: 'Tiếng mèo kêu' },
+  { char: 'ニュ', romaji: 'nyu', type: 'katakana', category: 'yoon', row: 'nya', strokeCount: 3, exampleWord: 'ニュース', exampleReading: 'nyuusu', exampleMeaning: 'Tin tức' },
+  { char: 'ニョ', romaji: 'nyo', type: 'katakana', category: 'yoon', row: 'nya', strokeCount: 4, exampleWord: 'ニョッキ', exampleReading: 'nyokki', exampleMeaning: 'Món Gnocchi' },
+  { char: 'ヒャ', romaji: 'hya', type: 'katakana', category: 'yoon', row: 'hya', strokeCount: 3, exampleWord: 'ヒャッハー', exampleReading: 'hyahhaa', exampleMeaning: 'Tiếng reo hò' },
+  { char: 'ヒュ', romaji: 'hyu', type: 'katakana', category: 'yoon', row: 'hya', strokeCount: 3, exampleWord: 'ヒューズ', exampleReading: 'hyuuzu', exampleMeaning: 'Cầu chì' },
+  { char: 'ヒョ', romaji: 'hyo', type: 'katakana', category: 'yoon', row: 'hya', strokeCount: 4, exampleWord: 'ヒョウ', exampleReading: 'hyou', exampleMeaning: 'Báo đốm' },
+  { char: 'ミャ', romaji: 'mya', type: 'katakana', category: 'yoon', row: 'mya', strokeCount: 3, exampleWord: 'ミャンマー', exampleReading: 'myanmaa', exampleMeaning: 'Myanmar' },
+  { char: 'ミュ', romaji: 'myu', type: 'katakana', category: 'yoon', row: 'mya', strokeCount: 3, exampleWord: 'ミュージアム', exampleReading: 'myuujiamu', exampleMeaning: 'Bảo tàng' },
+  { char: 'ミョ', romaji: 'myo', type: 'katakana', category: 'yoon', row: 'mya', strokeCount: 4, exampleWord: 'ミョウバン', exampleReading: 'myouban', exampleMeaning: 'Phèn chua' },
+  { char: 'リャ', romaji: 'rya', type: 'katakana', category: 'yoon', row: 'rya', strokeCount: 3, exampleWord: 'リャマ', exampleReading: 'ryama', exampleMeaning: 'Lạc đà không bướu' },
+  { char: 'リュ', romaji: 'ryu', type: 'katakana', category: 'yoon', row: 'rya', strokeCount: 3, exampleWord: 'リュック', exampleReading: 'ryukku', exampleMeaning: 'Ba lô' },
+  { char: 'リョ', romaji: 'ryo', type: 'katakana', category: 'yoon', row: 'rya', strokeCount: 4, exampleWord: 'リョーマ', exampleReading: 'ryooma', exampleMeaning: 'Tên Ryoma' },
+  { char: 'ギャ', romaji: 'gya', type: 'katakana', category: 'yoon', row: 'gya', strokeCount: 4, exampleWord: 'ギャング', exampleReading: 'gyangu', exampleMeaning: 'Băng đảng' },
+  { char: 'ギュ', romaji: 'gyu', type: 'katakana', category: 'yoon', row: 'gya', strokeCount: 4, exampleWord: 'ギュー', exampleReading: 'gyuu', exampleMeaning: 'Ôm chặt' },
+  { char: 'ギョ', romaji: 'gyo', type: 'katakana', category: 'yoon', row: 'gya', strokeCount: 4, exampleWord: 'ギョーザ', exampleReading: 'gyooza', exampleMeaning: 'Há cảo' },
+  { char: 'ジャ', romaji: 'ja', type: 'katakana', category: 'yoon', row: 'ja', strokeCount: 4, exampleWord: 'ジャケット', exampleReading: 'jaketto', exampleMeaning: 'Áo khoác' },
+  { char: 'ジュ', romaji: 'ju', type: 'katakana', category: 'yoon', row: 'ja', strokeCount: 4, exampleWord: 'ジュース', exampleReading: 'juusu', exampleMeaning: 'Nước trái cây' },
+  { char: 'ジョ', romaji: 'jo', type: 'katakana', category: 'yoon', row: 'ja', strokeCount: 4, exampleWord: 'ジョギング', exampleReading: 'jogingu', exampleMeaning: 'Chạy bộ' },
+  { char: 'ビャ', romaji: 'bya', type: 'katakana', category: 'yoon', row: 'bya', strokeCount: 4, exampleWord: 'ビャクシン', exampleReading: 'byakushin', exampleMeaning: 'Cây tùng cối' },
+  { char: 'ビュ', romaji: 'byu', type: 'katakana', category: 'yoon', row: 'bya', strokeCount: 4, exampleWord: 'ビュッフェ', exampleReading: 'byuffe', exampleMeaning: 'Tiệc buffet' },
+  { char: 'ビョ', romaji: 'byo', type: 'katakana', category: 'yoon', row: 'bya', strokeCount: 5, exampleWord: 'ビョーク', exampleReading: 'byooku', exampleMeaning: 'Bjork' },
+  { char: 'ピャ', romaji: 'pya', type: 'katakana', category: 'yoon', row: 'pya', strokeCount: 4, exampleWord: 'ピャー', exampleReading: 'pyaa', exampleMeaning: 'Tiếng kêu' },
+  { char: 'ピュ', romaji: 'pyu', type: 'katakana', category: 'yoon', row: 'pya', strokeCount: 4, exampleWord: 'ピューレ', exampleReading: 'pyuure', exampleMeaning: 'Nước sốt nhuyễn' },
+  { char: 'ピョ', romaji: 'pyo', type: 'katakana', category: 'yoon', row: 'pya', strokeCount: 5, exampleWord: 'ピョコピョコ', exampleReading: 'pyokopyoko', exampleMeaning: 'Lách chách' },
+];
+
+// ══════════════════════════════════════════════════════
+// QUY TẮC ÂM ĐỌC MỞ RỘNG (Sokuon, Chōon, Hatsuon)
+// ══════════════════════════════════════════════════════
+
+export interface SoundRuleExample {
+  word: string;
+  reading: string;
+  romaji: string;
+  meaning: string;
+  kanaType: 'hiragana' | 'katakana';
+  contrastWith?: {
+    word: string;
+    reading: string;
+    romaji: string;
+    meaning: string;
+  };
+}
+
+export interface SoundRule {
+  id: string;
+  name: string;
+  subtitle: string;
+  badge: string;
+  description: string;
+  formula: string;
+  notes: string[];
+  examples: SoundRuleExample[];
+}
+
+export const EXTENDED_SOUND_RULES: SoundRule[] = [
+  {
+    id: 'sokuon',
+    name: '促音 (Âm Ngắt)',
+    subtitle: 'Chữ っ (Hiragana) và ッ (Katakana) nhỏ',
+    badge: 'っ / ッ',
+    description: 'Âm ngắt được biểu thị bằng chữ tsu nhỏ (っ / ッ). Khi phát âm, ta ngắt luồng hơi khoảng 1 nhịp (1 phách) và gấp đôi phụ âm đứng ngay sau nó (k, s, t, p).',
+    formula: 'Chữ cái + っ / ッ + Phụ âm (k, s, t, p) → Gấp đôi phụ âm',
+    notes: [
+      'っ / ッ nhỏ chỉ bằng khoảng 1/2 kích thước chữ bình thường.',
+      'Chiếm độ dài đúng 1 phách phát âm (mora) dù không phát ra tiếng.',
+      'Phát âm tương phản: "kite" (hãy đến) khác hoàn toàn "kitte" (con tem)!'
+    ],
+    examples: [
+      {
+        word: 'きって',
+        reading: 'きって',
+        romaji: 'kitte',
+        meaning: 'Con tem',
+        kanaType: 'hiragana',
+        contrastWith: { word: 'きて', reading: 'きて', romaji: 'kite', meaning: 'Hãy đến (không có âm ngắt)' }
+      },
+      {
+        word: 'ざっし',
+        reading: 'ざっし',
+        romaji: 'zasshi',
+        meaning: 'Tạp chí',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'がっこう',
+        reading: 'がっこう',
+        romaji: 'gakkou',
+        meaning: 'Trường học',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'きっぷ',
+        reading: 'きっぷ',
+        romaji: 'kippu',
+        meaning: 'Vé xe/tàu',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'コップ',
+        reading: 'コップ',
+        romaji: 'koppu',
+        meaning: 'Cái cốc / Ly nước',
+        kanaType: 'katakana'
+      },
+      {
+        word: 'サッカー',
+        reading: 'サッカー',
+        romaji: 'sakkaa',
+        meaning: 'Môn bóng đá',
+        kanaType: 'katakana'
+      },
+      {
+        word: 'ベッド',
+        reading: 'ベッド',
+        romaji: 'beddo',
+        meaning: 'Cái giường ngủ',
+        kanaType: 'katakana'
+      },
+      {
+        word: 'チケット',
+        reading: 'チケット',
+        romaji: 'chiketto',
+        meaning: 'Vé vào cửa',
+        kanaType: 'katakana'
+      }
+    ]
+  },
+  {
+    id: 'choon',
+    name: '長音 (Trường Âm)',
+    subtitle: 'Kéo dài nguyên âm bằng 2 phách',
+    badge: 'ー / Kép âm',
+    description: 'Trường âm là những nguyên âm được kéo dài gấp đôi thời lượng thông thường (bằng 2 phách phát âm). Trong tiếng Nhật, kéo dài nguyên âm sẽ biến đổi nghĩa sang một từ hoàn toàn khác.',
+    formula: 'Hiragana: Cột âm + Nguyên âm tương ứng | Katakana: Dấu gạch ngang dài ー',
+    notes: [
+      'Quy tắc Hiragana: Cột A (+あ), Cột I (+い), Cột U (+う), Cột E (+え hoặc +い), Cột O (+お hoặc +う).',
+      'Đặc biệt lưu ý: Hàng O phần lớn cộng thêm う (ví dụ: おとうさん otousan, ひこうき hikouki).',
+      'Trong Katakana: Mọi trường âm đều được biểu thị bằng dấu gạch ngang dài ー (Chōonpu).'
+    ],
+    examples: [
+      {
+        word: 'おかあさん',
+        reading: 'おかあさん',
+        romaji: 'okaasan',
+        meaning: 'Mẹ (Cột A + あ)',
+        kanaType: 'hiragana',
+        contrastWith: { word: 'おばさん', reading: 'おばさん', romaji: 'obasan', meaning: 'Cô / dì (âm ngắn)' }
+      },
+      {
+        word: 'おばあさん',
+        reading: 'おばあさん',
+        romaji: 'obaasan',
+        meaning: 'Bà (Trường âm あ)',
+        kanaType: 'hiragana',
+        contrastWith: { word: 'おばさん', reading: 'おばさん', romaji: 'obasan', meaning: 'Cô / dì (âm ngắn)' }
+      },
+      {
+        word: 'おにいさん',
+        reading: 'おにいさん',
+        romaji: 'oniisan',
+        meaning: 'Anh trai (Cột I + い)',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'くうき',
+        reading: 'くうき',
+        romaji: 'kuuki',
+        meaning: 'Không khí (Cột U + う)',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'せんせい',
+        reading: 'せんせい',
+        romaji: 'sensei',
+        meaning: 'Thầy / Cô giáo (Cột E + い)',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'おとうさん',
+        reading: 'おとうさん',
+        romaji: 'otousan',
+        meaning: 'Bố (Cột O + う)',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'コーヒー',
+        reading: 'コーヒー',
+        romaji: 'koohii',
+        meaning: 'Cà phê (Katakana dấu ー)',
+        kanaType: 'katakana'
+      },
+      {
+        word: 'ケーキ',
+        reading: 'ケーキ',
+        romaji: 'keeki',
+        meaning: 'Bánh ngọt (Katakana dấu ー)',
+        kanaType: 'katakana'
+      },
+      {
+        word: 'タクシー',
+        reading: 'タクシー',
+        romaji: 'takushii',
+        meaning: 'Xe taxi (Katakana dấu ー)',
+        kanaType: 'katakana'
+      },
+      {
+        word: 'スーパー',
+        reading: 'スーパー',
+        romaji: 'suupaa',
+        meaning: 'Siêu thị (Katakana dấu ー)',
+        kanaType: 'katakana'
+      }
+    ]
+  },
+  {
+    id: 'hatsuon',
+    name: '撥音 (Âm Mũi)',
+    subtitle: 'Chữ ん (Hiragana) và ン (Katakana)',
+    badge: 'ん / ン',
+    description: 'Chữ ん / ン là ký tự duy nhất trong tiếng Nhật là một phụ âm đứng riêng không kèm nguyên âm. Nó chiếm đúng 1 phách phát âm (mora) và biến âm tùy theo chữ cái đứng sau.',
+    formula: 'ん / ン = 1 phách phát âm riêng biệt',
+    notes: [
+      'Đọc là [m] khi đứng trước các âm hàng p, b, m: てんぷら (tempura), さんぽ (sampo).',
+      'Đọc là [ng] khi đứng trước k, g hoặc ở cuối câu: にほん (nihon), ぎんこう (ginkou).',
+      'Đọc là [n] khi đứng trước t, d, n, r: おんな (onna), せんせい (sensei).'
+    ],
+    examples: [
+      {
+        word: 'にほん',
+        reading: 'にほん',
+        romaji: 'nihon',
+        meaning: 'Nhật Bản',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'てんぷら',
+        reading: 'てんぷら',
+        romaji: 'tempura',
+        meaning: 'Món Tempura (phát âm m)',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'ぎんこう',
+        reading: 'ぎんこう',
+        romaji: 'ginkou',
+        meaning: 'Ngân hàng (phát âm ng)',
+        kanaType: 'hiragana'
+      },
+      {
+        word: 'パン',
+        reading: 'パン',
+        romaji: 'pan',
+        meaning: 'Bánh mì (Katakana)',
+        kanaType: 'katakana'
+      }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════════════
 // Helpers
 // ══════════════════════════════════════════════════════
 
-/** Tất cả Hiragana */
+/** Tất cả Hiragana cơ bản */
 export const ALL_HIRAGANA = [...HIRAGANA_SEION, ...HIRAGANA_DAKUON, ...HIRAGANA_HANDAKUON];
 
-/** Tất cả Katakana */
+/** Tất cả Katakana cơ bản */
 export const ALL_KATAKANA = [...KATAKANA_SEION, ...KATAKANA_DAKUON, ...KATAKANA_HANDAKUON];
 
-/** Tất cả chữ cái cơ bản (không gồm Yōon) */
+/** Tất cả chữ cái cơ bản */
 export const ALL_KANA = [...ALL_HIRAGANA, ...ALL_KATAKANA];
 
 /** Row labels tiếng Việt */
 export const ROW_LABELS: Record<string, string> = {
-  a: 'Hàng A (あ行)', ka: 'Hàng KA (か行)', sa: 'Hàng SA (さ行)',
-  ta: 'Hàng TA (た行)', na: 'Hàng NA (な行)', ha: 'Hàng HA (は行)',
-  ma: 'Hàng MA (ま行)', ya: 'Hàng YA (や行)', ra: 'Hàng RA (ら行)',
-  wa: 'Hàng WA (わ行)',
-  ga: 'Hàng GA (が行)', za: 'Hàng ZA (ざ行)', da: 'Hàng DA (だ行)',
-  ba: 'Hàng BA (ば行)', pa: 'Hàng PA (ぱ行)',
+  a: 'Hàng A (あ行 / ア行)',
+  ka: 'Hàng KA (か行 / カ行)',
+  sa: 'Hàng SA (さ行 / サ行)',
+  ta: 'Hàng TA (た行 / タ行)',
+  na: 'Hàng NA (な行 / ナ行)',
+  ha: 'Hàng HA (は行 / ハ行)',
+  ma: 'Hàng MA (ま行 / マ行)',
+  ya: 'Hàng YA (や行 / ヤ行)',
+  ra: 'Hàng RA (ら行 / ラ行)',
+  wa: 'Hàng WA (わ行 / ワ行)',
+  ga: 'Hàng GA (が行 / ガ行)',
+  za: 'Hàng ZA (ざ行 / ザ行)',
+  da: 'Hàng DA (だ行 / ダ行)',
+  ba: 'Hàng BA (ば行 / バ行)',
+  pa: 'Hàng PA (ぱ行 / パ行)',
+  kya: 'Hàng KYA (きゃ行 / キャ行)',
+  sha: 'Hàng SHA (しゃ行 / シャ行)',
+  cha: 'Hàng CHA (ちゃ行 / チャ行)',
+  nya: 'Hàng NYA (にゃ行 / ニャ行)',
+  hya: 'Hàng HYA (ひゃ行 / ヒャ行)',
+  mya: 'Hàng MYA (みゃ行 / ミャ行)',
+  rya: 'Hàng RYA (りゃ行 / リャ行)',
+  gya: 'Hàng GYA (ぎゃ行 / ギャ行)',
+  ja: 'Hàng JA (じゃ行 / ジャ行)',
+  bya: 'Hàng BYA (びゃ行 / ビャ行)',
+  pya: 'Hàng PYA (ぴゃ行 / ピャ行)',
 };
 
-/** Thứ tự hàng cho Seion */
+/** Thứ tự hàng cho Seion, Dakuon, Handakuon, Yoon */
 export const SEION_ROW_ORDER = ['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa'];
 export const DAKUON_ROW_ORDER = ['ga', 'za', 'da', 'ba'];
 export const HANDAKUON_ROW_ORDER = ['pa'];
+export const YOON_ROW_ORDER = ['kya', 'sha', 'cha', 'nya', 'hya', 'mya', 'rya', 'gya', 'ja', 'bya', 'pya'];
+
+/** Toàn bộ thứ tự học liên tục theo hàng từ cơ bản đến nâng cao */
+export const ALL_ROW_ORDER = [
+  ...SEION_ROW_ORDER,
+  ...DAKUON_ROW_ORDER,
+  ...HANDAKUON_ROW_ORDER,
+  ...YOON_ROW_ORDER,
+];
+
+/** Lấy hàng tiếp theo của bảng chữ cái */
+export function getNextRow(currentRow: string): string | null {
+  const idx = ALL_ROW_ORDER.indexOf(currentRow);
+  if (idx >= 0 && idx + 1 < ALL_ROW_ORDER.length) {
+    return ALL_ROW_ORDER[idx + 1];
+  }
+  return null;
+}
 
 /** Lấy nhãn hàng */
 export function getKanaRowLabel(row: string): string {
@@ -323,3 +635,4 @@ export function speakJapanese(text: string, rate = 0.8): void {
 
   window.speechSynthesis.speak(utterance);
 }
+

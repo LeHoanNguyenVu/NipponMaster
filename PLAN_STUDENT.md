@@ -105,53 +105,65 @@
 
 ---
 
-### MODULE 2: NHẬP MÔN (BEGINNER COURSE)
+### MODULE 2: NHẬP MÔN (BEGINNER COURSE) - 5 CHƯƠNG TUẦN TỰ
 
-#### 1. Đánh giá & Hoàn thiện Kiến thức
-Hiện tại module đã có bộ khung 5 chương tại `BeginnerCourseHub.tsx`. Sau khi rà soát kiến thức nền tảng tiếng Nhật chuẩn quốc tế:
-- **Kiến thức đã có**: Bảng Hiragana/Katakana 46 âm cơ bản, Số đếm & Thời gian, Chào hỏi giao tiếp cơ bản, 35+ bộ thủ tượng hình, Cấu trúc câu ngữ pháp `N1 は N2 です`.
-- **Nội dung CẦN BỔ SUNG & ĐIỀU CHỈNH**:
-  1. **Bổ sung Quy tắc âm đọc mở rộng trong Chương 1**:
-     - Âm đục (Dakuon - `ga, za, da, ba`) và Âm bán đục (Handakuon - `pa`).
-     - Âm ghép / Ảo âm (Yoon - `kya, sha, cha, nya, hya, mya, rya...`).
-     - Âm ngắt (Sokuon - chữ `っ/ッ` nhỏ) kèm quy tắc gấp đôi phụ âm.
-     - Trường âm (Chōon) trong Hiragana (`aa, ii, uu, ee, oo`) và Katakana (dấu gạch ngang `ー`).
-  2. **Bổ sung Quy tắc đếm đặc biệt trong Chương 2**:
-     - Đếm người đặc biệt: 1 người (*hitori*), 2 người (*futari*), 4 người (*yonin*).
-     - Đếm ngày trong tháng: Ngày 1 (*tsuitachi*), ngày 2 (*futsuka*)... ngày 14 (*jūyokka*), ngày 20 (*hatsuka*).
-     - Đếm tuổi: 20 tuổi (*hatachi*).
-  3. **LOẠI BỎ AI CANVAS GRADERS**:
-     - Thay thế toàn bộ tính năng vẽ tay AI canvas bằng:
-       * Ảnh động thứ tự nét vẽ chuẩn (Stroke order GIF / SVG animation).
-       * Trắc nghiệm nhận diện mặt chữ, ghép âm đọc, chọn phiên âm Romaji đúng.
-  4. **Bổ sung Bài Test Tổng Hợp Tốt Nghiệp Nhập Môn (Final Beginner Quiz)**:
-     - 20 câu trắc nghiệm tổng hợp 5 chương: Bảng chữ cái (8 câu), Số đếm & thời gian (4 câu), Chào hỏi (3 câu), Cấu trúc câu cơ bản (5 câu).
-     - Đạt từ 80% (16/20) trở lên: Cấp chứng nhận hoàn thành khóa nhập môn và mở khóa toàn bộ các bài học tiếp theo.
+#### 1. Lộ trình 5 Chương chuẩn hóa
+- **Chương 1: Bảng Chữ Cái & Quy Tắc Âm Đọc (Alphabet & Extended Sound Rules)**
+- **Chương 2: Số Đếm, Đơn Vị Đếm & Thời Gian (Numbers, Counters & Time)**
+- **Chương 3: Chào Hỏi Giao Tiếp & Xưng Hô Văn Hóa (Aisatsu Phrases & Etiquette)**
+- **Chương 4: 50+ Bộ Thủ Tượng Hình Nền Tảng (Kanji Radicals)**
+- **Chương 5: Cấu Trúc Câu & Thì Ngữ Pháp Nhập Môn (Basic Grammar Structures)**
 
-#### 2. Phân chia Task thực hiện (Checklist)
-- [ ] **Task 2.1: Bổ sung kiến thức âm mở rộng vào AlphabetExplorer.tsx**
-  - [ ] Bổ sung tab Âm Đục (Dakuon) và Âm Bán Đục (Handakuon) kèm audio phát âm.
-  - [ ] Bổ sung tab Âm Ghép (Yoon) và quy tắc phát âm kết hợp hàng `i` với `ya, yu, yo`.
-  - [ ] Bổ sung giải thích trực quan về Âm Ngắt (Sokuon) và Trường Âm (Chōon).
-- [ ] **Task 2.2: Bổ sung bảng số đếm đặc biệt vào NumbersAndTime.tsx**
-  - [ ] Bổ sung danh sách biến âm đếm người (hitori, futari, yonin).
-  - [ ] Bổ sung danh sách đọc ngày trong tháng từ ngày 1 đến ngày 31.
-  - [ ] Thêm quy tắc đếm tuổi đặc biệt (hatachi).
-- [ ] **Task 2.3: Gỡ bỏ AI Canvas trong module Nhập Môn**
-  - [ ] Loại bỏ dependency canvas AI grading khỏi `KanjiRadicalsHub.tsx` và `AlphabetExplorer.tsx`.
-  - [ ] Thay thế bằng visual SVG stroke order animation và bài tập trắc nghiệm chọn đáp án đúng.
-- [ ] **Task 2.4: Xây dựng màn hình BeginnerFinalQuiz.tsx**
-  - [ ] Tạo ngân hàng 20 câu hỏi trắc nghiệm bao quát đủ 5 chương nhập môn.
-  - [ ] Thiết lập countdown timer 15 phút và logic chấm điểm tự động.
-  - [ ] Cài đặt điều kiện biên: Score >= 80% (16/20) thì mở khóa huy hiệu tốt nghiệp và lưu vào progress.
+---
 
-#### 3. Góc nhìn Kiểm thử (Tester Perspective)
-- **Kỹ thuật áp dụng**: Equivalence Partitioning, Decision Table.
-- **Test Scenarios**:
-  - `TC_BEG_01`: Làm bài test đạt 15/20 câu (75%) → Không đạt, không mở khóa tốt nghiệp.
-  - `TC_BEG_02`: Làm bài test đạt 16/20 câu (80%) → Đạt chuẩn biên tối thiểu, chúc mừng hoàn thành.
-  - `TC_BEG_03`: Kiểm tra việc phát âm audio từng ký tự khi click vào ô bảng chữ cái (Happy path & khi trình duyệt không hỗ trợ ja-JP).
-  - `TC_BEG_04`: Kiểm tra lưu tiến độ từng chương vào LocalStorage (F5 không mất trạng thái hoàn thành).
+#### 2. Chi tiết thực hiện theo từng Chương
+
+##### [HOÀN THÀNH 100%] Chương 1: Bảng Chữ Cái & Quy Tắc Âm Đọc
+- [x] **Bổ sung Quy tắc âm đọc mở rộng**:
+  * Đầy đủ Âm đục (Dakuon - 20 âm) và Âm bán đục (Handakuon - 5 âm).
+  * Đầy đủ Âm ghép (Yōon - 33 âm) cho cả Hiragana và Katakana.
+  * Chuyên đề Cẩm nang Quy tắc âm đọc:
+    - 促音 Âm Ngắt (Sokuon - chữ `っ/ッ` nhỏ, gấp đôi phụ âm k, s, t, p).
+    - 長音 Trường Âm (Chōon - Hiragana kép & Katakana dấu gạch ngang `ー`).
+    - 撥音 Âm Mũi (Hatsuon - chữ `ん/ン`).
+    - Bảng đối chiếu tương phản (kitte vs kite, obaasan vs obasan) kèm audio phát âm Web Speech API.
+- [x] **Loại bỏ hoàn toàn AI đánh giá nét chữ — Chuyển sang Tự luyện viết kèm Thứ tự nét chuẩn**:
+  * Gỡ bỏ nút đánh giá và logic chấm điểm AI gây khó khăn / đánh giá sai lệch cho học viên.
+  * Tích hợp hoạt ảnh thứ tự nét viết chuẩn (`KanjiStrokeWriter`) hiển thị số thứ tự nét (1, 2, 3...) và nút phát lại chuyển động nét.
+  * Trang bị bảng vẽ Washi cho học viên tự do đồ theo nét mờ, có bộ công cụ: Hoàn tác nét, Xóa bảng vẽ, Ẩn/Hiện mẫu chữ để tự kiểm tra trí nhớ.
+  * Hướng dẫn sư phạm trực quan giúp người học tự luyện viết đến khi quen tay rồi chuyển sang bước Phát âm.
+- [x] **Đồng bộ hóa tên nút khởi động**:
+  * Đổi tất cả các nút `"Học hàng này"` thành `"Bắt đầu"`.
+- [x] **Tái cấu trúc luồng học và Thang điều hướng 4 Thẻ**:
+  * Thẻ 1: `🔤 Bảng Tổng Quan` (Tra cứu, nghe phát âm, học quy tắc âm đọc, bấm "Bắt đầu" theo từng hàng).
+  * Thẻ 2: `📖 Bài Học` (Học từng chữ của hàng: Học mặt chữ -> Viết -> Phát âm chuẩn).
+  * Thẻ 3: `✨ Luyện Tập` (Tự động chuyển sang khi học xong 1 hàng, chỉ kiểm tra các chữ của hàng đó).
+    - Màn hình kết quả hàng có đúng 2 nút:
+      1. `"Làm lại"`: Luyện lại chính hàng vừa học.
+      2. `"Bài tiếp theo"`: Chuyển sang hàng tiếp theo của bảng chữ cái (`a` → `ka` → `sa` → `ta`... → `wa` → `ga` → `za`... → `pa` → `kya`...) và tự động mở tab Bài Học.
+  * Thẻ 4: `🃏 Luyện Tập Tổng Hợp` (Ngân hàng 60 đề thi độc lập - tối thiểu 15 bài riêng biệt cho mỗi mục: Toàn bộ Hiragana, Katakana, Trộn lẫn cả 2 bảng, và Âm ghép Yōon. Mỗi bài có mục tiêu sư phạm riêng, không trùng lặp, lưu điểm số từng bài).
+
+---
+
+##### [TIẾP THEO] Chương 2: Số Đếm, Đơn Vị Đếm & Thời Gian
+- [ ] Bổ sung bảng số đếm người đặc biệt (hitori, futari, yonin).
+- [ ] Bổ sung bảng ngày trong tháng từ ngày 1 đến ngày 31 (tsuitachi, futsuka... hatsuka).
+- [ ] Bổ sung quy tắc đếm tuổi đặc biệt (hatachi).
+- [ ] Bài luyện tập phản xạ chuyển đổi số và giờ giấc.
+
+##### [CHỜ XỬ LÝ] Chương 3: Chào Hỏi Giao Tiếp & Xưng Hô Văn Hóa
+##### [CHỜ XỬ LÝ] Chương 4: 50+ Bộ Thủ Tượng Hình Nền Tảng
+##### [CHỜ XỬ LÝ] Chương 5: Cấu Trúc Câu & Thì Ngữ Pháp Nhập Môn
+
+---
+
+#### 3. Góc nhìn Kiểm thử Chương 1 (Tester Perspective)
+- `TC_BEG_01 (Zero AI Label)`: Kiểm tra giao diện canvas không còn xuất hiện từ "AI" hay emoji "🤖", nút hiển thị đúng "Đánh giá".
+- `TC_BEG_02 (Start Button Label)`: Mọi nút học hàng trên Bảng tổng quan hiển thị "Bắt đầu".
+- `TC_BEG_03 (Row-by-Row Quiz Flow)`: Học xong hàng 'a' -> Chuyển sang Luyện tập hàng 'a' -> Hoàn thành bài test -> Bấm "Bài tiếp theo" -> Hệ thống nạp hàng 'ka' vào Bài học.
+- `TC_BEG_04 (Retry Row Quiz)`: Ở màn hình kết quả hàng 'a', bấm "Làm lại" -> Test lại riêng hàng 'a' mà không bị chuyển sang đề tổng hợp mix.
+- `TC_BEG_05 (Comprehensive Practice Tab)`: Thẻ "Luyện Tập Tổng Hợp" có đầy đủ picker (Toàn bộ Hiragana, Katakana, Trộn lẫn, Âm ghép), hoàn thành có nút "Làm lại" và "Chọn phạm vi khác".
+- `TC_BEG_06 (Extended Sound Rules)`: Mở Bảng tổng quan -> Section Quy tắc âm đọc -> Nghe được âm thanh của Âm ngắt, Trường âm và bảng tương phản.
 
 ---
 
