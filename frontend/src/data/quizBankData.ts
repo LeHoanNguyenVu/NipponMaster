@@ -10182,3 +10182,55 @@ export function saveQuizScore(scope: string, setId: number, score: number, total
     console.error('Không thể lưu điểm quiz:', e);
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// HÀNG CHỮ ĐÃ HỌC & ĐIỂM TEST THỰC TẾ CHƯƠNG 1
+// ═══════════════════════════════════════════════════════════════════════
+const LEARNED_ROWS_KEY = 'nippon_learned_kana_rows';
+
+export function getLearnedKanaRows(): string[] {
+  try {
+    const raw = localStorage.getItem(LEARNED_ROWS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function markKanaRowLearned(row: string): void {
+  if (!row) return;
+  try {
+    const current = getLearnedKanaRows();
+    if (!current.includes(row)) {
+      current.push(row);
+      localStorage.setItem(LEARNED_ROWS_KEY, JSON.stringify(current));
+    }
+  } catch (e) {
+    console.error('Không thể lưu hàng chữ đã học:', e);
+  }
+}
+
+/**
+ * Lấy điểm số bài test cao nhất THỰC TẾ mà học viên đã đạt được trong Chương 1
+ * (Duyệt toàn bộ các bài test người dùng đã làm thật trong Luyện tập tổng hợp)
+ */
+export function getChapter1RealMaxScore(): number {
+  const scores = loadSavedQuizScores();
+  let maxPct = 0;
+  for (const k in scores) {
+    const item = scores[k];
+    if (item && item.total > 0) {
+      const pct = Math.round((item.bestScore / item.total) * 100);
+      if (pct > maxPct) maxPct = pct;
+    }
+  }
+  return maxPct;
+}
+
+/**
+ * Đếm số lượng bài test mà học viên đã hoàn thành trong Chương 1
+ */
+export function getChapter1CompletedQuizzesCount(): number {
+  const scores = loadSavedQuizScores();
+  return Object.keys(scores).length;
+}

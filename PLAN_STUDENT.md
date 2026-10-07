@@ -145,11 +145,11 @@
 
 ---
 
-##### [TIẾP THEO] Chương 2: Số Đếm, Đơn Vị Đếm & Thời Gian
-- [ ] Bổ sung bảng số đếm người đặc biệt (hitori, futari, yonin).
-- [ ] Bổ sung bảng ngày trong tháng từ ngày 1 đến ngày 31 (tsuitachi, futsuka... hatsuka).
-- [ ] Bổ sung quy tắc đếm tuổi đặc biệt (hatachi).
-- [ ] Bài luyện tập phản xạ chuyển đổi số và giờ giấc.
+##### [HOÀN TẤT] Chương 2: Số Đếm, Đơn Vị Đếm & Thời Gian
+- [x] Bổ sung bảng số đếm người đặc biệt (hitori, futari, yonin, cụm từ cô đơn hitoribocchi...).
+- [x] Bổ sung bảng ngày trong tháng từ ngày 1 đến ngày 31 (tsuitachi, futsuka... hatsuka) với filter ngày bất quy tắc & mẹo phân biệt.
+- [x] Bổ sung quy tắc đếm tuổi đặc biệt (二十歳 - はたち hatachi, các biến âm sokuon 1, 8, 10 tuổi & câu hỏi tuổi/kính ngữ).
+- [x] Bài luyện tập phản xạ chuyển đổi số và giờ giấc (Chế độ Flash Speed Reflex mode với chuỗi streak đúng liên tiếp).
 
 ##### [CHỜ XỬ LÝ] Chương 3: Chào Hỏi Giao Tiếp & Xưng Hô Văn Hóa
 ##### [CHỜ XỬ LÝ] Chương 4: 50+ Bộ Thủ Tượng Hình Nền Tảng

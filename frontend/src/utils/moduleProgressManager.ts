@@ -50,8 +50,8 @@ export const getBeginnerProgress = (): { completed: number; total: number; perce
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.BEGINNER);
     if (!raw) {
-      // Mặc định ban đầu: Chương 1 đã mở/hoàn thành khởi động -> 1/5 (20%)
-      return { completed: 1, total, percent: 20 };
+      // Mặc định ban đầu: Chưa hoàn thành chương nào -> 0/5 (0%)
+      return { completed: 0, total, percent: 0 };
     }
     const parsed = JSON.parse(raw);
     const chapterIds = ['chapter-1', 'chapter-2', 'chapter-3', 'chapter-4', 'chapter-5'];
@@ -64,7 +64,7 @@ export const getBeginnerProgress = (): { completed: number; total: number; perce
     const percent = Math.min(100, Math.round((completedCount / total) * 100));
     return { completed: completedCount, total, percent };
   } catch {
-    return { completed: 1, total, percent: 20 };
+    return { completed: 0, total, percent: 0 };
   }
 };
 

@@ -87,7 +87,11 @@ export default function KanjiRadicalsHub({ onChapterComplete }: KanjiRadicalsHub
       setQuizDone(true);
       const finalScore = score;
       const pct = Math.round((finalScore / RADICALS_CHAPTER_QUIZ.length) * 100);
-      if (pct >= 60 && onChapterComplete) {
+      try {
+        const prev = Number(localStorage.getItem('nippon_chapter_4_quiz_score') || 0);
+        localStorage.setItem('nippon_chapter_4_quiz_score', Math.max(prev, pct).toString());
+      } catch {}
+      if (onChapterComplete) {
         onChapterComplete('chapter-4', pct);
       }
     }
@@ -491,13 +495,13 @@ export default function KanjiRadicalsHub({ onChapterComplete }: KanjiRadicalsHub
                   </p>
                 </div>
 
-                {Math.round((score / RADICALS_CHAPTER_QUIZ.length) * 100) >= 60 ? (
+                {Math.round((score / RADICALS_CHAPTER_QUIZ.length) * 100) >= 85 ? (
                   <div className="p-4 rounded-2xl bg-secondary/10 text-secondary text-sm font-semibold">
-                    ✅ Chúc mừng! Bạn đã mở khóa **Chương 5: Cấu Trúc Câu & Lễ Tốt Nghiệp Nhập Môn**!
+                    ✅ Chúc mừng! Bạn đã đạt {Math.round((score / RADICALS_CHAPTER_QUIZ.length) * 100)}% (≥ 85%) và mở khóa **Chương 5: Cấu Trúc Câu & Lễ Tốt Nghiệp Nhập Môn**!
                   </div>
                 ) : (
                   <div className="p-4 rounded-2xl bg-crimson-500/10 text-crimson-600 text-sm font-semibold">
-                    ⚠️ Bạn cần đạt tối thiểu 60% để mở khóa Chương 5. Hãy ôn lại bộ thủ tượng hình và thử lại nhé!
+                    ⚠️ Bạn cần đạt tối thiểu <strong>85%</strong> để mở khóa Chương 5 (Điểm hiện tại: {Math.round((score / RADICALS_CHAPTER_QUIZ.length) * 100)}%). Hãy ôn lại bộ thủ tượng hình và thử lại nhé!
                   </div>
                 )}
 

@@ -49,7 +49,11 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
       setQuizDone(true);
       const finalScore = score;
       const pct = Math.round((finalScore / AISATSU_CHAPTER_QUIZ.length) * 100);
-      if (pct >= 60 && onChapterComplete) {
+      try {
+        const prev = Number(localStorage.getItem('nippon_chapter_3_quiz_score') || 0);
+        localStorage.setItem('nippon_chapter_3_quiz_score', Math.max(prev, pct).toString());
+      } catch {}
+      if (onChapterComplete) {
         onChapterComplete('chapter-3', pct);
       }
     }
@@ -307,7 +311,7 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
               /* Quiz Result Screen */
               <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 text-center space-y-6 shadow-sm">
                 <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto text-3xl font-bold">
-                  {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100) >= 60 ? '🎉' : '💪'}
+                  {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100) >= 85 ? '🎉' : '💪'}
                 </div>
 
                 <div>
@@ -320,13 +324,13 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
                   </p>
                 </div>
 
-                {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100) >= 60 ? (
+                {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100) >= 85 ? (
                   <div className="p-4 rounded-2xl bg-secondary/10 text-secondary text-sm font-semibold">
-                    ✅ Chúc mừng! Bạn đã hoàn thành xuất sắc **Chương 3**!
+                    ✅ Chúc mừng! Bạn đã đạt {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100)}% (≥ 85%) và mở khóa thành công **Chương 4: 50+ Bộ Thủ Kanji Tượng Hình**!
                   </div>
                 ) : (
                   <div className="p-4 rounded-2xl bg-crimson-500/10 text-crimson-600 text-sm font-semibold">
-                    ⚠️ Bạn cần đạt tối thiểu 60% để mở khóa chương tiếp theo. Ôn lại kiến thức và thử lại nhé!
+                    ⚠️ Bạn cần đạt tối thiểu <strong>85%</strong> để mở khóa chương tiếp theo (Điểm hiện tại: {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100)}%). Ôn lại kiến thức và thử lại nhé!
                   </div>
                 )}
 

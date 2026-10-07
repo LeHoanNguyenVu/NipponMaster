@@ -19,6 +19,10 @@ import {
   loadSavedQuizScores,
   saveQuizScore,
   type SavedQuizScores,
+  getLearnedKanaRows,
+  markKanaRowLearned,
+  getChapter1RealMaxScore,
+  getChapter1CompletedQuizzesCount,
 } from '../data/quizBankData';
 
 type Tab = 'overview' | 'lesson' | 'quiz' | 'practice_all';
@@ -29,7 +33,11 @@ type CompScopeType = 'all-h' | 'all-k' | 'mix' | 'yoon';
 /*  MAIN SCREEN                                                          */
 /* ═══════════════════════════════════════════════════════════════════════ */
 
-export default function AlphabetExplorer() {
+interface AlphabetExplorerProps {
+  onChapterComplete?: (chapterId: string, scorePercent: number) => void;
+}
+
+export default function AlphabetExplorer({ onChapterComplete }: AlphabetExplorerProps = {}) {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [kanaType, setKanaType] = useState<KanaType>('hiragana');
 
@@ -62,11 +70,16 @@ export default function AlphabetExplorer() {
   const [compStartTime, setCompStartTime] = useState(0);
 
   const gridRef = useRef<HTMLDivElement>(null);
+  const [learnedRows, setLearnedRows] = useState<string[]>([]);
 
-  // Load saved scores when activeTab changes
+  // Load saved scores and learned rows when activeTab changes
   useEffect(() => {
     setSavedScores(loadSavedQuizScores());
+    setLearnedRows(getLearnedKanaRows());
   }, [activeTab]);
+
+  const realMaxScore = getChapter1RealMaxScore();
+  const completedTestsCount = getChapter1CompletedQuizzesCount();
 
   const getChars = useCallback(() => {
     return kanaType === 'hiragana'
@@ -149,6 +162,10 @@ export default function AlphabetExplorer() {
     setTimeout(() => {
       if (rowQuizIdx + 1 >= rowQuizChars.length) {
         setRowQuizDone(true);
+        if (lessonRow) {
+          markKanaRowLearned(lessonRow);
+          setLearnedRows(getLearnedKanaRows());
+        }
       } else {
         setRowQuizIdx(i => i + 1);
         setRowQuizInput('');
@@ -199,9 +216,15 @@ export default function AlphabetExplorer() {
       if (compIdx + 1 >= selectedQuizSet.questions.length) {
         setCompDone(true);
         const finalScore = isCorrect ? compScore + 1 : compScore;
+        const totalQ = selectedQuizSet.questions.length;
+        const pct = Math.round((finalScore / totalQ) * 100);
         if (compScope) {
-          saveQuizScore(compScope, selectedQuizSet.id, finalScore, selectedQuizSet.questions.length);
+          saveQuizScore(compScope, selectedQuizSet.id, finalScore, totalQ);
           setSavedScores(loadSavedQuizScores());
+        }
+        // Luôn báo điểm số thực tế để hệ thống cập nhật đúng tiến độ
+        if (onChapterComplete) {
+          onChapterComplete('chapter-1', pct);
         }
       } else {
         setCompIdx(i => i + 1);
@@ -221,13 +244,52 @@ export default function AlphabetExplorer() {
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
       {/* ── Header ── */}
-      <div className="mb-6">
+      <div className="mb-4">
         <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight mb-1 flex items-center gap-2">
           <span>あ</span> Bảng Chữ Cái Nhật Bản
         </h1>
         <p className="text-sm text-on-surface-variant">
           Học → Viết → Phát âm → Kiểm tra — Luồng học tuần tự theo từng hàng và ngân hàng 15 đề thi độc lập không trùng lặp
         </p>
+      </div>
+
+      {/* ── Real Progress Indicator Banner for Chapter 1 ── */}
+      <div className="mb-6 p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary">Tiến độ thực tế Chương 1:</span>
+            <span className="text-xs text-on-surface-variant">•</span>
+            <span className="text-xs font-semibold text-on-surface">Đã học <strong>{learnedRows.length}</strong> hàng chữ</span>
+            <span className="text-xs text-on-surface-variant">•</span>
+            <span className="text-xs font-semibold text-on-surface">Đã làm <strong>{completedTestsCount}</strong> bài test</span>
+          </div>
+          <div className="text-xs">
+            {realMaxScore >= 85 ? (
+              <span className="text-secondary font-bold flex items-center gap-1">
+                ✅ Đạt điểm test {realMaxScore}% (≥ 85%) — Đã mở khóa thành công Chương 2!
+              </span>
+            ) : (
+              <span className="text-amber-800 dark:text-amber-400 font-medium flex items-center gap-1">
+                🔒 Điểm test cao nhất hiện tại: <strong>{realMaxScore}%</strong> / 85% — Cần đạt bài test ≥ 85% ở thẻ "Luyện Tập Tổng Hợp" để mở khóa Chương 2
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Progress Bar with 85% Marker */}
+        <div className="w-full md:w-64 space-y-1 flex-shrink-0">
+          <div className="flex justify-between text-[11px] font-bold">
+            <span className="text-on-surface-variant">Điểm test cao nhất</span>
+            <span className={realMaxScore >= 85 ? 'text-secondary' : 'text-primary'}>{realMaxScore}% / 85%</span>
+          </div>
+          <div className="h-2 rounded-full bg-surface-container-high overflow-hidden relative">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${realMaxScore >= 85 ? 'bg-secondary' : 'bg-primary'}`}
+              style={{ width: `${Math.min(100, realMaxScore)}%` }}
+            />
+            <div className="absolute top-0 bottom-0 w-0.5 bg-amber-500 z-10" style={{ left: '85%' }} title="Mốc 85% để mở Chương 2" />
+          </div>
+        </div>
       </div>
 
       {/* ── Tab Bar (4 Thẻ) ── */}
@@ -289,7 +351,13 @@ export default function AlphabetExplorer() {
                 }}
                 onSetStep={setLessonStep}
                 isLastChar={lessonIdx === lessonChars.length - 1}
-                onComplete={() => startRowQuiz(lessonRow)}
+                onComplete={() => {
+                  if (lessonRow) {
+                    markKanaRowLearned(lessonRow);
+                    setLearnedRows(getLearnedKanaRows());
+                  }
+                  startRowQuiz(lessonRow);
+                }}
               />
             )}
           </motion.div>
@@ -1292,6 +1360,23 @@ function ComprehensiveResultScreen({
       <div className="text-sm text-on-surface-variant mb-6">
         {pct}% chính xác • {minutes > 0 ? `${minutes} phút ` : ''}{seconds} giây
       </div>
+
+      {/* Thông báo tiến độ mở khóa Chương 2 */}
+      {pct >= 85 ? (
+        <div className="p-4 rounded-2xl bg-secondary/10 border border-secondary/30 text-secondary text-xs sm:text-sm font-semibold mb-6 text-left flex items-start gap-2.5">
+          <span className="text-base flex-shrink-0">🎉</span>
+          <div>
+            <strong>Chúc mừng!</strong> Bạn đã đạt <strong>{pct}% (≥ 85%)</strong> trong bài test tổng hợp và mở khóa thành công <strong>Chương 2: Số Đếm, Đơn Vị Đếm & Thời Gian</strong>!
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs sm:text-sm font-medium mb-6 text-left flex items-start gap-2.5">
+          <span className="text-base flex-shrink-0">⚠️</span>
+          <div>
+            Bạn cần đạt tối thiểu <strong>85% điểm</strong> ở bài kiểm tra tổng hợp để mở khóa Chương 2 (Hiện tại: <strong>{pct}%</strong>). Hãy ôn luyện và thử làm lại nhé!
+          </div>
+        </div>
+      )}
 
       {wrongList.length > 0 && (
         <div className="bg-error/5 rounded-2xl border border-error/20 p-5 mb-6 text-left">

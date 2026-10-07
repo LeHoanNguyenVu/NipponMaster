@@ -9,6 +9,8 @@ const AisatsuPhrases = lazy(() => import('./beginner/AisatsuPhrases'));
 const KanjiRadicalsHub = lazy(() => import('./beginner/KanjiRadicalsHub'));
 const BasicGrammarHub = lazy(() => import('./beginner/BasicGrammarHub'));
 
+import { getChapter1RealMaxScore } from '../data/quizBankData';
+
 interface ChapterProgress {
   [chapterId: string]: {
     completed: boolean;
@@ -17,30 +19,60 @@ interface ChapterProgress {
   };
 }
 
-const DEFAULT_PROGRESS: ChapterProgress = {
-  'chapter-1': { completed: true, bestScore: 100, unlocked: true },
-  'chapter-2': { completed: false, bestScore: 0, unlocked: true },
-  'chapter-3': { completed: false, bestScore: 0, unlocked: true },
-  'chapter-4': { completed: false, bestScore: 0, unlocked: true },
-  'chapter-5': { completed: false, bestScore: 0, unlocked: true },
-};
+const UNLOCK_THRESHOLD = 85;
+
+/**
+ * TÍNH TOÁN TIẾN ĐỘ THỰC TẾ & KHÓA TUẦN TỰ NGHIÊM NGẶT (Strict Sequential Course Locking)
+ * - Chương 1: Đọc điểm bài test THỰC TẾ từ quizBankData (qua getChapter1RealMaxScore). Tuyệt đối không hardcode 100%!
+ * - Chương 2: Đọc điểm bài test từ nippon_chapter_2_quiz_score. Chỉ mở khóa khi Chương 1 test đạt >= 85%.
+ * - Chương 3: Đọc điểm bài test từ nippon_chapter_3_quiz_score. Chỉ mở khóa khi Chương 2 test đạt >= 85%.
+ * - Chương 4: Đọc điểm bài test từ nippon_chapter_4_quiz_score. Chỉ mở khóa khi Chương 3 test đạt >= 85%.
+ * - Chương 5: Đọc điểm bài test từ nippon_chapter_5_quiz_score. Chỉ mở khóa khi Chương 4 test đạt >= 85%.
+ */
+export function computeStrictCourseProgress(): ChapterProgress {
+  const c1Score = Math.min(100, Math.max(0, getChapter1RealMaxScore()));
+  const c2Score = Math.min(100, Math.max(0, Number(localStorage.getItem('nippon_chapter_2_quiz_score') || 0)));
+  const c3Score = Math.min(100, Math.max(0, Number(localStorage.getItem('nippon_chapter_3_quiz_score') || 0)));
+  const c4Score = Math.min(100, Math.max(0, Number(localStorage.getItem('nippon_chapter_4_quiz_score') || 0)));
+  const c5Score = Math.min(100, Math.max(0, Number(localStorage.getItem('nippon_chapter_5_quiz_score') || 0)));
+
+  // Bắt buộc mở khóa tuần tự:
+  const c1Unlocked = true; // Chỉ duy nhất Chương 1 mở mặc định ban đầu
+  const c1Completed = c1Score >= UNLOCK_THRESHOLD;
+
+  const c2Unlocked = c1Completed; // Chương 2 chỉ mở khi Chương 1 hoàn thành test >= 85%
+  const c2Completed = c2Unlocked && c2Score >= UNLOCK_THRESHOLD;
+
+  const c3Unlocked = c2Completed; // Chương 3 chỉ mở khi Chương 2 test >= 85%
+  const c3Completed = c3Unlocked && c3Score >= UNLOCK_THRESHOLD;
+
+  const c4Unlocked = c3Completed; // Chương 4 chỉ mở khi Chương 3 test >= 85%
+  const c4Completed = c4Unlocked && c4Score >= UNLOCK_THRESHOLD;
+
+  const c5Unlocked = c4Completed; // Chương 5 chỉ mở khi Chương 4 test >= 85%
+  const c5Completed = c5Unlocked && c5Score >= UNLOCK_THRESHOLD;
+
+  return {
+    'chapter-1': { completed: c1Completed, bestScore: c1Score, unlocked: c1Unlocked },
+    'chapter-2': { completed: c2Completed, bestScore: c2Score, unlocked: c2Unlocked },
+    'chapter-3': { completed: c3Completed, bestScore: c3Score, unlocked: c3Unlocked },
+    'chapter-4': { completed: c4Completed, bestScore: c4Score, unlocked: c4Unlocked },
+    'chapter-5': { completed: c5Completed, bestScore: c5Score, unlocked: c5Unlocked },
+  };
+}
 
 export default function BeginnerCourseHub() {
   const [activeChapter, setActiveChapter] = useState<string>('chapter-1');
-  const [progress, setProgress] = useState<ChapterProgress>(DEFAULT_PROGRESS);
+  const [progress, setProgress] = useState<ChapterProgress>(computeStrictCourseProgress);
   const [hasJaVoice, setHasJaVoice] = useState<boolean>(true);
 
-  // Load progress from localStorage
+  // Đồng bộ và làm sạch tiến độ khi mount
   useEffect(() => {
+    const strict = computeStrictCourseProgress();
+    setProgress(strict);
     try {
-      const saved = localStorage.getItem('beginner_course_progress');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setProgress(prev => ({ ...prev, ...parsed }));
-      }
-    } catch {
-      // Ignore fallback
-    }
+      localStorage.setItem('beginner_course_progress', JSON.stringify(strict));
+    } catch {}
 
     // Check TTS voices
     if (window.speechSynthesis) {
@@ -56,37 +88,36 @@ export default function BeginnerCourseHub() {
     }
   }, []);
 
-  // Save progress & unlock next chapter
+  // Bảo vệ route: Nếu activeChapter hiện tại đang bị khóa, tự động cưỡng chế chuyển về Chương 1
+  useEffect(() => {
+    if (progress[activeChapter] && !progress[activeChapter].unlocked) {
+      setActiveChapter('chapter-1');
+    }
+  }, [progress, activeChapter]);
+
+  // Cập nhật điểm thi thực tế và tính toán lại quyền mở khóa
   const handleChapterComplete = (chapterId: string, scorePercent: number) => {
-    const chapterNum = parseInt(chapterId.replace('chapter-', ''), 10);
-    const nextChapterId = `chapter-${chapterNum + 1}`;
-
-    setProgress(prev => {
-      const updated: ChapterProgress = {
-        ...prev,
-        [chapterId]: {
-          completed: true,
-          bestScore: Math.max(prev[chapterId]?.bestScore || 0, scorePercent),
-          unlocked: true,
-        },
-      };
-
-      // Unlock next chapter if score >= 60%
-      if (scorePercent >= 60 && prev[nextChapterId]) {
-        updated[nextChapterId] = {
-          ...prev[nextChapterId],
-          unlocked: true,
-        };
+    try {
+      if (chapterId === 'chapter-2') {
+        const prev = Number(localStorage.getItem('nippon_chapter_2_quiz_score') || 0);
+        localStorage.setItem('nippon_chapter_2_quiz_score', Math.max(prev, scorePercent).toString());
+      } else if (chapterId === 'chapter-3') {
+        const prev = Number(localStorage.getItem('nippon_chapter_3_quiz_score') || 0);
+        localStorage.setItem('nippon_chapter_3_quiz_score', Math.max(prev, scorePercent).toString());
+      } else if (chapterId === 'chapter-4') {
+        const prev = Number(localStorage.getItem('nippon_chapter_4_quiz_score') || 0);
+        localStorage.setItem('nippon_chapter_4_quiz_score', Math.max(prev, scorePercent).toString());
+      } else if (chapterId === 'chapter-5') {
+        const prev = Number(localStorage.getItem('nippon_chapter_5_quiz_score') || 0);
+        localStorage.setItem('nippon_chapter_5_quiz_score', Math.max(prev, scorePercent).toString());
       }
+    } catch {}
 
-      try {
-        localStorage.setItem('beginner_course_progress', JSON.stringify(updated));
-      } catch {
-        // Ignore
-      }
-
-      return updated;
-    });
+    const updated = computeStrictCourseProgress();
+    setProgress(updated);
+    try {
+      localStorage.setItem('beginner_course_progress', JSON.stringify(updated));
+    } catch {}
   };
 
   const CHAPTERS = [
@@ -179,11 +210,12 @@ export default function BeginnerCourseHub() {
             📘 Mục Lục Sách Giáo Khoa
           </h2>
 
-          <div className="space-y-2">
-            {CHAPTERS.map(ch => {
+          <div className="space-y-2.5">
+            {CHAPTERS.map((ch, idx) => {
               const chProgress = progress[ch.id] || { completed: false, bestScore: 0, unlocked: false };
               const isActive = activeChapter === ch.id;
               const isLocked = !chProgress.unlocked;
+              const prevChapter = CHAPTERS[idx - 1];
 
               return (
                 <button
@@ -192,42 +224,86 @@ export default function BeginnerCourseHub() {
                     if (!isLocked) setActiveChapter(ch.id);
                   }}
                   disabled={isLocked}
-                  className={`w-full text-left p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-3 relative ${
+                  className={`w-full text-left p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col gap-2 relative ${
                     isActive
                       ? 'bg-primary text-on-primary border-primary shadow-md scale-101'
                       : isLocked
-                      ? 'bg-surface-container/50 border-outline-variant/20 opacity-60 cursor-not-allowed'
+                      ? 'bg-surface-container/40 border-outline-variant/20 opacity-60 cursor-not-allowed'
                       : 'bg-surface-container-lowest border-outline-variant/30 text-on-surface hover:border-primary/40 hover:bg-surface-container-low'
                   }`}
                 >
-                  {/* Chapter Icon / Status */}
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base flex-shrink-0 ${
-                    isActive ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-container text-primary'
-                  }`}>
-                    {ch.icon}
-                  </div>
-
-                  {/* Chapter Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs font-bold ${isActive ? 'text-on-primary' : 'text-on-surface'}`}>
-                        {ch.title.split(':')[0]}
-                      </span>
-                      {chProgress.completed && (
-                        <CheckCircle2 size={14} className={isActive ? 'text-on-primary' : 'text-secondary'} />
-                      )}
+                  <div className="flex items-center gap-3 w-full">
+                    {/* Chapter Icon / Status */}
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base flex-shrink-0 ${
+                      isActive ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-container text-primary'
+                    }`}>
+                      {ch.icon}
                     </div>
-                    <p className={`text-[11px] truncate ${isActive ? 'text-on-primary/80' : 'text-on-surface-variant'}`}>
-                      {ch.title.split(':')[1]}
-                    </p>
+
+                    {/* Chapter Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-bold ${isActive ? 'text-on-primary' : 'text-on-surface'}`}>
+                          {ch.title.split(':')[0]}
+                        </span>
+                        {chProgress.completed && (
+                          <CheckCircle2 size={14} className={isActive ? 'text-on-primary' : 'text-secondary'} />
+                        )}
+                      </div>
+                      <p className={`text-[11px] truncate ${isActive ? 'text-on-primary/80' : 'text-on-surface-variant'}`}>
+                        {ch.title.split(':')[1]}
+                      </p>
+                    </div>
+
+                    {/* Lock / Arrow Status */}
+                    {isLocked ? (
+                      <Lock size={15} className="text-on-surface-variant/50 flex-shrink-0" />
+                    ) : (
+                      <ChevronRight size={16} className={`flex-shrink-0 ${isActive ? 'text-on-primary' : 'text-on-surface-variant'}`} />
+                    )}
                   </div>
 
-                  {/* Lock / Arrow Status */}
-                  {isLocked ? (
-                    <Lock size={14} className="text-on-surface-variant/50 flex-shrink-0" />
-                  ) : (
-                    <ChevronRight size={16} className={`flex-shrink-0 ${isActive ? 'text-on-primary' : 'text-on-surface-variant'}`} />
-                  )}
+                  {/* Chapter Mini Progress Bar & Unlock Condition */}
+                  <div className="w-full pt-1.5 border-t border-current/10 space-y-1">
+                    <div className="flex items-center justify-between text-[10px] font-semibold">
+                      {isLocked ? (
+                        <span className="text-error/80 flex items-center gap-1 font-medium truncate">
+                          🔒 Cần test ≥ 85% {prevChapter ? prevChapter.title.split(':')[0] : 'chương trước'}
+                        </span>
+                      ) : chProgress.completed ? (
+                        <span className={isActive ? 'text-on-primary font-bold' : 'text-secondary font-bold'}>
+                          ✅ Đã vượt qua ({chProgress.bestScore}%)
+                        </span>
+                      ) : (
+                        <span className={isActive ? 'text-on-primary/90' : 'text-on-surface-variant'}>
+                          Điểm test: <strong className={isActive ? 'text-on-primary' : 'text-primary'}>{chProgress.bestScore}%</strong> / 85%
+                        </span>
+                      )}
+                      <span className={`font-mono text-[9px] flex-shrink-0 ${isActive ? 'text-on-primary/80' : 'text-on-surface-variant/70'}`}>
+                        Mục tiêu: ≥85%
+                      </span>
+                    </div>
+
+                    {/* Mini Progress Bar with 85% Marker */}
+                    <div className={`h-1.5 w-full rounded-full overflow-hidden relative ${isActive ? 'bg-black/20' : 'bg-surface-container-high'}`}>
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isActive
+                            ? 'bg-white'
+                            : chProgress.completed
+                            ? 'bg-secondary'
+                            : 'bg-primary'
+                        }`}
+                        style={{ width: `${Math.min(100, chProgress.bestScore)}%` }}
+                      />
+                      {/* Target 85% threshold mark */}
+                      <div
+                        className="absolute top-0 bottom-0 w-0.5 bg-tertiary/70 z-10"
+                        style={{ left: '85%' }}
+                        title="Mốc 85% để mở khóa chương tiếp theo"
+                      />
+                    </div>
+                  </div>
                 </button>
               );
             })}
@@ -236,39 +312,43 @@ export default function BeginnerCourseHub() {
 
         {/* Right Chapter Display Area with Custom Top & Center Loading Indicator */}
         <div className="flex-1 min-w-0 bg-surface-container-lowest border border-outline-variant/30 rounded-3xl min-h-[600px] shadow-sm">
-          <Suspense fallback={<ChapterLoadingState />}>
-            <AnimatePresence mode="wait">
-              {activeChapter === 'chapter-1' && (
-                <motion.div key="chapter-1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <AlphabetExplorer />
-                </motion.div>
-              )}
+          {!progress[activeChapter]?.unlocked ? (
+            <LockedChapterView onGoBack={() => setActiveChapter('chapter-1')} />
+          ) : (
+            <Suspense fallback={<ChapterLoadingState />}>
+              <AnimatePresence mode="wait">
+                {activeChapter === 'chapter-1' && (
+                  <motion.div key="chapter-1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                    <AlphabetExplorer onChapterComplete={handleChapterComplete} />
+                  </motion.div>
+                )}
 
-              {activeChapter === 'chapter-2' && (
-                <motion.div key="chapter-2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <NumbersAndTime onChapterComplete={handleChapterComplete} />
-                </motion.div>
-              )}
+                {activeChapter === 'chapter-2' && (
+                  <motion.div key="chapter-2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                    <NumbersAndTime onChapterComplete={handleChapterComplete} />
+                  </motion.div>
+                )}
 
-              {activeChapter === 'chapter-3' && (
-                <motion.div key="chapter-3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <AisatsuPhrases onChapterComplete={handleChapterComplete} />
-                </motion.div>
-              )}
+                {activeChapter === 'chapter-3' && (
+                  <motion.div key="chapter-3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                    <AisatsuPhrases onChapterComplete={handleChapterComplete} />
+                  </motion.div>
+                )}
 
-              {activeChapter === 'chapter-4' && (
-                <motion.div key="chapter-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <KanjiRadicalsHub onChapterComplete={handleChapterComplete} />
-                </motion.div>
-              )}
+                {activeChapter === 'chapter-4' && (
+                  <motion.div key="chapter-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                    <KanjiRadicalsHub onChapterComplete={handleChapterComplete} />
+                  </motion.div>
+                )}
 
-              {activeChapter === 'chapter-5' && (
-                <motion.div key="chapter-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <BasicGrammarHub onChapterComplete={handleChapterComplete} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Suspense>
+                {activeChapter === 'chapter-5' && (
+                  <motion.div key="chapter-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                    <BasicGrammarHub onChapterComplete={handleChapterComplete} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Suspense>
+          )}
         </div>
       </div>
     </div>
@@ -297,6 +377,35 @@ function ChapterLoadingState() {
           <h4 className="text-base font-bold text-on-surface">Đang Tải Nội Dung Bài Học...</h4>
           <p className="text-xs text-on-surface-variant mt-1">Đang tối ưu tài nguyên phát âm và bài tập thực hành</p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Màn hình bảo vệ khi người dùng cố truy cập chương chưa mở khóa
+ */
+function LockedChapterView({ onGoBack }: { onGoBack: () => void }) {
+  return (
+    <div className="w-full h-full min-h-[550px] flex flex-col items-center justify-center p-8 text-center space-y-5">
+      <div className="w-20 h-20 rounded-3xl bg-error/10 border border-error/20 text-error flex items-center justify-center shadow-inner">
+        <Lock size={36} />
+      </div>
+
+      <div className="space-y-1.5 max-w-md">
+        <h3 className="text-2xl font-bold text-on-surface">Chương Này Đang Bị Khóa 🔒</h3>
+        <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+          Theo quy chuẩn lộ trình học tập, bạn bắt buộc phải hoàn thành bài kiểm tra tổng hợp ở Chương trước đó với điểm số <strong>từ 85% trở lên</strong> thì mới được mở khóa chương này.
+        </p>
+      </div>
+
+      <div className="pt-2">
+        <button
+          onClick={onGoBack}
+          className="px-6 py-3 rounded-2xl bg-primary text-on-primary font-bold text-xs sm:text-sm cursor-pointer hover:bg-primary-container transition-all shadow-sm active:scale-98 flex items-center gap-2"
+        >
+          <span>Quay Lại Học Chương 1</span>
+        </button>
       </div>
     </div>
   );

@@ -48,12 +48,16 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
       setQuizDone(true);
       const finalScore = score;
       const pct = Math.round((finalScore / GRAMMAR_GRADUATION_QUIZ.length) * 100);
-      if (pct >= 60) {
+      try {
+        const prev = Number(localStorage.getItem('nippon_chapter_5_quiz_score') || 0);
+        localStorage.setItem('nippon_chapter_5_quiz_score', Math.max(prev, pct).toString());
+      } catch {}
+      if (pct >= 85) {
         setShowGraduationModal(true);
         playFanfareSound();
-        if (onChapterComplete) {
-          onChapterComplete('chapter-5', pct);
-        }
+      }
+      if (onChapterComplete) {
+        onChapterComplete('chapter-5', pct);
       }
     }
   };
@@ -401,7 +405,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                   </div>
                 ) : (
                   <div className="p-4 rounded-2xl bg-crimson-500/10 text-crimson-600 text-sm font-semibold">
-                    ⚠️ Bạn cần đạt tối thiểu 60% để tốt nghiệp. Ôn lại kiến thức các chương chưa đúng và thử lại nhé!
+                    ⚠️ Bạn cần đạt tối thiểu <strong>85%</strong> để tốt nghiệp lộ trình Nhập môn (Điểm hiện tại: {Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100)}%). Ôn lại kiến thức các chương chưa đúng và thử lại nhé!
                   </div>
                 )}
 

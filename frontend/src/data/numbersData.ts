@@ -1,5 +1,5 @@
 /**
- * numbersData.ts — Dữ liệu tĩnh Số Đếm, Đơn Vị Đếm (có Bảng Biến Âm 1-10) và Thời Gian
+ * numbersData.ts — Dữ liệu tĩnh Số Đếm, Đơn Vị Đếm (có Bảng Biến Âm 1-10), Đếm Người, Đếm Tuổi, 31 Ngày Trong Tháng & Thời Gian
  */
 
 export interface NumberItem {
@@ -27,6 +27,44 @@ export interface CounterUnit {
   mutations: CounterMutation[]; // Bảng đếm 1-10
 }
 
+export interface PeopleCountItem {
+  count: number;
+  kanji: string;
+  hiragana: string;
+  romaji: string;
+  isSpecial: boolean;
+  note?: string;
+}
+
+export interface DayOfMonthItem {
+  day: number;
+  kanji: string;
+  hiragana: string;
+  romaji: string;
+  isSpecial: boolean;
+  mnemonicNote?: string;
+}
+
+export interface AgeCountItem {
+  age: number;
+  kanji: string;
+  hiragana: string;
+  romaji: string;
+  isSpecial: boolean;
+  culturalNote?: string;
+}
+
+export interface ReflexPrompt {
+  id: string;
+  category: 'time' | 'date' | 'people' | 'age' | 'counters';
+  categoryLabel: string;
+  promptDisplay: string;
+  hint: string;
+  correctReading: string;
+  correctRomaji: string;
+  options: { reading: string; romaji: string }[];
+}
+
 export interface QuizQuestion {
   id: number;
   question: string;
@@ -34,7 +72,7 @@ export interface QuizQuestion {
   options: string[];
   correctIndex: number;
   explanation: string;
-  targetTab: 'numbers' | 'counters' | 'time'; // Tab chứa kiến thức này để review
+  targetTab: 'numbers' | 'counters' | 'time' | 'people_age' | 'days_of_month'; // Tab chứa kiến thức này để review
 }
 
 // ══════════════════════════════════════════════════════
@@ -55,11 +93,100 @@ export const BASIC_NUMBERS: NumberItem[] = [
   { value: 10, kanji: '十', hiragana: 'じゅう', romaji: 'juu' },
   { value: 100, kanji: '百', hiragana: 'ひゃく', romaji: 'hyaku', irregularNote: '300 = さんびゃく, 600 = ろっぴゃく, 800 = はっぴゃく' },
   { value: 1000, kanji: '千', hiragana: 'せん', romaji: 'sen', irregularNote: '3000 = さんぜん, 8000 = はっせん' },
-  { value: 10000, kanji: '万', hiragana: 'まん', romaji: 'man', irregularNote: 'Tiếng Nhật đếm theo hàng 4 số 0 (1万 = 10.000)' },
+  { value: 10000, kanji: '万', hiragana: 'まん', romaji: 'man', irregularNote: 'Tiếng Nhật đếm theo hàng 4 số 0 (1万 = 10.000, 10万 = 100.000)' },
 ];
 
 // ══════════════════════════════════════════════════════
-// 2. ĐƠN VỊ ĐẾM KÈM BẢNG BIẾN ÂM 1-10 (COUNTERS WITH MUTATIONS)
+// 2. BẢNG ĐẾM TUỔI ĐẶC BIỆT (AGE COUNTER - HATACHI)
+// ══════════════════════════════════════════════════════
+
+export const AGE_DATA: AgeCountItem[] = [
+  { age: 1, kanji: '一歳 / 一才', hiragana: 'いっさい', romaji: 'issai', isSpecial: true, culturalNote: 'Biến âm âm ngắt (sokuon): いち + さい -> いっさい' },
+  { age: 2, kanji: '二歳', hiragana: 'にさい', romaji: 'nisai', isSpecial: false },
+  { age: 3, kanji: '三歳', hiragana: 'さんさい', romaji: 'sansai', isSpecial: false },
+  { age: 4, kanji: '四歳', hiragana: 'よんさい', romaji: 'yonsai', isSpecial: false },
+  { age: 5, kanji: '五歳', hiragana: 'ごさい', romaji: 'gosai', isSpecial: false },
+  { age: 6, kanji: '六歳', hiragana: 'ろくさい', romaji: 'rokusai', isSpecial: false },
+  { age: 7, kanji: '七歳', hiragana: 'ななさい', romaji: 'nanasai', isSpecial: false },
+  { age: 8, kanji: '八歳', hiragana: 'はっさい', romaji: 'hassai', isSpecial: true, culturalNote: 'Biến âm âm ngắt: はち + さい -> はっさい' },
+  { age: 9, kanji: '九歳', hiragana: 'きゅうさい', romaji: 'kyuusai', isSpecial: false },
+  { age: 10, kanji: '十歳', hiragana: 'じゅっさい / じっさい', romaji: 'jussai / jissai', isSpecial: true, culturalNote: 'Biến âm âm ngắt: じゅう + さい -> じゅっさい' },
+  { age: 11, kanji: '十一歳', hiragana: 'じゅういっさい', romaji: 'juuissai', isSpecial: true },
+  { age: 18, kanji: '十八歳', hiragana: 'じゅうはっさい', romaji: 'juuhassai', isSpecial: true },
+  { age: 20, kanji: '二十歳', hiragana: 'はたち', romaji: 'hatachi', isSpecial: true, culturalNote: '🌟 BẤT QUY TẮC ĐẶC BIỆT NHẤT: Tuổi trưởng thành của Nhật Bản (Lễ 成人式). Tuyệt đối không đọc là にじゅっさい!' },
+  { age: 30, kanji: '三十歳', hiragana: 'さんじゅっさい', romaji: 'sanjussai', isSpecial: true },
+];
+
+export const AGE_QUESTION_PHRASES = [
+  { kanji: '何歳', hiragana: 'なんさい', romaji: 'nansai', meaning: 'Bao nhiêu tuổi? (Dùng hàng ngày, thân mật)' },
+  { kanji: 'おいくつ', hiragana: 'おいくつ', romaji: 'oikutsu', meaning: 'Bác / Anh / Chị bao nhiêu tuổi ạ? (Kính ngữ trang trọng, lịch sự)' },
+];
+
+// ══════════════════════════════════════════════════════
+// 3. BẢNG SỐ ĐẾM NGƯỜI ĐẶC BIỆT (PEOPLE COUNTER - HITORI, FUTARI, YONIN)
+// ══════════════════════════════════════════════════════
+
+export const PEOPLE_COUNTER_DATA: PeopleCountItem[] = [
+  { count: 1, kanji: '一人', hiragana: 'ひとり', romaji: 'hitori', isSpecial: true, note: 'Từ thuần Nhật cổ đặc biệt, không dùng đuôi にん' },
+  { count: 2, kanji: '二人', hiragana: 'ふたり', romaji: 'futari', isSpecial: true, note: 'Từ thuần Nhật cổ đặc biệt, không dùng đuôi にん' },
+  { count: 3, kanji: '三人', hiragana: 'さんにん', romaji: 'sannin', isSpecial: false, note: 'Từ 3 người trở lên bắt đầu dùng số + にん (nin)' },
+  { count: 4, kanji: '四人', hiragana: 'よにん', romaji: 'yonin', isSpecial: true, note: '⚠️ BẤT QUY TẮC: Bắt buộc đọc là よにん (yonin), cấm đọc yon-nin hay shi-nin!' },
+  { count: 5, kanji: '五人', hiragana: 'ごにん', romaji: 'gonin', isSpecial: false },
+  { count: 6, kanji: '六人', hiragana: 'ろくにん', romaji: 'rokunin', isSpecial: false },
+  { count: 7, kanji: '七人', hiragana: 'しちにん / ななにん', romaji: 'shichinin / nananin', isSpecial: false, note: 'Có 2 cách đọc, thường dùng しちにん hơn' },
+  { count: 8, kanji: '八人', hiragana: 'はちにん', romaji: 'hachinin', isSpecial: false },
+  { count: 9, kanji: '九人', hiragana: 'くにん / きゅうにん', romaji: 'kunin / kyuunin', isSpecial: true, note: 'Ưu tiên đọc là くにん (kunin)' },
+  { count: 10, kanji: '十人', hiragana: 'じゅうにん', romaji: 'juunin', isSpecial: false },
+];
+
+export const PEOPLE_SPECIAL_EXPRESSIONS = [
+  { kanji: '何人', hiragana: 'なんにん', romaji: 'nannin', meaning: 'Mấy người? / Bao nhiêu người?' },
+  { kanji: '一人ぼっち', hiragana: 'ひとりぼっち', romaji: 'hitoribocchi', meaning: 'Cô đơn một mình, lẻ loi' },
+  { kanji: '二人きり', hiragana: 'ふたりきり', romaji: 'futarikiri', meaning: 'Chỉ có 2 người chúng ta' },
+  { kanji: '大人数', hiragana: 'おおにんずう', romaji: 'ooninzuu', meaning: 'Số lượng đông người' },
+  { kanji: '少人数', hiragana: 'しょうにんずう', romaji: 'shouninzuu', meaning: 'Nhóm ít người' },
+];
+
+// ══════════════════════════════════════════════════════
+// 4. BẢNG NGÀY TRONG THÁNG (1 ĐẾN 31 NGÀY - TSUITACHI, FUTSUKA... HATSUKA)
+// ══════════════════════════════════════════════════════
+
+export const DAYS_OF_MONTH_DATA: DayOfMonthItem[] = [
+  { day: 1, kanji: '一日', hiragana: 'ついたち', romaji: 'tsuitachi', isSpecial: true, mnemonicNote: '🌟 Bắt nguồn từ "tsukitachi" (mặt trăng bắt đầu mọc đầu tháng)' },
+  { day: 2, kanji: '二日', hiragana: 'ふつか', romaji: 'futsuka', isSpecial: true, mnemonicNote: 'Âm thuần Nhật: futsu + ka' },
+  { day: 3, kanji: '三日', hiragana: 'みっか', romaji: 'mikka', isSpecial: true, mnemonicNote: 'Âm ngắt: mi + kka' },
+  { day: 4, kanji: '四日', hiragana: 'よっか', romaji: 'yokka', isSpecial: true, mnemonicNote: '⚠️ Âm ngắt sokuon: yokka (Dễ nhầm với mùng 8 youka!)' },
+  { day: 5, kanji: '五日', hiragana: 'いつか', romaji: 'itsuka', isSpecial: true, mnemonicNote: 'Âm thuần Nhật: itsu + ka' },
+  { day: 6, kanji: '六日', hiragana: 'むいか', romaji: 'muika', isSpecial: true, mnemonicNote: 'Âm thuần Nhật: mui + ka' },
+  { day: 7, kanji: '七日', hiragana: 'なのか', romaji: 'nanoka', isSpecial: true, mnemonicNote: 'Âm thuần Nhật: nano + ka' },
+  { day: 8, kanji: '八日', hiragana: 'ようか', romaji: 'youka', isSpecial: true, mnemonicNote: '⚠️ Trường âm: youka (kéo dài, phân biệt với mùng 4 yokka)' },
+  { day: 9, kanji: '九日', hiragana: 'ここのか', romaji: 'kokonoka', isSpecial: true, mnemonicNote: 'Âm thuần Nhật: kokono + ka' },
+  { day: 10, kanji: '十日', hiragana: 'とおか', romaji: 'tooka', isSpecial: true, mnemonicNote: 'Trường âm: to-o-ka' },
+  { day: 11, kanji: '十一日', hiragana: 'じゅういちにち', romaji: 'juuichinichi', isSpecial: false },
+  { day: 12, kanji: '十二日', hiragana: 'じゅうににち', romaji: 'juuninichi', isSpecial: false },
+  { day: 13, kanji: '十三日', hiragana: 'じゅうさんにち', romaji: 'juusannichi', isSpecial: false },
+  { day: 14, kanji: '十四日', hiragana: 'じゅうよっか', romaji: 'juuyokka', isSpecial: true, mnemonicNote: '⚠️ Đuôi mùng 4 bất quy tắc: juu + yokka (Không đọc juuyonnichi)' },
+  { day: 15, kanji: '十五日', hiragana: 'じゅうごにち', romaji: 'juugonichi', isSpecial: false },
+  { day: 16, kanji: '十六日', hiragana: 'じゅうろくにち', romaji: 'juurokunichi', isSpecial: false },
+  { day: 17, kanji: '十七日', hiragana: 'じゅうしちにち / じゅうななにち', romaji: 'juushichinichi / juunananichi', isSpecial: false },
+  { day: 18, kanji: '十八日', hiragana: 'じゅうはちにち', romaji: 'juuhachinichi', isSpecial: false },
+  { day: 19, kanji: '十九日', hiragana: 'じゅうくにち', romaji: 'juukunichi', isSpecial: false },
+  { day: 20, kanji: '二十日', hiragana: 'はつか', romaji: 'hatsuka', isSpecial: true, mnemonicNote: '🌟 BẤT QUY TẮC ĐẶC BIỆT: hatsuka (Tuyệt đối không đọc nijunichi)' },
+  { day: 21, kanji: '二十一日', hiragana: 'にじゅういちにち', romaji: 'nijuuichinichi', isSpecial: false },
+  { day: 22, kanji: '二十二日', hiragana: 'にじゅうににち', romaji: 'nijuuninichi', isSpecial: false },
+  { day: 23, kanji: '二十三日', hiragana: 'にじゅうさんにち', romaji: 'nijuusannichi', isSpecial: false },
+  { day: 24, kanji: '二十四日', hiragana: 'にじゅうよっか', romaji: 'nijuuyokka', isSpecial: true, mnemonicNote: '⚠️ Đuôi mùng 4 bất quy tắc: nijuu + yokka' },
+  { day: 25, kanji: '二十五日', hiragana: 'にじゅうごにち', romaji: 'nijuugonichi', isSpecial: false },
+  { day: 26, kanji: '二十六日', hiragana: 'にじゅうろくにち', romaji: 'nijuurokunichi', isSpecial: false },
+  { day: 27, kanji: '二十七日', hiragana: 'にじゅうしちにち / にじゅうななにち', romaji: 'nijuushichinichi / nijuunananichi', isSpecial: false },
+  { day: 28, kanji: '二十八日', hiragana: 'にじゅうはちにち', romaji: 'nijuuhachinichi', isSpecial: false },
+  { day: 29, kanji: '二十九日', hiragana: 'にじゅうくにち', romaji: 'nijuukunichi', isSpecial: false },
+  { day: 30, kanji: '三十日', hiragana: 'さんじゅうにち', romaji: 'sanjuunichi', isSpecial: false },
+  { day: 31, kanji: '三十一日', hiragana: 'さんじゅういちにち', romaji: 'sanjuuichinichi', isSpecial: false },
+];
+
+// ══════════════════════════════════════════════════════
+// 5. ĐƠN VỊ ĐẾM KÈM BẢNG BIẾN ÂM 1-10 (COUNTERS WITH MUTATIONS)
 // ══════════════════════════════════════════════════════
 
 export const COUNTERS: CounterUnit[] = [
@@ -80,7 +207,7 @@ export const COUNTERS: CounterUnit[] = [
       { count: 7, japanese: 'ななこ', romaji: 'nanako', isIrregular: false },
       { count: 8, japanese: 'はっこ', romaji: 'hakko', isIrregular: true },
       { count: 9, japanese: 'きゅうこ', romaji: 'kyuuko', isIrregular: false },
-      { count: 10, japanese: 'じゅっこ / じっこ', romaji: 'jukko', isIrregular: true },
+      { count: 10, japanese: 'じゅっこ / じっこ', romaji: 'jukko / jikko', isIrregular: true },
     ]
   },
   {
@@ -147,7 +274,7 @@ export const COUNTERS: CounterUnit[] = [
     id: 'nin',
     kanji: '人',
     reading: 'にん (nin)',
-    usedFor: 'Đếm người (chú ý 1 người và 2 người là từ thuần Nhật đặc biệt)',
+    usedFor: 'Đếm người (chú ý 1 người, 2 người và 4 người là bất quy tắc)',
     exampleSentence: '家族は四人です。',
     exampleMeaning: 'Gia đình tôi có 4 người.',
     mutations: [
@@ -206,7 +333,7 @@ export const COUNTERS: CounterUnit[] = [
 ];
 
 // ══════════════════════════════════════════════════════
-// 3. THỜI GIAN (HOURS, MINUTES, DAYS, MONTHS)
+// 6. THỜI GIAN (HOURS, MINUTES, DAYS OF WEEK)
 // ══════════════════════════════════════════════════════
 
 export const HOURS_DATA = [
@@ -234,7 +361,7 @@ export const MINUTES_SPECIAL = [
   { min: 7, kanji: '七分', hiragana: 'ななふん', romaji: 'nanafun', isIrregular: false },
   { min: 8, kanji: '八分', hiragana: 'はっぷん', romaji: 'happun', isIrregular: true },
   { min: 9, kanji: '九分', hiragana: 'きゅうふん', romaji: 'kyuufun', isIrregular: false },
-  { min: 10, kanji: '十分', hiragana: 'じゅっぷん / じっぷん', romaji: 'juppun', isIrregular: true },
+  { min: 10, kanji: '十分', hiragana: 'じゅっぷん / じっぷん', romaji: 'juppun / jippun', isIrregular: true },
   { min: 15, kanji: '十五分', hiragana: 'じゅうごふん', romaji: 'juugofun', isIrregular: false },
   { min: 30, kanji: '三十分 / 半', hiragana: 'さんじゅっぷん / はん', romaji: 'sanjuppun / han', isIrregular: true },
 ];
@@ -250,7 +377,464 @@ export const DAYS_OF_WEEK = [
 ];
 
 // ══════════════════════════════════════════════════════
-// 4. QUIZ CHƯƠNG 2
+// 7. BÀI LUYỆN PHẢN XẠ NHANH (SPEED REFLEX FLASH PROMPTS)
+// ══════════════════════════════════════════════════════
+
+export const REFLEX_PROMPTS: ReflexPrompt[] = [
+  {
+    id: 'rf_1',
+    category: 'time',
+    categoryLabel: 'Giờ Giấc',
+    promptDisplay: '04:00',
+    hint: 'Bốn giờ đúng',
+    correctReading: 'よじ',
+    correctRomaji: 'yoji',
+    options: [
+      { reading: 'よんじ', romaji: 'yonji' },
+      { reading: 'よじ', romaji: 'yoji' },
+      { reading: 'しじ', romaji: 'shiji' },
+      { reading: 'よんとき', romaji: 'yontoki' },
+    ],
+  },
+  {
+    id: 'rf_2',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 01',
+    hint: 'Mùng một đầu tháng',
+    correctReading: 'ついたち',
+    correctRomaji: 'tsuitachi',
+    options: [
+      { reading: 'いちにち', romaji: 'ichinichi' },
+      { reading: 'ひとつひ', romaji: 'hitotsuhi' },
+      { reading: 'ついたち', romaji: 'tsuitachi' },
+      { reading: 'ついた', romaji: 'tsuita' },
+    ],
+  },
+  {
+    id: 'rf_3',
+    category: 'age',
+    categoryLabel: 'Đếm Tuổi',
+    promptDisplay: '20 Tuổi',
+    hint: 'Tuổi trưởng thành của người Nhật',
+    correctReading: 'はたち',
+    correctRomaji: 'hatachi',
+    options: [
+      { reading: 'にじゅっさい', romaji: 'nijussai' },
+      { reading: 'にじゅうさい', romaji: 'nijuusai' },
+      { reading: 'にじっさい', romaji: 'nijissai' },
+      { reading: 'はたち', romaji: 'hatachi' },
+    ],
+  },
+  {
+    id: 'rf_4',
+    category: 'people',
+    categoryLabel: 'Đếm Người',
+    promptDisplay: '4 Người',
+    hint: 'Số lượng 4 người trong phòng',
+    correctReading: 'よにん',
+    correctRomaji: 'yonin',
+    options: [
+      { reading: 'よにん', romaji: 'yonin' },
+      { reading: 'よんにん', romaji: 'yonnin' },
+      { reading: 'しにん', romaji: 'shinin' },
+      { reading: 'よったり', romaji: 'yottari' },
+    ],
+  },
+  {
+    id: 'rf_5',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 20',
+    hint: 'Ngày 20 trong tháng',
+    correctReading: 'はつか',
+    correctRomaji: 'hatsuka',
+    options: [
+      { reading: 'にじゅうにち', romaji: 'nijuunichi' },
+      { reading: 'はつか', romaji: 'hatsuka' },
+      { reading: 'ふつか', romaji: 'futsuka' },
+      { reading: 'はっか', romaji: 'hakka' },
+    ],
+  },
+  {
+    id: 'rf_6',
+    category: 'counters',
+    categoryLabel: 'Đơn Vị Đếm',
+    promptDisplay: '3 Con Mèo',
+    hint: 'Động vật nhỏ (con mèo)',
+    correctReading: 'さんびき',
+    correctRomaji: 'sanbiki',
+    options: [
+      { reading: 'さんひき', romaji: 'sanhiki' },
+      { reading: 'さんぴき', romaji: 'sanpiki' },
+      { reading: 'さんびき', romaji: 'sanbiki' },
+      { reading: 'みっぴき', romaji: 'mippiki' },
+    ],
+  },
+  {
+    id: 'rf_7',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 08',
+    hint: 'Mùng tám (trường âm)',
+    correctReading: 'ようか',
+    correctRomaji: 'youka',
+    options: [
+      { reading: 'よっか', romaji: 'yokka' },
+      { reading: 'はちにち', romaji: 'hachinichi' },
+      { reading: 'やっか', romaji: 'yakka' },
+      { reading: 'ようか', romaji: 'youka' },
+    ],
+  },
+  {
+    id: 'rf_8',
+    category: 'time',
+    categoryLabel: 'Giờ Giấc',
+    promptDisplay: '09:00',
+    hint: 'Chín giờ đúng',
+    correctReading: 'くじ',
+    correctRomaji: 'kuji',
+    options: [
+      { reading: 'きゅうじ', romaji: 'kyuuji' },
+      { reading: 'くじ', romaji: 'kuji' },
+      { reading: 'こじ', romaji: 'koji' },
+      { reading: 'きゅうとき', romaji: 'kyuutoki' },
+    ],
+  },
+  {
+    id: 'rf_9',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 04',
+    hint: 'Mùng bốn (âm ngắt)',
+    correctReading: 'よっか',
+    correctRomaji: 'yokka',
+    options: [
+      { reading: 'ようか', romaji: 'youka' },
+      { reading: 'よんにち', romaji: 'yonnichi' },
+      { reading: 'よっか', romaji: 'yokka' },
+      { reading: 'しにち', romaji: 'shinichi' },
+    ],
+  },
+  {
+    id: 'rf_10',
+    category: 'people',
+    categoryLabel: 'Đếm Người',
+    promptDisplay: '1 Người',
+    hint: 'Một người cô đơn',
+    correctReading: 'ひとり',
+    correctRomaji: 'hitori',
+    options: [
+      { reading: 'いちにん', romaji: 'ichinin' },
+      { reading: 'いちひと', romaji: 'ichihito' },
+      { reading: 'ひとつ', romaji: 'hitotsu' },
+      { reading: 'ひとり', romaji: 'hitori' },
+    ],
+  },
+  {
+    id: 'rf_11',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 14',
+    hint: 'Ngày 14 trong tháng',
+    correctReading: 'じゅうよっか',
+    correctRomaji: 'juuyokka',
+    options: [
+      { reading: 'じゅうよんにち', romaji: 'juuyonnichi' },
+      { reading: 'じゅうよっか', romaji: 'juuyokka' },
+      { reading: 'じゅうしにち', romaji: 'juushinichi' },
+      { reading: 'じゅうようか', romaji: 'juuyouka' },
+    ],
+  },
+  {
+    id: 'rf_12',
+    category: 'time',
+    categoryLabel: 'Giờ Giấc',
+    promptDisplay: '07:00',
+    hint: 'Bảy giờ sáng',
+    correctReading: 'しちじ',
+    correctRomaji: 'shichiji',
+    options: [
+      { reading: 'ななじ', romaji: 'nanaji' },
+      { reading: 'しちとき', romaji: 'shichitoki' },
+      { reading: 'しちじ', romaji: 'shichiji' },
+      { reading: 'ななとき', romaji: 'nanatoki' },
+    ],
+  },
+  {
+    id: 'rf_13',
+    category: 'counters',
+    categoryLabel: 'Đơn Vị Đếm',
+    promptDisplay: '1 Cây Bút',
+    hint: 'Vật hình trụ, dài (bút)',
+    correctReading: 'いっぽん',
+    correctRomaji: 'ippon',
+    options: [
+      { reading: 'いちほん', romaji: 'ichihon' },
+      { reading: 'いちぼん', romaji: 'ichibon' },
+      { reading: 'ひとほん', romaji: 'hitohon' },
+      { reading: 'いっぽん', romaji: 'ippon' },
+    ],
+  },
+  {
+    id: 'rf_14',
+    category: 'age',
+    categoryLabel: 'Đếm Tuổi',
+    promptDisplay: '1 Tuổi',
+    hint: 'Một tuổi (em bé)',
+    correctReading: 'いっさい',
+    correctRomaji: 'issai',
+    options: [
+      { reading: 'いちさい', romaji: 'ichisai' },
+      { reading: 'いっさい', romaji: 'issai' },
+      { reading: 'ひとさい', romaji: 'hitosai' },
+      { reading: 'いっぽん', romaji: 'ippon' },
+    ],
+  },
+  {
+    id: 'rf_15',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 24',
+    hint: 'Ngày 24 trong tháng',
+    correctReading: 'にじゅうよっか',
+    correctRomaji: 'nijuuyokka',
+    options: [
+      { reading: 'にじゅうよんにち', romaji: 'nijuuyonnichi' },
+      { reading: 'にじゅうよっか', romaji: 'nijuuyokka' },
+      { reading: 'にじゅうしにち', romaji: 'nijuushinichi' },
+      { reading: 'にじゅうようか', romaji: 'nijuuyouka' },
+    ],
+  },
+  {
+    id: 'rf_16',
+    category: 'time',
+    categoryLabel: 'Giờ Giấc',
+    promptDisplay: '01:30',
+    hint: 'Một giờ ba mươi phút / Một giờ rưỡi',
+    correctReading: 'いちじはん',
+    correctRomaji: 'ichijihan',
+    options: [
+      { reading: 'いちじさんじゅっぷん', romaji: 'ichijisanjuppun' },
+      { reading: 'ひとじはん', romaji: 'hitojihan' },
+      { reading: 'いちじはん', romaji: 'ichijihan' },
+      { reading: 'いちじはんぷん', romaji: 'ichijihanpun' },
+    ],
+  },
+  {
+    id: 'rf_17',
+    category: 'time',
+    categoryLabel: 'Giờ Giấc',
+    promptDisplay: '10:10',
+    hint: 'Mười giờ mười phút',
+    correctReading: 'じゅうじじゅっぷん',
+    correctRomaji: 'juujijuppun',
+    options: [
+      { reading: 'じゅうじじゅうふん', romaji: 'juujijuufun' },
+      { reading: 'じゅうじじゅっぷん', romaji: 'juujijuppun' },
+      { reading: 'とおじじゅっぷん', romaji: 'toojijuppun' },
+      { reading: 'じゅうじじっぷん', romaji: 'juujijippun' },
+    ],
+  },
+  {
+    id: 'rf_18',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 02',
+    hint: 'Mùng hai đầu tháng',
+    correctReading: 'ふつか',
+    correctRomaji: 'futsuka',
+    options: [
+      { reading: 'ににち', romaji: 'ninichi' },
+      { reading: 'ふつか', romaji: 'futsuka' },
+      { reading: 'みっか', romaji: 'mikka' },
+      { reading: 'はつか', romaji: 'hatsuka' },
+    ],
+  },
+  {
+    id: 'rf_19',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 03',
+    hint: 'Mùng ba đầu tháng',
+    correctReading: 'みっか',
+    correctRomaji: 'mikka',
+    options: [
+      { reading: 'さんにち', romaji: 'sannichi' },
+      { reading: 'よっか', romaji: 'yokka' },
+      { reading: 'みっか', romaji: 'mikka' },
+      { reading: 'いつか', romaji: 'itsuka' },
+    ],
+  },
+  {
+    id: 'rf_20',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 05',
+    hint: 'Mùng năm đầu tháng',
+    correctReading: 'いつか',
+    correctRomaji: 'itsuka',
+    options: [
+      { reading: 'いつか', romaji: 'itsuka' },
+      { reading: 'ごにち', romaji: 'gonichi' },
+      { reading: 'むいか', romaji: 'muika' },
+      { reading: 'なのか', romaji: 'nanoka' },
+    ],
+  },
+  {
+    id: 'rf_21',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 06',
+    hint: 'Mùng sáu đầu tháng',
+    correctReading: 'むいか',
+    correctRomaji: 'muika',
+    options: [
+      { reading: 'ろくにち', romaji: 'rokunichi' },
+      { reading: 'いつか', romaji: 'itsuka' },
+      { reading: 'むいか', romaji: 'muika' },
+      { reading: 'ようか', romaji: 'youka' },
+    ],
+  },
+  {
+    id: 'rf_22',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 07',
+    hint: 'Mùng bảy đầu tháng',
+    correctReading: 'なのか',
+    correctRomaji: 'nanoka',
+    options: [
+      { reading: 'ななにち', romaji: 'nananichi' },
+      { reading: 'しちにち', romaji: 'shichinichi' },
+      { reading: 'なのか', romaji: 'nanoka' },
+      { reading: 'ここのか', romaji: 'kokonoka' },
+    ],
+  },
+  {
+    id: 'rf_23',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 09',
+    hint: 'Mùng chín đầu tháng',
+    correctReading: 'ここのか',
+    correctRomaji: 'kokonoka',
+    options: [
+      { reading: 'きゅうにち', romaji: 'kyuunichi' },
+      { reading: 'くにち', romaji: 'kunichi' },
+      { reading: 'とおか', romaji: 'tooka' },
+      { reading: 'ここのか', romaji: 'kokonoka' },
+    ],
+  },
+  {
+    id: 'rf_24',
+    category: 'date',
+    categoryLabel: 'Ngày Trong Tháng',
+    promptDisplay: 'Ngày 10',
+    hint: 'Mùng mười đầu tháng',
+    correctReading: 'とおか',
+    correctRomaji: 'tooka',
+    options: [
+      { reading: 'じゅうにち', romaji: 'juunichi' },
+      { reading: 'とおか', romaji: 'tooka' },
+      { reading: 'ようか', romaji: 'youka' },
+      { reading: 'はつか', romaji: 'hatsuka' },
+    ],
+  },
+  {
+    id: 'rf_25',
+    category: 'people',
+    categoryLabel: 'Đếm Người',
+    promptDisplay: '2 Người',
+    hint: 'Đôi bạn thân',
+    correctReading: 'ふたり',
+    correctRomaji: 'futari',
+    options: [
+      { reading: 'ににん', romaji: 'ninin' },
+      { reading: 'ふたり', romaji: 'futari' },
+      { reading: 'にひと', romaji: 'nihito' },
+      { reading: 'ふたつ', romaji: 'futatsu' },
+    ],
+  },
+  {
+    id: 'rf_26',
+    category: 'age',
+    categoryLabel: 'Đếm Tuổi',
+    promptDisplay: '8 Tuổi',
+    hint: 'Tám tuổi (học sinh tiểu học)',
+    correctReading: 'はっさい',
+    correctRomaji: 'hassai',
+    options: [
+      { reading: 'はちさい', romaji: 'hachisai' },
+      { reading: 'はっさい', romaji: 'hassai' },
+      { reading: 'やつさい', romaji: 'yatsusai' },
+      { reading: 'はちさいの', romaji: 'hachisaino' },
+    ],
+  },
+  {
+    id: 'rf_27',
+    category: 'age',
+    categoryLabel: 'Đếm Tuổi',
+    promptDisplay: '10 Tuổi',
+    hint: 'Mười tuổi tròn',
+    correctReading: 'じゅっさい',
+    correctRomaji: 'jussai',
+    options: [
+      { reading: 'じゅうさい', romaji: 'juusai' },
+      { reading: 'とおさい', romaji: 'toosai' },
+      { reading: 'じゅっさい', romaji: 'jussai' },
+      { reading: 'じゅんさい', romaji: 'junsai' },
+    ],
+  },
+  {
+    id: 'rf_28',
+    category: 'counters',
+    categoryLabel: 'Đơn Vị Đếm',
+    promptDisplay: '2 Tờ Giấy',
+    hint: 'Vật thể phẳng, mỏng (tờ giấy)',
+    correctReading: 'にまい',
+    correctRomaji: 'nimai',
+    options: [
+      { reading: 'にまい', romaji: 'nimai' },
+      { reading: 'にこ', romaji: 'niko' },
+      { reading: 'にほん', romaji: 'nihon' },
+      { reading: 'ふたつ', romaji: 'futatsu' },
+    ],
+  },
+  {
+    id: 'rf_29',
+    category: 'counters',
+    categoryLabel: 'Đơn Vị Đếm',
+    promptDisplay: '6 Chiếc Ô Tô',
+    hint: 'Xe cộ, máy móc thiết bị',
+    correctReading: 'ろくだい',
+    correctRomaji: 'rokudai',
+    options: [
+      { reading: 'ろっこ', romaji: 'rokko' },
+      { reading: 'ろくだい', romaji: 'rokudai' },
+      { reading: 'ろくほん', romaji: 'rokuhon' },
+      { reading: 'むつだい', romaji: 'mutsudai' },
+    ],
+  },
+  {
+    id: 'rf_30',
+    category: 'counters',
+    categoryLabel: 'Đơn Vị Đếm',
+    promptDisplay: '1 Quyển Sách',
+    hint: 'Sách, vở, tạp chí đóng tập',
+    correctReading: 'いっさつ',
+    correctRomaji: 'issatsu',
+    options: [
+      { reading: 'いちさつ', romaji: 'ichisatsu' },
+      { reading: 'ひとさつ', romaji: 'hitosatsu' },
+      { reading: 'いっこ', romaji: 'ikko' },
+      { reading: 'いっさつ', romaji: 'issatsu' },
+    ],
+  },
+];
+
+// ══════════════════════════════════════════════════════
+// 8. QUIZ CHƯƠNG 2 TOÀN DIỆN (16 CÂU HỎI TRẮC NGHIỆM)
 // ══════════════════════════════════════════════════════
 
 export const NUMBERS_CHAPTER_QUIZ: QuizQuestion[] = [
@@ -288,7 +872,7 @@ export const NUMBERS_CHAPTER_QUIZ: QuizQuestion[] = [
     options: ['いちにん (ichinin)', 'いちひと (ichihito)', 'ひとり (hitori)', 'ひとつ (hitotsu)'],
     correctIndex: 2,
     explanation: '1 người (一人) là từ thuần Nhật đặc biệt đọc là ひとり (hitori).',
-    targetTab: 'counters',
+    targetTab: 'people_age',
   },
   {
     id: 5,
@@ -342,5 +926,64 @@ export const NUMBERS_CHAPTER_QUIZ: QuizQuestion[] = [
     correctIndex: 2,
     explanation: '10.000 là 一万 (いちまん - ichiman).',
     targetTab: 'numbers',
+  },
+  {
+    id: 11,
+    question: 'Người Nhật gọi 20 tuổi (tuổi trưởng thành) bằng từ đặc biệt nào?',
+    audioText: '二十歳',
+    options: ['にじゅっさい (nijussai)', 'はたち (hatachi)', 'にじゅうさい (nijuusai)', 'はつか (hatsuka)'],
+    correctIndex: 1,
+    explanation: '20 tuổi là mốc thành nhân (成人) ở Nhật và bắt buộc đọc là はたち (hatachi), không đọc nijussai.',
+    targetTab: 'people_age',
+  },
+  {
+    id: 12,
+    question: 'Ngày mùng 1 đầu tháng (一日) trong tiếng Nhật phát âm là gì?',
+    audioText: '一日',
+    options: ['いちにち (ichinichi)', 'ついたち (tsuitachi)', 'ひとつひ (hitotsuhi)', 'ついた (tsuita)'],
+    correctIndex: 1,
+    explanation: 'Ngày 1 đầu tháng đọc là ついたち (tsuitachi). Từ いちにち (ichinichi) chỉ dùng khi đếm khoảng thời gian 1 ngày.',
+    targetTab: 'days_of_month',
+  },
+  {
+    id: 13,
+    question: 'Phân biệt ngày 4 (四日) và ngày 8 (八日) trong tháng:',
+    audioText: '八日',
+    options: [
+      'Ngày 4 là yokka (âm ngắt), Ngày 8 là youka (trường âm)',
+      'Ngày 4 là youka (trường âm), Ngày 8 là yokka (âm ngắt)',
+      'Cả hai đều đọc là yokka',
+      'Ngày 4 là yonnichi, Ngày 8 là hachinichi'
+    ],
+    correctIndex: 0,
+    explanation: '四日 (ngày 4) có âm ngắt đọc là よっか (yokka). 八日 (ngày 8) có trường âm đọc là ようか (youka).',
+    targetTab: 'days_of_month',
+  },
+  {
+    id: 14,
+    question: 'Ngày 20 trong tháng (二十日) được phát âm chuẩn là gì?',
+    audioText: '二十日',
+    options: ['にじゅうにち (nijuunichi)', 'はつか (hatsuka)', 'はたち (hatachi)', 'ふつか (futsuka)'],
+    correctIndex: 1,
+    explanation: 'Ngày 20 trong tháng là はつか (hatsuka). Chú ý không nhầm với はたち (hatachi - 20 tuổi)!',
+    targetTab: 'days_of_month',
+  },
+  {
+    id: 15,
+    question: 'Khi đếm "4 người" trong phòng, người Nhật nói là gì?',
+    audioText: '四人',
+    options: ['よんにん (yonnin)', 'よにん (yonin)', 'しにん (shinin)', 'よったり (yottari)'],
+    correctIndex: 1,
+    explanation: '4 người bắt buộc đọc là よにん (yonin). Tuyệt đối cấm đọc yonnin hay shinin.',
+    targetTab: 'people_age',
+  },
+  {
+    id: 16,
+    question: 'Ngày 14 trong tháng (十四日) được đọc như thế nào?',
+    audioText: '十四日',
+    options: ['じゅうよんにち (juuyonnichi)', 'じゅうしにち (juushinichi)', 'じゅうよっか (juuyokka)', 'じゅうようか (juuyouka)'],
+    correctIndex: 2,
+    explanation: 'Ngày 14 giữ nguyên đuôi bất quy tắc của ngày mùng 4 -> じゅうよっか (juuyokka).',
+    targetTab: 'days_of_month',
   },
 ];
