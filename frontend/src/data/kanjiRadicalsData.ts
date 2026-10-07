@@ -223,7 +223,7 @@ export const ESSENTIAL_RADICALS: RadicalItem[] = [
 ];
 
 // ══════════════════════════════════════════════════════
-// 2. QUIZ CHƯƠNG 4
+// 2. QUIZ CHƯƠNG 4 (20 CÂU HỎI BỘ THỦ KANJI TOÀN DIỆN)
 // ══════════════════════════════════════════════════════
 
 export const RADICALS_CHAPTER_QUIZ: QuizQuestion[] = [
@@ -247,11 +247,11 @@ export const RADICALS_CHAPTER_QUIZ: QuizQuestion[] = [
     audioText: '休',
     options: [
       '日 (Mặt trời) + 月 (Mặt trăng)',
-      '人 (Con người) + 木 (Gốc cây)',
       '女 (Phụ nữ) + 子 (Đứa con)',
+      '人 (Con người) + 木 (Gốc cây)',
       '山 (Ngọn núi) + 石 (Hòn đá)'
     ],
-    correctIndex: 1,
+    correctIndex: 2,
     explanation: 'Chữ 休 ghép từ 人 (Người) tựa vào 木 (Gốc cây) dưới bóng mát để Nghỉ ngơi.',
     targetTab: 'mnemonics',
   },
@@ -270,7 +270,7 @@ export const RADICALS_CHAPTER_QUIZ: QuizQuestion[] = [
     audioText: '好',
     options: [
       'Hai cái cây đứng cạnh nhau thành rừng',
-      'Người phụ nữ (女) bế đứa con (子) trên tay thể hiện tình yêu thương',
+      'Người mẹ (女) bế đứa con (子) trên tay thể hiện tình mẫu tử thiêng liêng',
       'Mặt trời và mặt trăng cùng chiếu sáng',
       'Ba ngọn núi nhấp nhô hùng vĩ'
     ],
@@ -282,9 +282,194 @@ export const RADICALS_CHAPTER_QUIZ: QuizQuestion[] = [
     id: 5,
     question: 'Bộ thủ 口 (Khẩu) tượng hình ô vuông hình cái miệng. Nó xuất hiện trong từ nào chỉ lối ra vào?',
     audioText: '口',
-    options: ['木 (Cây)', '入口 (Lối vào) / 出口 (Lối ra)', '日本 (Nhật Bản)', '休 (Nghỉ ngơi)'],
-    correctIndex: 1,
+    options: ['木 (Cây)', '日本 (Nhật Bản)', '休 (Nghỉ ngơi)', '入口 (Lối vào) / 出口 (Lối ra)'],
+    correctIndex: 3,
     explanation: 'Bộ 口 (Khẩu) xuất hiện trong 入口 (Iriguchi - lối vào) và 出口 (Deguchi - lối ra).',
     targetTab: 'pictogram',
+  },
+  {
+    id: 6,
+    question: 'Bộ Mộc (木 - Cây cối): Khi hai chữ Mộc đứng cạnh nhau (林) và ba chữ Mộc xếp chồng lên nhau (森), chúng tạo thành từ có nghĩa là gì?',
+    audioText: '森林',
+    options: [
+      '林 là Rừng thưa / Rừng nhỏ, còn 森 là Rừng rậm rạp / Rừng bạt ngàn',
+      '林 là Củi khô, còn 森 là Vườn cây ăn quả',
+      'Cả hai đều chỉ cái cây cổ thụ đơn độc',
+      '林 là Bàn ghế gỗ, còn 森 là Ngôi nhà sàn gỗ'
+    ],
+    correctIndex: 0,
+    explanation: 'Hán tự tượng hình: 1 cây (木), 2 cây hợp lại thành rừng thưa (林 - Lâm), 3 cây thành rừng đại ngàn rậm rạp (森 - Sâm).',
+    targetTab: 'mnemonics',
+  },
+  {
+    id: 7,
+    question: 'Bộ Hỏa (火 - Ngọn lửa): Khi đứng ở đáy dưới cùng của chữ Hán, bộ Hỏa thường biến đổi thành hình dạng đặc thù nào?',
+    audioText: '火',
+    options: ['Bộ Ba chấm thủy (氵)', 'Bộ Nhật (日)', 'Bộ Thổ (土)', 'Bộ Bốn đốm lửa (灬 - Hỏa chẩm)'],
+    correctIndex: 3,
+    explanation: 'Bộ Hỏa ở đáy chữ biến thành 4 chấm (灬) tượng hình ngọn lửa bập bùng nấu chín, gặp trong 熱 (nhiệt/nóng), 煮 (nấu).',
+    targetTab: 'pictogram',
+  },
+  {
+    id: 8,
+    question: 'Chữ "明" (Minh - Sáng sủa, thông minh) được tạo nên từ hai nguồn sáng thiên nhiên vĩ đại nào kết hợp lại?',
+    audioText: '明',
+    options: [
+      '日 (Mặt trời) + 月 (Mặt trăng) hợp sức tỏa sáng rực rỡ',
+      '火 (Ngọn lửa) + 山 (Ngọn núi)',
+      '星 (Ngôi sao) + 雨 (Cơn mưa)',
+      '金 (Kim loại) + 光 (Ánh sáng)'
+    ],
+    correctIndex: 0,
+    explanation: 'Chữ 明 ghép từ 2 thiên thể sáng nhất bầu trời: Mặt trời (日) ban ngày và Mặt trăng (月) ban đêm tạo nên sự Sáng tỏ.',
+    targetTab: 'mnemonics',
+  },
+  {
+    id: 9,
+    question: 'Bộ Thảo đầu (艹) thường xuất hiện trên đầu các chữ Hán liên quan đến chủ đề nào trong đời sống?',
+    audioText: '花',
+    options: [
+      'Vũ khí và đồ đồng thời cổ',
+      'Sông ngòi và đại dương sâu thẳm',
+      'Cỏ cây, hoa lá, thảo mộc và thế giới thực vật (花 hoa, 茶 trà, 薬 thuốc)',
+      'Chuyển động của các loài thú săn mồi'
+    ],
+    correctIndex: 2,
+    explanation: 'Bộ Thảo đầu (艹) tượng hình 2 bụi cỏ non mọc lên khỏi mặt đất, đặc trưng cho thực vật, thảo mộc.',
+    targetTab: 'pictogram',
+  },
+  {
+    id: 10,
+    question: 'Chữ "語" (Ngữ - Ngôn ngữ) có bộ thủ cốt lõi bên trái đại diện cho lời nói là bộ gì?',
+    audioText: '語',
+    options: ['Bộ Ngôn (言) - Lời nói, phát ngôn', 'Bộ Khẩu (口) - Miệng ăn', 'Bộ Tâm (心) - Tấm lòng', 'Bộ Nhân (人) - Con người'],
+    correctIndex: 0,
+    explanation: 'Bộ Ngôn (言) biểu thị lời nói phát ra từ miệng, là gốc rễ của các chữ về ngôn ngữ như 語 (ngữ), 話 (thoại/nói chuyện), 読 (đọc).',
+    targetTab: 'mnemonics',
+  },
+  {
+    id: 11,
+    question: 'Bộ Tâm (心 - Trái tim) khi chuyển sang đứng ở bên trái chữ Hán thì biến đổi thành hình dạng nào?',
+    audioText: '心',
+    options: ['Bộ Ba chấm thủy (氵)', 'Bộ Nguyệt (月)', 'Bộ Tâm đứng (忄 - Thụ tâm bàng)', 'Bộ Khẩu (口)'],
+    correctIndex: 2,
+    explanation: 'Bộ Tâm bên trái viết thành 忄 (tâm đứng), diễn tả cảm xúc tâm trạng con người như trong 忙 (bận rộn), 快 (khoái/sảng khoái).',
+    targetTab: 'pictogram',
+  },
+  {
+    id: 12,
+    question: 'Bộ Quai xước (辶) tượng hình bàn chân bước đi trên đường. Nó thường xuất hiện ở vị trí nào trong chữ Hán?',
+    audioText: '道',
+    options: [
+      'Nằm trên đỉnh nóc của chữ Hán',
+      'Nằm ở chính giữa chia đôi chữ Hán',
+      'Nằm ở phía bên phải chữ Hán',
+      'Bao bọc góc dưới bên trái chữ (như trong 道 - con đường, 近 - gần, 遠 - xa)'
+    ],
+    correctIndex: 3,
+    explanation: 'Bộ Quai xước (辶) làm bệ đỡ góc dưới bên trái chữ, diễn tả hành động di chuyển, con đường, khoảng cách.',
+    targetTab: 'pictogram',
+  },
+  {
+    id: 13,
+    question: 'Chữ "男" (Nam - Đàn ông) được người xưa đúc kết từ hai bộ thủ tượng hình nào?',
+    audioText: '男',
+    options: [
+      '日 (Mặt trời) + 月 (Mặt trăng)',
+      '田 (Ruộng đồng) + 力 (Sức lực) — Người dùng sức cày bừa trên đồng ruộng',
+      '木 (Cây) + 刀 (Con dao)',
+      '人 (Người) + 山 (Núi non)'
+    ],
+    correctIndex: 1,
+    explanation: 'Chữ 男 ghép từ 田 (ruộng) ở trên và 力 (sức) ở dưới: biểu tượng người đàn ông dùng sức mạnh cày cấy ruộng vườn thời nông nghiệp.',
+    targetTab: 'mnemonics',
+  },
+  {
+    id: 14,
+    question: 'Bộ Mịch (糸/糹 - Sợi tơ, sợi chỉ) thường mang ý nghĩa liên quan đến nhóm nào?',
+    audioText: '糸',
+    options: [
+      'Kim loại và tiền tệ buôn bán',
+      'Lửa cháy và nấu nướng đồ ăn',
+      'Thời tiết mưa bão sấm sét',
+      'Vải vóc, may mặc, tơ lụa và sự kết nối dây nhợ (紙 giấy, 線 đường kẻ, 結 gắn kết)'
+    ],
+    correctIndex: 3,
+    explanation: 'Bộ Mịch (糸) tượng hình cuộn tơ nhả sợi, xuất hiện trong các chữ về dệt may, dây buộc và sự kết nối bền chặt.',
+    targetTab: 'pictogram',
+  },
+  {
+    id: 15,
+    question: 'Chữ "間" (Gian - Khoảng trống, khoảng thời gian) ẩn chứa hình ảnh tượng hình thú vị nào?',
+    audioText: '時間',
+    options: [
+      'Hai người đang nói chuyện trong phòng kín',
+      'Con thuyền đang trôi giữa dòng sông lớn',
+      'Ánh nắng mặt trời (日) chiếu lọt qua khe giữa hai cánh cửa (門)',
+      'Ngọn núi đứng sừng sững giữa bầu trời đêm'
+    ],
+    correctIndex: 2,
+    explanation: 'Chữ 間 ghép từ cánh cổng (門 - Môn) và mặt trời (日 - Nhật): ánh nắng chiếu qua khe cửa hé mở biểu thị khoảng trống / khoảng thời gian.',
+    targetTab: 'mnemonics',
+  },
+  {
+    id: 16,
+    question: 'Bộ Nguyệt (月) trong các chữ chỉ bộ phận cơ thể con người (như 腕 cánh tay, 脚 cái chân, 胃 dạ dày) thực chất là biến thể của bộ gì?',
+    audioText: '肉',
+    options: [
+      'Bộ Nhục (肉 - Miếng thịt, cơ bắp thân thể người)',
+      'Bộ Hỏa (Ngọn lửa)',
+      'Bộ Thủy (Dòng nước)',
+      'Bộ Kim (Kim loại quý)'
+    ],
+    correctIndex: 0,
+    explanation: 'Chữ 月 trong các bộ phận thân thể là dạng viết gọn của bộ Nhục (肉 - thịt/cơ bắp), hay gọi là "Nguyệt nhục".',
+    targetTab: 'pictogram',
+  },
+  {
+    id: 17,
+    question: 'Chữ "森" (Rừng rậm rạp) gồm tổng cộng bao nhiêu nét viết và thuộc loại chữ cấu tạo nào?',
+    audioText: '森',
+    options: ['8 nét, chữ tượng hình đơn lẻ', '10 nét, chữ giả tá âm thanh', '15 nét, chữ chỉ sự trừu tượng', '12 nét, chữ Hội ý (kết hợp 3 cây 木 xếp chồng)'],
+    correctIndex: 3,
+    explanation: 'Chữ 森 có 12 nét (mỗi chữ 木 4 nét x 3 = 12 nét), thuộc thể loại chữ Hội ý ghép nghĩa tạo nên rừng rậm.',
+    targetTab: 'mnemonics',
+  },
+  {
+    id: 18,
+    question: 'Bộ Thổ (土 - Đất đai) khác với bộ Sĩ (士 - Kẻ sĩ, quan lại) ở điểm cốt lõi nào trong quy tắc viết nét?',
+    audioText: '土',
+    options: [
+      'Bộ Thổ có nét ngang dưới dài hơn nét ngang trên; còn bộ Sĩ có nét ngang trên dài hơn nét ngang dưới',
+      'Bộ Thổ có thêm dấu chấm ở giữa còn bộ Sĩ thì không có',
+      'Bộ Thổ nét sổ thẳng nghiêng sang trái, bộ Sĩ nét sổ thẳng nghiêng sang phải',
+      'Cả hai viết hoàn toàn giống hệt nhau không có bất kỳ điểm khác biệt nào'
+    ],
+    correctIndex: 0,
+    explanation: 'Quy tắc vàng phân biệt: 土 (Thổ) = đất ở dưới nên nét đáy dài nhất. 士 (Sĩ) = kẻ sĩ vai rộng nên nét ngang trên cùng dài nhất.',
+    targetTab: 'pictogram',
+  },
+  {
+    id: 19,
+    question: 'Hai chữ "飲" (Ẩm - Uống) và "飯" (Phạn - Cơm) đều có chung bộ thủ nào ở bên trái liên quan mật thiết đến ăn uống?',
+    audioText: 'ご飯',
+    options: ['Bộ Mộc (Gỗ)', 'Bộ Thực (飠/食 - Thức ăn, việc ăn uống ẩm thực)', 'Bộ Kim (Kim loại)', 'Bộ Thạch (Hòn đá)'],
+    correctIndex: 1,
+    explanation: 'Bộ Thực (飠/食) tượng hình cái niêu/nồi đậy nắp có đồ ăn ngon bên trong, là gốc của các từ liên quan đến thực phẩm và ăn uống.',
+    targetTab: 'mnemonics',
+  },
+  {
+    id: 20,
+    question: 'Lợi ích cốt lõi lớn nhất của việc nắm vững các Bộ thủ Kanji (Radicals) đối với người học tiếng Nhật là gì?',
+    audioText: '漢字',
+    options: [
+      'Chỉ để dùng khi tra từ điển giấy cổ ngày xưa',
+      'Giúp phát âm chuẩn bảng chữ cái Romaji',
+      'Hiểu bản chất tượng hình, giải mã câu chuyện của chữ, tránh viết sai nét và đoán được ý nghĩa của các từ Hán tự mới',
+      'Không có lợi ích gì đáng kể trong giao tiếp thực tế'
+    ],
+    correctIndex: 2,
+    explanation: 'Bộ thủ là các "viên gạch Lego" xây nên toàn bộ hệ thống Kanji. Hiểu bộ thủ giúp việc ghi nhớ Kanji trở nên dễ dàng, khoa học và thú vị.',
+    targetTab: 'mnemonics',
   },
 ];

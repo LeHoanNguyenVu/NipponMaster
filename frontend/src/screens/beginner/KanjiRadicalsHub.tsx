@@ -482,7 +482,7 @@ export default function KanjiRadicalsHub({ onChapterComplete }: KanjiRadicalsHub
               /* Quiz Result Screen */
               <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 text-center space-y-6 shadow-sm">
                 <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto text-3xl font-bold">
-                  {Math.round((score / RADICALS_CHAPTER_QUIZ.length) * 100) >= 60 ? '🎉' : '💪'}
+                  {Math.round((score / RADICALS_CHAPTER_QUIZ.length) * 100) >= 85 ? '🎉' : '💪'}
                 </div>
 
                 <div>

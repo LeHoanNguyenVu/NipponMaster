@@ -385,7 +385,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
               /* Quiz Result Screen */
               <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 text-center space-y-6 shadow-sm">
                 <div className="w-20 h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto text-4xl">
-                  {Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100) >= 60 ? '🎓' : '💪'}
+                  {Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100) >= 85 ? '🎓' : '💪'}
                 </div>
 
                 <div>
@@ -398,7 +398,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                   </p>
                 </div>
 
-                {Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100) >= 60 ? (
+                {Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100) >= 85 ? (
                   <div className="p-4 rounded-2xl bg-secondary/10 text-secondary text-sm font-bold space-y-2">
                     <div>🎉 CHÚC MỪNG BẠN ĐÃ TỐT NGHIỆP XUẤT SẮC KHÓA NHẬP MÔN!</div>
                     <p className="text-xs font-normal">Bạn đã nắm vững toàn bộ Bảng chữ cái, Số đếm, Thời gian, Aisatsu, 35+ Bộ thủ và Cấu trúc ngữ pháp N5!</p>
