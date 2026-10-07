@@ -201,9 +201,9 @@
   - Kết quả: Điểm số, thời gian làm bài, danh sách câu sai cần ôn lại.
 
 #### 2. Phân chia Task thực hiện (Checklist)
-- [ ] **Task 3.1: Chuẩn bị dataset chuẩn 214 Bộ Thủ Kanji**
-  - [ ] Tạo file dữ liệu `frontend/src/data/kanjiRadicals214.ts` đầy đủ 214 bộ thủ Khang Hy.
-  - [ ] Cấu trúc chuẩn từng bản ghi: `id (1-214)`, `character`, `variants`, `hanViet`, `meaning`, `strokeCount`, `position`, `examples`.
+- [x] **Task 3.1: Chuẩn bị dataset chuẩn 214 Bộ Thủ Kanji**
+  - [x] Tạo file dữ liệu `frontend/src/data/kanjiRadicals214.ts` đầy đủ 214 bộ thủ Khang Hy.
+  - [x] Cấu trúc chuẩn từng bản ghi: `id (1-214)`, `character`, `variants`, `hanViet`, `meaning`, `strokeCount`, `position`, `examples`.
 - [ ] **Task 3.2: Thiết kế lại giao diện Kanji.tsx**
   - [ ] Loại bỏ tab Canvas Studio và bộ lọc cấp độ N5–N1.
   - [ ] Thêm thanh tìm kiếm đa năng (theo chữ Hán, Hán Việt, tiếng Việt không dấu).
