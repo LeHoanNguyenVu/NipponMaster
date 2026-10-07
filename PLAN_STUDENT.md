@@ -149,11 +149,17 @@
 - [x] Bổ sung bảng số đếm người đặc biệt (hitori, futari, yonin, cụm từ cô đơn hitoribocchi...).
 - [x] Bổ sung bảng ngày trong tháng từ ngày 1 đến ngày 31 (tsuitachi, futsuka... hatsuka) với filter ngày bất quy tắc & mẹo phân biệt.
 - [x] Bổ sung quy tắc đếm tuổi đặc biệt (二十歳 - はたち hatachi, các biến âm sokuon 1, 8, 10 tuổi & câu hỏi tuổi/kính ngữ).
-- [x] Bài luyện tập phản xạ chuyển đổi số và giờ giấc (Chế độ Flash Speed Reflex mode với chuỗi streak đúng liên tiếp).
+- [x] Bài luyện tập phản xạ chuyển đổi số và giờ giấc (Chế độ Flash Speed Reflex mode với chuỗi streak đúng liên tiếp, phân bổ đều 25% xác suất).
+- [x] **Chuẩn hóa bài test Chương 2**: Đạt chuẩn **20 câu hỏi trắc nghiệm toàn diện** (tỷ lệ 25% đều nhau cho A, B, C, D).
 
-##### [CHỜ XỬ LÝ] Chương 3: Chào Hỏi Giao Tiếp & Xưng Hô Văn Hóa
-##### [CHỜ XỬ LÝ] Chương 4: 50+ Bộ Thủ Tượng Hình Nền Tảng
-##### [CHỜ XỬ LÝ] Chương 5: Cấu Trúc Câu & Thì Ngữ Pháp Nhập Môn
+##### [ĐÃ NÂNG CẤP TEST CHUẨN] Chương 3: Chào Hỏi Giao Tiếp & Xưng Hô Văn Hóa
+- [x] **Chuẩn hóa bài test Chương 3**: Mở rộng từ 8 câu lên tròn **20 câu hỏi trắc nghiệm văn hóa & chào hỏi** (Bao quát: Chào thời gian, ra vào cửa, dùng bữa, xin lỗi/cảm ơn, đại từ nhân xưng, hậu tố xưng hô kính ngữ; phân bổ đều 25% cho A, B, C, D).
+
+##### [ĐÃ NÂNG CẤP TEST CHUẨN] Chương 4: 50+ Bộ Thủ Tượng Hình Nền Tảng
+- [x] **Chuẩn hóa bài test Chương 4**: Nâng cấp từ 5 câu lên tròn **20 câu hỏi trắc nghiệm Bộ thủ Kanji tượng hình** (Phân bổ đều 25% cho A, B, C, D).
+
+##### [ĐÃ NÂNG CẤP TEST CHUẨN] Chương 5: Cấu Trúc Câu & Thì Ngữ Pháp Nhập Môn
+- [x] **Chuẩn hóa đề thi tốt nghiệp Chương 5**: Nâng cấp lên tròn **20 câu hỏi tổng hợp kiến thức cả 5 chương** (Phân bổ đều 25% cho A, B, C, D, chuẩn tốt nghiệp ≥ 85%).
 
 ---
 
