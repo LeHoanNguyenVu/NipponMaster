@@ -202,6 +202,7 @@ public class PlacementTestService {
     public void completeOnboarding(OnboardingRequest request) {
         User currentUser = getCurrentUser();
         currentUser.setTargetLevel(request.getTargetLevel());
+        currentUser.setJlptLevel(request.getTargetLevel());
         currentUser.setOnboardingCompleted(true);
         // Đồng thời nâng role lên STUDENT nếu đang là GUEST
         if (currentUser.getRole() == User.Role.GUEST) {

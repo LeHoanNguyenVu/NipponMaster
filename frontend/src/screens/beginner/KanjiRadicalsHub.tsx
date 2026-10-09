@@ -9,6 +9,7 @@ import { speakJapanese } from '../../data/kanaData';
 import KanjiInteractiveCanvas from '../../components/KanjiInteractiveCanvas';
 import { kanjiCanvasApi, type DrawnStroke } from '../../api/kanjiCanvasApi';
 import { playCorrectSound, playWrongSound } from '../../utils/audioSfx';
+import { saveChapterScore } from '../../utils/beginnerProgressManager';
 
 interface KanjiRadicalsHubProps {
   onChapterComplete?: (chapterId: string, scorePercent: number) => void;
@@ -88,8 +89,7 @@ export default function KanjiRadicalsHub({ onChapterComplete }: KanjiRadicalsHub
       const finalScore = score;
       const pct = Math.round((finalScore / RADICALS_CHAPTER_QUIZ.length) * 100);
       try {
-        const prev = Number(localStorage.getItem('nippon_chapter_4_quiz_score') || 0);
-        localStorage.setItem('nippon_chapter_4_quiz_score', Math.max(prev, pct).toString());
+        saveChapterScore(4, pct);
       } catch {}
       if (onChapterComplete) {
         onChapterComplete('chapter-4', pct);

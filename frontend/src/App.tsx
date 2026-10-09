@@ -20,6 +20,7 @@ import BeginnerCourseHub from './screens/BeginnerCourseHub';
 import ListeningRoom from './screens/ListeningRoom';
 import OAuthPopup from './screens/OAuthPopup';
 import { useAuthStore } from './store/useAuthStore';
+import { isBeginnerGraduated } from './utils/beginnerProgressManager';
 import gsap from 'gsap';
 
 export type ScreenType = 'dashboard' | 'kanji' | 'grammar' | 'exams' | 'translation' | 'pricing' | 'listening' | 'beginner';
@@ -31,6 +32,17 @@ export default function App() {
   const mainRef = useRef<HTMLDivElement>(null);
   
   const { isAuthenticated, user, fetchMe } = useAuthStore();
+
+  const isGraduated = isBeginnerGraduated();
+  const rawLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
+  const isStarter = rawLevel === 'STARTER';
+
+  // Route guard: Nếu ở level Nhập Môn mà screen trỏ vào module N5 đang bị ẩn, tự động điều hướng sang Khóa Nhập Môn
+  useEffect(() => {
+    if (isStarter && ['kanji', 'grammar', 'exams', 'listening'].includes(currentScreen)) {
+      setCurrentScreen('beginner');
+    }
+  }, [isStarter, currentScreen]);
 
   // Configure GSAP globally for prefers-reduced-motion
   useEffect(() => {
@@ -253,7 +265,7 @@ export default function App() {
           )}
           {currentScreen === 'dashboard' && (!user?.role || user?.role === 'student') && (
             <DashboardStudent
-              onStartStudy={() => setCurrentScreen('kanji')}
+              onStartStudy={() => setCurrentScreen(isStarter ? 'beginner' : 'kanji')}
               onOpenBeginnerCourse={() => setCurrentScreen('beginner')}
               onNavigate={setCurrentScreen}
               username={user?.username}

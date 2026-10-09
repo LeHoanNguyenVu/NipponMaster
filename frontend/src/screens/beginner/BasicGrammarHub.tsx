@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
-import { Volume2, Check, ArrowRight, RotateCcw, GraduationCap, AlertTriangle, Download } from 'lucide-react';
+import { Volume2, Check, ArrowRight, RotateCcw, GraduationCap, AlertTriangle, Download, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuthStore } from '../../store/useAuthStore';
 import {
   GRAMMAR_PATTERNS, GRAMMAR_GRADUATION_QUIZ
 } from '../../data/basicGrammarData';
 import { speakJapanese } from '../../data/kanaData';
 import { playCorrectSound, playWrongSound, playFanfareSound } from '../../utils/audioSfx';
+import { saveChapterScore } from '../../utils/beginnerProgressManager';
 
 interface BasicGrammarHubProps {
   onChapterComplete?: (chapterId: string, scorePercent: number) => void;
@@ -13,6 +15,7 @@ interface BasicGrammarHubProps {
 
 export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubProps) {
   const [activeTab, setActiveTab] = useState<'patterns' | 'tenses' | 'graduation'>('patterns');
+  const { updateUserLevel } = useAuthStore();
 
   // Quiz State
   const [quizIdx, setQuizIdx] = useState(0);
@@ -49,12 +52,12 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
       const finalScore = score;
       const pct = Math.round((finalScore / GRAMMAR_GRADUATION_QUIZ.length) * 100);
       try {
-        const prev = Number(localStorage.getItem('nippon_chapter_5_quiz_score') || 0);
-        localStorage.setItem('nippon_chapter_5_quiz_score', Math.max(prev, pct).toString());
+        saveChapterScore(5, pct);
       } catch {}
       if (pct >= 85) {
         setShowGraduationModal(true);
         playFanfareSound();
+        updateUserLevel('N5');
       }
       if (onChapterComplete) {
         onChapterComplete('chapter-5', pct);
@@ -474,10 +477,14 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
             </button>
 
             <button
-              onClick={() => setShowGraduationModal(false)}
-              className="w-full py-3.5 rounded-2xl bg-primary text-on-primary font-bold text-sm cursor-pointer hover:bg-primary-container transition-colors shadow-md"
+              onClick={() => {
+                setShowGraduationModal(false);
+                updateUserLevel('N5');
+              }}
+              className="w-full py-3.5 rounded-2xl bg-primary text-on-primary font-bold text-sm cursor-pointer hover:bg-primary-container transition-colors shadow-md flex items-center justify-center gap-2"
             >
-              Nhận Bằng & Tiếp Tục Lộ Trình N5 →
+              <span>Nhận Bằng & Nâng Cấp Lên Trình Độ N5</span>
+              <Sparkles size={16} />
             </button>
           </motion.div>
         </div>

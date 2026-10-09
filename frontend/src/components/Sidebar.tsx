@@ -1,6 +1,8 @@
 import { useRef, useEffect } from 'react';
-import { LayoutDashboard, Shapes, BookOpen, Target, BookType, CreditCard, X, GraduationCap, Headphones } from 'lucide-react';
+import { LayoutDashboard, Shapes, BookOpen, Target, BookType, CreditCard, X, GraduationCap, Headphones, Lock } from 'lucide-react';
 import type { ScreenType } from '../App';
+import { useAuthStore } from '../store/useAuthStore';
+import { isBeginnerGraduated } from '../utils/beginnerProgressManager';
 import gsap from 'gsap';
 
 interface SidebarProps {
@@ -12,8 +14,11 @@ interface SidebarProps {
 
 export default function Sidebar({ currentScreen, onNavigate, isOpen, onClose }: SidebarProps) {
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+  const { user } = useAuthStore();
+  const rawLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
+  const isStarter = rawLevel === 'STARTER';
 
-  const navItems = [
+  const allNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'beginner', label: 'Nhập Môn', icon: GraduationCap },
     { id: 'kanji', label: 'Kanji', icon: Shapes },
@@ -23,6 +28,12 @@ export default function Sidebar({ currentScreen, onNavigate, isOpen, onClose }: 
     { id: 'listening', label: 'Luyện Nghe', icon: Headphones },
     { id: 'pricing', label: 'Gói học', icon: CreditCard },
   ];
+
+  // Ở level Nhập Môn: Chỉ hiện đúng 4 mục (Dashboard, Nhập Môn, Dịch, Gói học).
+  // Khi lên N5: Hiển thị đầy đủ toàn bộ 8 module!
+  const navItems = isStarter
+    ? allNavItems.filter((item) => ['dashboard', 'beginner', 'translation', 'pricing'].includes(item.id))
+    : allNavItems;
 
   // GSAP animation for active item transitions
   useEffect(() => {
@@ -103,6 +114,18 @@ export default function Sidebar({ currentScreen, onNavigate, isOpen, onClose }: 
                 );
               })}
             </ul>
+
+            {isStarter && (
+              <div className="mt-6 p-3.5 rounded-2xl bg-surface-container/60 border border-outline-variant/30 text-xs text-on-surface-variant space-y-1.5">
+                <div className="flex items-center gap-1.5 font-bold text-[11px] text-primary">
+                  <Lock size={13} />
+                  <span>Module N5 Đang Khóa</span>
+                </div>
+                <p className="text-[10.5px] leading-relaxed text-on-surface-variant/80">
+                  Hoàn thành 5 chương Nhập Môn để tự động mở khóa Kanji, Ngữ Pháp, Thi thử & Luyện Nghe!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </nav>

@@ -9,57 +9,14 @@ const AisatsuPhrases = lazy(() => import('./beginner/AisatsuPhrases'));
 const KanjiRadicalsHub = lazy(() => import('./beginner/KanjiRadicalsHub'));
 const BasicGrammarHub = lazy(() => import('./beginner/BasicGrammarHub'));
 
-import { getChapter1RealMaxScore } from '../data/quizBankData';
+import { 
+  computeStrictCourseProgress, 
+  saveChapterScore,
+  UNLOCK_THRESHOLD, 
+  type ChapterProgressMap as ChapterProgress 
+} from '../utils/beginnerProgressManager';
 
-interface ChapterProgress {
-  [chapterId: string]: {
-    completed: boolean;
-    bestScore: number;
-    unlocked: boolean;
-  };
-}
-
-const UNLOCK_THRESHOLD = 85;
-
-/**
- * TÍNH TOÁN TIẾN ĐỘ THỰC TẾ & KHÓA TUẦN TỰ NGHIÊM NGẶT (Strict Sequential Course Locking)
- * - Chương 1: Đọc điểm bài test THỰC TẾ từ quizBankData (qua getChapter1RealMaxScore). Tuyệt đối không hardcode 100%!
- * - Chương 2: Đọc điểm bài test từ nippon_chapter_2_quiz_score. Chỉ mở khóa khi Chương 1 test đạt >= 85%.
- * - Chương 3: Đọc điểm bài test từ nippon_chapter_3_quiz_score. Chỉ mở khóa khi Chương 2 test đạt >= 85%.
- * - Chương 4: Đọc điểm bài test từ nippon_chapter_4_quiz_score. Chỉ mở khóa khi Chương 3 test đạt >= 85%.
- * - Chương 5: Đọc điểm bài test từ nippon_chapter_5_quiz_score. Chỉ mở khóa khi Chương 4 test đạt >= 85%.
- */
-export function computeStrictCourseProgress(): ChapterProgress {
-  const c1Score = Math.min(100, Math.max(0, getChapter1RealMaxScore()));
-  const c2Score = Math.min(100, Math.max(0, Number(localStorage.getItem('nippon_chapter_2_quiz_score') || 0)));
-  const c3Score = Math.min(100, Math.max(0, Number(localStorage.getItem('nippon_chapter_3_quiz_score') || 0)));
-  const c4Score = Math.min(100, Math.max(0, Number(localStorage.getItem('nippon_chapter_4_quiz_score') || 0)));
-  const c5Score = Math.min(100, Math.max(0, Number(localStorage.getItem('nippon_chapter_5_quiz_score') || 0)));
-
-  // Bắt buộc mở khóa tuần tự:
-  const c1Unlocked = true; // Chỉ duy nhất Chương 1 mở mặc định ban đầu
-  const c1Completed = c1Score >= UNLOCK_THRESHOLD;
-
-  const c2Unlocked = c1Completed; // Chương 2 chỉ mở khi Chương 1 hoàn thành test >= 85%
-  const c2Completed = c2Unlocked && c2Score >= UNLOCK_THRESHOLD;
-
-  const c3Unlocked = c2Completed; // Chương 3 chỉ mở khi Chương 2 test >= 85%
-  const c3Completed = c3Unlocked && c3Score >= UNLOCK_THRESHOLD;
-
-  const c4Unlocked = c3Completed; // Chương 4 chỉ mở khi Chương 3 test >= 85%
-  const c4Completed = c4Unlocked && c4Score >= UNLOCK_THRESHOLD;
-
-  const c5Unlocked = c4Completed; // Chương 5 chỉ mở khi Chương 4 test >= 85%
-  const c5Completed = c5Unlocked && c5Score >= UNLOCK_THRESHOLD;
-
-  return {
-    'chapter-1': { completed: c1Completed, bestScore: c1Score, unlocked: c1Unlocked },
-    'chapter-2': { completed: c2Completed, bestScore: c2Score, unlocked: c2Unlocked },
-    'chapter-3': { completed: c3Completed, bestScore: c3Score, unlocked: c3Unlocked },
-    'chapter-4': { completed: c4Completed, bestScore: c4Score, unlocked: c4Unlocked },
-    'chapter-5': { completed: c5Completed, bestScore: c5Score, unlocked: c5Unlocked },
-  };
-}
+export { computeStrictCourseProgress, UNLOCK_THRESHOLD };
 
 export default function BeginnerCourseHub() {
   const [activeChapter, setActiveChapter] = useState<string>('chapter-1');
@@ -95,21 +52,11 @@ export default function BeginnerCourseHub() {
     }
   }, [progress, activeChapter]);
 
-  // Cập nhật điểm thi thực tế và tính toán lại quyền mở khóa
   const handleChapterComplete = (chapterId: string, scorePercent: number) => {
     try {
-      if (chapterId === 'chapter-2') {
-        const prev = Number(localStorage.getItem('nippon_chapter_2_quiz_score') || 0);
-        localStorage.setItem('nippon_chapter_2_quiz_score', Math.max(prev, scorePercent).toString());
-      } else if (chapterId === 'chapter-3') {
-        const prev = Number(localStorage.getItem('nippon_chapter_3_quiz_score') || 0);
-        localStorage.setItem('nippon_chapter_3_quiz_score', Math.max(prev, scorePercent).toString());
-      } else if (chapterId === 'chapter-4') {
-        const prev = Number(localStorage.getItem('nippon_chapter_4_quiz_score') || 0);
-        localStorage.setItem('nippon_chapter_4_quiz_score', Math.max(prev, scorePercent).toString());
-      } else if (chapterId === 'chapter-5') {
-        const prev = Number(localStorage.getItem('nippon_chapter_5_quiz_score') || 0);
-        localStorage.setItem('nippon_chapter_5_quiz_score', Math.max(prev, scorePercent).toString());
+      const chNum = parseInt(chapterId.replace('chapter-', ''), 10);
+      if (!isNaN(chNum)) {
+        saveChapterScore(chNum, scorePercent);
       }
     } catch {}
 

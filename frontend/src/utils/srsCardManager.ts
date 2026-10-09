@@ -122,8 +122,12 @@ export const buildMasterCardPool = (): FlashcardItem[] => {
 // - Ưu tiên: Thẻ đến hạn ôn tập (nextReviewDate <= today).
 // - Tiếp theo: Thẻ mới chưa từng học.
 // - Tuyệt đối không chọn: Thẻ đã học mà chưa đến hạn (nextReviewDate > today).
-export const getDaily10CardsDeck = (customCards?: FlashcardItem[], targetDate = getTodayDateString()): FlashcardItem[] => {
-  const dailyDeckKey = `nippon_daily_deck_${targetDate}`;
+export const getDaily10CardsDeck = (
+  customCards?: FlashcardItem[], 
+  targetDate = getTodayDateString(),
+  levelKey = 'ALL'
+): FlashcardItem[] => {
+  const dailyDeckKey = `nippon_daily_deck_${levelKey.toUpperCase()}_${targetDate}`;
 
   // Nếu hôm nay đã có bộ thẻ được bốc thì giữ nguyên cho học viên trong ngày
   try {

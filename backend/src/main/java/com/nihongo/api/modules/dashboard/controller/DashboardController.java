@@ -39,4 +39,17 @@ public class DashboardController {
         
         return ResponseEntity.ok(ApiResponse.ok("Cập nhật vai trò thành công", UserResponse.from(savedUser)));
     }
+
+    @PutMapping("/level")
+    public ResponseEntity<ApiResponse<UserResponse>> updateLevel(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam User.JlptLevel level) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
+        
+        user.setJlptLevel(level);
+        User savedUser = userRepository.save(user);
+        
+        return ResponseEntity.ok(ApiResponse.ok("Cập nhật trình độ thành công", UserResponse.from(savedUser)));
+    }
 }

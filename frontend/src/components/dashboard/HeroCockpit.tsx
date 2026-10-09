@@ -9,6 +9,12 @@ interface HeroCockpitProps {
   isRefreshing: boolean;
   streakState: StreakState;
   weeklyStudyMinutes?: number;
+  isStarter?: boolean;
+  beginnerSummary?: {
+    completedCount: number;
+    totalCount: number;
+    percent: number;
+  };
 }
 
 export default function HeroCockpit({
@@ -18,6 +24,8 @@ export default function HeroCockpit({
   overallMastery,
   isRefreshing,
   streakState,
+  isStarter,
+  beginnerSummary,
 }: HeroCockpitProps) {
   // Lời chào theo giờ
   const getGreeting = () => {
@@ -154,10 +162,12 @@ export default function HeroCockpit({
           </div>
         </div>
 
-        {/* Metric 2: Tiến độ lộ trình tổng thể */}
+        {/* Metric 2: Tiến độ lộ trình tổng thể (Tách biệt rõ Nhập Môn vs N5) */}
         <div className="p-4 sm:p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/60 shadow-xs flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-outline">Lộ Trình {levelDisplay}</span>
+            <span className="text-xs font-bold text-outline">
+              {isStarter ? 'Tiến Độ Khóa Nhập Môn' : `Lộ Trình ${levelDisplay}`}
+            </span>
             <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600">
               <Award size={20} />
             </div>
@@ -165,18 +175,28 @@ export default function HeroCockpit({
           <div>
             <div className="flex items-baseline justify-between mb-1.5">
               <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
-                {overallMastery}%
+                {isStarter
+                  ? `${beginnerSummary?.completedCount ?? 0}/5 Chương`
+                  : `${overallMastery}%`}
               </span>
-              <span className="text-[10px] font-semibold text-outline">Tổng thể 4 module</span>
+              <span className="text-[10px] font-semibold text-outline">
+                {isStarter
+                  ? `${beginnerSummary?.percent ?? 0}% hoàn thành`
+                  : 'Tổng thể 4 kỹ năng'}
+              </span>
             </div>
             <div className="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
               <div 
                 className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-primary transition-all duration-500" 
-                style={{ width: `${overallMastery}%` }} 
+                style={{ 
+                  width: `${isStarter ? (beginnerSummary?.percent ?? 0) : overallMastery}%` 
+                }} 
               />
             </div>
             <p className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 mt-2.5">
-              ✓ Đồng bộ theo năng lực học tập thực tế
+              {isStarter
+                ? '🎯 Hoàn thành 5 chương & nhận bằng để mở khóa N5'
+                : '✓ Đồng bộ theo năng lực học tập thực tế'}
             </p>
           </div>
         </div>

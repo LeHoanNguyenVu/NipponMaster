@@ -12,6 +12,7 @@ import {
   NUMBERS_CHAPTER_QUIZ, type CounterUnit
 } from '../../data/numbersData';
 import { speakJapanese } from '../../data/kanaData';
+import { saveChapterScore } from '../../utils/beginnerProgressManager';
 
 interface NumbersAndTimeProps {
   onChapterComplete?: (chapterId: string, scorePercent: number) => void;
@@ -184,8 +185,7 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
       const finalScore = score + (selectedOption === NUMBERS_CHAPTER_QUIZ[quizIdx].correctIndex ? 0 : 0);
       const pct = Math.round((finalScore / NUMBERS_CHAPTER_QUIZ.length) * 100);
       try {
-        const prevC2 = Number(localStorage.getItem('nippon_chapter_2_quiz_score') || 0);
-        localStorage.setItem('nippon_chapter_2_quiz_score', Math.max(prevC2, pct).toString());
+        saveChapterScore(2, pct);
       } catch {}
       if (onChapterComplete) {
         onChapterComplete('chapter-2', pct);

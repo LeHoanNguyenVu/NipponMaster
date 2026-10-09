@@ -5,6 +5,7 @@ import {
   GREETINGS, PRONOUNS, HONORIFIC_SUFFIXES, AISATSU_CHAPTER_QUIZ
 } from '../../data/aisatsuData';
 import { speakJapanese } from '../../data/kanaData';
+import { saveChapterScore } from '../../utils/beginnerProgressManager';
 
 interface AisatsuPhrasesProps {
   onChapterComplete?: (chapterId: string, scorePercent: number) => void;
@@ -50,8 +51,7 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
       const finalScore = score;
       const pct = Math.round((finalScore / AISATSU_CHAPTER_QUIZ.length) * 100);
       try {
-        const prev = Number(localStorage.getItem('nippon_chapter_3_quiz_score') || 0);
-        localStorage.setItem('nippon_chapter_3_quiz_score', Math.max(prev, pct).toString());
+        saveChapterScore(3, pct);
       } catch {}
       if (onChapterComplete) {
         onChapterComplete('chapter-3', pct);

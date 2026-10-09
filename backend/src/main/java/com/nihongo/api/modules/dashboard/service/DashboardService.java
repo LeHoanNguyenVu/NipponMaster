@@ -27,9 +27,9 @@ public class DashboardService {
     public DashboardStatsResponse getStats(Long userId) {
         // Lấy thông tin người dùng và Level mục tiêu
         Optional<User> userOpt = (userId != null) ? userRepository.findById(userId) : Optional.empty();
-        User.JlptLevel level = User.JlptLevel.N5;
-        String levelStr = "N5";
-        String targetLevelStr = "N5";
+        User.JlptLevel level = User.JlptLevel.STARTER;
+        String levelStr = "STARTER";
+        String targetLevelStr = "STARTER";
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
@@ -39,10 +39,6 @@ public class DashboardService {
             }
             if (user.getTargetLevel() != null) {
                 targetLevelStr = user.getTargetLevel().name();
-                try {
-                    level = User.JlptLevel.valueOf(targetLevelStr);
-                    levelStr = targetLevelStr;
-                } catch (Exception ignored) {}
             }
         }
 

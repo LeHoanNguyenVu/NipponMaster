@@ -24,6 +24,7 @@ import {
   getChapter1RealMaxScore,
   getChapter1CompletedQuizzesCount,
 } from '../data/quizBankData';
+import { saveChapterScore } from '../utils/beginnerProgressManager';
 
 type Tab = 'overview' | 'lesson' | 'quiz' | 'practice_all';
 type KanaType = 'hiragana' | 'katakana';
@@ -222,6 +223,7 @@ export default function AlphabetExplorer({ onChapterComplete }: AlphabetExplorer
           saveQuizScore(compScope, selectedQuizSet.id, finalScore, totalQ);
           setSavedScores(loadSavedQuizScores());
         }
+        saveChapterScore(1, pct);
         // Luôn báo điểm số thực tế để hệ thống cập nhật đúng tiến độ
         if (onChapterComplete) {
           onChapterComplete('chapter-1', pct);

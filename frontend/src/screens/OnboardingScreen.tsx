@@ -29,7 +29,7 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
   const [testData, setTestData] = useState<PlacementTestData | null>(null);
   const [testLevel, setTestLevel] = useState<JlptLevel | null>(null);
   const [resultData, setResultData] = useState<PlacementResult | null>(null);
-  const [confirmedLevel, setConfirmedLevel] = useState<JlptLevel | 'STARTER'>('N5');
+  const [confirmedLevel, setConfirmedLevel] = useState<JlptLevel | 'STARTER'>('STARTER');
   const [loadingTest, setLoadingTest] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

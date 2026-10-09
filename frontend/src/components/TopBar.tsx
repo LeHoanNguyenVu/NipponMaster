@@ -8,6 +8,7 @@ import {
 import { useAuthStore } from '../store/useAuthStore';
 import { useThemeStore, THEME_CATALOG } from '../store/useThemeStore';
 import { useNotificationStore, type NotificationItem } from '../store/useNotificationStore';
+import { isBeginnerGraduated } from '../utils/beginnerProgressManager';
 import type { ScreenType } from '../App';
 
 interface TopBarProps {
@@ -127,7 +128,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
     setImgError(false);
   }, [userAvatar, user?.avatarUrl]);
 
-  const currentLevel = user?.jlptLevel || user?.targetLevel || 'N5';
+  const currentLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
   const levelDisplay = currentLevel === 'STARTER' ? 'Nhập Môn' : `${currentLevel} Level`;
   const initialLetter = (user?.username || user?.email || 'U').trim()[0].toUpperCase();
 

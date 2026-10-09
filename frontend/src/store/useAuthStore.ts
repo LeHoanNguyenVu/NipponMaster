@@ -39,7 +39,31 @@ interface AuthState {
   completeOnboarding: (targetLevel: string) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
   updateUserAvatar: (avatarUrl: string) => Promise<void>;
+  updateUserLevel: (level: string) => Promise<void>;
 }
+
+export const clearUserLocalProgress = () => {
+  const keysToRemove = [
+    'nippon_user_level',
+    'nippon_user_mode',
+    'nippon_chapter_1_quiz_score',
+    'nippon_chapter_2_quiz_score',
+    'nippon_chapter_3_quiz_score',
+    'nippon_chapter_4_quiz_score',
+    'nippon_chapter_5_quiz_score',
+    'beginner_course_progress',
+    'nippon_student_stats_v3',
+    'nippon_quick_cards_cache',
+    'nippon_master_comprehensive_quiz_scores',
+    'nippon_learned_kana_rows',
+    'nippon_card_srs_records_v1',
+  ];
+  keysToRemove.forEach((k) => {
+    try {
+      localStorage.removeItem(k);
+    } catch {}
+  });
+};
 
 const getStoredToken = () => localStorage.getItem('token') || sessionStorage.getItem('token');
 
@@ -58,12 +82,23 @@ export const useAuthStore = create<AuthState>((set) => ({
         password: credentials.password
       };
       const response = await axiosClient.post<any, any>('/auth/login', payload);
-      const data = response.data;
+      const data = response?.data ?? response;
       const token = data.accessToken;
+      const userEmail = data.user.email || data.user.username;
+      const lastEmail = localStorage.getItem('nippon_current_user_email');
+      if (lastEmail && lastEmail.toLowerCase() !== userEmail.toLowerCase()) {
+        clearUserLocalProgress();
+      }
+      localStorage.setItem('nippon_current_user_email', userEmail.toLowerCase());
+
+      const resolvedLevel = (data.user.jlptLevel || 'STARTER').toUpperCase();
+      localStorage.setItem('nippon_user_level', resolvedLevel);
+
       const user = {
         ...data.user,
         username: data.user.fullName || data.user.email,
-        role: data.user.role?.toLowerCase()
+        role: data.user.role?.toLowerCase(),
+        jlptLevel: resolvedLevel,
       };
       
       if (rememberDevice) {
@@ -92,14 +127,20 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   register: async (credentials, rememberDevice = true) => {
     set({ isLoading: true, error: null });
+    clearUserLocalProgress();
     try {
       const response = await axiosClient.post<any, any>('/auth/register', credentials);
-      const data = response.data;
+      const data = response?.data ?? response;
       const token = data.accessToken;
+      const userEmail = data.user.email || data.user.username;
+      localStorage.setItem('nippon_current_user_email', userEmail.toLowerCase());
+      localStorage.setItem('nippon_user_level', 'STARTER');
+
       const user = {
         ...data.user,
         username: data.user.fullName || data.user.email,
-        role: data.user.role?.toLowerCase()
+        role: data.user.role?.toLowerCase(),
+        jlptLevel: 'STARTER',
       };
 
       if (rememberDevice) {
@@ -130,7 +171,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosClient.post<any, any>('/auth/oauth2/login', data);
-      const resData = response.data;
+      const resData = response?.data ?? response;
       const token = resData.accessToken;
       const user = {
         ...resData.user,
@@ -168,8 +209,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (err) {
       console.warn('Backend logout failed, clearing local session anyway');
     }
+    clearUserLocalProgress();
     localStorage.removeItem('token');
     sessionStorage.removeItem('token');
+    localStorage.removeItem('nippon_current_user_email');
     set({
       user: null,
       token: null,
@@ -185,13 +228,24 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosClient.get<any, any>('/auth/me');
-      const data = response.data;
+      const data = response?.data ?? response;
+      const userEmail = data.email || data.username;
+      const lastEmail = localStorage.getItem('nippon_current_user_email');
+      if (lastEmail && lastEmail.toLowerCase() !== userEmail.toLowerCase()) {
+        clearUserLocalProgress();
+      }
+      localStorage.setItem('nippon_current_user_email', userEmail.toLowerCase());
+
+      const resolvedLevel = (data.jlptLevel || 'STARTER').toUpperCase();
+      localStorage.setItem('nippon_user_level', resolvedLevel);
+
       const cachedAvatar = localStorage.getItem(`user_avatar_${data.email || data.id}`) || data.avatarUrl;
       const user = {
         ...data,
         avatarUrl: cachedAvatar || data.avatarUrl,
         username: data.fullName || data.email,
         role: data.role?.toLowerCase(),
+        jlptLevel: resolvedLevel,
         targetLevel: data.targetLevel ?? null,
         onboardingCompleted: data.onboardingCompleted ?? true,
         subscriptionStatus: data.subscriptionStatus ?? 'NONE',
@@ -232,11 +286,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   completeOnboarding: async (targetLevel: string) => {
     try {
       await axiosClient.put('/users/me/onboarding', { targetLevel });
+      const upperLevel = targetLevel.toUpperCase();
+      localStorage.setItem('nippon_user_level', upperLevel);
       set((state) => ({
         user: state.user
           ? {
               ...state.user,
               targetLevel,
+              jlptLevel: upperLevel,
               onboardingCompleted: true,
               role: 'student',
             }
@@ -274,6 +331,19 @@ export const useAuthStore = create<AuthState>((set) => ({
       await axiosClient.put('/auth/avatar', { avatarUrl });
     } catch (e) {
       console.error('Failed to sync avatar to backend:', e);
+    }
+  },
+
+  updateUserLevel: async (level: string) => {
+    const upper = level.toUpperCase();
+    set((state) => ({
+      user: state.user ? { ...state.user, jlptLevel: upper } : null,
+    }));
+    try {
+      localStorage.setItem('nippon_user_level', upper);
+      await axiosClient.put(`/dashboard/level?level=${upper}`);
+    } catch (e) {
+      console.warn('Failed to sync level to backend:', e);
     }
   },
 }));

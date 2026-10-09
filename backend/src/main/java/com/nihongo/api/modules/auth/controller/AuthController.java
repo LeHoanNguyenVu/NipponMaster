@@ -52,7 +52,10 @@ public class AuthController {
     @GetMapping("/me")
     @Operation(summary = "Lấy thông tin user hiện tại (cần JWT)")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser(Authentication authentication) {
-        // Lấy userId từ JWT SecurityContext (principal = userId)
+        if (authentication == null || authentication.getPrincipal() == null || !(authentication.getPrincipal() instanceof Long)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Chưa đăng nhập hoặc phiên đăng nhập đã hết hạn"));
+        }
         Long userId = (Long) authentication.getPrincipal();
         UserResponse response = authService.getCurrentUser(userId);
         return ResponseEntity.ok(ApiResponse.ok(response));
