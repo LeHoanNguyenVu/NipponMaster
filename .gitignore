@@ -37,6 +37,7 @@ build/
 ### NipponMaster Plan & Progress Metadata ###
 PLAN_DETAILED.md
 PROJECT_PROGRESS.md
+PLAN_KANJI_*.md
 
 ### Logs & Temp Files ###
 *.log
@@ -58,3 +59,11 @@ skills-lock.json
 /web/dist-ssr/
 /web/.env
 /web/.env*.local
+
+### Kanji Master Raw PDFs, Extracted Assets, Plans & Processed Data ###
+*.pdf
+漢字マスター_pdf/
+frontend/public/assets/kanji/
+scripts/data/
+scratch/
+
