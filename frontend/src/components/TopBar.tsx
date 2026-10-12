@@ -8,7 +8,6 @@ import {
 import { useAuthStore } from '../store/useAuthStore';
 import { useThemeStore, THEME_CATALOG } from '../store/useThemeStore';
 import { useNotificationStore, type NotificationItem } from '../store/useNotificationStore';
-import { isBeginnerGraduated } from '../utils/beginnerProgressManager';
 import type { ScreenType } from '../App';
 
 interface TopBarProps {

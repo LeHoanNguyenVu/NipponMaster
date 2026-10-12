@@ -35,7 +35,7 @@ export default function App() {
 
   const isGraduated = isBeginnerGraduated();
   const rawLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
-  const isStarter = rawLevel === 'STARTER';
+  const isStarter = rawLevel === 'STARTER' && !isGraduated;
 
   // Route guard: Nếu ở level Nhập Môn mà screen trỏ vào module N5 đang bị ẩn, tự động điều hướng sang Khóa Nhập Môn
   useEffect(() => {

@@ -16,7 +16,7 @@ export default function Sidebar({ currentScreen, onNavigate, isOpen, onClose }: 
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   const { user } = useAuthStore();
   const rawLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
-  const isStarter = rawLevel === 'STARTER';
+  const isStarter = rawLevel === 'STARTER' && !isBeginnerGraduated();
 
   const allNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },

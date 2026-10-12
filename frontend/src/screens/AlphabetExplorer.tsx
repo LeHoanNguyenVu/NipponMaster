@@ -24,7 +24,8 @@ import {
   getChapter1RealMaxScore,
   getChapter1CompletedQuizzesCount,
 } from '../data/quizBankData';
-import { saveChapterScore } from '../utils/beginnerProgressManager';
+import { saveChapterScore, isUserAdvancedLevel } from '../utils/beginnerProgressManager';
+import { useAuthStore } from '../store/useAuthStore';
 
 type Tab = 'overview' | 'lesson' | 'quiz' | 'practice_all';
 type KanaType = 'hiragana' | 'katakana';
@@ -79,6 +80,9 @@ export default function AlphabetExplorer({ onChapterComplete }: AlphabetExplorer
     setLearnedRows(getLearnedKanaRows());
   }, [activeTab]);
 
+  const { user } = useAuthStore();
+  const isAdvanced = isUserAdvancedLevel();
+  const currentLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
   const realMaxScore = getChapter1RealMaxScore();
   const completedTestsCount = getChapter1CompletedQuizzesCount();
 
@@ -269,6 +273,14 @@ export default function AlphabetExplorer({ onChapterComplete }: AlphabetExplorer
             {realMaxScore >= 85 ? (
               <span className="text-secondary font-bold flex items-center gap-1">
                 ✅ Đạt điểm test {realMaxScore}% (≥ 85%) — Đã mở khóa thành công Chương 2!
+              </span>
+            ) : realMaxScore > 0 ? (
+              <span className="text-primary font-bold flex items-center gap-1">
+                📊 Điểm test cao nhất hiện tại: <strong>{realMaxScore}%</strong> / 85% {isAdvanced && `— Đã mở khóa toàn bộ chương (Trình độ ${currentLevel})`}
+              </span>
+            ) : isAdvanced ? (
+              <span className="text-secondary font-bold flex items-center gap-1">
+                🎓 Bạn đã đạt trình độ {currentLevel} (Tốt nghiệp Nhập Môn) — Toàn bộ các chương đã được mở khóa để bạn tự do ôn tập!
               </span>
             ) : (
               <span className="text-amber-800 dark:text-amber-400 font-medium flex items-center gap-1">

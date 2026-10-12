@@ -209,7 +209,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (err) {
       console.warn('Backend logout failed, clearing local session anyway');
     }
-    clearUserLocalProgress();
     localStorage.removeItem('token');
     sessionStorage.removeItem('token');
     localStorage.removeItem('nippon_current_user_email');

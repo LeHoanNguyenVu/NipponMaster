@@ -15,15 +15,17 @@ import {
   UNLOCK_THRESHOLD, 
   type ChapterProgressMap as ChapterProgress 
 } from '../utils/beginnerProgressManager';
+import { useAuthStore } from '../store/useAuthStore';
 
 export { computeStrictCourseProgress, UNLOCK_THRESHOLD };
 
 export default function BeginnerCourseHub() {
+  const { user } = useAuthStore();
   const [activeChapter, setActiveChapter] = useState<string>('chapter-1');
   const [progress, setProgress] = useState<ChapterProgress>(computeStrictCourseProgress);
   const [hasJaVoice, setHasJaVoice] = useState<boolean>(true);
 
-  // Đồng bộ và làm sạch tiến độ khi mount
+  // Đồng bộ và làm sạch tiến độ khi mount hoặc khi user cập nhật level
   useEffect(() => {
     const strict = computeStrictCourseProgress();
     setProgress(strict);
@@ -43,7 +45,7 @@ export default function BeginnerCourseHub() {
         window.speechSynthesis.onvoiceschanged = checkVoices;
       }
     }
-  }, []);
+  }, [user?.jlptLevel, user?.email]);
 
   // Bảo vệ route: Nếu activeChapter hiện tại đang bị khóa, tự động cưỡng chế chuyển về Chương 1
   useEffect(() => {
@@ -126,8 +128,14 @@ export default function BeginnerCourseHub() {
               <GraduationCap size={22} />
             </div>
             <div>
-              <h1 className="text-lg md:text-xl font-bold text-on-surface tracking-tight flex items-center gap-2">
+              <h1 className="text-lg md:text-xl font-bold text-on-surface tracking-tight flex items-center flex-wrap gap-2">
                 <span>Lộ Trình Sách Giáo Khoa Nhập Môn Tiếng Nhật</span>
+                {progressPercent === 100 && (
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                    <Sparkles size={12} />
+                    <span>Đã tốt nghiệp • Tự do ôn tập</span>
+                  </span>
+                )}
               </h1>
               <p className="text-xs text-on-surface-variant">Lộ trình học chuẩn từ con số 0 dành cho học viên mới bắt đầu</p>
             </div>
@@ -217,13 +225,17 @@ export default function BeginnerCourseHub() {
                         <span className="text-error/80 flex items-center gap-1 font-medium truncate">
                           🔒 Cần test ≥ 85% {prevChapter ? prevChapter.title.split(':')[0] : 'chương trước'}
                         </span>
+                      ) : chProgress.bestScore > 0 ? (
+                        <span className={isActive ? 'text-on-primary font-bold' : chProgress.bestScore >= UNLOCK_THRESHOLD ? 'text-secondary font-bold' : 'text-primary font-bold'}>
+                          {chProgress.bestScore >= UNLOCK_THRESHOLD ? '✅ Đã vượt qua' : 'Điểm test'}: <strong>{chProgress.bestScore}%</strong>
+                        </span>
                       ) : chProgress.completed ? (
                         <span className={isActive ? 'text-on-primary font-bold' : 'text-secondary font-bold'}>
-                          ✅ Đã vượt qua ({chProgress.bestScore}%)
+                          ✅ Đã mở khóa (Trình độ N5)
                         </span>
                       ) : (
                         <span className={isActive ? 'text-on-primary/90' : 'text-on-surface-variant'}>
-                          Điểm test: <strong className={isActive ? 'text-on-primary' : 'text-primary'}>{chProgress.bestScore}%</strong> / 85%
+                          Điểm test: <strong className={isActive ? 'text-on-primary' : 'text-primary'}>0%</strong> / 85%
                         </span>
                       )}
                       <span className={`font-mono text-[9px] flex-shrink-0 ${isActive ? 'text-on-primary/80' : 'text-on-surface-variant/70'}`}>
