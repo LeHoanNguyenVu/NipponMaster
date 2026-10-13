@@ -1,0 +1,36 @@
+{
+  "badge": "Gói Học Premium",
+  "heroTitle": "Đầu tư cho <span style=\"color: #c01538\">tương lai</span> tiếng Nhật của bạn",
+  "heroSubtitle": "Chọn gói phù hợp để mở khóa toàn bộ kho tàng từ vựng, Kanji và ngữ pháp. Học không giới hạn trong 365 ngày.",
+  "success": {
+    "title": "🎉 Thanh toán thành công!",
+    "desc": "Gói học đã được kích hoạt. Bạn có thể bắt đầu học ngay!",
+    "close": "Đóng"
+  },
+  "bundle": {
+    "featured": "Nổi bật",
+    "startingFrom": "Chỉ từ",
+    "daysSuffix": "/ {{days}} ngày",
+    "owned": "Đã sở hữu",
+    "buyBtn": "Mua trọn gói ngay",
+    "processing": "Đang xử lý..."
+  },
+  "divider": "Hoặc chọn gói lẻ theo trình độ",
+  "single": {
+    "moreFeatures": "+{{count}} tính năng khác",
+    "perYear": " ₫ / năm",
+    "owned": "Đã sở hữu",
+    "buyBtn": "Mua ngay",
+    "processing": "Đang xử lý..."
+  },
+  "trust": {
+    "secure": "Thanh toán an toàn 100%",
+    "updates": "Cập nhật nội dung miễn phí",
+    "guarantee": "Hoàn tiền trong 7 ngày"
+  },
+  "history": {
+    "title": "Lịch sử gói học đã mua",
+    "paymentDetails": "Thanh toán: {{amount}} {{currency}} • {{provider}}",
+    "active": "✓ Đang hoạt động"
+  }
+}

@@ -1,28 +1,31 @@
 import type { JlptLevel } from '../../api/placementApi';
+import { useTranslation } from 'react-i18next';
 
 interface LevelTestSelectorProps {
   onSelect: (level: JlptLevel) => void;
 }
 
-const LEVELS: { level: JlptLevel; label: string; questions: number; minutes: number; desc: string; emoji: string }[] = [
-  { level: 'N5', label: 'N5 — Cơ Bản', questions: 15, minutes: 15, desc: 'Từ vựng Hiragana/Katakana, Kanji sơ cấp, Trợ từ cơ bản', emoji: '🟢' },
-  { level: 'N4', label: 'N4 — Sơ Cấp', questions: 15, minutes: 15, desc: 'Ngữ pháp kính ngữ, Thể khả năng, Từ vựng ghép', emoji: '🔵' },
-  { level: 'N3', label: 'N3 — Trung Cấp', questions: 15, minutes: 20, desc: 'Cấu trúc câu phức, Từ nối, Đọc hiểu ngắn', emoji: '🟡' },
-  { level: 'N2', label: 'N2 — Cao Cấp', questions: 15, minutes: 25, desc: 'Từ vựng chuyên ngành, Ngữ pháp tinh tế, Bài đọc trung bình', emoji: '🟠' },
-  { level: 'N1', label: 'N1 — Thượng Thừa', questions: 15, minutes: 30, desc: 'Thành ngữ, Kanji hiếm, Ngữ pháp văn học', emoji: '🔴' },
+const LEVELS: { level: JlptLevel; defaultLabel: string; questions: number; minutes: number; defaultDesc: string; emoji: string }[] = [
+  { level: 'N5', defaultLabel: 'N5 — Cơ Bản', questions: 15, minutes: 15, defaultDesc: 'Từ vựng Hiragana/Katakana, Kanji sơ cấp, Trợ từ cơ bản', emoji: '🟢' },
+  { level: 'N4', defaultLabel: 'N4 — Sơ Cấp', questions: 15, minutes: 15, defaultDesc: 'Ngữ pháp kính ngữ, Thể khả năng, Từ vựng ghép', emoji: '🔵' },
+  { level: 'N3', defaultLabel: 'N3 — Trung Cấp', questions: 15, minutes: 20, defaultDesc: 'Cấu trúc câu phức, Từ nối, Đọc hiểu ngắn', emoji: '🟡' },
+  { level: 'N2', defaultLabel: 'N2 — Cao Cấp', questions: 15, minutes: 25, defaultDesc: 'Từ vựng chuyên ngành, Ngữ pháp tinh tế, Bài đọc trung bình', emoji: '🟠' },
+  { level: 'N1', defaultLabel: 'N1 — Thượng Thừa', questions: 15, minutes: 30, defaultDesc: 'Thành ngữ, Kanji hiếm, Ngữ pháp văn học', emoji: '🔴' },
 ];
 
 export default function LevelTestSelector({ onSelect }: LevelTestSelectorProps) {
+  const { t } = useTranslation(['onboarding', 'common']);
+
   return (
     <div>
       <h2 style={{ fontFamily: 'var(--font-ui)', fontSize: 20, fontWeight: 600, color: '#231815', marginBottom: 8 }}>
-        Chọn cấp độ bạn muốn kiểm tra
+        {t('onboarding:levelTest.title', 'Chọn cấp độ bạn muốn kiểm tra')}
       </h2>
       <p style={{ color: '#5a5450', fontSize: 14, marginBottom: 24 }}>
-        Mỗi cấp độ có bộ đề thi riêng. Chọn đúng cấp độ bạn đang hướng tới để nhận đánh giá chính xác nhất.
+        {t('onboarding:levelTest.subtitle', 'Mỗi cấp độ có bộ đề thi riêng. Chọn đúng cấp độ bạn đang hướng tới để nhận đánh giá chính xác nhất.')}
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
-        {LEVELS.map(({ level, label, questions, minutes, desc, emoji }) => (
+        {LEVELS.map(({ level, defaultLabel, questions, minutes, defaultDesc, emoji }) => (
           <button
             key={level}
             id={`test-level-${level}`}
@@ -45,14 +48,18 @@ export default function LevelTestSelector({ onSelect }: LevelTestSelectorProps) 
             }}
           >
             <div style={{ fontSize: 28 }}>{emoji}</div>
-            <div style={{ fontWeight: 700, fontSize: 15, color: '#231815' }}>{label}</div>
-            <div style={{ fontSize: 12, color: '#5a5450', lineHeight: 1.5 }}>{desc}</div>
+            <div style={{ fontWeight: 700, fontSize: 15, color: '#231815' }}>
+              {t(`onboarding:levelTest.levels.${level}.label`, defaultLabel)}
+            </div>
+            <div style={{ fontSize: 12, color: '#5a5450', lineHeight: 1.5 }}>
+              {t(`onboarding:levelTest.levels.${level}.desc`, defaultDesc)}
+            </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 11, fontWeight: 600, color: '#c01538', background: '#fff1f2', padding: '3px 9px', borderRadius: 99 }}>
-                {questions} câu
+                {t('onboarding:levelTest.questionsCount', { count: questions, defaultValue: `${questions} câu` })}
               </span>
               <span style={{ fontSize: 11, fontWeight: 600, color: '#5a5450', background: '#f1ede6', padding: '3px 9px', borderRadius: 99 }}>
-                ⏱ {minutes} phút
+                {t('onboarding:levelTest.minutesCount', { count: minutes, defaultValue: `⏱ ${minutes} phút` })}
               </span>
             </div>
           </button>

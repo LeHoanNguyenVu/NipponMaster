@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ShieldCheck, Laptop, Check, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface RememberDeviceModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function RememberDeviceModal({
   provider = 'GOOGLE',
   onConfirm,
 }: RememberDeviceModalProps) {
+  const { t } = useTranslation(['auth', 'common']);
   const [imgError, setImgError] = useState(false);
 
   if (!isOpen) return null;
@@ -66,11 +68,11 @@ export default function RememberDeviceModal({
         )}
 
         <h3 className="text-xl font-bold text-on-surface mb-2 font-serif">
-          Duy trì đăng nhập trên thiết bị này?
+          {t('auth:rememberDevice.title', 'Duy trì đăng nhập trên thiết bị này?')}
         </h3>
 
         <p className="text-xs text-on-surface-variant leading-relaxed mb-6">
-          Trình duyệt sẽ tự động đăng nhập mỗi khi bạn mở website trên thiết bị này. Phiên đăng nhập an toàn và chỉ bị thu hồi khi bạn chủ động đăng xuất hoặc đăng nhập từ một thiết bị khác.
+          {t('auth:rememberDevice.desc', 'Trình duyệt sẽ tự động đăng nhập mỗi khi bạn mở website trên thiết bị này.')}
         </p>
 
         {/* Actions */}
@@ -80,7 +82,7 @@ export default function RememberDeviceModal({
             onClick={() => onConfirm(true)}
             className="w-full py-3 px-4 rounded-xl bg-primary hover:bg-primary/90 text-on-primary font-bold text-sm shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
           >
-            <Check size={16} /> Lưu & Tự động đăng nhập
+            <Check size={16} /> {t('auth:rememberDevice.confirmBtn', 'Lưu & Tự động đăng nhập')}
           </button>
 
           <button
@@ -88,7 +90,7 @@ export default function RememberDeviceModal({
             onClick={() => onConfirm(false)}
             className="w-full py-2.5 px-4 rounded-xl border border-outline-variant/60 bg-surface-container-lowest hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface font-semibold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
           >
-            <X size={14} /> Không lưu (Chỉ phiên duyệt này)
+            <X size={14} /> {t('auth:rememberDevice.sessionOnlyBtn', 'Không lưu (Chỉ phiên duyệt này)')}
           </button>
         </div>
       </div>

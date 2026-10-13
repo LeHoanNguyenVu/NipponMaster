@@ -5,6 +5,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import axiosClient from '../api/axiosClient';
 import gsap from 'gsap';
+import { useTranslation } from 'react-i18next';
 
 interface GrammarItem {
   id: number;
@@ -63,6 +64,12 @@ const DAY_COLOR_MAP: Record<number, { bg: string; border: string; accent: string
 const getDayColors = (day: number) => DAY_COLOR_MAP[day] ?? DAY_COLOR_MAP[1];
 
 export default function Grammar() {
+  const { t } = useTranslation(['grammar', 'common']);
+  const getLessonTitle = (level: JlptLevel, day: number, defaultTitle: string) =>
+    t(`grammar:lessons.${level}.day${day}.title`, defaultTitle);
+  const getLessonDesc = (level: JlptLevel, day: number, defaultDesc: string) =>
+    t(`grammar:lessons.${level}.day${day}.desc`, defaultDesc);
+
   const [allGrammars, setAllGrammars] = useState<GrammarItem[]>([]);
   const [selectedGrammar, setSelectedGrammar] = useState<GrammarItem | null>(null);
   const [loading, setLoading] = useState(false);
@@ -165,18 +172,18 @@ export default function Grammar() {
       {/* Scrollable main content */}
       <div ref={mainRef} className="flex-1 overflow-y-auto p-8">
         {/* Page Header */}
-        <div className="mb-6">
+        <div className="mb-6 font-serif">
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <BookOpen className="w-8 h-8 text-primary" />
-            NipponMaster Grammar Handbook
+            {t('grammar:title', 'NipponMaster Grammar Handbook')}
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
-            Chọn trình độ và ngày học để khám phá các cấu trúc ngữ pháp tương ứng.
+            {t('grammar:subtitle', 'Chọn trình độ và ngày học để khám phá các cấu trúc ngữ pháp tương ứng.')}
           </p>
         </div>
 
         {/* Level Tabs */}
-        <div className="flex items-center gap-2 mb-7 flex-wrap">
+        <div className="flex items-center gap-2 mb-7 flex-wrap font-serif">
           {JLPT_LEVELS.map((lvl) => (
             <button
               key={lvl}
@@ -194,17 +201,17 @@ export default function Grammar() {
 
         {/* Access Restricted Banner */}
         {accessRestricted && (
-          <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-primary/10 via-tertiary/10 to-surface-container-high border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+          <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-primary/10 via-tertiary/10 to-surface-container-high border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm font-serif">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center flex-shrink-0">
                 <Lock size={20} />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
-                  Nội dung Ngữ pháp cấp độ {selectedLevel} bị giới hạn (Tài khoản Dùng thử)
+                  {t('grammar:restricted.title', { level: selectedLevel, defaultValue: `Nội dung Ngữ pháp cấp độ ${selectedLevel} bị giới hạn (Tài khoản Dùng thử)` })}
                 </h4>
                 <p className="text-xs text-on-surface-variant">
-                  Nâng cấp gói học để mở khóa toàn bộ cấu trúc ngữ pháp, phân tích trợ từ và ví dụ thực tế cho level này.
+                  {t('grammar:restricted.desc', 'Nâng cấp gói học để mở khóa toàn bộ cấu trúc ngữ pháp, phân tích trợ từ và ví dụ thực tế cho level này.')}
                 </p>
               </div>
             </div>
@@ -217,7 +224,7 @@ export default function Grammar() {
                 window.dispatchEvent(new HashChangeEvent('hashchange'));
               }}
             >
-              Xem gói học
+              {t('grammar:restricted.cta', 'Xem gói học')}
             </Button>
           </div>
         )}
@@ -225,18 +232,20 @@ export default function Grammar() {
         {/* ── VIEW A: Day selection grid ── */}
         {!selectedDay && (
           <>
-            <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">
-              Lộ trình học {selectedLevel} — Chọn ngày để bắt đầu
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 font-serif">
+              {t('grammar:dayPrompt', { level: selectedLevel, defaultValue: `Lộ trình học ${selectedLevel} — Chọn ngày để bắt đầu` })}
             </p>
             {lessons.length === 0 ? (
-              <div className="flex flex-col items-center justify-center min-h-[260px] bg-white rounded-2xl border border-dashed border-gray-200 p-10">
-                <p className="text-gray-400 font-medium text-base">Chưa có lộ trình cho trình độ {selectedLevel}.</p>
-                <p className="text-gray-300 text-sm mt-1">Nội dung sẽ được cập nhật sớm.</p>
+              <div className="flex flex-col items-center justify-center min-h-[260px] bg-white rounded-2xl border border-dashed border-gray-200 p-10 font-serif">
+                <p className="text-gray-400 font-medium text-base">{t('grammar:noCurriculum', { level: selectedLevel, defaultValue: `Chưa có lộ trình cho trình độ ${selectedLevel}.` })}</p>
+                <p className="text-gray-300 text-sm mt-1">{t('grammar:comingSoon', 'Nội dung sẽ được cập nhật sớm.')}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 font-serif">
                 {lessons.map((lesson) => {
                   const colors = getDayColors(lesson.day);
+                  const title = getLessonTitle(selectedLevel, lesson.day, lesson.title);
+                  const desc = getLessonDesc(selectedLevel, lesson.day, lesson.description);
                   return (
                     <button
                       key={lesson.day}
@@ -245,16 +254,16 @@ export default function Grammar() {
                     >
                       <div className="flex items-start justify-between mb-4">
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${colors.badge}`}>
-                          Ngày {lesson.day}
+                          {t('grammar:dayBadge', { day: lesson.day, defaultValue: `Ngày ${lesson.day}` })}
                         </span>
                         <span className="text-xs text-gray-400 font-medium">
-                          {lesson.patternKeywords.length}+ cấu trúc
+                          {t('grammar:structuresCount', { count: lesson.patternKeywords.length, defaultValue: `${lesson.patternKeywords.length}+ cấu trúc` })}
                         </span>
                       </div>
                       <h3 className="text-base font-bold text-gray-800 mb-2 group-hover:text-primary transition-colors">
-                        {lesson.title}
+                        {title}
                       </h3>
-                      <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">{lesson.description}</p>
+                      <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">{desc}</p>
                       <div className={`mt-4 h-1 w-8 ${colors.accent} rounded-full group-hover:w-16 transition-all duration-300`} />
                     </button>
                   );
@@ -268,29 +277,35 @@ export default function Grammar() {
         {selectedDay && (
           <>
             {/* Back + Day title */}
-            <div className="flex items-center gap-3 mb-5">
+            <div className="flex items-center gap-3 mb-5 font-serif">
               <button
                 onClick={handleBackToDays}
                 className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-primary transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Quay lại
+                {t('grammar:back', 'Quay lại')}
               </button>
               <span className="text-gray-300">/</span>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-primary" />
-                <span className="text-sm font-bold text-gray-700">Ngày {selectedDay.day}: {selectedDay.title}</span>
+                <span className="text-sm font-bold text-gray-700">
+                  {t('grammar:dayHeader', {
+                    day: selectedDay.day,
+                    title: getLessonTitle(selectedLevel, selectedDay.day, selectedDay.title),
+                    defaultValue: `Ngày ${selectedDay.day}: ${getLessonTitle(selectedLevel, selectedDay.day, selectedDay.title)}`
+                  })}
+                </span>
               </div>
             </div>
 
             {/* Search */}
-            <div className="relative mb-6 max-w-sm">
+            <div className="relative mb-6 max-w-sm font-serif">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Tìm trong ngày này..."
-                className="pl-10 pr-4 py-2.5 bg-white border-gray-200 focus:border-primary text-sm"
+                placeholder={t('grammar:searchPlaceholder', 'Tìm trong ngày này...')}
+                className="pl-10 pr-4 py-2.5 bg-white border-gray-200 focus:border-primary text-sm font-serif"
               />
               {searchQuery && (
                 <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -305,15 +320,15 @@ export default function Grammar() {
                 <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
               </div>
             ) : filteredGrammars.length === 0 ? (
-              <div className="flex flex-col items-center justify-center min-h-[200px] bg-white rounded-2xl border border-dashed border-gray-200 p-8">
+              <div className="flex flex-col items-center justify-center min-h-[200px] bg-white rounded-2xl border border-dashed border-gray-200 p-8 font-serif">
                 <p className="text-gray-400 font-medium">
                   {dayGrammars.length === 0
-                    ? 'Chưa có dữ liệu cho ngày này.'
-                    : 'Không tìm thấy mẫu ngữ pháp phù hợp.'}
+                    ? t('grammar:emptyDay', 'Chưa có dữ liệu cho ngày này.')
+                    : t('grammar:emptySearch', 'Không tìm thấy mẫu ngữ pháp phù hợp.')}
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8 font-serif">
                 {filteredGrammars.map((grammar) => (
                   <div
                     key={grammar.id}
@@ -324,7 +339,7 @@ export default function Grammar() {
                     <div>
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-primary/70 bg-primary/5 px-2.5 py-1 rounded-full border border-primary/10">
-                          Ngữ pháp
+                          {t('grammar:grammarBadge', 'Ngữ pháp')}
                         </span>
                         <Badge className="bg-primary text-white border-none text-xs font-semibold px-2 py-0.5">
                           {grammar.jlptLevel}
@@ -358,13 +373,13 @@ export default function Grammar() {
           <div onClick={handleCloseDetail} className="absolute inset-0 bg-black/30 backdrop-blur-sm z-20" />
           <div
             ref={detailPanelRef}
-            className="absolute top-0 right-0 h-full w-full max-w-[460px] bg-white shadow-2xl flex flex-col z-30 border-l border-gray-100"
+            className="absolute top-0 right-0 h-full w-full max-w-[460px] bg-white shadow-2xl flex flex-col z-30 border-l border-gray-100 font-serif"
             style={{ transform: 'translateX(100%)' }}
           >
             <div className="shrink-0 bg-white border-b border-gray-100 px-6 py-5 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-primary" />
-                Chi tiết cấu trúc
+                {t('grammar:detailTitle', 'Chi tiết cấu trúc')}
               </h2>
               <button onClick={handleCloseDetail} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
                 <X className="w-5 h-5" />
@@ -381,7 +396,7 @@ export default function Grammar() {
               </div>
 
               <div className="space-y-1.5">
-                <h4 className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Cấu trúc câu</h4>
+                <h4 className="text-[11px] font-bold uppercase tracking-widest text-gray-400">{t('grammar:structureHeading', 'Cấu trúc câu')}</h4>
                 <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
                   <p className="text-base font-bold text-gray-800 font-mono leading-relaxed">{selectedGrammar.structure}</p>
                 </div>
@@ -389,7 +404,7 @@ export default function Grammar() {
 
               {selectedGrammar.notes && (
                 <div className="space-y-1.5">
-                  <h4 className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Giải thích & Cách dùng</h4>
+                  <h4 className="text-[11px] font-bold uppercase tracking-widest text-gray-400">{t('grammar:explanationHeading', 'Giải thích & Cách dùng')}</h4>
                   <div className="bg-red-50/30 border border-primary/10 rounded-xl p-4">
                     <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{selectedGrammar.notes}</p>
                   </div>
@@ -398,7 +413,7 @@ export default function Grammar() {
 
               {selectedGrammar.exampleSentence && (
                 <div className="space-y-1.5">
-                  <h4 className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Ví dụ minh họa</h4>
+                  <h4 className="text-[11px] font-bold uppercase tracking-widest text-gray-400">{t('grammar:exampleHeading', 'Ví dụ minh họa')}</h4>
                   <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
                     <div className="border-l-4 border-primary pl-4">
                       <p className="text-base font-bold text-gray-900 font-mono mb-1.5 leading-relaxed">{selectedGrammar.exampleSentence}</p>

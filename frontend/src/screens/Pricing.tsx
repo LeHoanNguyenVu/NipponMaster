@@ -3,6 +3,7 @@ import { Crown, Check, Sparkles, Shield, Zap, Star, ArrowRight, BadgeCheck, Lock
 import { Button } from '../components/ui/Button';
 import { subscriptionApi, type SubscriptionPlan, type UserSubscription } from '../api/subscriptionApi';
 import { useAuthStore } from '../store/useAuthStore';
+import { useTranslation } from 'react-i18next';
 import gsap from 'gsap';
 
 const levelEmoji: Record<string, string> = {
@@ -22,6 +23,7 @@ function formatPrice(price: number): string {
 }
 
 export default function Pricing() {
+  const { t, i18n } = useTranslation(['pricing', 'common']);
   const containerRef = useRef<HTMLDivElement>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [mySubscriptions, setMySubscriptions] = useState<UserSubscription[]>([]);
@@ -114,7 +116,7 @@ export default function Pricing() {
       ]);
       setMySubscriptions(subData);
     } catch (err: any) {
-      alert(err?.message || 'Lỗi thanh toán. Vui lòng thử lại.');
+      alert(err?.message || (i18n.language === 'en' ? 'Payment error. Please try again.' : 'Lỗi thanh toán. Vui lòng thử lại.'));
     } finally {
       setPurchasing(null);
     }
@@ -144,13 +146,16 @@ export default function Pricing() {
       <header className="text-center max-w-2xl mx-auto space-y-4 pricing-fade-in">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/8 text-primary rounded-full text-xs font-bold uppercase tracking-widest">
           <Crown size={14} />
-          Gói Học Premium
+          {t('pricing:badge', 'Gói Học Premium')}
         </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold text-on-surface tracking-tight leading-tight">
-          Đầu tư cho <span style={{ color: '#c01538' }}>tương lai</span> tiếng Nhật của bạn
-        </h1>
+        <h1
+          className="text-4xl md:text-5xl font-extrabold text-on-surface tracking-tight leading-tight"
+          dangerouslySetInnerHTML={{
+            __html: t('pricing:heroTitle', 'Đầu tư cho <span style="color: #c01538">tương lai</span> tiếng Nhật của bạn')
+          }}
+        />
         <p className="text-lg text-on-surface-variant leading-relaxed">
-          Chọn gói phù hợp để mở khóa toàn bộ kho tàng từ vựng, Kanji và ngữ pháp. Học không giới hạn trong 365 ngày.
+          {t('pricing:heroSubtitle', 'Chọn gói phù hợp để mở khóa toàn bộ kho tàng từ vựng, Kanji và ngữ pháp. Học không giới hạn trong 365 ngày.')}
         </p>
       </header>
 
@@ -168,10 +173,10 @@ export default function Pricing() {
           <BadgeCheck size={32} style={{ flexShrink: 0 }} />
           <div>
             <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>
-              🎉 Thanh toán thành công!
+              {t('pricing:success.title', '🎉 Thanh toán thành công!')}
             </h3>
             <p style={{ fontSize: 14, opacity: 0.9, margin: 0 }}>
-              Gói học đã được kích hoạt. Bạn có thể bắt đầu học ngay!
+              {t('pricing:success.desc', 'Gói học đã được kích hoạt. Bạn có thể bắt đầu học ngay!')}
             </p>
           </div>
           <button
@@ -182,7 +187,7 @@ export default function Pricing() {
               fontWeight: 600, fontSize: 13, border: 'none', cursor: 'pointer',
             }}
           >
-            Đóng
+            {t('pricing:success.close', 'Đóng')}
           </button>
         </div>
       )}
@@ -264,14 +269,14 @@ export default function Pricing() {
 
             <div style={{ textAlign: 'center', flex: '0 0 auto' }}>
               <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
-                Chỉ từ
+                {t('pricing:bundle.startingFrom', 'Chỉ từ')}
               </div>
               <div style={{ color: '#fff', fontSize: 48, fontWeight: 900, lineHeight: 1 }}>
                 {formatPrice(bundlePlan.price)}
                 <span style={{ fontSize: 18, fontWeight: 500, opacity: 0.7 }}> ₫</span>
               </div>
               <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, marginTop: 4, marginBottom: 20 }}>
-                / {bundlePlan.durationDays} ngày
+                {t('pricing:bundle.daysSuffix', { days: bundlePlan.durationDays, defaultValue: `/ ${bundlePlan.durationDays} ngày` })}
               </div>
 
               {isOwned(bundlePlan) || hasFullBundle ? (
@@ -283,7 +288,7 @@ export default function Pricing() {
                     display: 'inline-flex', alignItems: 'center', gap: 8,
                   }}
                 >
-                  <BadgeCheck size={18} /> Đã sở hữu
+                  <BadgeCheck size={18} /> {t('pricing:bundle.owned', 'Đã sở hữu')}
                 </div>
               ) : (
                 <button
@@ -315,7 +320,7 @@ export default function Pricing() {
                   ) : (
                     <Zap size={18} className="fill-current" />
                   )}
-                  {purchasing === bundlePlan.id ? 'Đang xử lý...' : 'Mua trọn gói ngay'}
+                  {purchasing === bundlePlan.id ? t('pricing:bundle.processing', 'Đang xử lý...') : t('pricing:bundle.buyBtn', 'Mua trọn gói ngay')}
                 </button>
               )}
             </div>
@@ -327,7 +332,7 @@ export default function Pricing() {
       <div className="flex items-center gap-4 pricing-fade-in">
         <div className="flex-1 h-px bg-outline-variant/50" />
         <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">
-          Hoặc chọn gói lẻ theo trình độ
+          {t('pricing:divider', 'Hoặc chọn gói lẻ theo trình độ')}
         </span>
         <div className="flex-1 h-px bg-outline-variant/50" />
       </div>
@@ -391,7 +396,7 @@ export default function Pricing() {
                   ))}
                   {plan.features.length > 4 && (
                     <li className="text-xs text-on-surface-variant pl-5">
-                      +{plan.features.length - 4} tính năng khác
+                      {t('pricing:single.moreFeatures', { count: plan.features.length - 4, defaultValue: `+${plan.features.length - 4} tính năng khác` })}
                     </li>
                   )}
                 </ul>
@@ -399,7 +404,7 @@ export default function Pricing() {
                 {/* Price */}
                 <div className="mb-4">
                   <span className="text-3xl font-black text-on-surface">{formatPrice(plan.price)}</span>
-                  <span className="text-sm text-on-surface-variant font-medium"> ₫ / năm</span>
+                  <span className="text-sm text-on-surface-variant font-medium">{t('pricing:single.perYear', ' ₫ / năm')}</span>
                 </div>
 
                 {/* Action */}
@@ -407,7 +412,7 @@ export default function Pricing() {
                   <div
                     className="w-full py-3 bg-secondary/10 text-secondary rounded-xl text-sm font-bold flex items-center justify-center gap-2"
                   >
-                    <BadgeCheck size={16} /> Đã sở hữu
+                    <BadgeCheck size={16} /> {t('pricing:single.owned', 'Đã sở hữu')}
                   </div>
                 ) : (
                   <Button
@@ -420,7 +425,7 @@ export default function Pricing() {
                     iconPosition="right"
                     className="w-full"
                   >
-                    {isPurchasing ? 'Đang xử lý...' : 'Mua ngay'}
+                    {isPurchasing ? t('pricing:single.processing', 'Đang xử lý...') : t('pricing:single.buyBtn', 'Mua ngay')}
                   </Button>
                 )}
               </div>
@@ -432,9 +437,9 @@ export default function Pricing() {
       {/* Trust indicators */}
       <div className="pricing-fade-in flex flex-wrap items-center justify-center gap-8 text-on-surface-variant py-6">
         {[
-          { icon: Shield, text: 'Thanh toán an toàn 100%' },
-          { icon: Sparkles, text: 'Cập nhật nội dung miễn phí' },
-          { icon: Lock, text: 'Hoàn tiền trong 7 ngày' },
+          { icon: Shield, text: t('pricing:trust.secure', 'Thanh toán an toàn 100%') },
+          { icon: Sparkles, text: t('pricing:trust.updates', 'Cập nhật nội dung miễn phí') },
+          { icon: Lock, text: t('pricing:trust.guarantee', 'Hoàn tiền trong 7 ngày') },
         ].map((item, i) => (
           <div key={i} className="flex items-center gap-2 text-sm font-medium">
             <item.icon size={16} className="text-outline" />
@@ -448,7 +453,7 @@ export default function Pricing() {
         <div className="pricing-fade-in bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant shadow-sm">
           <h2 className="text-xl font-bold text-on-surface mb-4 flex items-center gap-2">
             <BadgeCheck size={20} className="text-secondary" />
-            Lịch sử gói học đã mua
+            {t('pricing:history.title', 'Lịch sử gói học đã mua')}
           </h2>
           <div className="space-y-3">
             {mySubscriptions.map((sub) => (
@@ -469,15 +474,20 @@ export default function Pricing() {
                   <div>
                     <h4 className="text-sm font-bold text-on-surface">{sub.planName}</h4>
                     <p className="text-xs text-on-surface-variant">
-                      Thanh toán: {formatPrice(sub.amount)} {sub.currency} • {sub.paymentProvider}
+                      {t('pricing:history.paymentDetails', {
+                        amount: formatPrice(sub.amount),
+                        currency: sub.currency,
+                        provider: sub.paymentProvider,
+                        defaultValue: `Thanh toán: ${formatPrice(sub.amount)} ${sub.currency} • ${sub.paymentProvider}`
+                      })}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-on-surface-variant">
-                    {sub.startDate ? new Date(sub.startDate).toLocaleDateString('vi-VN') : '—'}
+                    {sub.startDate ? new Date(sub.startDate).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'vi-VN') : '—'}
                     {' → '}
-                    {sub.endDate ? new Date(sub.endDate).toLocaleDateString('vi-VN') : '—'}
+                    {sub.endDate ? new Date(sub.endDate).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'vi-VN') : '—'}
                   </span>
                   <span
                     className="px-3 py-1 rounded-full text-xs font-bold"
@@ -486,7 +496,7 @@ export default function Pricing() {
                       color: sub.status === 'ACTIVE' ? '#2b5f43' : '#ba1a1a',
                     }}
                   >
-                    {sub.status === 'ACTIVE' ? '✓ Đang hoạt động' : sub.status}
+                    {sub.status === 'ACTIVE' ? t('pricing:history.active', '✓ Đang hoạt động') : sub.status}
                   </span>
                 </div>
               </div>

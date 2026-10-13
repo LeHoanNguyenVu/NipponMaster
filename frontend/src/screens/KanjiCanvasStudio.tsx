@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import KanjiInteractiveCanvas from '../components/KanjiInteractiveCanvas';
 import { kanjiCanvasApi, type DrawnStroke, type KanjiRecognizeResponse } from '../api/kanjiCanvasApi';
 import axiosClient from '../api/axiosClient';
+import { useTranslation } from 'react-i18next';
 
 interface KanjiCanvasStudioProps {
   initialKanji?: string;
@@ -14,6 +15,7 @@ interface KanjiCanvasStudioProps {
 }
 
 export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioProps) {
+  const { t } = useTranslation(['kanji', 'common']);
   const [mode, setMode] = useState<'practice' | 'ocr'>('practice');
   const [targetKanji, setTargetKanji] = useState<string>(initialKanji || '日');
   const [targetDetail, setTargetDetail] = useState<any>(null);
@@ -125,7 +127,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-8">
+    <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-8 font-serif">
       {/* Header & Mode Switcher */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-outline-variant/30 pb-6">
         <div>
@@ -134,14 +136,14 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
               ✍️
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-on-surface">Kanji Canvas & OCR Studio</h1>
-              <p className="text-xs text-on-surface-variant">Luyện vẽ Kanji chuẩn nét & Nhận diện chữ vẽ tự do bằng AI</p>
+              <h1 className="text-2xl font-bold text-on-surface font-serif">{t('kanji:canvasStudio.title', 'Kanji Canvas & OCR Studio')}</h1>
+              <p className="text-xs text-on-surface-variant font-serif">{t('kanji:canvasStudio.subtitle', 'Luyện vẽ Kanji chuẩn nét & Nhận diện chữ vẽ tự do bằng AI')}</p>
             </div>
           </div>
         </div>
 
         {/* Mode Selector Tabs */}
-        <div className="flex items-center p-1 bg-surface-container-low rounded-2xl border border-outline-variant/30">
+        <div className="flex items-center p-1 bg-surface-container-low rounded-2xl border border-outline-variant/30 font-serif">
           <button
             onClick={() => {
               setMode('practice');
@@ -153,7 +155,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            🎯 Chế độ Luyện Nét (Practice)
+            {t('kanji:canvasStudio.modes.practice', '🎯 Chế độ Luyện Nét (Practice)')}
           </button>
           <button
             onClick={() => {
@@ -166,7 +168,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            🔍 Nhận diện AI (Free OCR)
+            {t('kanji:canvasStudio.modes.ocr', '🔍 Nhận diện AI (Free OCR)')}
           </button>
         </div>
       </div>
@@ -178,13 +180,13 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
           {mode === 'practice' && (
             /* Target Kanji Quick Selector */
             <Card className="p-4 border border-outline-variant/30">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-3 font-serif">
                 <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
-                  Chọn chữ Kanji muốn luyện:
+                  {t('kanji:canvasStudio.chooseKanji', 'Chọn chữ Kanji muốn luyện:')}
                 </span>
                 {targetDetail && (
                   <Badge variant="outline" className="text-xs">
-                    {targetDetail.jlptLevel || 'N5'} • {targetDetail.strokeCount} nét
+                    {targetDetail.jlptLevel || 'N5'} • {t('kanji:card.strokes', { count: targetDetail.strokeCount, defaultValue: `${targetDetail.strokeCount} nét` })}
                   </Badge>
                 )}
               </div>
@@ -211,15 +213,15 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
           )}
 
           {/* Interactive Canvas Board */}
-          <Card className="p-6 flex flex-col items-center justify-center border border-outline-variant/30 shadow-sm relative">
+          <Card className="p-6 flex flex-col items-center justify-center border border-outline-variant/30 shadow-sm relative font-serif">
             <div className="mb-4 text-center">
               <h3 className="text-sm font-semibold text-on-surface mb-0.5">
                 {mode === 'practice'
-                  ? `Hãy tập vẽ chữ [ ${targetKanji} ] theo thứ tự nét mẫu`
-                  : 'Vẽ tự do chữ Kanji bất kỳ lên bảng bên dưới'}
+                  ? t('kanji:canvasStudio.practicePrompt', { char: targetKanji, defaultValue: `Hãy tập vẽ chữ [ ${targetKanji} ] theo thứ tự nét mẫu` })
+                  : t('kanji:canvasStudio.ocrPrompt', 'Vẽ tự do chữ Kanji bất kỳ lên bảng bên dưới')}
               </h3>
               <p className="text-xs text-on-surface-variant">
-                Dùng chuột hoặc ngón tay (trên di động) để di chuyển từng nét
+                {t('kanji:canvasStudio.guideTip', 'Dùng chuột hoặc ngón tay (trên di động) để di chuyển từng nét')}
               </p>
             </div>
 
@@ -233,7 +235,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
             />
 
             {/* Action Buttons */}
-            <div className="mt-6 w-full max-w-xs">
+            <div className="mt-6 w-full max-w-xs font-serif">
               {mode === 'practice' ? (
                 <Button
                   onClick={handleEvaluate}
@@ -245,7 +247,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                   ) : (
                     <Sparkles className="mr-2" size={16} />
                   )}
-                  {isAnalyzing ? 'Đang chấm điểm...' : 'Chấm điểm nét vẽ ✍️'}
+                  {isAnalyzing ? t('kanji:canvasStudio.evaluating', 'Đang chấm điểm...') : t('kanji:canvasStudio.evaluateBtn', 'Chấm điểm nét vẽ ✍️')}
                 </Button>
               ) : (
                 <Button
@@ -258,7 +260,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                   ) : (
                     <Search className="mr-2" size={16} />
                   )}
-                  {isAnalyzing ? 'Đang nhận diện...' : 'Nhận diện chữ Kanji 🔍'}
+                  {isAnalyzing ? t('kanji:canvasStudio.recognizing', 'Đang nhận diện...') : t('kanji:canvasStudio.recognizeBtn', 'Nhận diện chữ Kanji 🔍')}
                 </Button>
               )}
             </div>
@@ -266,7 +268,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
         </div>
 
         {/* Right Column: Feedback & OCR Results (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-6 font-serif">
           {mode === 'practice' && targetDetail && (
             /* Target Info Card */
             <Card className="p-5 border border-outline-variant/30">
@@ -283,7 +285,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                     音: {targetDetail.onReading || '—'} | 訓: {targetDetail.kunReading || '—'}
                   </p>
                   <p className="text-xs text-on-surface-variant mt-1">
-                    Số nét: <strong>{targetDetail.strokeCount}</strong> | Bộ thủ: <strong>{targetDetail.radical || '—'}</strong>
+                    {t('kanji:canvasStudio.strokeCountLabel', { count: targetDetail.strokeCount, radical: targetDetail.radical || '—', defaultValue: `Số nét: ${targetDetail.strokeCount} | Bộ thủ: ${targetDetail.radical || '—'}` })}
                   </p>
                 </div>
               </div>
@@ -304,16 +306,16 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                 <Card className="p-6 border border-outline-variant/30 overflow-hidden relative">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
-                      {mode === 'practice' ? 'Đánh giá nét vẽ' : 'Độ tự tin nhận diện AI'}
+                      {mode === 'practice' ? t('kanji:canvasStudio.accuracyEval', 'Đánh giá nét vẽ') : t('kanji:canvasStudio.confidenceOcr', 'Độ tự tin nhận diện AI')}
                     </span>
                     <Badge variant="outline" className="text-xs">
-                      {result.accuracyScore >= 80 ? 'Xuất sắc ⭐' : result.accuracyScore >= 60 ? 'Đạt 👍' : 'Cần cố gắng ✍️'}
+                      {result.accuracyScore >= 80 ? t('kanji:canvasStudio.gradeExcellent', 'Xuất sắc ⭐') : result.accuracyScore >= 60 ? t('kanji:canvasStudio.gradePass', 'Đạt 👍') : t('kanji:canvasStudio.gradeTryAgain', 'Cần cố gắng ✍️')}
                     </Badge>
                   </div>
 
                   <div className="flex items-baseline gap-2 mb-3">
                     <span className="text-4xl font-extrabold text-primary">{result.accuracyScore}</span>
-                    <span className="text-sm font-bold text-on-surface-variant">/ 100 điểm</span>
+                    <span className="text-sm font-bold text-on-surface-variant">{t('kanji:canvasStudio.outOfPoints', '/ 100 điểm')}</span>
                   </div>
 
                   <p className="text-xs text-on-surface leading-relaxed font-medium mb-4 p-3 rounded-xl bg-surface-container">
@@ -324,7 +326,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                   {result.strokeFeedbacks?.length > 0 && (
                     <div className="space-y-2 border-t border-outline-variant/30 pt-4">
                       <span className="text-xs font-semibold text-on-surface-variant block mb-2">
-                        Chi tiết thứ tự nét:
+                        {t('kanji:canvasStudio.strokeOrderDetails', 'Chi tiết thứ tự nét:')}
                       </span>
                       {result.strokeFeedbacks.map((sf, idx) => (
                         <div key={idx} className="flex items-start gap-2 text-xs">
@@ -344,7 +346,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                 {mode === 'ocr' && result.topMatches?.length > 0 && (
                   <Card className="p-5 border border-outline-variant/30 space-y-3">
                     <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">
-                      Top chữ Kanji khớp nhất:
+                      {t('kanji:canvasStudio.topMatches', 'Top chữ Kanji khớp nhất:')}
                     </span>
                     <div className="space-y-2">
                       {result.topMatches.map((m, idx) => (
@@ -367,7 +369,7 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                             <span className="text-sm font-extrabold text-primary block">
                               {m.confidencePercent}%
                             </span>
-                            <span className="text-[10px] text-on-surface-variant">{m.strokeCount} nét</span>
+                            <span className="text-[10px] text-on-surface-variant">{t('kanji:card.strokes', { count: m.strokeCount, defaultValue: `${m.strokeCount} nét` })}</span>
                           </div>
                         </div>
                       ))}
@@ -381,11 +383,11 @@ export default function KanjiCanvasStudio({ initialKanji }: KanjiCanvasStudioPro
                 <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-3xl mb-3 text-on-surface-variant">
                   ✍️
                 </div>
-                <h4 className="text-sm font-semibold text-on-surface mb-1">Chưa có dữ liệu đánh giá</h4>
+                <h4 className="text-sm font-semibold text-on-surface mb-1">{t('kanji:canvasStudio.emptyTitle', 'Chưa có dữ liệu đánh giá')}</h4>
                 <p className="text-xs text-on-surface-variant max-w-xs">
                   {mode === 'practice'
-                    ? 'Hãy dùng chuột hoặc ngón tay di chuyển nét vẽ lên bảng bên trái và nhấn "Chấm điểm nét".'
-                    : 'Hãy vẽ một chữ Kanji tự do lên bảng bên trái và nhấn "Nhận diện chữ Kanji".'}
+                    ? t('kanji:canvasStudio.emptyPractice', 'Hãy dùng chuột hoặc ngón tay di chuyển nét vẽ lên bảng bên trái và nhấn "Chấm điểm nét".')
+                    : t('kanji:canvasStudio.emptyOcr', 'Hãy vẽ một chữ Kanji tự do lên bảng bên trái và nhấn "Nhận diện chữ Kanji".')}
                 </p>
               </Card>
             )}

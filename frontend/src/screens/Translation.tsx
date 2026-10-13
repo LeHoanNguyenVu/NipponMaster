@@ -51,9 +51,13 @@ const LANG_NAMES: Record<string, string> = {
   en: 'Tiếng Anh'
 };
 
+import { useTranslation } from 'react-i18next';
 import SentenceBreakdownStudio from './SentenceBreakdownStudio';
 
 export default function Translation() {
+  const { t } = useTranslation(['translation', 'common']);
+  const getLangName = (lang: string) => t(`translation:languages.${lang}`, LANG_NAMES[lang] || lang);
+
   const [activeTab, setActiveTab] = useState<'translate' | 'breakdown'>('translate');
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<TranslateResponse | null>(null);
@@ -140,12 +144,12 @@ export default function Translation() {
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <Badge variant="primary" className="mb-3">AI Smart Tools</Badge>
+          <Badge variant="primary" className="mb-3">{t('translation:badge', 'AI Smart Tools')}</Badge>
           <h1 className="text-4xl font-bold text-on-surface mb-2 tracking-tight">
-            Dịch thuật & Phân tích cú pháp AI
+            {t('translation:title', 'Dịch thuật & Phân tích cú pháp AI')}
           </h1>
           <p className="text-lg text-on-surface-variant">
-            Dịch thuật đa hướng và phân tích cú pháp câu tiếng Nhật thông minh với Furigana và Handbook ngữ pháp.
+            {t('translation:subtitle', 'Dịch thuật đa hướng và phân tích cú pháp câu tiếng Nhật thông minh với Furigana và Handbook ngữ pháp.')}
           </p>
         </div>
       </header>
@@ -161,7 +165,7 @@ export default function Translation() {
           }`}
         >
           <Languages size={18} />
-          <span>Dịch Thuật Đa Ngữ</span>
+          <span>{t('translation:tabs.translate', 'Dịch Thuật Đa Ngữ')}</span>
         </button>
         <button
           onClick={() => setActiveTab('breakdown')}
@@ -171,7 +175,7 @@ export default function Translation() {
               : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant hover:text-on-surface'
           }`}
         >
-          <span>🧩 Phân Tích Cú Pháp Câu AI</span>
+          <span>{t('translation:tabs.breakdown', '🧩 Phân Tích Cú Pháp Câu AI')}</span>
         </button>
       </div>
 
@@ -192,7 +196,7 @@ export default function Translation() {
             }}
             className="w-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium cursor-pointer flex justify-between items-center"
           >
-            <span>{LANG_NAMES[sourceLang]}</span>
+            <span>{getLangName(sourceLang)}</span>
             <svg className={`w-4 h-4 transition-transform ${isSourceOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
             </svg>
@@ -206,7 +210,7 @@ export default function Translation() {
                 exit={{ opacity: 0, y: 5 }}
                 className="absolute left-0 right-0 z-50 mt-1 bg-surface-container border border-outline-variant rounded-xl shadow-lg overflow-hidden"
               >
-                {Object.entries(LANG_NAMES).map(([code, name]) => (
+                {Object.keys(LANG_NAMES).map((code) => (
                   <button
                     key={code}
                     id={`source-lang-option-${code}`}
@@ -216,7 +220,7 @@ export default function Translation() {
                     }}
                     className={`w-full text-left px-4 py-2 text-sm hover:bg-primary/8 transition-colors cursor-pointer ${sourceLang === code ? 'text-primary font-bold bg-primary/4' : 'text-on-surface'}`}
                   >
-                    {name}
+                    {getLangName(code)}
                   </button>
                 ))}
               </motion.div>
@@ -228,7 +232,7 @@ export default function Translation() {
           id="swap-lang-btn"
           onClick={handleSwapLanguages}
           className="p-2.5 bg-primary/8 hover:bg-primary/15 text-primary rounded-xl transition-all border border-primary/20 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
-          title="Đổi chiều ngôn ngữ"
+          title={t('translation:swapTooltip', 'Đổi chiều ngôn ngữ')}
         >
           <ArrowLeftRight size={18} />
         </button>
@@ -243,7 +247,7 @@ export default function Translation() {
             }}
             className="w-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium cursor-pointer flex justify-between items-center"
           >
-            <span>{LANG_NAMES[targetLang]}</span>
+            <span>{getLangName(targetLang)}</span>
             <svg className={`w-4 h-4 transition-transform ${isTargetOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
             </svg>
@@ -257,7 +261,7 @@ export default function Translation() {
                 exit={{ opacity: 0, y: 5 }}
                 className="absolute left-0 right-0 z-50 mt-1 bg-surface-container border border-outline-variant rounded-xl shadow-lg overflow-hidden"
               >
-                {Object.entries(LANG_NAMES).map(([code, name]) => (
+                {Object.keys(LANG_NAMES).map((code) => (
                   <button
                     key={code}
                     id={`target-lang-option-${code}`}
@@ -267,7 +271,7 @@ export default function Translation() {
                     }}
                     className={`w-full text-left px-4 py-2 text-sm hover:bg-primary/8 transition-colors cursor-pointer ${targetLang === code ? 'text-primary font-bold bg-primary/4' : 'text-on-surface'}`}
                   >
-                    {name}
+                    {getLangName(code)}
                   </button>
                 ))}
               </motion.div>
@@ -284,23 +288,29 @@ export default function Translation() {
             <div className="flex justify-between items-center">
               <span className="text-sm font-semibold text-on-surface-variant flex items-center gap-2">
                 <Languages size={18} className="text-primary" />
-                Văn bản {LANG_NAMES[sourceLang]} (Nguồn)
+                {t('translation:sourceLabel', { lang: getLangName(sourceLang), defaultValue: `Văn bản ${getLangName(sourceLang)} (Nguồn)` })}
               </span>
-              <span className="text-xs text-outline">{inputText.length} ký tự</span>
+              <span className="text-xs text-outline">
+                {t('translation:charCount', { count: inputText.length, defaultValue: `${inputText.length} ký tự` })}
+              </span>
             </div>
 
             <textarea
               id="translate-input-textarea"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={`Nhập hoặc dán câu ${LANG_NAMES[sourceLang].toLowerCase()} vào đây (Ví dụ: ${SAMPLE_SENTENCES[sourceLang][0]})`}
+              placeholder={t('translation:inputPlaceholder', {
+                lang: getLangName(sourceLang).toLowerCase(),
+                sample: SAMPLE_SENTENCES[sourceLang]?.[0] || '',
+                defaultValue: `Nhập hoặc dán câu ${getLangName(sourceLang).toLowerCase()} vào đây`
+              })}
               className="w-full h-48 bg-surface-container-low text-on-surface border border-outline-variant/60 rounded-2xl p-4 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-lg font-jp resize-none"
             />
 
             <div className="flex flex-wrap gap-2 items-center justify-between">
               {/* Sample Quick Tags */}
               <div className="flex flex-wrap gap-1.5 items-center">
-                <span className="text-xs text-outline font-medium">Gợi ý:</span>
+                <span className="text-xs text-outline font-medium">{t('translation:suggestions', 'Gợi ý:')}</span>
                 {SAMPLE_SENTENCES[sourceLang]?.map((s, idx) => (
                   <button
                     key={idx}
@@ -323,7 +333,7 @@ export default function Translation() {
                 disabled={isLoading || !inputText.trim()}
                 icon={isLoading ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
               >
-                {isLoading ? 'Đang dịch...' : 'Dịch ngay'}
+                {isLoading ? t('translation:translating', 'Đang dịch...') : t('translation:translateBtn', 'Dịch ngay')}
               </Button>
             </div>
           </Card>
@@ -340,7 +350,7 @@ export default function Translation() {
                 className="w-full h-[320px] bg-surface-container-lowest border border-outline-variant/50 rounded-2xl flex flex-col items-center justify-center p-6 space-y-4"
               >
                 <Loader2 size={40} className="text-primary animate-spin" />
-                <p className="text-on-surface-variant font-medium">Trí tuệ nhân tạo đang phân tích câu...</p>
+                <p className="text-on-surface-variant font-medium">{t('translation:analyzing', 'Trí tuệ nhân tạo đang phân tích câu...')}</p>
               </motion.div>
             ) : error ? (
               <motion.div
@@ -351,7 +361,7 @@ export default function Translation() {
               >
                 <Info size={20} className="shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-bold">Đã xảy ra lỗi</h4>
+                  <h4 className="font-bold">{t('translation:errorTitle', 'Đã xảy ra lỗi')}</h4>
                   <p className="text-sm mt-1">{error}</p>
                 </div>
               </motion.div>
@@ -373,7 +383,9 @@ export default function Translation() {
                     <div className="space-y-2">
                       <span className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
                         <Sparkles size={14} className="fill-current" />
-                        {sourceLang === 'ja' ? 'Phiên âm Furigana (Văn bản gốc)' : 'Phiên âm Furigana (Văn bản dịch)'}
+                        {sourceLang === 'ja'
+                          ? t('translation:furiganaSource', 'Phiên âm Furigana (Văn bản gốc)')
+                          : t('translation:furiganaTarget', 'Phiên âm Furigana (Văn bản dịch)')}
                       </span>
                       <div
                         className="text-2xl md:text-3xl font-jp leading-[2.5] text-on-surface tracking-wide p-3 bg-surface-container-low/40 rounded-xl border border-outline-variant/30"
@@ -387,19 +399,19 @@ export default function Translation() {
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider flex items-center gap-1.5">
                         <FileText size={14} />
-                        Bản dịch {LANG_NAMES[targetLang]}
+                        {t('translation:translationResult', { lang: getLangName(targetLang), defaultValue: `Bản dịch ${getLangName(targetLang)}` })}
                       </span>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setActiveTab('breakdown')}
                           className="px-3 py-1 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                         >
-                          <span>Phân tích cú pháp câu này 🧩</span>
+                          <span>{t('translation:breakdownBtn', 'Phân tích cú pháp câu này 🧩')}</span>
                         </button>
                         <button
                           onClick={handleCopy}
                           className="text-outline hover:text-primary transition-colors p-1.5 hover:bg-surface-container-low rounded-lg cursor-pointer"
-                          title="Sao chép bản dịch"
+                          title={t('translation:copyBtn', 'Sao chép bản dịch')}
                         >
                         {copiedText ? <Check size={16} className="text-secondary" /> : <Copy size={16} />}
                       </button>
@@ -416,7 +428,7 @@ export default function Translation() {
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
                       <BookOpen size={18} className="text-secondary" />
-                      Phân tích từ vựng tiếng Nhật ({result.words.length} từ)
+                      {t('translation:vocabTitle', { count: result.words.length, defaultValue: `Phân tích từ vựng tiếng Nhật (${result.words.length} từ)` })}
                     </h3>
                     <div className="grid grid-cols-1 gap-2.5">
                       {result.words.map((w, idx) => (
@@ -446,19 +458,22 @@ export default function Translation() {
             ) : (
               <div className="w-full h-[320px] bg-surface-container-lowest border border-outline-variant/30 rounded-2xl border-dashed flex flex-col items-center justify-center p-6 text-center text-outline">
                 <Languages size={48} className="mb-3 opacity-40" />
-                <h3 className="font-bold text-on-surface-variant mb-1">Kết quả hiển thị tại đây</h3>
+                <h3 className="font-bold text-on-surface-variant mb-1">{t('translation:placeholderTitle', 'Kết quả hiển thị tại đây')}</h3>
                 <p className="text-sm max-w-xs">
                   {sourceLang === 'ja'
-                    ? 'Nhập văn bản tiếng Nhật ở khung bên trái và bấm dịch để xem kết quả dịch và phiên âm Furigana.'
-                    : `Nhập văn bản ${LANG_NAMES[sourceLang].toLowerCase()} ở khung bên trái và bấm dịch để nhận kết quả dịch sang tiếng Nhật, phiên âm Furigana và phân tích từ vựng.`}
+                    ? t('translation:placeholderSourceJa', 'Nhập văn bản tiếng Nhật ở khung bên trái và bấm dịch để xem kết quả dịch và phiên âm Furigana.')
+                    : t('translation:placeholderSourceOther', {
+                        lang: getLangName(sourceLang).toLowerCase(),
+                        defaultValue: `Nhập văn bản ${getLangName(sourceLang).toLowerCase()} ở khung bên trái và bấm dịch để nhận kết quả dịch sang tiếng Nhật, phiên âm Furigana và phân tích từ vựng.`
+                      })}
                 </p>
               </div>
             )}
           </AnimatePresence>
         </div>
       </div>
-          </>
-      )}
-    </div>
+    </>
+  )}
+</div>
   );
 }

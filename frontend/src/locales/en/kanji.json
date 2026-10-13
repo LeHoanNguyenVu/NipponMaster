@@ -1,0 +1,66 @@
+{
+  "title": "NipponMaster Kanji",
+  "subtitle": "Lookup {{level}} Kanji ({{count}} characters), practice stroke orders & AI OCR recognition.",
+  "tabs": {
+    "dictionary": "📚 Kanji Library",
+    "canvas": "✍️ Canvas & OCR Studio"
+  },
+  "searchPlaceholder": "Search Kanji, meaning, On/Kun reading...",
+  "strokeFilters": {
+    "all": "All strokes",
+    "1to5": "1 - 5 strokes",
+    "6to10": "6 - 10 strokes",
+    "gt10": "> 10 strokes"
+  },
+  "restricted": {
+    "title": "Kanji content for level {{level}} is restricted (Trial Account)",
+    "desc": "Upgrade your membership to unlock all Kanji characters, stroke order animations and real examples for this level.",
+    "cta": "View Plans"
+  },
+  "loading": "Loading Kanji...",
+  "empty": "No matching Kanji found.",
+  "card": {
+    "strokes": "{{count}} Strokes",
+    "radical": "Radical: {{radical}}"
+  },
+  "detail": {
+    "title": "Kanji Details",
+    "strokeCount": "{{count}} strokes",
+    "strokeAnimation": "Stroke Order Animation",
+    "practiceWriting": "Practice writing this ✍️",
+    "readings": "On / Kun Readings",
+    "onLabel": "ON Reading (Katakana)",
+    "kunLabel": "KUN Reading (Hiragana)",
+    "relatedVocab": "Related Vocabulary",
+    "noRelatedVocab": "No related vocabulary data available."
+  },
+  "canvasStudio": {
+    "title": "Kanji Canvas & OCR Studio",
+    "subtitle": "Master stroke order precision & recognize freehand Kanji via AI",
+    "modes": {
+      "practice": "🎯 Practice Mode",
+      "ocr": "🔍 AI Free OCR"
+    },
+    "chooseKanji": "Select Kanji to practice:",
+    "practicePrompt": "Draw [ {{char}} ] following the stroke order guidelines",
+    "ocrPrompt": "Draw any Kanji freely on the canvas below",
+    "guideTip": "Use your mouse or finger (on mobile) to draw each stroke",
+    "evaluating": "Evaluating...",
+    "evaluateBtn": "Evaluate Strokes ✍️",
+    "recognizing": "Recognizing...",
+    "recognizeBtn": "Recognize Kanji 🔍",
+    "strokeCountLabel": "Strokes: {{count}} | Radical: {{radical}}",
+    "accuracyEval": "Stroke Evaluation",
+    "confidenceOcr": "AI Recognition Confidence",
+    "gradeExcellent": "Excellent ⭐",
+    "gradePass": "Good 👍",
+    "gradeTryAgain": "Needs Practice ✍️",
+    "outOfPoints": "/ 100 points",
+    "strokeOrderDetails": "Stroke order details:",
+    "strokeFeedbackItem": "Stroke {{num}}: Correct order and direction.",
+    "topMatches": "Top matching Kanji:",
+    "emptyTitle": "No Evaluation Data Yet",
+    "emptyPractice": "Draw strokes on the left canvas and tap \"Evaluate Strokes\".",
+    "emptyOcr": "Draw any Kanji on the left canvas and tap \"Recognize Kanji\"."
+  }
+}

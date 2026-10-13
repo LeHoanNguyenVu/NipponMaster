@@ -14,8 +14,10 @@ import {
 } from '../api/listeningApi';
 import { ambienceEngine, speakJapaneseVoice } from '../utils/listeningAmbience';
 import { playCorrectSound, playWrongSound } from '../utils/audioSfx';
+import { useTranslation } from 'react-i18next';
 
 export default function ListeningRoom() {
+  const { t } = useTranslation(['listening', 'common']);
   // --- View States ---
   const [selectedLevel, setSelectedLevel] = useState<string>('ALL');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -264,7 +266,7 @@ export default function ListeningRoom() {
             onClick={exitToCatalog}
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-outline-variant/60 bg-surface-container-low hover:bg-surface-container text-xs font-bold text-on-surface transition-colors cursor-pointer"
           >
-            <ArrowLeft size={16} /> Thoát Kịch Bản
+            <ArrowLeft size={16} /> {t('listening:exitScenario', 'Thoát Kịch Bản')}
           </button>
 
           <div className="flex items-center gap-3">
@@ -285,7 +287,7 @@ export default function ListeningRoom() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setAmbienceEnabled(!ambienceEnabled)}
-              title={ambienceEnabled ? 'Tắt âm thanh môi trường' : 'Bật âm thanh môi trường'}
+              title={ambienceEnabled ? t('listening:ambienceTooltipOn', 'Tắt âm thanh môi trường') : t('listening:ambienceTooltipOff', 'Bật âm thanh môi trường')}
               className={`p-2 rounded-xl border text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
                 ambienceEnabled 
                   ? 'bg-primary/10 border-primary/30 text-primary' 
@@ -293,7 +295,7 @@ export default function ListeningRoom() {
               }`}
             >
               {ambienceEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-              <span className="hidden sm:inline">Ambience</span>
+              <span className="hidden sm:inline">{t('listening:ambienceLabel', 'Ambience')}</span>
             </button>
 
             {/* Speed Controller */}
@@ -339,7 +341,7 @@ export default function ListeningRoom() {
                     {summary.characterRole}
                   </span>
                 </div>
-                <p className="text-xs text-outline mt-0.5">Bối cảnh: {summary.ambienceType}</p>
+                <p className="text-xs text-outline mt-0.5">{t('listening:contextLabel', 'Bối cảnh:')} {summary.ambienceType}</p>
               </div>
             </div>
 
@@ -354,7 +356,7 @@ export default function ListeningRoom() {
                 }`}
               >
                 {blindMode ? <EyeOff size={14} /> : <Eye size={14} />}
-                <span>{blindMode ? 'Blind Mode (Đang ẩn)' : 'Luyện Tai (Ẩn Chữ)'}</span>
+                <span>{blindMode ? t('listening:blindModeActive', 'Blind Mode (Đang ẩn)') : t('listening:blindModeInactive', 'Luyện Tai (Ẩn Chữ)')}</span>
               </button>
 
               <button
@@ -364,11 +366,11 @@ export default function ListeningRoom() {
               >
                 {isPlayingAudio ? (
                   <>
-                    <Radio size={14} className="animate-pulse" /> Đang nói...
+                    <Radio size={14} className="animate-pulse" /> {t('listening:speaking', 'Đang nói...')}
                   </>
                 ) : (
                   <>
-                    <Play size={14} /> Nghe Lại
+                    <Play size={14} /> {t('listening:listenAgain', 'Nghe Lại')}
                   </>
                 )}
               </button>
@@ -380,13 +382,13 @@ export default function ListeningRoom() {
             {blindMode ? (
               <div className="text-center py-6 space-y-3">
                 <Headphones size={36} className="mx-auto text-primary animate-bounce opacity-80" />
-                <p className="text-sm font-bold text-on-surface">Đang ở chế độ Blind Listening (Luyện tai không phụ đề)</p>
-                <p className="text-xs text-on-surface-variant">Lắng nghe thật kỹ giọng đọc của nhân vật trước khi chọn câu đối đáp hoặc bấm mở phụ đề.</p>
+                <p className="text-sm font-bold text-on-surface">{t('listening:blindNoticeTitle', 'Đang ở chế độ Blind Listening (Luyện tai không phụ đề)')}</p>
+                <p className="text-xs text-on-surface-variant">{t('listening:blindNoticeDesc', 'Lắng nghe thật kỹ giọng đọc của nhân vật trước khi chọn câu đối đáp hoặc bấm mở phụ đề.')}</p>
                 <button
                   onClick={() => setBlindMode(false)}
                   className="text-xs text-primary font-bold underline cursor-pointer hover:opacity-80"
                 >
-                  Hiển thị phụ đề tiếng Nhật & Tiếng Việt
+                  {t('listening:blindRevealBtn', 'Hiển thị phụ đề tiếng Nhật & Tiếng Việt')}
                 </button>
               </div>
             ) : (
@@ -406,7 +408,7 @@ export default function ListeningRoom() {
                 {/* Vietnamese Meaning */}
                 {showVietnamese && currentNode.vietnameseText && (
                   <p className="text-sm text-on-surface-variant font-medium pt-2 border-t border-outline-variant/30">
-                    💡 <span className="font-semibold text-on-surface">Nghĩa:</span> {currentNode.vietnameseText}
+                    💡 <span className="font-semibold text-on-surface">{t('listening:meaningLabel', 'Nghĩa:')}</span> {currentNode.vietnameseText}
                   </p>
                 )}
 
@@ -414,7 +416,7 @@ export default function ListeningRoom() {
                 {currentNode.culturalNote && (
                   <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs">
                     <Sparkles size={14} className="flex-shrink-0 mt-0.5 text-amber-600" />
-                    <span><strong className="font-bold">Mẹo văn hóa:</strong> {currentNode.culturalNote}</span>
+                    <span><strong className="font-bold">{t('listening:culturalTip', 'Mẹo văn hóa:')}</strong> {currentNode.culturalNote}</span>
                   </div>
                 )}
               </div>
@@ -424,7 +426,7 @@ export default function ListeningRoom() {
           {/* Subtitle Assist Bar */}
           {!blindMode && (
             <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-outline-variant/40 text-xs font-medium text-on-surface-variant">
-              <span>Trợ năng hiển thị:</span>
+              <span>{t('listening:accessibility', 'Trợ năng hiển thị:')}</span>
               <button
                 onClick={() => setShowFurigana(!showFurigana)}
                 className={`px-2.5 py-1 rounded-lg border text-xs cursor-pointer font-bold ${
@@ -447,7 +449,7 @@ export default function ListeningRoom() {
                   showVietnamese ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container border-outline-variant text-outline'
                 }`}
               >
-                Dịch Nghĩa TV
+                {t('listening:meaningVi', 'Dịch Nghĩa TV')}
               </button>
             </div>
           )}
@@ -458,7 +460,7 @@ export default function ListeningRoom() {
           <div className="bg-surface-container-lowest border-2 border-primary/30 rounded-3xl p-6 shadow-lg space-y-4">
             <div className="flex items-center gap-2 text-primary font-bold text-sm">
               <HelpCircle size={18} />
-              <span>Thử Thách Nghe Hiểu Tức Thì (Comprehension Check)</span>
+              <span>{t('listening:comprehensionCheck', 'Thử Thách Nghe Hiểu Tức Thì (Comprehension Check)')}</span>
             </div>
             <p className="text-base font-bold text-on-surface">{currentNode.quiz.questionJp}</p>
             <p className="text-xs text-on-surface-variant font-medium">{currentNode.quiz.questionVi}</p>
@@ -497,7 +499,7 @@ export default function ListeningRoom() {
 
             {isQuizSubmitted && (
               <div className="p-3 rounded-xl bg-surface-container text-xs text-on-surface-variant">
-                <strong className="text-on-surface font-bold">Giải thích:</strong> {currentNode.quiz.explanation}
+                <strong className="text-on-surface font-bold">{t('listening:explanation', 'Giải thích:')}</strong> {currentNode.quiz.explanation}
               </div>
             )}
           </div>
@@ -508,7 +510,7 @@ export default function ListeningRoom() {
           <div className="bg-surface-container-lowest border border-outline-variant/60 rounded-3xl p-6 shadow-md space-y-4">
             <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
               <MessageSquare size={16} className="text-primary" />
-              <span>Chọn Câu Trả Lời & Đối Đáp Của Bạn:</span>
+              <span>{t('listening:chooseResponse', 'Chọn Câu Trả Lời & Đối Đáp Của Bạn:')}</span>
             </h4>
 
             <div className="space-y-3">
@@ -550,22 +552,22 @@ export default function ListeningRoom() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-on-surface font-serif">Hoàn Thành Kịch Bản Luyện Nghe!</h3>
+                <h3 className="text-2xl font-bold text-on-surface font-serif">{t('listening:completedModal.title', 'Hoàn Thành Kịch Bản Luyện Nghe!')}</h3>
                 <p className="text-xs text-on-surface-variant mt-1">{summary.title}</p>
               </div>
 
               {/* Performance Score Cards */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="p-3 rounded-2xl bg-surface-container-low border border-outline-variant/40">
-                  <p className="text-[10px] uppercase font-bold text-outline">Tổng Điểm</p>
+                  <p className="text-[10px] uppercase font-bold text-outline">{t('listening:completedModal.totalScore', 'Tổng Điểm')}</p>
                   <p className="text-2xl font-black text-primary">{sessionResult.totalScore}</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-surface-container-low border border-outline-variant/40">
-                  <p className="text-[10px] uppercase font-bold text-outline">Độ Hiểu Nghe</p>
+                  <p className="text-[10px] uppercase font-bold text-outline">{t('listening:completedModal.comprehension', 'Độ Hiểu Nghe')}</p>
                   <p className="text-2xl font-black text-sky-600">{sessionResult.listeningAccuracyPercent}%</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-surface-container-low border border-outline-variant/40">
-                  <p className="text-[10px] uppercase font-bold text-outline">Ứng Xử</p>
+                  <p className="text-[10px] uppercase font-bold text-outline">{t('listening:completedModal.etiquette', 'Ứng Xử')}</p>
                   <p className="text-2xl font-black text-amber-600">{sessionResult.etiquetteScorePercent}%</p>
                 </div>
               </div>
@@ -582,7 +584,7 @@ export default function ListeningRoom() {
 
               {sessionResult.badgeUnlocked && (
                 <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs font-bold text-amber-800 dark:text-amber-200">
-                  🏆 Đã Mở Khóa: {sessionResult.badgeUnlocked}
+                  🏆 {t('listening:completedModal.unlocked', 'Đã Mở Khóa:')} {sessionResult.badgeUnlocked}
                 </div>
               )}
 
@@ -595,13 +597,13 @@ export default function ListeningRoom() {
                   onClick={() => startScenario(summary)}
                   className="flex-1 py-3 px-4 rounded-xl border border-outline-variant bg-surface-container-low hover:bg-surface-container text-xs font-bold text-on-surface cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  <RotateCcw size={14} /> Luyện Lại
+                  <RotateCcw size={14} /> {t('listening:completedModal.retry', 'Luyện Lại')}
                 </button>
                 <button
                   onClick={exitToCatalog}
                   className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold shadow-md cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  Chọn Bài Khác <ChevronRight size={14} />
+                  {t('listening:completedModal.chooseOther', 'Chọn Bài Khác')} <ChevronRight size={14} />
                 </button>
               </div>
             </div>
@@ -623,23 +625,23 @@ export default function ListeningRoom() {
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 border border-primary/25 text-primary text-xs font-bold tracking-wide">
             <Headphones size={14} />
-            <span>PHÒNG LUYỆN NGHE TÌNH HUỐNG THỰC TẾ (200 BÀI HỌC)</span>
+            <span>{t('listening:heroBadge', 'PHÒNG LUYỆN NGHE TÌNH HUỐNG THỰC TẾ (200 BÀI HỌC)')}</span>
           </div>
 
           <h1 className="text-3xl md:text-5xl font-bold text-on-surface font-serif tracking-tight">
-            Luyện Tai Nghe Chuẩn Bản Xứ
+            {t('listening:heroTitle', 'Luyện Tai Nghe Chuẩn Bản Xứ')}
           </h1>
 
           <p className="text-sm md:text-base text-on-surface-variant leading-relaxed">
-            Hòa mình vào các tình huống thực tế sống động tại Nhật Bản với âm thanh môi trường 3D, cây hội thoại rẽ nhánh và hệ thống câu hỏi phản xạ phân tầng từ <strong>N5 (20 bài)</strong> đến <strong>N1 (60 bài)</strong>.
+            {t('listening:heroSubtitle', 'Hòa mình vào các tình huống thực tế sống động tại Nhật Bản với âm thanh môi trường 3D, cây hội thoại rẽ nhánh và hệ thống câu hỏi phản xạ phân tầng từ N5 (20 bài) đến N1 (60 bài).')}
           </p>
 
           <div className="flex flex-wrap gap-4 text-xs font-bold text-on-surface-variant pt-2">
-            <span className="flex items-center gap-1.5">🟢 N5 (20 bài chậm rãi)</span>
-            <span className="flex items-center gap-1.5">🟡 N4 (30 bài đời sống)</span>
-            <span className="flex items-center gap-1.5">🟠 N3 (40 bài công sở)</span>
-            <span className="flex items-center gap-1.5">🔴 N2 (50 bài thương mại)</span>
-            <span className="flex items-center gap-1.5">🟣 N1 (60 bài học thuật)</span>
+            <span className="flex items-center gap-1.5">{t('listening:levelsOverview.n5', '🟢 N5 (20 bài chậm rãi)')}</span>
+            <span className="flex items-center gap-1.5">{t('listening:levelsOverview.n4', '🟡 N4 (30 bài đời sống)')}</span>
+            <span className="flex items-center gap-1.5">{t('listening:levelsOverview.n3', '🟠 N3 (40 bài công sở)')}</span>
+            <span className="flex items-center gap-1.5">{t('listening:levelsOverview.n2', '🔴 N2 (50 bài thương mại)')}</span>
+            <span className="flex items-center gap-1.5">{t('listening:levelsOverview.n1', '🟣 N1 (60 bài học thuật)')}</span>
           </div>
         </div>
       </div>
@@ -665,7 +667,7 @@ export default function ListeningRoom() {
                   : 'bg-surface-container-low border border-outline-variant/60 text-on-surface-variant hover:bg-surface-container-high'
               }`}
             >
-              {tab.label}
+              {t(`listening:catalogTabs.${tab.id}`, tab.label)}
             </button>
           ))}
         </div>
@@ -691,7 +693,7 @@ export default function ListeningRoom() {
                     : 'bg-surface-container-low border border-outline-variant/40 text-outline hover:text-on-surface'
                 }`}
               >
-                {cat.label}
+                {t(`listening:categories.${cat.id}`, cat.label)}
               </button>
             ))}
           </div>
@@ -703,7 +705,7 @@ export default function ListeningRoom() {
               type="text"
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
-              placeholder="Tìm kiếm theo tiêu đề hoặc từ khóa..."
+              placeholder={t('listening:searchPlaceholder', 'Tìm kiếm theo tiêu đề hoặc từ khóa...')}
               className="w-full pl-9 pr-4 py-2 rounded-xl bg-surface-container-low border border-outline-variant/60 text-xs text-on-surface placeholder:text-outline focus:outline-none focus:border-primary"
             />
           </div>
@@ -714,12 +716,12 @@ export default function ListeningRoom() {
       {loading ? (
         <div className="text-center py-20 space-y-3">
           <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs text-on-surface-variant font-bold">Đang tải danh mục bài nghe...</p>
+          <p className="text-xs text-on-surface-variant font-bold">{t('listening:loadingCatalog', 'Đang tải danh mục bài nghe...')}</p>
         </div>
       ) : scenarios.length === 0 ? (
         <div className="text-center py-16 bg-surface-container-low border border-outline-variant/60 rounded-3xl p-8 space-y-2">
-          <p className="text-base font-bold text-on-surface">Không tìm thấy bài nghe phù hợp</p>
-          <p className="text-xs text-outline">Hãy thử thay đổi bộ lọc cấp độ hoặc từ khóa tìm kiếm.</p>
+          <p className="text-base font-bold text-on-surface">{t('listening:emptyCatalogTitle', 'Không tìm thấy bài nghe phù hợp')}</p>
+          <p className="text-xs text-outline">{t('listening:emptyCatalogDesc', 'Hãy thử thay đổi bộ lọc cấp độ hoặc từ khóa tìm kiếm.')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -742,7 +744,7 @@ export default function ListeningRoom() {
                   </span>
 
                   <span className="text-[11px] font-bold text-outline flex items-center gap-1">
-                    <Clock size={12} /> {s.durationMin} phút
+                    <Clock size={12} /> {t('listening:minutes', { count: s.durationMin, defaultValue: `${s.durationMin} phút` })}
                   </span>
                 </div>
 
@@ -772,7 +774,7 @@ export default function ListeningRoom() {
                 </div>
 
                 <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-primary/10 group-hover:bg-primary text-primary group-hover:text-on-primary text-xs font-bold transition-all">
-                  Luyện Nghe <ChevronRight size={14} />
+                  {t('listening:practiceCta', 'Luyện Nghe')} <ChevronRight size={14} />
                 </span>
               </div>
             </div>

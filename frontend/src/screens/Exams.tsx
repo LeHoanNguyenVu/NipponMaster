@@ -4,8 +4,10 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import gsap from 'gsap';
+import { useTranslation } from 'react-i18next';
 
 export default function Exams() {
+  const { t } = useTranslation(['exams', 'common']);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,13 +33,13 @@ export default function Exams() {
   }, []);
 
   return (
-    <div ref={containerRef} className="max-w-[1280px] mx-auto p-6 md:p-8 space-y-8">
+    <div ref={containerRef} className="max-w-[1280px] mx-auto p-6 md:p-8 space-y-8 font-serif">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 gsap-fade-in">
         <div>
-          <h2 className="text-4xl font-bold text-on-surface">Mock Exams Library</h2>
-          <p className="text-lg text-on-surface-variant mt-2">Test your knowledge under real exam conditions to prepare for the JLPT.</p>
+          <h2 className="text-4xl font-bold text-on-surface">{t('exams:title', 'Mock Exams Library')}</h2>
+          <p className="text-lg text-on-surface-variant mt-2">{t('exams:subtitle', 'Test your knowledge under real exam conditions to prepare for the JLPT.')}</p>
         </div>
-        <div className="flex space-x-2 overflow-x-auto no-scrollbar pb-2 md:pb-0">
+        <div className="flex space-x-2 overflow-x-auto no-scrollbar pb-2 md:pb-0 font-serif">
           {['N5', 'N4', 'N3', 'N2', 'N1'].map(lvl => (
             <button 
               key={lvl} 
@@ -52,17 +54,17 @@ export default function Exams() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-8">
           <section className="gsap-fade-in">
-            <h3 className="text-2xl font-bold text-on-surface mb-4">N3 Mock Exams</h3>
+            <h3 className="text-2xl font-bold text-on-surface mb-4">{t('exams:sectionTitle', { level: 'N3', defaultValue: 'N3 Mock Exams' })}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card interactive className="flex flex-col relative overflow-hidden group gsap-hover-card">
                 <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
-                  <h4 className="text-lg font-bold text-on-surface">Đề thi thử N3 - 2023</h4>
-                  <Badge variant="primary">New</Badge>
+                  <h4 className="text-lg font-bold text-on-surface">{t('exams:exam2023', 'Đề thi thử N3 - 2023')}</h4>
+                  <Badge variant="primary">{t('exams:newBadge', 'New')}</Badge>
                 </div>
                 <div className="flex space-x-4 mb-6 text-on-surface-variant">
-                  <div className="flex items-center space-x-1"><Timer size={16}/><span className="text-sm font-medium">120 min</span></div>
-                  <div className="flex items-center space-x-1"><FileText size={16}/><span className="text-sm font-medium">105 Questions</span></div>
+                  <div className="flex items-center space-x-1"><Timer size={16}/><span className="text-sm font-medium">{t('exams:minutes', { count: 120, defaultValue: '120 min' })}</span></div>
+                  <div className="flex items-center space-x-1"><FileText size={16}/><span className="text-sm font-medium">{t('exams:questions', { count: 105, defaultValue: '105 Questions' })}</span></div>
                 </div>
                 <Button
                   variant="primary"
@@ -70,23 +72,23 @@ export default function Exams() {
                   icon={<ArrowRight size={18} />}
                   iconPosition="right"
                 >
-                  Làm bài
+                  {t('exams:takeExam', 'Làm bài')}
                 </Button>
               </Card>
 
               <Card interactive className="flex flex-col relative overflow-hidden group gsap-hover-card">
                 <div className="flex justify-between items-start mb-4">
-                  <h4 className="text-lg font-bold text-on-surface">JLPT N3 Official Mock</h4>
+                  <h4 className="text-lg font-bold text-on-surface">{t('exams:examOfficial', 'JLPT N3 Official Mock')}</h4>
                 </div>
                 <div className="flex space-x-4 mb-6 text-on-surface-variant">
-                  <div className="flex items-center space-x-1"><Timer size={16}/><span className="text-sm font-medium">120 min</span></div>
-                  <div className="flex items-center space-x-1"><FileText size={16}/><span className="text-sm font-medium">105 Questions</span></div>
+                  <div className="flex items-center space-x-1"><Timer size={16}/><span className="text-sm font-medium">{t('exams:minutes', { count: 120, defaultValue: '120 min' })}</span></div>
+                  <div className="flex items-center space-x-1"><FileText size={16}/><span className="text-sm font-medium">{t('exams:questions', { count: 105, defaultValue: '105 Questions' })}</span></div>
                 </div>
                 <Button
                   variant="secondary"
                   className="w-full mt-auto"
                 >
-                  Làm bài
+                  {t('exams:takeExam', 'Làm bài')}
                 </Button>
               </Card>
             </div>
@@ -94,8 +96,8 @@ export default function Exams() {
 
           <section className="gsap-fade-in">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold text-on-surface">Exam Experience Preview</h3>
-              <span className="text-xs text-on-surface-variant flex items-center"><Info size={14} className="mr-1"/> Simulates real test</span>
+              <h3 className="text-2xl font-bold text-on-surface">{t('exams:preview.title', 'Exam Experience Preview')}</h3>
+              <span className="text-xs text-on-surface-variant flex items-center"><Info size={14} className="mr-1"/> {t('exams:preview.simulate', 'Simulates real test')}</span>
             </div>
             <Card padding="none" className="overflow-hidden flex flex-col h-[400px]">
               <div className="bg-surface-container-low px-4 py-3 border-b border-outline-variant flex justify-between items-center">
@@ -103,24 +105,24 @@ export default function Exams() {
                   <Timer size={18} />
                   <span className="font-mono text-base font-bold">01:45:22</span>
                 </div>
-                <div className="text-sm font-medium text-on-surface-variant">Vocabulary / Kanji</div>
+                <div className="text-sm font-medium text-on-surface-variant font-serif">{t('exams:preview.vocabKanji', 'Vocabulary / Kanji')}</div>
                 <Button 
                   variant="danger" 
                   size="sm"
                 >
-                  End Exam
+                  {t('exams:preview.endExam', 'End Exam')}
                 </Button>
               </div>
               <div className="flex flex-1 flex-col md:flex-row overflow-hidden h-auto md:h-full">
-                <div className="flex-1 p-6 md:border-r border-outline-variant bg-surface flex flex-col overflow-y-auto">
+                <div className="flex-1 p-6 md:border-r border-outline-variant bg-surface flex flex-col overflow-y-auto font-serif">
                   <div className="mb-4">
-                    <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Question 12</span>
+                    <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">{t('exams:preview.questionNum', { num: 12, defaultValue: 'Question 12' })}</span>
                   </div>
                   <div className="text-2xl font-jp text-on-surface mb-6 leading-relaxed font-medium">
-                    この漢字の正しい読み方を選んでください。<br/>
+                    {t('exams:preview.prompt', 'Chọn cách đọc đúng của chữ Hán sau:')}<br/>
                     <span className="text-primary font-bold">「約束」</span>
                   </div>
-                  <div className="space-y-3 mt-auto">
+                  <div className="space-y-3 mt-auto font-serif">
                     <label className="flex items-center space-x-3 p-3.5 rounded-xl border border-outline-variant hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors">
                       <input type="radio" name="q" className="text-primary focus:ring-primary h-4 w-4 border-outline" />
                       <span className="text-base text-on-surface">やそく</span>
@@ -131,8 +133,8 @@ export default function Exams() {
                     </label>
                   </div>
                 </div>
-                <div className="w-full md:w-56 bg-surface-container-lowest p-4 flex flex-col border-t md:border-t-0 md:border-l border-outline-variant/50">
-                  <div className="text-sm text-on-surface-variant mb-3 font-bold">Navigator</div>
+                <div className="w-full md:w-56 bg-surface-container-lowest p-4 flex flex-col border-t md:border-t-0 md:border-l border-outline-variant/50 font-serif">
+                  <div className="text-sm text-on-surface-variant mb-3 font-bold">{t('exams:preview.navigator', 'Navigator')}</div>
                   <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-4 gap-2 overflow-y-auto no-scrollbar pb-2">
                     {[1,2,3,4,5,6,7,8,9,10,11].map(n => (
                       <div key={n} className="h-9 w-9 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center text-sm font-medium border border-secondary-fixed">{n}</div>
@@ -148,13 +150,13 @@ export default function Exams() {
           </section>
         </div>
 
-        <div className="lg:col-span-4 space-y-8">
+        <div className="lg:col-span-4 space-y-8 font-serif">
           <Card interactive className="relative overflow-hidden gsap-fade-in gsap-hover-card">
             <div className="absolute inset-0 opacity-5 bg-gradient-to-tr from-secondary to-primary pointer-events-none"></div>
-            <h3 className="text-lg font-bold text-on-surface mb-4 relative z-10">Readiness Score</h3>
+            <h3 className="text-lg font-bold text-on-surface mb-4 relative z-10">{t('exams:readiness.title', 'Readiness Score')}</h3>
             <div className="flex items-end space-x-2 mb-2 relative z-10">
-              <span className="text-5xl font-bold text-primary leading-none tracking-tight">78%</span>
-              <span className="text-sm text-on-surface-variant pb-1 font-medium">Pass probability</span>
+              <span className="text-5xl font-bold text-primary leading-none tracking-tight font-serif">78%</span>
+              <span className="text-sm text-on-surface-variant pb-1 font-medium">{t('exams:readiness.probability', 'Pass probability')}</span>
             </div>
             <div className="w-full bg-surface-variant rounded-full h-2 mt-6 relative z-10">
               <div className="bg-secondary h-2 rounded-full" style={{width: '78%'}}></div>
@@ -163,8 +165,8 @@ export default function Exams() {
 
           <Card className="gsap-fade-in">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-bold text-on-surface">Recent History</h3>
-              <button className="text-primary text-sm font-medium hover:underline cursor-pointer">View All</button>
+              <h3 className="text-lg font-bold text-on-surface">{t('exams:history.title', 'Recent History')}</h3>
+              <button className="text-primary text-sm font-medium hover:underline cursor-pointer">{t('exams:history.viewAll', 'View All')}</button>
             </div>
             <div className="space-y-4">
               <div className="flex items-center group">
@@ -172,12 +174,12 @@ export default function Exams() {
                   <CheckCircle2 size={20} className="text-secondary" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-on-surface">Đề thi thử N3 - 2022</p>
+                  <p className="text-sm font-bold text-on-surface">{t('exams:history.exam2022', 'Đề thi thử N3 - 2022')}</p>
                   <p className="text-xs text-on-surface-variant mt-0.5">Oct 12, 2023</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-secondary">115/180</p>
-                  <p className="text-xs text-secondary mt-0.5">Passed</p>
+                  <p className="text-sm font-bold text-secondary font-mono">115/180</p>
+                  <p className="text-xs text-secondary mt-0.5">{t('exams:history.passed', 'Passed')}</p>
                 </div>
               </div>
               
@@ -190,8 +192,8 @@ export default function Exams() {
                   <p className="text-xs text-on-surface-variant mt-0.5">Sep 28, 2023</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-error">85/180</p>
-                  <p className="text-xs text-error mt-0.5">Failed</p>
+                  <p className="text-sm font-bold text-error font-mono">85/180</p>
+                  <p className="text-xs text-error mt-0.5">{t('exams:history.failed', 'Failed')}</p>
                 </div>
               </div>
 
@@ -204,8 +206,8 @@ export default function Exams() {
                   <p className="text-xs text-on-surface-variant mt-0.5">Sep 15, 2023</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-on-surface-variant">--/180</p>
-                  <p className="text-xs text-on-surface-variant mt-0.5">Incomplete</p>
+                  <p className="text-sm font-medium text-on-surface-variant font-mono">--/180</p>
+                  <p className="text-xs text-on-surface-variant mt-0.5">{t('exams:history.incomplete', 'Incomplete')}</p>
                 </div>
               </div>
             </div>

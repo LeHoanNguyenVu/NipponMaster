@@ -11,6 +11,7 @@ import { loadAllModulesProgress } from '../utils/moduleProgressManager';
 import { getDaily10CardsDeck } from '../utils/srsCardManager';
 import { isBeginnerGraduated, getBeginnerCourseSummary } from '../utils/beginnerProgressManager';
 import { GraduationCap, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Stats {
   jlptLevel: string;
@@ -43,6 +44,7 @@ export default function DashboardStudent({
   onNavigate,
   username,
 }: DashboardStudentProps) {
+  const { t } = useTranslation(['dashboard', 'common']);
   const { user, updateUserLevel } = useAuthStore();
 
   // 1. Quản lý trạng thái Streak vô hạn chuẩn Duolingo
@@ -174,7 +176,7 @@ export default function DashboardStudent({
     }
   };
 
-  const levelDisplay = isStarter ? 'Nhập Môn' : `${rawLevel} Level`;
+  const levelDisplay = isStarter ? t('dashboard:level.starter', 'Starter Course') : `${rawLevel} Level`;
 
   // 10 Cards Daily Deck - Bốc theo thuật toán Spaced Repetition (SRS)
   // Ở level Nhập Môn: CHỈ hiện những thẻ nằm bên trong nội dung nhập môn (STARTER)
@@ -210,7 +212,7 @@ export default function DashboardStudent({
     <div className="max-w-[1360px] mx-auto p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 font-sans pb-16 animate-fade-in">
       {/* Tầng 1: Header chào mừng & Thanh 3 chỉ số thống kê (Streak Duolingo, Lộ trình, Thẻ hôm nay) */}
       <HeroCockpit
-        fullName={user?.fullName || username || 'Học viên'}
+        fullName={user?.fullName || username || t('dashboard:greetings.studentFallback', 'Student')}
         levelDisplay={levelDisplay}
         targetLevel={user?.targetLevel}
         overallMastery={overallMastery}
@@ -232,56 +234,55 @@ export default function DashboardStudent({
         />
       ) : (
         /* Ở level Nhập Môn: Hiển thị Banner Lộ Trình 5 Chương Nhập Môn trực quan */
-        <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-surface-container-low via-surface-container to-surface-container-high border border-outline-variant/50 shadow-sm space-y-5">
+        <div 
+          className="p-6 sm:p-7 bg-surface-container-low border border-outline-variant/70 shadow-flat-sm space-y-5 font-serif"
+          style={{ borderRadius: '2px' }}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="p-1.5 rounded-xl bg-primary/10 text-primary">
+                <span className="p-1.5 bg-primary/10 text-primary" style={{ borderRadius: '2px' }}>
                   <GraduationCap size={20} />
                 </span>
-                <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                  Lộ Trình Trọng Tâm
+                <span className="text-xs font-bold text-primary uppercase tracking-wider font-mono">
+                  {t('dashboard:beginnerBanner.badge')}
                 </span>
               </div>
-              <h3 className="text-xl font-extrabold text-on-surface">
-                Khóa Tiếng Nhật Nhập Môn (5 Chương Từ Con Số 0)
+              <h3 className="text-xl md:text-2xl font-bold text-on-surface font-serif">
+                {t('dashboard:beginnerBanner.title')}
               </h3>
-              <p className="text-xs sm:text-sm text-on-surface-variant max-w-2xl leading-relaxed">
-                Hoàn thành tuần tự 5 chương (Bảng chữ cái Kana, Số đếm & Thời gian, Aisatsu, Bộ thủ, Ngữ pháp câu) với điểm kiểm tra từ 85% để nhận bằng chứng nhận và <strong>tự động mở khóa Trình độ N5</strong> cùng toàn bộ module Kanji, Ngữ Pháp, Đề Thi Thử và Luyện Nghe.
+              <p className="text-sm text-on-surface-variant max-w-2xl leading-relaxed font-serif">
+                {t('dashboard:beginnerBanner.description')}
               </p>
             </div>
             <button
               onClick={() => navigateTo('beginner')}
-              className="px-5 py-3 rounded-2xl bg-primary text-on-primary font-bold text-sm cursor-pointer hover:bg-primary-container transition-all shadow-sm flex items-center justify-center gap-2 self-start sm:self-auto flex-shrink-0"
+              className="px-5 py-3 bg-primary text-on-primary font-bold text-sm cursor-pointer hover:bg-primary/90 transition-all shadow-flat-sm flex items-center justify-center gap-2 self-start sm:self-auto flex-shrink-0 font-serif"
+              style={{ borderRadius: '2px' }}
             >
-              <span>Vào Học Nhập Môn</span>
+              <span>{t('dashboard:beginnerBanner.cta')}</span>
               <ArrowRight size={16} />
             </button>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-1">
-            {[
-              { num: '01', title: 'Chữ Cái Kana', desc: 'Hiragana & Katakana' },
-              { num: '02', title: 'Số Đếm & Giờ', desc: 'Đơn vị đếm & thời gian' },
-              { num: '03', title: 'Chào Hỏi Aisatsu', desc: 'Giao tiếp tình huống' },
-              { num: '04', title: 'Bộ Thủ Kanji', desc: '214 Bộ thủ Khang Hy' },
-              { num: '05', title: 'Ngữ Pháp & Bằng', desc: 'Tốt nghiệp Nhập môn' },
-            ].map((ch, idx) => (
+            {(t('dashboard:beginnerBanner.chapters', { returnObjects: true }) as any[] || []).map((ch, idx) => (
               <div 
                 key={ch.num} 
-                className="p-3 rounded-xl bg-surface-container-lowest/80 border border-outline-variant/30 flex flex-col justify-between space-y-2"
+                className="p-3 bg-surface-container-lowest border border-outline-variant/60 flex flex-col justify-between space-y-2 shadow-2xs font-serif"
+                style={{ borderRadius: '2px' }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black text-primary">CHƯƠNG {ch.num}</span>
+                  <span className="text-xs font-black text-primary font-mono">CH. {ch.num}</span>
                   {idx < beginnerSummary.completedCount ? (
-                    <CheckCircle2 size={15} className="text-emerald-500" />
+                    <CheckCircle2 size={16} className="text-emerald-600" />
                   ) : (
-                    <span className="w-2 h-2 rounded-full bg-outline-variant/60" />
+                    <span className="w-2 h-2 bg-outline-variant/60" style={{ borderRadius: '1px' }} />
                   )}
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-on-surface line-clamp-1">{ch.title}</div>
-                  <div className="text-[10px] text-on-surface-variant line-clamp-1">{ch.desc}</div>
+                  <div className="text-xs font-bold text-on-surface line-clamp-1 font-serif">{ch.title}</div>
+                  <div className="text-xs text-on-surface-variant line-clamp-1 font-serif">{ch.desc}</div>
                 </div>
               </div>
             ))}

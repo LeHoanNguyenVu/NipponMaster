@@ -1,0 +1,33 @@
+{
+  "title": "Kho Đề Thi Thử Mock Exams",
+  "subtitle": "Kiểm tra năng lực trong điều kiện thi thật để chuẩn bị cho kỳ thi JLPT.",
+  "sectionTitle": "Đề thi thử {{level}}",
+  "exam2023": "Đề thi thử N3 - 2023",
+  "examOfficial": "JLPT N3 Official Mock",
+  "newBadge": "Mới",
+  "minutes": "{{count}} phút",
+  "questions": "{{count}} Câu hỏi",
+  "takeExam": "Làm bài",
+  "preview": {
+    "title": "Trải Nghiệm Phòng Thi Thực Tế",
+    "simulate": "Mô phỏng kỳ thi thật",
+    "timeRemaining": "Thời gian làm bài",
+    "vocabKanji": "Từ vựng / Chữ Hán",
+    "endExam": "Nộp bài thi",
+    "questionNum": "Câu hỏi {{num}}",
+    "prompt": "Chọn cách đọc đúng của chữ Hán sau:",
+    "navigator": "Bảng câu hỏi"
+  },
+  "readiness": {
+    "title": "Chỉ Số Sẵn Sàng (Readiness)",
+    "probability": "Tỷ lệ đỗ ước tính"
+  },
+  "history": {
+    "title": "Lịch Sử Thi Gần Đây",
+    "viewAll": "Xem tất cả",
+    "exam2022": "Đề thi thử N3 - 2022",
+    "passed": "Đạt",
+    "failed": "Chưa đạt",
+    "incomplete": "Chưa hoàn thành"
+  }
+}

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Volume2, Check, ArrowRight, RotateCcw, GraduationCap, AlertTriangle, Download, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/useAuthStore';
 import {
   GRAMMAR_PATTERNS, GRAMMAR_GRADUATION_QUIZ
@@ -14,6 +15,7 @@ interface BasicGrammarHubProps {
 }
 
 export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubProps) {
+  const { t, i18n } = useTranslation(['beginner', 'common']);
   const [activeTab, setActiveTab] = useState<'patterns' | 'tenses' | 'graduation'>('patterns');
   const { updateUserLevel } = useAuthStore();
 
@@ -107,12 +109,12 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
     // Certificate title
     ctx.fillStyle = '#231815';
     ctx.font = 'bold 36px "Times New Roman", "Noto Serif JP", serif';
-    ctx.fillText('BẰNG CHỨNG NHẬN', 450, 140);
+    ctx.fillText(i18n.language === 'en' ? 'CERTIFICATE OF COMPLETION' : 'BẰNG CHỨNG NHẬN', 450, 140);
 
     // Subtitle
     ctx.fillStyle = '#c01538';
     ctx.font = 'bold 28px "Times New Roman", "Noto Serif JP", serif';
-    ctx.fillText('TỐT NGHIỆP NHẬP MÔN TIẾNG NHẬT', 450, 190);
+    ctx.fillText(i18n.language === 'en' ? 'JAPANESE STARTER GRADUATION' : 'TỐT NGHIỆP NHẬP MÔN TIẾNG NHẬT', 450, 190);
 
     // Divider
     ctx.strokeStyle = '#c8a455';
@@ -125,19 +127,39 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
     // Body text
     ctx.fillStyle = '#5a5450';
     ctx.font = '16px "Times New Roman", "Noto Serif JP", serif';
-    ctx.fillText('Học viện NipponMaster xác nhận bạn đã hoàn thành', 450, 270);
-    ctx.fillText('xuất sắc toàn bộ 5 Chương Lộ Trình Nhập Môn Tiếng Nhật', 450, 300);
+    ctx.fillText(
+      i18n.language === 'en'
+        ? 'NipponMaster Academy certifies that you have successfully completed'
+        : 'Học viện NipponMaster xác nhận bạn đã hoàn thành',
+      450,
+      270
+    );
+    ctx.fillText(
+      i18n.language === 'en'
+        ? 'all 5 Chapters of the Starter Japanese Curriculum from zero'
+        : 'xuất sắc toàn bộ 5 Chương Lộ Trình Nhập Môn Tiếng Nhật',
+      450,
+      300
+    );
 
     // Chapters completed
     ctx.fillStyle = '#2b5f43';
     ctx.font = 'bold 14px "Times New Roman", "Noto Serif JP", serif';
-    const chapters = [
-      '📖 Bảng Chữ Cái Kana',
-      '📖 Số Đếm & Thời Gian',
-      '📖 Chào Hỏi Giao Tiếp',
-      '📖 50+ Bộ Thủ Kanji',
-      '📖 Cấu Trúc Ngữ Pháp N5',
-    ];
+    const chapters = i18n.language === 'en'
+      ? [
+          '📖 Kana Alphabets',
+          '📖 Numbers & Time',
+          '📖 Daily Greetings (Aisatsu)',
+          '📖 50+ Kanji Radicals',
+          '📖 N5 Grammar Structures',
+        ]
+      : [
+          '📖 Bảng Chữ Cái Kana',
+          '📖 Số Đếm & Thời Gian',
+          '📖 Chào Hỏi Giao Tiếp',
+          '📖 50+ Bộ Thủ Kanji',
+          '📖 Cấu Trúc Ngữ Pháp N5',
+        ];
     chapters.forEach((ch, i) => {
       ctx.fillText(ch, 450, 345 + i * 26);
     });
@@ -146,54 +168,62 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
     const pct = Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100);
     ctx.fillStyle = '#c01538';
     ctx.font = 'bold 20px "Times New Roman", "Noto Serif JP", serif';
-    ctx.fillText(`Điểm thi tốt nghiệp: ${pct}%`, 450, 510);
+    ctx.fillText(
+      i18n.language === 'en' ? `Graduation Score: ${pct}%` : `Điểm thi tốt nghiệp: ${pct}%`,
+      450,
+      510
+    );
 
     // Date
     ctx.fillStyle = '#8c827b';
     ctx.font = '13px "Times New Roman", "Noto Serif JP", serif';
-    ctx.fillText(`Ngày cấp: ${new Date().toLocaleDateString('vi-VN')}`, 450, 545);
+    ctx.fillText(
+      i18n.language === 'en'
+        ? `Issued Date: ${new Date().toLocaleDateString('en-US')}`
+        : `Ngày cấp: ${new Date().toLocaleDateString('vi-VN')}`,
+      450,
+      545
+    );
 
     // Download
     const link = document.createElement('a');
     link.download = `NipponMaster_Certificate_${Date.now()}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-  }, [score]);
+  }, [score, i18n.language]);
 
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider mb-1">
-          <span>📖 CHƯƠNG 5 (CHƯƠNG CUỐI)</span>
-          <span>•</span>
-          <span>SÁCH GIÁO KHOA NHẬP MÔN</span>
+          <span>{t('beginner:basicGrammar.badge', '📖 CHƯƠNG 5 (CHƯƠNG CUỐI) • SÁCH GIÁO KHOA NHẬP MÔN')}</span>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight">
-          Cấu Trúc Câu, Thì Ngữ Pháp & Lễ Tốt Nghiệp Nhập Môn
+          {t('beginner:basicGrammar.title', 'Cấu Trúc Câu, Thì Ngữ Pháp & Lễ Tốt Nghiệp Nhập Môn')}
         </h1>
         <p className="text-sm text-on-surface-variant mt-1">
-          Nắm vững mẫu câu `N1 は N2 です`, từ chỉ định, bảng biến đổi thì và hoàn thành Bài Thi Tốt Nghiệp Nhập Môn!
+          {t('beginner:basicGrammar.subtitle', 'Nắm vững mẫu câu N1 は N2 です, từ chỉ định, bảng biến đổi thì và hoàn thành Bài Thi Tốt Nghiệp Nhập Môn!')}
         </p>
       </div>
 
       {/* Tabs Navigation */}
       <div className="flex flex-wrap gap-2 border-b border-outline-variant/30 pb-3">
         {[
-          { id: 'patterns', label: '📖 1. Cấu Trúc Câu Căn Bản' },
-          { id: 'tenses', label: '⏱️ 2. Bảng Biến Đổi Thì' },
-          { id: 'graduation', label: '🎓 3. Bài Test Tốt Nghiệp (20 câu)' },
-        ].map(t => (
+          { id: 'patterns', label: t('beginner:basicGrammar.tabs.patterns', '📖 1. Cấu Trúc Câu Căn Bản') },
+          { id: 'tenses', label: t('beginner:basicGrammar.tabs.tenses', '⏱️ 2. Bảng Biến Đổi Thì') },
+          { id: 'graduation', label: t('beginner:basicGrammar.tabs.graduation', '🎓 3. Bài Test Tốt Nghiệp (20 câu)') },
+        ].map(tTab => (
           <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id as any)}
+            key={tTab.id}
+            onClick={() => setActiveTab(tTab.id as any)}
             className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === t.id
+              activeTab === tTab.id
                 ? 'bg-primary text-on-primary shadow-sm scale-102'
                 : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
             }`}
           >
-            {t.label}
+            {tTab.label}
           </button>
         ))}
       </div>
@@ -207,14 +237,14 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
               {GRAMMAR_PATTERNS.map(g => (
                 <div key={g.id} className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 md:p-8 space-y-5 shadow-sm">
                   <div className="border-b border-outline-variant/20 pb-4">
-                    <span className="text-xs font-bold text-primary uppercase tracking-wider">Mẫu Ngữ Pháp</span>
+                    <span className="text-xs font-bold text-primary uppercase tracking-wider">{t('beginner:basicGrammar.grammarPattern', 'Mẫu Ngữ Pháp')}</span>
                     <h2 className="text-xl md:text-2xl font-bold text-on-surface font-jp mt-0.5">{g.pattern}</h2>
                     <p className="text-sm font-semibold text-secondary mt-1">{g.title}</p>
                   </div>
 
                   {/* Structure Diagram Box */}
                   <div className="p-4 rounded-2xl bg-secondary/10 border border-secondary/20">
-                    <div className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">📐 Sơ đồ khối cấu trúc câu:</div>
+                    <div className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">{t('beginner:basicGrammar.diagramTitle', '📐 Sơ đồ khối cấu trúc câu:')}</div>
                     <div className="text-sm font-bold font-mono text-on-surface">{g.structureDiagram}</div>
                   </div>
 
@@ -222,7 +252,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
 
                   {/* Usage Notes */}
                   <div className="p-4 rounded-2xl bg-surface-container text-xs space-y-1.5">
-                    <div className="font-bold text-on-surface">💡 Lưu ý quan trọng:</div>
+                    <div className="font-bold text-on-surface">{t('beginner:basicGrammar.notesTitle', '💡 Lưu ý quan trọng:')}</div>
                     {g.usageNotes.map((note, i) => (
                       <div key={i} className="text-on-surface-variant">• {note}</div>
                     ))}
@@ -230,7 +260,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
 
                   {/* Examples */}
                   <div className="space-y-3 pt-2">
-                    <div className="text-xs font-bold text-on-surface uppercase tracking-wider">Ví dụ minh họa:</div>
+                    <div className="text-xs font-bold text-on-surface uppercase tracking-wider">{t('beginner:basicGrammar.examplesTitle', 'Ví dụ minh họa:')}</div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {g.examples.map((ex, idx) => (
                         <div key={idx} className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/20 space-y-2 flex items-start justify-between">
@@ -243,7 +273,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                           <button
                             onClick={() => speakJapanese(ex.audioText)}
                             className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer flex-shrink-0"
-                            title="Nghe ví dụ"
+                            title={t('beginner:basicGrammar.listenExample', 'Nghe ví dụ')}
                           >
                             <Volume2 size={16} />
                           </button>
@@ -262,8 +292,8 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
           <motion.div key="tenses" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
             <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 md:p-8 space-y-6 shadow-sm">
               <div>
-                <h2 className="text-xl font-bold text-on-surface">⏱️ Bảng Biến Đổi Thì Nhập Môn</h2>
-                <p className="text-xs text-on-surface-variant mt-1">So sánh thì Hiện tại ↔ Quá khứ giữa Danh từ (`です`) và Động từ (`ます`).</p>
+                <h2 className="text-xl font-bold text-on-surface">{t('beginner:basicGrammar.tensesTableTitle', '⏱️ Bảng Biến Đổi Thì Nhập Môn')}</h2>
+                <p className="text-xs text-on-surface-variant mt-1">{t('beginner:basicGrammar.tensesTableSubtitle', 'So sánh thì Hiện tại ↔ Quá khứ giữa Danh từ (`です`) và Động từ (`ます`).')}</p>
               </div>
 
               {/* Matrix Table */}
@@ -271,23 +301,23 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-surface-container text-on-surface font-bold">
-                      <th className="p-3.5 border-b border-outline-variant/30">Loại từ / Thể</th>
-                      <th className="p-3.5 border-b border-outline-variant/30">Hiện tại (Khẳng định)</th>
-                      <th className="p-3.5 border-b border-outline-variant/30">Hiện tại (Phủ định)</th>
-                      <th className="p-3.5 border-b border-outline-variant/30">Quá khứ (Khẳng định)</th>
-                      <th className="p-3.5 border-b border-outline-variant/30">Quá khứ (Phủ định)</th>
+                      <th className="p-3.5 border-b border-outline-variant/30">{t('beginner:basicGrammar.tableWordType', 'Loại từ / Thể')}</th>
+                      <th className="p-3.5 border-b border-outline-variant/30">{t('beginner:basicGrammar.tablePresentAff', 'Hiện tại (Khẳng định)')}</th>
+                      <th className="p-3.5 border-b border-outline-variant/30">{t('beginner:basicGrammar.tablePresentNeg', 'Hiện tại (Phủ định)')}</th>
+                      <th className="p-3.5 border-b border-outline-variant/30">{t('beginner:basicGrammar.tablePastAff', 'Quá khứ (Khẳng định)')}</th>
+                      <th className="p-3.5 border-b border-outline-variant/30">{t('beginner:basicGrammar.tablePastNeg', 'Quá khứ (Phủ định)')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/20">
                     <tr className="hover:bg-surface-container-low transition-colors">
-                      <td className="p-3.5 font-bold text-primary">Danh Từ (Noun)</td>
+                      <td className="p-3.5 font-bold text-primary">{t('beginner:basicGrammar.nounLabel', 'Danh Từ (Noun)')}</td>
                       <td className="p-3.5 font-jp font-bold">〜です (desu)</td>
                       <td className="p-3.5 font-jp text-tertiary">〜ではありません</td>
                       <td className="p-3.5 font-jp font-bold text-secondary">〜でした (deshita)</td>
                       <td className="p-3.5 font-jp text-crimson-600">〜ではありませんでした</td>
                     </tr>
                     <tr className="hover:bg-surface-container-low transition-colors">
-                      <td className="p-3.5 font-bold text-primary">Động Từ (Verb)</td>
+                      <td className="p-3.5 font-bold text-primary">{t('beginner:basicGrammar.verbLabel', 'Động Từ (Verb)')}</td>
                       <td className="p-3.5 font-jp font-bold">〜ます (masu)</td>
                       <td className="p-3.5 font-jp text-tertiary">〜ません (masen)</td>
                       <td className="p-3.5 font-jp font-bold text-secondary">〜ました (mashita)</td>
@@ -298,9 +328,9 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
               </div>
 
               <div className="p-4 rounded-2xl bg-surface-container text-xs text-on-surface-variant space-y-1">
-                <div className="font-bold text-on-surface">💡 Ví dụ thực tế:</div>
-                <p>• 昨日は 雨でした (Hôm qua trời đã mưa — Quá khứ của Danh từ).</p>
-                <p>• きのう 勉強しました (Hôm qua tôi đã học — Quá khứ của Động từ ます ➔ ました).</p>
+                <div className="font-bold text-on-surface">{t('beginner:basicGrammar.realExamplesTitle', '💡 Ví dụ thực tế:')}</div>
+                <p>{t('beginner:basicGrammar.realEx1', '• 昨日は 雨でした (Hôm qua trời đã mưa — Quá khứ của Danh từ).')}</p>
+                <p>{t('beginner:basicGrammar.realEx2', '• きのう 勉強しました (Hôm qua tôi đã học — Quá khứ của Động từ ます ➔ ました).')}</p>
               </div>
             </div>
           </motion.div>
@@ -315,9 +345,17 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                 <div className="flex items-center justify-between text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20 pb-4">
                   <div className="flex items-center gap-2">
                     <GraduationCap size={18} className="text-primary" />
-                    <span>Bài Thi Tốt Nghiệp: Câu {quizIdx + 1} / {GRAMMAR_GRADUATION_QUIZ.length}</span>
+                    <span>
+                      {t('beginner:basicGrammar.quizProgress', {
+                        current: quizIdx + 1,
+                        total: GRAMMAR_GRADUATION_QUIZ.length,
+                        defaultValue: `Bài Thi Tốt Nghiệp: Câu ${quizIdx + 1} / ${GRAMMAR_GRADUATION_QUIZ.length}`
+                      })}
+                    </span>
                   </div>
-                  <span className="text-secondary font-bold">Điểm: {score}</span>
+                  <span className="text-secondary font-bold">
+                    {t('beginner:basicGrammar.scoreLabel', { score, defaultValue: `Điểm: ${score}` })}
+                  </span>
                 </div>
 
                 <div className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded-full w-fit">
@@ -334,7 +372,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                       onClick={() => speakJapanese(GRAMMAR_GRADUATION_QUIZ[quizIdx].audioText!)}
                       className="px-3 py-1.5 rounded-xl bg-secondary/10 text-secondary text-xs font-bold hover:bg-secondary/20 cursor-pointer flex items-center gap-1.5 transition-colors"
                     >
-                      <Volume2 size={14} /> Nghe phát âm
+                      <Volume2 size={14} /> {t('beginner:basicGrammar.listenAudio', 'Nghe phát âm')}
                     </button>
                   )}
                 </div>
@@ -368,7 +406,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                 {/* Explanation */}
                 {isAnswered && (
                   <div className="p-4 rounded-2xl bg-surface-container border border-outline-variant/30 text-xs text-on-surface space-y-1">
-                    <div className="font-bold text-primary">💡 Giải thích:</div>
+                    <div className="font-bold text-primary">{t('beginner:basicGrammar.explanationLabel', '💡 Giải thích:')}</div>
                     <p>{GRAMMAR_GRADUATION_QUIZ[quizIdx].explanation}</p>
                   </div>
                 )}
@@ -379,7 +417,11 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                     onClick={handleNextQuestion}
                     className="w-full py-3 rounded-2xl bg-primary text-on-primary font-bold text-sm cursor-pointer hover:bg-primary-container transition-colors flex items-center justify-center gap-2"
                   >
-                    <span>{quizIdx + 1 < GRAMMAR_GRADUATION_QUIZ.length ? 'Câu Tiếp Theo' : 'Xem Kết Quả Tốt Nghiệp'}</span>
+                    <span>
+                      {quizIdx + 1 < GRAMMAR_GRADUATION_QUIZ.length
+                        ? t('beginner:basicGrammar.nextQuestion', 'Câu Tiếp Theo')
+                        : t('beginner:basicGrammar.viewResult', 'Xem Kết Quả Tốt Nghiệp')}
+                    </span>
                     <ArrowRight size={16} />
                   </button>
                 )}
@@ -392,23 +434,34 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-on-surface">Kết Quả Thi Tốt Nghiệp Nhập Môn</h2>
+                  <h2 className="text-2xl font-bold text-on-surface">
+                    {t('beginner:basicGrammar.resultTitle', 'Kết Quả Thi Tốt Nghiệp Nhập Môn')}
+                  </h2>
                   <div className="text-4xl font-extrabold text-primary my-2">
                     {Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100)}%
                   </div>
                   <p className="text-sm text-on-surface-variant">
-                    Trả lời đúng {score} / {GRAMMAR_GRADUATION_QUIZ.length} câu
+                    {t('beginner:basicGrammar.correctCount', {
+                      score,
+                      total: GRAMMAR_GRADUATION_QUIZ.length,
+                      defaultValue: `Trả lời đúng ${score} / ${GRAMMAR_GRADUATION_QUIZ.length} câu`
+                    })}
                   </p>
                 </div>
 
                 {Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100) >= 85 ? (
                   <div className="p-4 rounded-2xl bg-secondary/10 text-secondary text-sm font-bold space-y-2">
-                    <div>🎉 CHÚC MỪNG BẠN ĐÃ TỐT NGHIỆP XUẤT SẮC KHÓA NHẬP MÔN!</div>
-                    <p className="text-xs font-normal">Bạn đã nắm vững toàn bộ Bảng chữ cái, Số đếm, Thời gian, Aisatsu, 35+ Bộ thủ và Cấu trúc ngữ pháp N5!</p>
+                    <div>{t('beginner:basicGrammar.passBannerTitle', '🎉 CHÚC MỪNG BẠN ĐÃ TỐT NGHIỆP XUẤT SẮC KHÓA NHẬP MÔN!')}</div>
+                    <p className="text-xs font-normal">
+                      {t('beginner:basicGrammar.passBannerSubtitle', 'Bạn đã nắm vững toàn bộ Bảng chữ cái, Số đếm, Thời gian, Aisatsu, 35+ Bộ thủ và Cấu trúc ngữ pháp N5!')}
+                    </p>
                   </div>
                 ) : (
                   <div className="p-4 rounded-2xl bg-crimson-500/10 text-crimson-600 text-sm font-semibold">
-                    ⚠️ Bạn cần đạt tối thiểu <strong>85%</strong> để tốt nghiệp lộ trình Nhập môn (Điểm hiện tại: {Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100)}%). Ôn lại kiến thức các chương chưa đúng và thử lại nhé!
+                    {t('beginner:basicGrammar.failBanner', {
+                      pct: Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100),
+                      defaultValue: `⚠️ Bạn cần đạt tối thiểu 85% để tốt nghiệp lộ trình Nhập môn (Điểm hiện tại: ${Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100)}%). Ôn lại kiến thức các chương chưa đúng và thử lại nhé!`
+                    })}
                   </div>
                 )}
 
@@ -417,7 +470,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                   <div className="text-left space-y-3 pt-4 border-t border-outline-variant/20">
                     <h3 className="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-1.5">
                       <AlertTriangle size={14} className="text-tertiary" />
-                      <span>Gợi ý phần cần ôn lại:</span>
+                      <span>{t('beginner:basicGrammar.reviewHintsTitle', 'Gợi ý phần cần ôn lại:')}</span>
                     </h3>
                     <div className="space-y-2">
                       {wrongQuestions.map((wq, i) => (
@@ -430,7 +483,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                             onClick={() => setActiveTab(wq.targetTab)}
                             className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-bold hover:bg-primary/20 flex-shrink-0 cursor-pointer text-xs"
                           >
-                            Ôn lại →
+                            {t('beginner:basicGrammar.reviewAction', 'Ôn lại →')}
                           </button>
                         </div>
                       ))}
@@ -443,7 +496,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
                     onClick={handleRestartQuiz}
                     className="flex-1 py-3 rounded-2xl bg-surface-container border border-outline-variant/40 text-on-surface font-bold text-sm cursor-pointer hover:bg-surface-container-high flex items-center justify-center gap-2"
                   >
-                    <RotateCcw size={16} /> Làm Lại Bài Thi
+                    <RotateCcw size={16} /> {t('beginner:basicGrammar.restartQuiz', 'Làm Lại Bài Thi')}
                   </button>
                 </div>
               </div>
@@ -458,22 +511,26 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
           <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 max-w-md w-full text-center space-y-6 shadow-2xl relative overflow-hidden">
             <div className="text-6xl animate-bounce">🎓</div>
             <div>
-              <div className="text-xs font-bold text-primary uppercase tracking-widest">BẰNG CHỨNG NHẬN</div>
-              <h3 className="text-2xl font-extrabold text-on-surface mt-1">TỐT NGHIỆP NHẬP MÔN</h3>
+              <div className="text-xs font-bold text-primary uppercase tracking-widest">
+                {t('beginner:basicGrammar.modalBadge', 'BẰNG CHỨNG NHẬN')}
+              </div>
+              <h3 className="text-2xl font-extrabold text-on-surface mt-1">
+                {t('beginner:basicGrammar.modalTitle', 'TỐT NGHIỆP NHẬP MÔN')}
+              </h3>
               <p className="text-xs text-on-surface-variant mt-2">
-                Học viện NipponMaster xác nhận bạn đã hoàn thành xuất sắc toàn bộ 5 Chương Lộ Trình Nhập Môn Tiếng Nhật từ Con Số 0!
+                {t('beginner:basicGrammar.modalSubtitle', 'Học viện NipponMaster xác nhận bạn đã hoàn thành xuất sắc toàn bộ 5 Chương Lộ Trình Nhập Môn Tiếng Nhật từ Con Số 0!')}
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 text-xs font-bold text-primary">
-              🏆 Đủ điều kiện tự tin bước vào Lộ Trình JLPT N5 Chính Thức!
+              {t('beginner:basicGrammar.modalAdvantage', '🏆 Đủ điều kiện tự tin bước vào Lộ Trình JLPT N5 Chính Thức!')}
             </div>
 
             <button
               onClick={downloadCertificate}
               className="w-full py-3 rounded-2xl bg-secondary text-on-secondary font-bold text-sm cursor-pointer hover:bg-secondary/80 transition-colors shadow-md flex items-center justify-center gap-2"
             >
-              <Download size={16} /> Tải Bằng Chứng Nhận (.PNG)
+              <Download size={16} /> {t('beginner:basicGrammar.downloadCert', 'Tải Bằng Chứng Nhận (.PNG)')}
             </button>
 
             <button
@@ -483,7 +540,7 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
               }}
               className="w-full py-3.5 rounded-2xl bg-primary text-on-primary font-bold text-sm cursor-pointer hover:bg-primary-container transition-colors shadow-md flex items-center justify-center gap-2"
             >
-              <span>Nhận Bằng & Nâng Cấp Lên Trình Độ N5</span>
+              <span>{t('beginner:basicGrammar.claimCertificate', 'Nhận Bằng & Nâng Cấp Lên Trình Độ N5')}</span>
               <Sparkles size={16} />
             </button>
           </motion.div>

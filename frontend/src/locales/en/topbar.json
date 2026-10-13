@@ -1,0 +1,70 @@
+{
+  "searchPlaceholder": "Search vocabulary, grammar, kanji N5-N1...",
+  "levelTitle": "Current JLPT level: {{level}}",
+  "starter": "Starter",
+  "studentFallback": "Student",
+  "notifications": {
+    "title": "Notifications",
+    "newBadge": "{{count}} new",
+    "allRead": "All read",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet"
+  },
+  "menu": {
+    "settings": "System Settings",
+    "changeAvatar": "Change Profile Avatar",
+    "changePassword": "Change Password",
+    "theme": "Theme & Color Style",
+    "wallet": "Wallet & Coins",
+    "security": "Security & Sessions",
+    "logout": "Log Out"
+  },
+  "modals": {
+    "avatar": {
+      "title": "Change Profile Avatar",
+      "uploadBtn": "Upload image from your computer",
+      "uploadSub": "Supports PNG, JPG, WEBP (Max 5MB)",
+      "selectFile": "Choose File",
+      "uploading": "Processing image...",
+      "presetTitle": "Or Select Japanese Scenic & Cultural Presets",
+      "success": "Profile avatar updated successfully!"
+    },
+    "password": {
+      "title": "Change Account Password",
+      "current": "Current Password",
+      "currentPlaceholder": "Enter current password",
+      "new": "New Password",
+      "newPlaceholder": "At least 6 characters",
+      "confirm": "Confirm New Password",
+      "confirmPlaceholder": "Re-enter new password accurately",
+      "submit": "Update Password",
+      "submitting": "Updating...",
+      "success": "Password changed successfully! You can now log in with your new password."
+    },
+    "theme": {
+      "title": "Theme & Color Palette",
+      "subtitle": "Choose your preferred aesthetic style",
+      "apply": "Apply Theme"
+    },
+    "wallet": {
+      "title": "Wallet & Coins Balance",
+      "balanceTitle": "Available Balance",
+      "standardAccount": "Standard Account",
+      "packagesTitle": "Coin Top-up Packages",
+      "comingSoon": "Coming Soon 🚀",
+      "notice": "Instant payment gateways via VietQR, MoMo, and VNPay are in development.",
+      "close": "Close Window"
+    },
+    "security": {
+      "title": "Security & Device Session",
+      "session": "Active Device Session",
+      "browser": "Browser",
+      "os": "Operating System",
+      "tokenStatus": "Token status",
+      "tokenActive": "JWT Active (24 hours)",
+      "authAccount": "Account Authentication",
+      "registeredEmail": "Registered Email",
+      "understand": "Understood"
+    }
+  }
+}

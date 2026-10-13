@@ -1,0 +1,152 @@
+{
+  "greetings": {
+    "morning": "Chào buổi sáng 🌅",
+    "afternoon": "Chào buổi chiều ☀️",
+    "evening": "Chào buổi tối 🌙",
+    "sub": "Hôm nay là một ngày tuyệt vời để tiếp tục hành trình rèn luyện tiếng Nhật.",
+    "level": "Trình độ: {{level}}",
+    "target": "🎯 Mục tiêu: {{level}}",
+    "refreshing": "Đang cập nhật...",
+    "studentFallback": "Học viên"
+  },
+  "level": {
+    "starter": "Khóa Nhập Môn",
+    "levelSuffix": "Trình độ"
+  },
+  "streak": {
+    "title": "Chuỗi Học Tập (Streak)",
+    "days": "Ngày liên tiếp",
+    "saved": "✓ Đã giữ lửa",
+    "notCheckedIn": "Chưa điểm danh",
+    "todayProgress": "Tiến độ hôm nay:",
+    "cardsCount": "{{reviewed}}/{{goal}} thẻ",
+    "note": "* Bạn phải tối thiểu hoàn thành hết flashcard hôm nay mới được tính điểm danh nhé",
+    "daysOfWeek": ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
+  },
+  "roadmap": {
+    "starterTitle": "Tiến Độ Khóa Nhập Môn",
+    "levelTitle": "Lộ Trình {{level}}",
+    "starterCompleted": "{{completed}}/5 Chương",
+    "starterPercent": "{{percent}}% hoàn thành",
+    "overall4Skills": "Tổng thể 4 kỹ năng",
+    "starterGoal": "🎯 Hoàn thành 5 chương & nhận bằng để mở khóa N5",
+    "syncNote": "✓ Đồng bộ theo năng lực học tập thực tế"
+  },
+  "mission": {
+    "title": "Nhiệm Vụ Flashcard",
+    "dailyTarget": "Thẻ mục tiêu hôm nay",
+    "completed": "Đã hoàn thành xuất sắc & Điểm danh!",
+    "remaining": "Còn {{count}} thẻ cần học để giữ lửa"
+  },
+  "skillsSection": {
+    "title": "Lộ Trình & Tiến Độ 4 Kỹ Năng Cốt Lõi",
+    "subtitle": "Hệ thống bài học phân bổ toàn diện theo năng lực thực chiến Nhật ngữ",
+    "overallProgress": "Tổng thể lộ trình:",
+    "completionLabel": "Tiến độ hoàn thành:",
+    "modules": {
+      "beginner": {
+        "title": "Bảng Chữ Cái & Âm Đọc",
+        "subtitle": "Hiragana, Katakana & Biến âm, ảo âm...",
+        "categoryTag": "KHOÁ NHẬP MÔN",
+        "action": "Học Nhập Môn",
+        "unitLabel": "chương"
+      },
+      "kanji": {
+        "title": "Chữ Hán & Bộ Thủ Gốc",
+        "subtitle": "Mẹo nhớ tượng hình & quy tắc viết...",
+        "categoryTag": "214 BỘ THỦ KHANG HY",
+        "action": "Ôn Luyện Kanji",
+        "unitLabel": "bộ thủ"
+      },
+      "grammar": {
+        "title": "Ngữ Pháp Cốt Lõi",
+        "subtitle": "Bài giảng tuyển chọn từ N5 đến N1...",
+        "categoryTag": "50 BÀI GIẢNG TUYỂN CHỌN",
+        "action": "Xem Bài Giảng",
+        "unitLabel": "bài học"
+      },
+      "listening": {
+        "title": "Luyện Nghe & Phản Xạ",
+        "subtitle": "Hội thoại sinh hoạt, nhà hàng, ga tàu...",
+        "categoryTag": "20 TÌNH HUỐNG THỰC TẾ",
+        "action": "Luyện Nghe Ngay",
+        "unitLabel": "tình huống"
+      }
+    }
+  },
+  "beginnerBanner": {
+    "badge": "Lộ Trình Trọng Tâm",
+    "title": "Khóa Tiếng Nhật Nhập Môn (5 Chương Từ Con Số 0)",
+    "description": "Hoàn thành tuần tự 5 chương (Bảng chữ cái Kana, Số đếm & Thời gian, Aisatsu, Bộ thủ, Ngữ pháp câu) với điểm kiểm tra từ 85% để nhận bằng chứng nhận và tự động mở khóa Trình độ N5 cùng toàn bộ module Kanji, Ngữ Pháp, Đề Thi Thử và Luyện Nghe.",
+    "cta": "Vào Học Nhập Môn",
+    "chapters": [
+      { "num": "01", "title": "Chữ Cái Kana", "desc": "Hiragana & Katakana" },
+      { "num": "02", "title": "Số Đếm & Giờ", "desc": "Đơn vị đếm & thời gian" },
+      { "num": "03", "title": "Chào Hỏi Aisatsu", "desc": "Giao tiếp tình huống" },
+      { "num": "04", "title": "Bộ Thủ Kanji", "desc": "214 Bộ thủ Khang Hy" },
+      { "num": "05", "title": "Ngữ Pháp & Bằng", "desc": "Tốt nghiệp Nhập môn" }
+    ]
+  },
+  "flashcardWidget": {
+    "title": "Luyện Trí Nhớ Nhanh (Flashcards)",
+    "subtitle": "Chạm vào bất kỳ khoảng trống nào trên thẻ để lật qua lại",
+    "cardNumber": "Thẻ {{current}} / {{total}}",
+    "checkedInBadge": "Đã hoàn thành 10/10 thẻ & Điểm danh!",
+    "checkInBadge": "Điểm danh: {{reviewed}}/{{goal}} thẻ",
+    "volumeLabel": "Âm lượng loa",
+    "volumeTitle": "Âm lượng phát âm: {{volume}}% (Nhấn để điều chỉnh)",
+    "testVolume": "Thử âm lượng",
+    "dealCard": "Đổi thẻ",
+    "dealCardTitle": "Chuyển sang thẻ tiếp theo",
+    "tapToFlip": "Chạm vào thẻ để lật xem nghĩa & phiên âm",
+    "clickSpaceToFlip": "Nhấn chuột vào khoảng trống để lật thẻ",
+    "sinoVietnamese": "Âm Hán:",
+    "pronounce": "Phát âm",
+    "meaningLabel": "Ý Nghĩa:",
+    "mnemonicTitle": "Mẹo ghi nhớ",
+    "exampleLabel": "Ví dụ thực tế:",
+    "listenSentence": "Nghe câu",
+    "noExample": "Chưa có câu ví dụ cho thẻ này. Nhấn nút Loa 🔊 để nghe phát âm.",
+    "srsHard": "🔴 Khó",
+    "srsHardSub": "+1 ngày (mai ôn)",
+    "srsHardTitle": "Thẻ này khó, ngày mai sẽ ôn tập lại (+1 ngày)",
+    "srsMedium": "🟡 Thường",
+    "srsMediumSub": "+3 ngày sau",
+    "srsMediumTitle": "Thẻ ở mức bình thường, 3 ngày sau sẽ ôn tập lại (+3 ngày)",
+    "srsEasy": "🟢 Dễ",
+    "srsEasySub": "+7 ngày (tuần sau)",
+    "srsEasyTitle": "Thẻ dễ đã thuộc, 1 tuần sau mới xuất hiện lại (+7 ngày)",
+    "exploreKanji": "Khám phá toàn bộ 214 Bộ Thủ Kanji"
+  },
+  "guest": {
+    "badge": "Khách tham quan",
+    "welcome": "Chào mừng bạn đến với NipponMaster, {{name}}!",
+    "welcomeSub": "Hãy khám phá các tính năng của nền tảng học tiếng Nhật thông minh AI trước khi bắt đầu hành trình.",
+    "placementBanner": {
+      "title": "Kiểm Tra Trình Độ Tiếng Nhật Miễn Phí Ngay!",
+      "desc": "Làm bài thi thử chuẩn JLPT (N5–N1), nhận đánh giá năng lực chi tiết và lộ trình học tập cá nhân hóa trong vài phút.",
+      "cta": "🎌 Đăng ký & Thi thử ngay"
+    },
+    "upgradeCard": {
+      "title": "Bạn đã sẵn sàng để nâng cấp trải nghiệm học tập?",
+      "desc": "Chọn vai trò phù hợp với bạn để mở khóa toàn bộ sức mạnh của NipponMaster. Học viên sẽ được ôn tập SRS cá nhân hóa, trong khi Giảng viên có thể biên soạn và phân phối bài học.",
+      "studentBtn": "Trở thành Học viên (Student)",
+      "teacherBtn": "Trở thành Giảng viên (Teacher)"
+    },
+    "featuresTitle": "Khám phá các phân hệ học tập",
+    "features": {
+      "vocab": {
+        "title": "Từ vựng thông minh N5-N1",
+        "desc": "Học từ vựng qua lưới thẻ trực quan, hỗ trợ tra cứu chi tiết, âm đọc bản xứ và ví dụ sinh động."
+      },
+      "kanji": {
+        "title": "Hán tự trực quan & nét vẽ",
+        "desc": "Luyện chữ Kanji theo cấp độ bộ thủ, học âm On/Kun và tra cứu nghĩa Việt ngữ chính xác."
+      },
+      "grammar": {
+        "title": "Thư viện cấu trúc ngữ pháp",
+        "desc": "Tổng hợp hàng trăm cấu trúc câu N5 thực tế với các trợ từ, cách dùng và chú thích chi tiết cho người tự học."
+      }
+    }
+  }
+}

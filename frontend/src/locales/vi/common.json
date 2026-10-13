@@ -1,0 +1,37 @@
+{
+  "actions": {
+    "save": "Lưu thay đổi",
+    "cancel": "Hủy bỏ",
+    "confirm": "Xác nhận",
+    "close": "Đóng cửa sổ",
+    "back": "Quay lại",
+    "apply": "Áp dụng",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "copy": "Sao chép",
+    "retry": "Thử lại",
+    "continue": "Tiếp tục"
+  },
+  "status": {
+    "loading": "Đang tải...",
+    "processing": "Đang xử lý...",
+    "success": "Thành công",
+    "error": "Đã xảy ra lỗi",
+    "empty": "Không có dữ liệu",
+    "comingSoon": "Sắp ra mắt"
+  },
+  "roles": {
+    "student": "Học viên",
+    "teacher": "Giảng viên",
+    "admin": "Quản trị viên",
+    "guest": "Khách vãng lai"
+  },
+  "levels": {
+    "starter": "Nhập Môn",
+    "n5": "Trình độ N5",
+    "n4": "Trình độ N4",
+    "n3": "Trình độ N3",
+    "n2": "Trình độ N2",
+    "n1": "Trình độ N1"
+  }
+}

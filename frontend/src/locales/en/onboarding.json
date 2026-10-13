@@ -1,0 +1,116 @@
+{
+  "hub": {
+    "greeting": "Welcome, {{name}}! 🎌",
+    "subtitle": "Before starting your Japanese learning journey, tell us your level so we can personalize your learning roadmap.",
+    "directOptionTitle": "I know my level",
+    "directOptionDesc": "Choose your JLPT target level directly (N5 → N1) and start learning right away.",
+    "testOptionTitle": "Take a JLPT Placement Test",
+    "testOptionDesc": "15 quick questions to test your Kanji, Vocabulary, and Grammar reflexes.",
+    "recommendedBadge": "Recommended",
+    "skipLink": "Skip, I will start from scratch (50 basic kana sounds)",
+    "logout": "Log Out"
+  },
+  "levelTest": {
+    "title": "Select the level you want to test",
+    "subtitle": "Each level has its own test bank. Choose the level you are aiming for to receive the most accurate assessment.",
+    "questionsCount": "{{count}} questions",
+    "minutesCount": "⏱ {{count}} min",
+    "levels": {
+      "N5": {
+        "label": "N5 — Starter",
+        "desc": "Hiragana/Katakana vocab, basic Kanji, elementary particles"
+      },
+      "N4": {
+        "label": "N4 — Elementary",
+        "desc": "Honorifics, potential form, compound vocabulary"
+      },
+      "N3": {
+        "label": "N3 — Intermediate",
+        "desc": "Complex sentence structures, conjunctions, short reading passages"
+      },
+      "N2": {
+        "label": "N2 — Advanced",
+        "desc": "Specialized vocabulary, nuanced grammar, medium reading texts"
+      },
+      "N1": {
+        "label": "N1 — Master",
+        "desc": "Idioms, rare Kanji, literary grammar"
+      }
+    }
+  },
+  "quiz": {
+    "submitting": "Grading your test...",
+    "errorEmpty": "No test questions found for this level. Please choose another level!",
+    "errorLoad": "Failed to load test questions. Please try again!",
+    "errorSubmit": "Failed to submit test. Please try again!"
+  },
+  "loadingTest": "Loading test questions...",
+  "back": "Back",
+  "result": {
+    "title": "Placement Test Results 📊",
+    "subtitle": "Review your answers, select your recommended level, and start learning right away!"
+  },
+  "confirming": {
+    "title": "Setting up your learning profile...",
+    "subtitle": "Just taking a few seconds!"
+  },
+  "sections": {
+    "VOCAB": "Vocabulary & Kanji",
+    "GRAMMAR": "Grammar",
+    "READING": "Reading Comprehension"
+  },
+  "player": {
+    "testTitle": "Placement Test {{level}}",
+    "questionNum": "Question {{current}}/{{total}}",
+    "prevQuestion": "← Previous",
+    "answeredCount": "{{count}}/{{total}} answered",
+    "nextQuestion": "Next →",
+    "submitting": "⏳ Grading...",
+    "submit": "✓ Submit Test"
+  },
+  "resultView": {
+    "scoreOutOf": "{{score}}/{{total}} questions",
+    "testTitle": "Placement Test {{level}}",
+    "topPriority": "Top Recommended Track",
+    "starterTitle": "Starter Japanese Course (From Zero)",
+    "starterDesc": "Master Hiragana/Katakana alphabets, Numbers, Time, Aisatsu & Kanji Radicals",
+    "recommendedBadge": "Recommended Track",
+    "levelStarter": "Starter (STARTER)",
+    "levelStandard": "Level {{level}}",
+    "diagnosticIntroTitle": "Diagnostic: Solidify Japanese Foundation First",
+    "diagnosticGeneralTitle": "Error Diagnostic & Skill Assessment",
+    "takeTestAgain": "📝 Take {{level}} test for more precise placement",
+    "skillAnalysis": "Skill Breakdown",
+    "confirmTitle": "Confirm your personalized learning roadmap",
+    "untestedWarningTitle": "Notice: You haven't taken the {{level}} placement test!",
+    "untestedWarningDesc": "Since you haven't verified proficiency at {{chosenLevel}} (scored {{pct}}% on {{targetLevel}} test), our system cannot ensure foundational gaps are addressed below {{chosenLevel}}.",
+    "takeTestNow": "📝 Take {{level}} test now (Recommended)",
+    "introPill": "🌱 Starter Japanese",
+    "recommendedPill": "⭐ (Recommended)",
+    "saving": "⏳ Saving...",
+    "startIntroBtn": "🌱 Start Starter Course (From Zero)!",
+    "startLevelBtn": "🎌 Start learning {{level}}!",
+    "retryBtn": "Retake {{level}}",
+    "warningModal": {
+      "close": "Close warning",
+      "closeTitle": "Close to choose another level",
+      "title": "Foundational Readiness Warning",
+      "subtitle": "Recommended: Take the {{level}} test before starting lessons",
+      "p1": "You have not completed the placement assessment for level {{chosenLevel}} (your score on the {{targetLevel}} test was {{pct}}%).",
+      "whyTitle": "Why take the {{level}} test?",
+      "whyDesc": "Foundational gaps in grammar or vocabulary can hinder progress. Verifying your prerequisites guarantees a smoother learning trajectory.",
+      "takeTestBtn": "🎯 Take {{level}} test now (Recommended)",
+      "startIntroBtn": "🌱 Learn Starter Japanese (Build from zero)",
+      "bypassBtn": "Proceed to {{level}} anyway (I understand the risks)"
+    },
+    "reviewTitle": "📋 Detailed Review ({{count}}/{{total}} questions)",
+    "filterAll": "All ({{total}})",
+    "filterWrong": "❌ Incorrect ({{count}})",
+    "filterCorrect": "✓ Correct ({{count}})",
+    "filterEmpty": "No questions match this filter.",
+    "questionNum": "Question {{num}}.",
+    "correct": "✓ Correct",
+    "yourChoice": "✗ Your answer",
+    "explanation": "💡 Explanation"
+  }
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { PlacementQuestion, JlptLevel } from '../../api/placementApi';
 
 interface QuizPlayerProps {
@@ -9,10 +10,10 @@ interface QuizPlayerProps {
   isSubmitting: boolean;
 }
 
-const SECTION_LABEL: Record<string, string> = { VOCAB: 'Từ Vựng & Kanji', GRAMMAR: 'Ngữ Pháp', READING: 'Đọc Hiểu' };
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
 export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmit, isSubmitting }: QuizPlayerProps) {
+  const { t } = useTranslation(['onboarding', 'common']);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -84,9 +85,11 @@ export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmi
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontWeight: 700, fontSize: 15, color: '#231815' }}>Bài Test {level}</span>
+          <span style={{ fontWeight: 700, fontSize: 15, color: '#231815' }}>
+            {t('onboarding:player.testTitle', { level, defaultValue: `Bài Test ${level}` })}
+          </span>
           <span style={{ fontSize: 12, color: '#5a5450', background: '#f1ede6', padding: '2px 10px', borderRadius: 99 }}>
-            {SECTION_LABEL[q?.section] || q?.section}
+            {q?.section ? t(`onboarding:sections.${q.section}`, q.section) : ''}
           </span>
         </div>
         <div style={{
@@ -115,7 +118,7 @@ export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmi
               key={qItem.id}
               id={`quiz-nav-${idx}`}
               onClick={() => setCurrent(idx)}
-              title={`Câu ${idx + 1}`}
+              title={t('onboarding:player.questionNavTitle', { num: idx + 1, defaultValue: `Câu ${idx + 1}` })}
               style={{
                 width: 30, height: 30, borderRadius: 8, border: 'none', cursor: 'pointer',
                 fontSize: 12, fontWeight: 600, transition: 'all 0.15s',
@@ -134,7 +137,9 @@ export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmi
       {q && (
         <div style={{ flex: 1 }}>
           <p style={{ fontWeight: 600, fontSize: 16, color: '#231815', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap', fontFamily: 'var(--font-jp)' }}>
-            <span style={{ fontSize: 13, color: '#8c827b', marginRight: 8 }}>Câu {current + 1}/{questions.length}</span>
+            <span style={{ fontSize: 13, color: '#8c827b', marginRight: 8 }}>
+              {t('onboarding:player.questionNum', { current: current + 1, total: questions.length, defaultValue: `Câu ${current + 1}/${questions.length}` })}
+            </span>
             {q.questionText}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -181,11 +186,11 @@ export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmi
           disabled={current === 0}
           style={{ padding: '10px 20px', borderRadius: 10, border: '1.5px solid #e2dbce', background: '#fff', color: '#5a5450', cursor: current === 0 ? 'not-allowed' : 'pointer', opacity: current === 0 ? 0.4 : 1, fontWeight: 600, fontSize: 14 }}
         >
-          ← Câu trước
+          {t('onboarding:player.prevQuestion', '← Câu trước')}
         </button>
 
         <span style={{ fontSize: 13, color: '#8c827b' }}>
-          {answeredCount}/{questions.length} câu đã trả lời
+          {t('onboarding:player.answeredCount', { count: answeredCount, total: questions.length, defaultValue: `${answeredCount}/${questions.length} câu đã trả lời` })}
         </span>
 
         {current < questions.length - 1 ? (
@@ -194,7 +199,7 @@ export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmi
             onClick={() => setCurrent(c => Math.min(questions.length - 1, c + 1))}
             style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: '#231815', color: '#fff', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
           >
-            Câu tiếp →
+            {t('onboarding:player.nextQuestion', 'Câu tiếp →')}
           </button>
         ) : (
           <button
@@ -208,7 +213,7 @@ export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmi
               fontWeight: 700, fontSize: 14, transition: 'background 0.2s',
             }}
           >
-            {isSubmitting ? '⏳ Đang chấm...' : '✓ Nộp bài'}
+            {isSubmitting ? t('onboarding:player.submitting', '⏳ Đang chấm...') : t('onboarding:player.submit', '✓ Nộp bài')}
           </button>
         )}
       </div>

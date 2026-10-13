@@ -22,6 +22,7 @@ public class UserResponse {
     private String role;
     private String targetLevel;
     private Boolean onboardingCompleted;
+    private String preferredLanguage; // vi, en
     private String subscriptionStatus; // NONE, ACTIVE, EXPIRED
     private LocalDateTime createdAt;
 
@@ -36,6 +37,7 @@ public class UserResponse {
                 .role(roleStr)
                 .targetLevel(user.getTargetLevel() != null ? user.getTargetLevel().name() : null)
                 .onboardingCompleted(user.getOnboardingCompleted())
+                .preferredLanguage(user.getPreferredLanguage() != null ? user.getPreferredLanguage() : "vi")
                 .subscriptionStatus("NONE") // Default — sẽ được override bởi AuthService
                 .createdAt(user.getCreatedAt())
                 .build();

@@ -3,11 +3,14 @@ import {
   Search, Bell, Menu, LogOut, Check, 
   Palette, Shield, Key, CreditCard, Camera, Upload,
   X, CheckCircle, AlertCircle, Laptop,
-  Lock
+  Lock, Settings
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import SettingsModal from './SettingsModal';
 import { useAuthStore } from '../store/useAuthStore';
 import { useThemeStore, THEME_CATALOG } from '../store/useThemeStore';
 import { useNotificationStore, type NotificationItem } from '../store/useNotificationStore';
+import { useSettingsStore } from '../store/useSettingsStore';
 import type { ScreenType } from '../App';
 
 interface TopBarProps {
@@ -65,13 +68,16 @@ const PRESET_AVATARS = [
 ];
 
 export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
+  const { t } = useTranslation(['topbar', 'common', 'settings']);
   const { user, logout, updateUserAvatar, changePassword } = useAuthStore();
   const { activeTheme, setTheme } = useThemeStore();
+  const { language } = useSettingsStore();
   const { notifications, readIds, markAsRead, markAllAsRead } = useNotificationStore();
 
   // Active Dropdowns & Modals
   const [activeDropdown, setActiveDropdown] = useState<'notifications' | 'avatar' | null>(null);
-  const [activeModal, setActiveModal] = useState<'avatar' | 'password' | 'deposit' | 'theme' | 'security' | null>(null);
+  const [activeModal, setActiveModal] = useState<'avatar' | 'password' | 'deposit' | 'theme' | 'security' | 'settings' | null>(null);
+  const [settingsDefaultTab, setSettingsDefaultTab] = useState<'language' | 'theme' | 'account'>('language');
 
   const [imgError, setImgError] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -128,7 +134,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
   }, [userAvatar, user?.avatarUrl]);
 
   const currentLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
-  const levelDisplay = currentLevel === 'STARTER' ? 'Nhập Môn' : `${currentLevel} Level`;
+  const levelDisplay = currentLevel === 'STARTER' ? t('topbar:starter', 'Nhập Môn') : `${currentLevel} Level`;
   const initialLetter = (user?.username || user?.email || 'U').trim()[0].toUpperCase();
 
   const getLevelBadgeColor = (lvl: string) => {
@@ -265,9 +271,10 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline" size={16} />
             <input
               type="text"
-              placeholder="Tìm kiếm từ vựng, ngữ pháp, kanji N5-N1..."
+              placeholder={t('topbar:searchPlaceholder')}
               aria-label="Search database"
-              className="w-full bg-surface-container-low border border-outline-variant/60 rounded-full py-1.5 pl-9 pr-4 text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-on-surface placeholder:text-outline"
+              className="w-full bg-surface-container-low border border-outline-variant/60 py-1.5 pl-9 pr-4 text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-on-surface placeholder:text-outline font-serif"
+              style={{ borderRadius: '2px' }}
             />
           </div>
         </div>
@@ -276,10 +283,11 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
         <div className="flex items-center gap-2.5 sm:gap-3">
           {/* 1. JLPT Level Badge (Clean static badge, non-clickable) */}
           <div 
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border select-none transition-all shadow-2xs ${getLevelBadgeColor(currentLevel)}`}
-            title={`Trình độ JLPT hiện tại: ${levelDisplay}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold font-serif border select-none transition-all shadow-flat ${getLevelBadgeColor(currentLevel)}`}
+            style={{ borderRadius: '2px' }}
+            title={t('topbar:levelTitle', { level: levelDisplay })}
           >
-            <span className="w-2 h-2 rounded-full bg-current" />
+            <span className="w-2 h-2 bg-current" style={{ borderRadius: '1px' }} />
             <span>{levelDisplay}</span>
           </div>
 
@@ -288,15 +296,19 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             <button 
               onClick={() => setActiveDropdown(activeDropdown === 'notifications' ? null : 'notifications')}
               aria-label="Notifications"
-              className={`p-2 rounded-xl border transition-all cursor-pointer relative ${
+              className={`p-2 border transition-all cursor-pointer relative ${
                 activeDropdown === 'notifications'
-                  ? 'bg-primary/10 border-primary text-primary'
+                  ? 'bg-primary/10 border-primary text-primary shadow-flat'
                   : 'bg-surface-container-low border-outline-variant/60 text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
               }`}
+              style={{ borderRadius: '2px' }}
             >
               <Bell size={18} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center shadow-xs">
+                <span 
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center font-mono"
+                  style={{ borderRadius: '1px' }}
+                >
                   {unreadCount}
                 </span>
               )}
@@ -304,24 +316,31 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
 
             {/* Notifications Dropdown */}
             {activeDropdown === 'notifications' && (
-              <div className="absolute right-0 mt-2 w-80 md:w-96 bg-surface-container-lowest border border-outline-variant/60 rounded-3xl shadow-2xl p-4 space-y-3 z-50 animate-scale-up">
+              <div 
+                className="absolute right-0 mt-2 w-80 md:w-96 bg-surface-container-lowest border-2 border-outline-variant/80 shadow-flat p-4 space-y-3 z-50 animate-scale-up"
+                style={{ borderRadius: '2px' }}
+              >
                 <div className="flex items-center justify-between pb-2 border-b border-outline-variant/40">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider">Thông Báo</h4>
+                    <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider font-serif">
+                      {t('topbar:notifications.title')}
+                    </h4>
                     {unreadCount > 0 ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-600">
-                        {unreadCount} mới
+                      <span className="text-[10px] font-bold px-2 py-0.5 border border-rose-500/40 bg-rose-500/10 text-rose-600 font-mono">
+                        {t('topbar:notifications.newBadge', { count: unreadCount })}
                       </span>
                     ) : (
-                      <span className="text-[10px] font-medium text-outline">Đã đọc tất cả</span>
+                      <span className="text-[10px] font-medium text-outline font-serif">
+                        {t('topbar:notifications.allRead')}
+                      </span>
                     )}
                   </div>
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllAsRead}
-                      className="text-[11px] font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
+                      className="text-[11px] font-bold text-primary hover:underline cursor-pointer flex items-center gap-1 font-serif"
                     >
-                      <Check size={12} /> Đã đọc tất cả
+                      <Check size={12} /> {t('topbar:notifications.markAllRead')}
                     </button>
                   )}
                 </div>
@@ -333,19 +352,20 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
                       <div
                         key={item.id}
                         onClick={() => handleNotificationClick(item)}
-                        className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 ${
+                        className={`p-3 border transition-all cursor-pointer flex items-start gap-3 ${
                           isRead
                             ? 'bg-surface-container-low/40 border-outline-variant/30 text-outline opacity-70'
-                            : 'bg-surface-container-low border-primary/25 text-on-surface hover:bg-surface-container'
+                            : 'bg-surface-container-low border-primary/30 text-on-surface hover:bg-surface-container shadow-2xs'
                         }`}
+                        style={{ borderRadius: '2px' }}
                       >
                         <span className="text-2xl flex-shrink-0">{item.icon}</span>
                         <div className="flex-1 min-w-0 space-y-0.5">
                           <div className="flex items-center justify-between gap-1">
-                            <p className="text-xs font-bold truncate">{item.title}</p>
-                            <span className="text-[10px] text-outline flex-shrink-0">{item.time}</span>
+                            <p className="text-xs font-bold truncate font-serif">{item.title}</p>
+                            <span className="text-[10px] text-outline flex-shrink-0 font-mono">{item.time}</span>
                           </div>
-                          <p className="text-[11px] text-on-surface-variant leading-snug line-clamp-2">
+                          <p className="text-[11px] text-on-surface-variant leading-snug line-clamp-2 font-serif">
                             {item.desc}
                           </p>
                         </div>
@@ -362,7 +382,8 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'avatar' ? null : 'avatar')}
               aria-label="User Profile"
-              className="w-9 h-9 rounded-xl border border-outline-variant/60 bg-surface-container-low p-0.5 overflow-hidden transition-all hover:scale-105 hover:border-primary/60 cursor-pointer shadow-xs"
+              className="w-9 h-9 border border-outline-variant/60 bg-surface-container-low p-0.5 overflow-hidden transition-all hover:scale-105 hover:border-primary/60 cursor-pointer shadow-flat"
+              style={{ borderRadius: '2px' }}
             >
               {userAvatar && !imgError ? (
                 <img
@@ -371,10 +392,14 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
                   referrerPolicy="no-referrer"
                   crossOrigin="anonymous"
                   onError={() => setImgError(true)}
-                  className="w-full h-full rounded-[10px] object-cover"
+                  className="w-full h-full object-cover"
+                  style={{ borderRadius: '1px' }}
                 />
               ) : (
-                <div className="w-full h-full rounded-[10px] bg-primary text-on-primary font-bold text-xs flex items-center justify-center shadow-inner">
+                <div 
+                  className="w-full h-full bg-primary text-on-primary font-bold text-xs flex items-center justify-center shadow-inner font-serif"
+                  style={{ borderRadius: '1px' }}
+                >
                   {initialLetter}
                 </div>
               )}
@@ -382,10 +407,19 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
 
             {/* System Account Dropdown */}
             {activeDropdown === 'avatar' && (
-              <div className="absolute right-0 mt-2 w-72 bg-surface-container-lowest border border-outline-variant/60 rounded-3xl shadow-2xl p-4 space-y-3 z-50 animate-scale-up">
+              <div 
+                className="absolute right-0 mt-2 w-76 bg-surface-container-lowest border-2 border-outline-variant/80 shadow-flat p-4 space-y-3 z-50 animate-scale-up font-serif"
+                style={{ borderRadius: '2px' }}
+              >
                 {/* User Info Header */}
-                <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-surface-container-low border border-outline-variant/40">
-                  <div className="w-11 h-11 rounded-xl bg-primary text-on-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
+                <div 
+                  className="flex items-center gap-3 p-3 bg-surface-container-low border border-outline-variant/40"
+                  style={{ borderRadius: '2px' }}
+                >
+                  <div 
+                    className="w-10 h-10 bg-primary text-on-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden"
+                    style={{ borderRadius: '2px' }}
+                  >
                     {userAvatar && !imgError ? (
                       <img
                         src={userAvatar}
@@ -401,10 +435,13 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-bold text-on-surface truncate">
-                      {user?.fullName || user?.username || 'Học viên'}
+                      {user?.fullName || user?.username || t('topbar:studentFallback', 'Học viên')}
                     </p>
-                    <p className="text-[10px] text-outline truncate">{user?.email || 'student@nipponmaster.com'}</p>
-                    <span className="inline-block mt-0.5 text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-primary/15 text-primary uppercase tracking-wider">
+                    <p className="text-[10px] text-outline truncate font-mono">{user?.email || 'student@nipponmaster.com'}</p>
+                    <span 
+                      className="inline-block mt-0.5 text-[9px] font-extrabold px-1.5 py-0.2 border border-primary/40 bg-primary/10 text-primary uppercase tracking-wider font-mono"
+                      style={{ borderRadius: '1px' }}
+                    >
                       {user?.role || 'STUDENT'}
                     </span>
                   </div>
@@ -412,16 +449,36 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
 
                 {/* Account & System Management Options */}
                 <div className="space-y-1 pt-1">
+                  {/* Option 0: CÀI ĐẶT HỆ THỐNG & NGÔN NGỮ (Highlighted Primary) */}
+                  <button
+                    onClick={() => {
+                      setActiveDropdown(null);
+                      setSettingsDefaultTab('language');
+                      setActiveModal('settings');
+                    }}
+                    className="w-full p-2.5 hover:bg-primary/10 text-xs font-bold text-on-surface flex items-center justify-between transition-colors cursor-pointer border border-primary/40 bg-primary/5 shadow-2xs"
+                    style={{ borderRadius: '2px' }}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Settings size={15} className="text-primary" />
+                      <span>{t('topbar:menu.settings')}</span>
+                    </div>
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 border border-primary/50 text-primary uppercase font-mono">
+                      {language === 'vi' ? '🇻🇳 VI' : '🇬🇧 EN'}
+                    </span>
+                  </button>
+
                   {/* Option 1: Thay Avatar */}
                   <button
                     onClick={() => {
                       setActiveDropdown(null);
                       setActiveModal('avatar');
                     }}
-                    className="w-full p-2.5 rounded-xl hover:bg-surface-container-low text-xs font-semibold text-on-surface flex items-center gap-2.5 transition-colors cursor-pointer"
+                    className="w-full p-2.5 hover:bg-surface-container-low text-xs font-semibold text-on-surface flex items-center gap-2.5 transition-colors cursor-pointer"
+                    style={{ borderRadius: '2px' }}
                   >
-                    <Camera size={15} className="text-sky-500" />
-                    <span>Thay Đổi Ảnh Đại Diện</span>
+                    <Camera size={15} className="text-sky-600" />
+                    <span>{t('topbar:menu.changeAvatar')}</span>
                   </button>
 
                   {/* Option 2: Sửa Mật Khẩu */}
@@ -430,56 +487,29 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
                       setActiveDropdown(null);
                       setActiveModal('password');
                     }}
-                    className="w-full p-2.5 rounded-xl hover:bg-surface-container-low text-xs font-semibold text-on-surface flex items-center gap-2.5 transition-colors cursor-pointer"
+                    className="w-full p-2.5 hover:bg-surface-container-low text-xs font-semibold text-on-surface flex items-center gap-2.5 transition-colors cursor-pointer"
+                    style={{ borderRadius: '2px' }}
                   >
-                    <Key size={15} className="text-amber-500" />
-                    <span>Đổi Mật Khẩu Tài Khoản</span>
+                    <Key size={15} className="text-amber-600" />
+                    <span>{t('topbar:menu.changePassword')}</span>
                   </button>
 
-                  {/* Option 3: Chỉnh Theme Màu Sắc */}
-                  <button
-                    onClick={() => {
-                      setActiveDropdown(null);
-                      setActiveModal('theme');
-                    }}
-                    className="w-full p-2.5 rounded-xl hover:bg-surface-container-low text-xs font-semibold text-on-surface flex items-center justify-between transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Palette size={15} className="text-purple-500" />
-                      <span>Giao Diện & Chủ Đề (Theme)</span>
-                    </div>
-                    <span className="text-[10px] font-bold text-primary">
-                      {THEME_CATALOG.find((t) => t.id === activeTheme)?.emoji || '🎨'}
-                    </span>
-                  </button>
-
-                  {/* Option 4: Nạp Tiền & Ví Coins */}
+                  {/* Option 3: Nạp Tiền & Ví Coins */}
                   <button
                     onClick={() => {
                       setActiveDropdown(null);
                       setActiveModal('deposit');
                     }}
-                    className="w-full p-2.5 rounded-xl hover:bg-surface-container-low text-xs font-semibold text-on-surface flex items-center justify-between transition-colors cursor-pointer"
+                    className="w-full p-2.5 hover:bg-surface-container-low text-xs font-semibold text-on-surface flex items-center justify-between transition-colors cursor-pointer"
+                    style={{ borderRadius: '2px' }}
                   >
                     <div className="flex items-center gap-2.5">
-                      <CreditCard size={15} className="text-emerald-500" />
-                      <span>Nạp Tiền & Quản Lý Ví</span>
+                      <CreditCard size={15} className="text-emerald-600" />
+                      <span>{t('topbar:menu.wallet')}</span>
                     </div>
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600">
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono">
                       Coins
                     </span>
-                  </button>
-
-                  {/* Option 5: Bảo Mật & Phiên Đăng Nhập */}
-                  <button
-                    onClick={() => {
-                      setActiveDropdown(null);
-                      setActiveModal('security');
-                    }}
-                    className="w-full p-2.5 rounded-xl hover:bg-surface-container-low text-xs font-semibold text-on-surface flex items-center gap-2.5 transition-colors cursor-pointer"
-                  >
-                    <Shield size={15} className="text-indigo-500" />
-                    <span>Bảo Mật & Thiết Bị</span>
                   </button>
                 </div>
 
@@ -490,10 +520,11 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
                       logout();
                       setActiveDropdown(null);
                     }}
-                    className="w-full p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500 hover:text-white text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                    className="w-full p-2.5 border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500 hover:text-white text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs font-serif"
+                    style={{ borderRadius: '2px' }}
                   >
                     <LogOut size={14} />
-                    <span>Đăng Xuất Khỏi Thiết Bị</span>
+                    <span>{t('topbar:menu.logout')}</span>
                   </button>
                 </div>
               </div>
@@ -503,7 +534,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
       </header>
 
       {/* ========================================================================= */}
-      {/* MODAL 1: THAY ĐỔI ẢNH ĐẠI DIỆN (PHONG CẢNH / ĐỘNG VẬT & TẢI ẢNH TỪ MÁY) */}
+      {/* MODAL 1: THAY ĐỔI ẢNH ĐẠI DIỆN */}
       {/* ========================================================================= */}
       {activeModal === 'avatar' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
@@ -511,7 +542,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             <div className="flex items-center justify-between pb-3 border-b border-outline-variant/40">
               <div className="flex items-center gap-2">
                 <Camera className="text-primary" size={20} />
-                <h3 className="text-base font-bold text-on-surface">Thay Đổi Ảnh Đại Diện</h3>
+                <h3 className="text-base font-bold text-on-surface">{t('topbar:modals.avatar.title')}</h3>
               </div>
               <button 
                 onClick={() => setActiveModal(null)} 
@@ -541,8 +572,8 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
                 <Upload size={22} />
               </div>
               <div>
-                <p className="text-xs font-bold text-on-surface">Tự tải ảnh lên từ máy tính của bạn</p>
-                <p className="text-[11px] text-outline mt-0.5">Hỗ trợ PNG, JPG, WEBP (Tối đa 5MB)</p>
+                <p className="text-xs font-bold text-on-surface">{t('topbar:modals.avatar.uploadBtn')}</p>
+                <p className="text-[11px] text-outline mt-0.5">{t('topbar:modals.avatar.uploadSub')}</p>
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -550,15 +581,15 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
                 className="px-5 py-2.5 bg-primary text-on-primary rounded-xl text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
               >
                 <Upload size={14} />
-                <span>{isUploading ? 'Đang xử lý ảnh...' : 'Chọn Ảnh Từ Thiết Bị'}</span>
+                <span>{isUploading ? t('topbar:modals.avatar.uploading') : t('topbar:modals.avatar.selectFile')}</span>
               </button>
             </div>
 
-            {/* Preset Avatars Grid: Japanese Landscapes & Animals */}
+            {/* Preset Avatars Grid */}
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-outline uppercase tracking-wider">
-                  Hoặc Chọn Ảnh Phong Cảnh & Động Vật Nhật Bản
+                  {t('topbar:modals.avatar.presetTitle')}
                 </label>
               </div>
               <div className="grid grid-cols-3 gap-3">
@@ -587,7 +618,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 2: ĐỔI MẬT KHẨU TÀI KHOẢN (REAL BACKEND SYNC) */}
+      {/* MODAL 2: ĐỔI MẬT KHẨU TÀI KHOẢN */}
       {/* ========================================================================= */}
       {activeModal === 'password' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
@@ -595,7 +626,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             <div className="flex items-center justify-between pb-3 border-b border-outline-variant/40">
               <div className="flex items-center gap-2">
                 <Key className="text-primary" size={20} />
-                <h3 className="text-base font-bold text-on-surface">Đổi Mật Khẩu Tài Khoản</h3>
+                <h3 className="text-base font-bold text-on-surface">{t('topbar:modals.password.title')}</h3>
               </div>
               <button 
                 onClick={() => setActiveModal(null)} 
@@ -621,11 +652,11 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
 
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-on-surface">Mật khẩu hiện tại</label>
+                <label className="text-xs font-bold text-on-surface">{t('topbar:modals.password.current')}</label>
                 <input
                   type="password"
                   required
-                  placeholder="Nhập mật khẩu bạn đang dùng"
+                  placeholder={t('topbar:modals.password.currentPlaceholder')}
                   value={currentPass}
                   onChange={(e) => setCurrentPass(e.target.value)}
                   className="w-full bg-surface-container-low border border-outline-variant/60 rounded-xl py-2.5 px-3 text-xs focus:outline-none focus:border-primary text-on-surface"
@@ -633,11 +664,11 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-on-surface">Mật khẩu mới</label>
+                <label className="text-xs font-bold text-on-surface">{t('topbar:modals.password.new')}</label>
                 <input
                   type="password"
                   required
-                  placeholder="Tối thiểu 6 ký tự"
+                  placeholder={t('topbar:modals.password.newPlaceholder')}
                   value={newPass}
                   onChange={(e) => setNewPass(e.target.value)}
                   className="w-full bg-surface-container-low border border-outline-variant/60 rounded-xl py-2.5 px-3 text-xs focus:outline-none focus:border-primary text-on-surface"
@@ -645,11 +676,11 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-on-surface">Xác nhận lại mật khẩu mới</label>
+                <label className="text-xs font-bold text-on-surface">{t('topbar:modals.password.confirm')}</label>
                 <input
                   type="password"
                   required
-                  placeholder="Nhập lại chính xác mật khẩu mới"
+                  placeholder={t('topbar:modals.password.confirmPlaceholder')}
                   value={confirmPass}
                   onChange={(e) => setConfirmPass(e.target.value)}
                   className="w-full bg-surface-container-low border border-outline-variant/60 rounded-xl py-2.5 px-3 text-xs focus:outline-none focus:border-primary text-on-surface"
@@ -662,14 +693,14 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
                   onClick={() => setActiveModal(null)}
                   className="flex-1 py-2.5 rounded-xl border border-outline-variant text-xs font-bold text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
                 >
-                  Hủy Bỏ
+                  {t('common:cancel', 'Hủy Bỏ')}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingPass}
                   className="flex-1 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-colors cursor-pointer shadow-sm disabled:opacity-50"
                 >
-                  {isSubmittingPass ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
+                  {isSubmittingPass ? t('topbar:modals.password.submitting') : t('topbar:modals.password.submit')}
                 </button>
               </div>
             </form>
@@ -678,7 +709,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 3: GIAO DIỆN & CHỦ ĐỀ MÀU SẮC (THEMES) */}
+      {/* MODAL 3: GIAO DIỆN & CHỦ ĐỀ MÀU SẮC */}
       {/* ========================================================================= */}
       {activeModal === 'theme' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
@@ -686,7 +717,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             <div className="flex items-center justify-between pb-3 border-b border-outline-variant/40">
               <div className="flex items-center gap-2">
                 <Palette className="text-purple-600" size={20} />
-                <h3 className="text-base font-bold text-on-surface">Giao Diện & Chủ Đề Màu Sắc</h3>
+                <h3 className="text-base font-bold text-on-surface">{t('topbar:modals.theme.title')}</h3>
               </div>
               <button 
                 onClick={() => setActiveModal(null)} 
@@ -698,7 +729,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
 
             <div className="space-y-2">
               <label className="text-xs font-bold text-outline uppercase tracking-wider">
-                Chọn phong cách màu sắc yêu thích
+                {t('topbar:modals.theme.subtitle')}
               </label>
               <div className="grid grid-cols-1 gap-2">
                 {THEME_CATALOG.map((theme) => {
@@ -731,7 +762,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
               onClick={() => setActiveModal(null)}
               className="w-full py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-colors cursor-pointer shadow-sm"
             >
-              Áp Dụng
+              {t('topbar:modals.theme.apply')}
             </button>
           </div>
         </div>
@@ -746,7 +777,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             <div className="flex items-center justify-between pb-3 border-b border-outline-variant/40">
               <div className="flex items-center gap-2">
                 <CreditCard className="text-emerald-600" size={20} />
-                <h3 className="text-base font-bold text-on-surface">Ví Tiền & Nạp Coins</h3>
+                <h3 className="text-base font-bold text-on-surface">{t('topbar:modals.wallet.title')}</h3>
               </div>
               <button 
                 onClick={() => setActiveModal(null)} 
@@ -759,7 +790,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             {/* Current Balance Card */}
             <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-transparent border border-emerald-500/30 flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-bold text-outline uppercase tracking-wider">Số Dư Khả Dụng</p>
+                <p className="text-[11px] font-bold text-outline uppercase tracking-wider">{t('topbar:modals.wallet.balanceTitle')}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">250</span>
                   <span className="text-xs font-bold text-on-surface">Coins</span>
@@ -767,7 +798,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
               </div>
               <div className="text-right">
                 <span className="text-[11px] font-bold px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
-                  Tài khoản Chuẩn
+                  {t('topbar:modals.wallet.standardAccount')}
                 </span>
               </div>
             </div>
@@ -776,10 +807,10 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-outline uppercase tracking-wider">
-                  Các Gói Nạp Coins Ưu Đãi
+                  {t('topbar:modals.wallet.packagesTitle')}
                 </label>
                 <span className="text-[10px] font-bold text-primary bg-primary/15 px-2 py-0.5 rounded-full">
-                  Sắp Ra Mắt 🚀
+                  {t('topbar:modals.wallet.comingSoon')}
                 </span>
               </div>
 
@@ -809,14 +840,14 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             </div>
 
             <p className="text-[11px] text-on-surface-variant leading-relaxed bg-surface-container-low p-3 rounded-xl border border-outline-variant/40">
-              💡 Cổng nạp tự động qua <strong>VietQR, MoMo và VNPay</strong> đang được phát triển để phục vụ nạp Coins mua vật phẩm & khóa học.
+              💡 {t('topbar:modals.wallet.notice')}
             </p>
 
             <button
               onClick={() => setActiveModal(null)}
               className="w-full py-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-xs font-bold text-on-surface transition-colors cursor-pointer"
             >
-              Đóng Cửa Sổ
+              {t('topbar:modals.wallet.close')}
             </button>
           </div>
         </div>
@@ -831,7 +862,7 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
             <div className="flex items-center justify-between pb-3 border-b border-outline-variant/40">
               <div className="flex items-center gap-2">
                 <Shield className="text-indigo-600" size={20} />
-                <h3 className="text-base font-bold text-on-surface">Bảo Mật & Thiết Bị</h3>
+                <h3 className="text-base font-bold text-on-surface">{t('topbar:modals.security.title')}</h3>
               </div>
               <button 
                 onClick={() => setActiveModal(null)} 
@@ -846,12 +877,12 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
               <div className="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/40 space-y-2">
                 <div className="flex items-center gap-2.5 text-xs font-bold text-on-surface">
                   <Laptop size={16} className="text-primary" />
-                  <span>Phiên Đăng Nhập Hiện Tại</span>
+                  <span>{t('topbar:modals.security.session')}</span>
                 </div>
                 <div className="text-[11px] text-on-surface-variant space-y-1 pl-6">
-                  <p>• Trình duyệt: {navigator.userAgent.includes('Chrome') ? 'Google Chrome' : 'Web Browser'}</p>
-                  <p>• Hệ điều hành: {navigator.platform || 'Windows / macOS'}</p>
-                  <p>• Trạng thái token: <span className="text-emerald-600 font-bold">JWT Hoạt Động (24 giờ)</span></p>
+                  <p>• {t('topbar:modals.security.browser')}: {navigator.userAgent.includes('Chrome') ? 'Google Chrome' : 'Web Browser'}</p>
+                  <p>• {t('topbar:modals.security.os')}: {navigator.platform || 'Windows / macOS'}</p>
+                  <p>• {t('topbar:modals.security.tokenStatus')}: <span className="text-emerald-600 font-bold">{t('topbar:modals.security.tokenActive')}</span></p>
                 </div>
               </div>
 
@@ -859,10 +890,10 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
               <div className="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/40 space-y-2">
                 <div className="flex items-center gap-2.5 text-xs font-bold text-on-surface">
                   <Lock size={16} className="text-emerald-600" />
-                  <span>Xác Thực Tài Khoản</span>
+                  <span>{t('topbar:modals.security.authAccount')}</span>
                 </div>
                 <p className="text-[11px] text-on-surface-variant pl-6">
-                  Email đăng ký: <strong>{user?.email || 'Chưa cập nhật'}</strong>
+                  {t('topbar:modals.security.registeredEmail')}: <strong>{user?.email || '—'}</strong>
                 </p>
               </div>
             </div>
@@ -871,11 +902,20 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
               onClick={() => setActiveModal(null)}
               className="w-full py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-colors cursor-pointer shadow-sm"
             >
-              Đã Hiểu
+              {t('topbar:modals.security.understand')}
             </button>
           </div>
         </div>
       )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 6: CÀI ĐẶT HỆ THỐNG & ĐA NGÔN NGỮ (WASHI EDITORIAL SETTINGS MODAL) */}
+      {/* ========================================================================= */}
+      <SettingsModal 
+        isOpen={activeModal === 'settings'} 
+        defaultTab={settingsDefaultTab}
+        onClose={() => setActiveModal(null)} 
+      />
     </>
   );
 }

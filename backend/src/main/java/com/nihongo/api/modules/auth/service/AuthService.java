@@ -20,5 +20,7 @@ public interface AuthService {
 
     UserResponse updateAvatar(Long userId, String avatarUrl);
 
+    UserResponse updatePreferences(Long userId, UpdatePreferencesRequest request);
+
     void logout(String token);
 }

@@ -1,0 +1,47 @@
+{
+  "title": "NipponMaster Grammar Handbook",
+  "subtitle": "Chọn trình độ và ngày học để khám phá các cấu trúc ngữ pháp tương ứng.",
+  "restricted": {
+    "title": "Nội dung Ngữ pháp cấp độ {{level}} bị giới hạn (Tài khoản Dùng thử)",
+    "desc": "Nâng cấp gói học để mở khóa toàn bộ cấu trúc ngữ pháp, phân tích trợ từ và ví dụ thực tế cho level này.",
+    "cta": "Xem gói học"
+  },
+  "dayPrompt": "Lộ trình học {{level}} — Chọn ngày để bắt đầu",
+  "noCurriculum": "Chưa có lộ trình cho trình độ {{level}}.",
+  "comingSoon": "Nội dung sẽ được cập nhật sớm.",
+  "dayBadge": "Ngày {{day}}",
+  "structuresCount": "{{count}}+ cấu trúc",
+  "back": "Quay lại",
+  "dayHeader": "Ngày {{day}}: {{title}}",
+  "searchPlaceholder": "Tìm trong ngày này...",
+  "emptyDay": "Chưa có dữ liệu cho ngày này.",
+  "emptySearch": "Không tìm thấy mẫu ngữ pháp phù hợp.",
+  "grammarBadge": "Ngữ pháp",
+  "detailTitle": "Chi tiết cấu trúc",
+  "structureHeading": "Cấu trúc câu",
+  "explanationHeading": "Giải thích & Cách dùng",
+  "exampleHeading": "Ví dụ minh họa",
+  "lessons": {
+    "N5": {
+      "day1": { "title": "Cấu trúc khẳng định & phủ định", "desc": "Giới thiệu trợ từ chủ đề は và các cấu trúc cơ bản nhất." },
+      "day2": { "title": "Trợ từ chỉ hành động", "desc": "Cách dùng を, に, で để nói về hành động và địa điểm." },
+      "day3": { "title": "Sự tồn tại & Mong muốn", "desc": "Diễn đạt có/không có và điều mình muốn làm." },
+      "day4": { "title": "Yêu cầu lịch sự & Cấm đoán", "desc": "Nhờ người khác làm hoặc không làm gì đó một cách lịch sự." }
+    },
+    "N4": {
+      "day1": { "title": "Thể て (Te-form nâng cao)", "desc": "Kết nối các hành động, trạng thái liên tiếp." },
+      "day2": { "title": "Điều kiện & Giả định", "desc": "Các cấu trúc điều kiện trong tiếng Nhật." },
+      "day3": { "title": "Khả năng & Cho phép", "desc": "Diễn đạt khả năng và sự cho phép." }
+    },
+    "N3": {
+      "day1": { "title": "Diễn đạt phức tạp", "desc": "Cấu trúc ngữ pháp nâng cao cho giao tiếp tự nhiên." },
+      "day2": { "title": "Thể bị động & Sai khiến", "desc": "Câu bị động và câu sai khiến." }
+    },
+    "N2": {
+      "day1": { "title": "Ngữ pháp học thuật N2", "desc": "Các mẫu câu thường gặp trong văn viết và thi cử." }
+    },
+    "N1": {
+      "day1": { "title": "Ngữ pháp cao cấp N1", "desc": "Các cấu trúc tinh tế và phức tạp nhất trong tiếng Nhật." }
+    }
+  }
+}

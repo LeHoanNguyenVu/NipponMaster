@@ -1,0 +1,61 @@
+{
+  "badge": "Công cụ AI Thông Minh",
+  "title": "Dịch thuật & Phân tích cú pháp AI",
+  "subtitle": "Dịch thuật đa hướng và phân tích cú pháp câu tiếng Nhật thông minh với Furigana và Handbook ngữ pháp.",
+  "tabs": {
+    "translate": "Dịch Thuật Đa Ngữ",
+    "breakdown": "🧩 Phân Tích Cú Pháp Câu AI"
+  },
+  "swapTooltip": "Đổi chiều ngôn ngữ",
+  "sourceLabel": "Văn bản {{lang}} (Nguồn)",
+  "charCount": "{{count}} ký tự",
+  "inputPlaceholder": "Nhập hoặc dán câu {{lang}} vào đây (Ví dụ: {{sample}})",
+  "suggestions": "Gợi ý:",
+  "translating": "Đang dịch...",
+  "translateBtn": "Dịch ngay",
+  "analyzing": "Trí tuệ nhân tạo đang phân tích câu...",
+  "errorTitle": "Đã xảy ra lỗi",
+  "errorDefault": "Đã xảy ra lỗi khi kết nối với hệ thống dịch thuật AI.",
+  "furiganaSource": "Phiên âm Furigana (Văn bản gốc)",
+  "furiganaTarget": "Phiên âm Furigana (Văn bản dịch)",
+  "translationResult": "Bản dịch {{lang}}",
+  "breakdownBtn": "Phân tích cú pháp câu này 🧩",
+  "copyBtn": "Sao chép bản dịch",
+  "vocabTitle": "Phân tích từ vựng tiếng Nhật ({{count}} từ)",
+  "placeholderTitle": "Kết quả hiển thị tại đây",
+  "placeholderSourceJa": "Nhập văn bản tiếng Nhật ở khung bên trái và bấm dịch để xem kết quả dịch và phiên âm Furigana.",
+  "placeholderSourceOther": "Nhập văn bản {{lang}} ở khung bên trái và bấm dịch để nhận kết quả dịch sang tiếng Nhật, phiên âm Furigana và phân tích từ vựng.",
+  "languages": {
+    "ja": "Tiếng Nhật",
+    "vi": "Tiếng Việt",
+    "en": "Tiếng Anh"
+  },
+  "studio": {
+    "badge": "AI Syntax Parser & Reading Studio",
+    "title": "Studio Phân Tích Cú Pháp & Cấu Trúc Câu JLPT",
+    "subtitle": "Tự động phân tách Chủ ngữ / Vị ngữ, chèn Furigana trên đầu Kanji & tra cứu từ điển khi rê chuột.",
+    "inputLabel": "Nhập Hoặc Chọn Bài Đọc Tiếng Nhật",
+    "inputPlaceholder": "Dán câu hoặc đoạn văn tiếng Nhật ở đây...",
+    "analyzing": "⏳ Đang phân tích...",
+    "analyzeBtn": "🤖 AI Phân Tích Cú Pháp",
+    "legendTitle": "Chú giải màu sắc:",
+    "sectionTokens": "1. Phân Tách Cụm Từ & Furigana Rê Chuột Tra Cứu",
+    "hoverHint": "Rê chuột vào bất kỳ từ nào ở trên để xem Furigana, âm Hán Việt và nghĩa từ điển chi tiết.",
+    "sinoVietnamese": "Hán Việt:",
+    "fullTranslationTitle": "Bản Dịch Tiếng Việt Chuẩn",
+    "grammarNotesTitle": "Ghi Chú Cấu Trúc Ngữ Pháp",
+    "samples": {
+      "n5": "Sơ cấp N5",
+      "n4": "Trung cấp N4",
+      "n3": "Trung cấp N3",
+      "n2n1": "Cao cấp N2-N1"
+    },
+    "roles": {
+      "SUBJECT": "主語 (Chủ ngữ)",
+      "PREDICATE": "述語 (Vị ngữ)",
+      "COMPLEMENT": "補語/助詞 (Trợ từ)",
+      "OBJECT": "目的語 (Tân ngữ)",
+      "MODIFIER": "修飾語 (Bổ nghĩa)"
+    }
+  }
+}

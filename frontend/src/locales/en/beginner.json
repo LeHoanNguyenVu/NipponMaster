@@ -1,0 +1,185 @@
+{
+  "hub": {
+    "title": "Japanese Beginner Course Curriculum",
+    "subtitle": "5 Foundation chapters from scratch — Perfect preparation for JLPT N5",
+    "graduated": "Graduated • Free Review",
+    "courseProgress": "Course Progress",
+    "chaptersCount": "{{completed}}/{{total}} Chapters ({{percent}}%)",
+    "tocTitle": "📘 Textbook Table of Contents",
+    "chapters": {
+      "chapter-1": {
+        "title": "Chapter 1: Hiragana & Katakana Alphabet",
+        "desc": "Master 104+ kana letters, canvas stroke practice & native phonics"
+      },
+      "chapter-2": {
+        "title": "Chapter 2: Numbers, Counters & Time",
+        "desc": "Numbers 1-10,000, 8 counter units & telling time"
+      },
+      "chapter-3": {
+        "title": "Chapter 3: Greetings & Cultural Terms",
+        "desc": "Aisatsu phrases, pronouns & honorifics (-san, -sama)"
+      },
+      "chapter-4": {
+        "title": "Chapter 4: 50+ Core Kanji Radicals",
+        "desc": "35+ visual radicals, multi-dimensional etymology & canvas writing"
+      },
+      "chapter-5": {
+        "title": "Chapter 5: Sentence Structures & Basic Grammar",
+        "desc": "Particles wa/ga/o, affirmative/negative & graduation exam"
+      }
+    },
+    "lockedCondition": "🔒 Test score ≥ 85% required in {{prev}}",
+    "prevChapterFallback": "previous chapter",
+    "passed": "✅ Passed",
+    "testScore": "Test score",
+    "unlocked": "✅ Unlocked (Level {{level}})",
+    "target": "Target: ≥85%",
+    "voiceWarning": "Note: Japanese voice (ja-JP) is not available in your browser. You can still learn and practice normally!",
+    "loadingTitle": "Loading Lesson Content...",
+    "loadingSubtitle": "Optimizing pronunciation assets and interactive exercises",
+    "lockedChapterTitle": "This Chapter is Locked 🔒",
+    "lockedChapterDesc": "According to the curriculum standard, you must achieve 85% or higher on the previous chapter's comprehensive test to unlock this chapter.",
+    "backToCh1": "Return to Chapter 1"
+  },
+  "alphabet": {
+    "headerTitle": "Japanese Kana Alphabet",
+    "headerSubtitle": "Learn → Write → Pronounce → Test — Systematic row-by-row learning and a bank of 15 unique tests",
+    "progressLabel": "Chapter 1 Progress:",
+    "learnedRows": "Learned {{count}} kana rows",
+    "completedTests": "Completed {{count}} tests",
+    "passedScoreNote": "✅ Achieved test score {{score}}% (≥ 85%) — Successfully unlocked Chapter 2!",
+    "currentScoreNote": "📊 Highest current test score: {{score}}% / 85%",
+    "advancedUnlockedNote": "🎓 You have reached level {{level}} (Starter Graduate) — All chapters are unlocked for free review!",
+    "lockedNote": "🔒 Highest current test score: {{score}}% / 85% — Need ≥ 85% in \"Comprehensive Quiz\" to unlock Chapter 2",
+    "highestScore": "Highest test score",
+    "tabs": {
+      "overview": "Overview",
+      "lesson": "Lessons",
+      "quiz": "Practice",
+      "practice_all": "Comprehensive Quiz"
+    },
+    "subTabs": {
+      "hiragana": "Hiragana",
+      "katakana": "Katakana"
+    },
+    "sections": {
+      "seion": "1. Clear Sounds (清音 Seion)",
+      "dakuon": "2. Voiced Sounds (濁音 Dakuon)",
+      "handakuon": "3. Semi-Voiced Sounds (半濁音 Handakuon)",
+      "yoon": "4. Contracted Sounds (拗音 Yōon)",
+      "extendedRules": "5. Extended Phonetic Rules",
+      "extendedRulesDesc": "Essential fundamentals for accurate pronunciation: Geminate consonants, Long vowels & Nasal sounds."
+    },
+    "startButton": "Start",
+    "formulaLabel": "Formula / Rule:",
+    "examplesLabel": "Examples:",
+    "scopeTitle": "System of 15 Unique Tests",
+    "scopeSubtitle": "Select a knowledge area to practice with standardized question banks"
+  },
+  "aisatsu": {
+    "badge": "CHAPTER 3 • STARTER TEXTBOOK",
+    "title": "Greetings, Pronouns & Cultural Etiquette",
+    "subtitle": "Master situational greetings (Aisatsu), personal pronouns (私/僕/俺), and honorific suffixes (-san, -sama, -kun, -chan).",
+    "tabs": {
+      "greetings": "👋 1. Greetings (Aisatsu)",
+      "pronouns": "🗣️ 2. Personal Pronouns",
+      "honorifics": "🏷️ 3. Honorific Suffixes (-san, -sama...)",
+      "test": "🧪 4. Chapter 3 Test"
+    },
+    "filters": {
+      "all": "All",
+      "daily": "Daily (Morning/Afternoon/Night)",
+      "farewell": "Farewell & Leaving",
+      "gratitude": "Thanks & Apology",
+      "meal": "Meals",
+      "home": "Leaving & Returning Home"
+    },
+    "pronounsIntro": "Japanese Personal Pronouns & Politeness Levels",
+    "pronounsIntroDesc": "Unlike English, Japanese has distinct pronouns based on gender, intimacy, and formal context.",
+    "honorificsIntro": "Japanese Honorific Suffixes (-san, -sama, -kun, -chan)",
+    "honorificsIntroDesc": "Used after someone's name to express respect, politeness, or intimacy.",
+    "testTitle": "Chapter 3 Comprehensive Quiz",
+    "testSubtitle": "Test your mastery of Aisatsu greetings, pronouns, and cultural honorifics. (Target: ≥ 85%)",
+    "questionCount": "Question {{current}} / {{total}}",
+    "nextBtn": "Next Question",
+    "finishBtn": "Complete Test",
+    "congrats": "Congratulations! You passed Chapter 3!",
+    "tryAgain": "Keep practicing and try again!",
+    "scoreLabel": "Your Score:",
+    "retakeBtn": "Retake Test",
+    "proceedNext": "Proceed to Chapter 4"
+  },
+  "numbers": {
+    "badge": "CHAPTER 2 • STARTER TEXTBOOK",
+    "title": "Numbers, Counters & Telling Time",
+    "subtitle": "Count 1–10,000, 8 counter units with sound changes, and reading Hours/Minutes/Days.",
+    "tabs": {
+      "numbers": "🔢 1. Numbers & Counters",
+      "people": "👥 2. People & Age",
+      "calendar": "📅 3. Days of Month",
+      "time": "⏰ 4. Time & Days of Week",
+      "reflex": "⚡ 5. Reflex Challenge",
+      "test": "🧪 6. Chapter 2 Test"
+    },
+    "quizTitle": "Chapter 2 Comprehensive Test",
+    "quizSubtitle": "Test your knowledge of numbers, counting units, dates and times."
+  },
+  "radicals": {
+    "badge": "CHAPTER 4 • STARTER TEXTBOOK",
+    "title": "50+ Foundational Pictographic Kanji Radicals",
+    "subtitle": "Explore visual radicals, stroke orders, and AI canvas stroke evaluation.",
+    "tabs": {
+      "pictogram": "🎨 1. Pictographic Origins",
+      "writing": "✍️ 2. AI Canvas Writing",
+      "mnemonics": "💡 3. Memory Mnemonics",
+      "test": "🧪 4. Chapter 4 Test"
+    }
+  },
+  "basicGrammar": {
+    "badge": "CHAPTER 5 (FINAL) • STARTER TEXTBOOK",
+    "title": "Sentence Structures, Tenses & Starter Graduation",
+    "subtitle": "Master core sentence patterns (N1 は N2 です), demonstratives, tense tables, and pass your starter graduation exam!",
+    "tabs": {
+      "patterns": "📖 1. Core Sentence Patterns",
+      "tenses": "⏱️ 2. Tenses & Conjugations",
+      "graduation": "🎓 3. Graduation Exam (20 questions)"
+    },
+    "grammarPattern": "Grammar Pattern",
+    "diagramTitle": "📐 Sentence Structure Diagram:",
+    "notesTitle": "💡 Important Notes:",
+    "examplesTitle": "Illustrative Examples:",
+    "listenExample": "Listen to example",
+    "tensesTableTitle": "⏱️ Starter Tense & Conjugation Table",
+    "tensesTableSubtitle": "Compare Present ↔ Past between Nouns (`desu`) and Verbs (`masu`).",
+    "tableWordType": "Word Type / Form",
+    "tablePresentAff": "Present (Affirmative)",
+    "tablePresentNeg": "Present (Negative)",
+    "tablePastAff": "Past (Affirmative)",
+    "tablePastNeg": "Past (Negative)",
+    "nounLabel": "Noun",
+    "verbLabel": "Verb",
+    "realExamplesTitle": "💡 Practical Examples:",
+    "realEx1": "• 昨日は 雨でした (Yesterday it was raining — Past tense of Noun).",
+    "realEx2": "• きのう 勉強しました (Yesterday I studied — Past tense of Verb ます ➔ ました).",
+    "quizProgress": "Graduation Exam: Question {{current}} / {{total}}",
+    "scoreLabel": "Score: {{score}}",
+    "listenAudio": "Listen pronunciation",
+    "explanationLabel": "💡 Explanation:",
+    "nextQuestion": "Next Question",
+    "viewResult": "View Graduation Results",
+    "resultTitle": "Starter Course Graduation Results",
+    "correctCount": "Correct answers: {{score}} / {{total}}",
+    "passBannerTitle": "🎉 CONGRATULATIONS! YOU HAVE GRADUATED FROM THE STARTER COURSE!",
+    "passBannerSubtitle": "You have mastered Kana alphabets, numbers, time, Aisatsu greetings, 35+ radicals, and foundational N5 grammar!",
+    "failBanner": "⚠️ You need at least 85% to graduate from the Starter Course (Current: {{pct}}%). Review the chapters above and try again!",
+    "reviewHintsTitle": "Recommended topics to review:",
+    "reviewAction": "Review →",
+    "restartQuiz": "Retake Graduation Exam",
+    "modalBadge": "CERTIFICATE OF COMPLETION",
+    "modalTitle": "STARTER GRADUATION",
+    "modalSubtitle": "NipponMaster Academy certifies that you have successfully completed all 5 Chapters of the Starter Japanese Curriculum from zero!",
+    "modalAdvantage": "🏆 Qualified to confidently enter the Official JLPT N5 Curriculum!",
+    "downloadCert": "Download Certificate (.PNG)",
+    "claimCertificate": "Claim Certificate & Upgrade to Level N5"
+  }
+}

@@ -8,6 +8,7 @@ import axiosClient from '../api/axiosClient';
 import KanjiStrokeWriter from '../components/KanjiStrokeWriter';
 import KanjiCanvasStudio from './KanjiCanvasStudio';
 import gsap from 'gsap';
+import { useTranslation } from 'react-i18next';
 
 interface KanjiItem {
   id: number;
@@ -67,6 +68,7 @@ const getVisiblePages = (current: number, total: number) => {
 const JLPT_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const;
 
 export default function Kanji() {
+  const { t } = useTranslation(['kanji', 'common']);
   const [kanjiList, setKanjiList] = useState<KanjiItem[]>([]);
   const [selectedKanji, setSelectedKanji] = useState<KanjiItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -183,12 +185,12 @@ export default function Kanji() {
           {/* Header & Main Tab Switcher */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
             <div>
-              <h1 className="text-3xl font-bold text-on-surface tracking-tight">NipponMaster Kanji</h1>
-              <p className="text-sm text-on-surface-variant mt-1">
-                Tra cứu chữ Hán {selectedLevel} ({kanjiList.length} chữ), luyện nét vẽ Kanji & nhận diện OCR AI.
+              <h1 className="text-3xl font-bold text-on-surface tracking-tight font-serif">{t('kanji:title', 'NipponMaster Kanji')}</h1>
+              <p className="text-sm text-on-surface-variant mt-1 font-serif">
+                {t('kanji:subtitle', { level: selectedLevel, count: kanjiList.length, defaultValue: `Tra cứu chữ Hán ${selectedLevel} (${kanjiList.length} chữ), luyện nét vẽ Kanji & nhận diện OCR AI.` })}
               </p>
             </div>
-            <div className="flex items-center p-1 bg-surface-container-low rounded-2xl border border-outline-variant/30 self-start sm:self-auto">
+            <div className="flex items-center p-1 bg-surface-container-low rounded-2xl border border-outline-variant/30 self-start sm:self-auto font-serif">
               <button
                 onClick={() => setActiveTab('dictionary')}
                 className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
@@ -197,7 +199,7 @@ export default function Kanji() {
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                📚 Thư viện Kanji
+                {t('kanji:tabs.dictionary', '📚 Thư viện Kanji')}
               </button>
               <button
                 onClick={() => setActiveTab('canvas')}
@@ -207,7 +209,7 @@ export default function Kanji() {
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                ✍️ Bảng vẽ & OCR Studio
+                {t('kanji:tabs.canvas', '✍️ Bảng vẽ & OCR Studio')}
               </button>
             </div>
           </div>
@@ -224,7 +226,7 @@ export default function Kanji() {
             <>
 
           {/* Level Tabs */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap font-serif">
             {JLPT_LEVELS.map((lvl) => (
               <button
                 key={lvl}
@@ -247,15 +249,15 @@ export default function Kanji() {
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-on-surface-variant" />
               <Input
                 type="text"
-                placeholder="Tìm Kanji, nghĩa Việt, âm On/Kun..."
-                className="pl-9 bg-surface-container-low"
+                placeholder={t('kanji:searchPlaceholder', 'Tìm Kanji, nghĩa Việt, âm On/Kun...')}
+                className="pl-9 bg-surface-container-low font-serif"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
             {/* Stroke Count filter buttons */}
-            <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            <div className="flex flex-wrap gap-2 w-full md:w-auto font-serif">
               <button
                 onClick={() => setStrokeFilter('ALL')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
@@ -264,7 +266,7 @@ export default function Kanji() {
                     : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant'
                 }`}
               >
-                Tất cả số nét
+                {t('kanji:strokeFilters.all', 'Tất cả số nét')}
               </button>
               <button
                 onClick={() => setStrokeFilter('1-5')}
@@ -274,7 +276,7 @@ export default function Kanji() {
                     : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant'
                 }`}
               >
-                1 - 5 nét
+                {t('kanji:strokeFilters.1to5', '1 - 5 nét')}
               </button>
               <button
                 onClick={() => setStrokeFilter('6-10')}
@@ -284,7 +286,7 @@ export default function Kanji() {
                     : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant'
                 }`}
               >
-                6 - 10 nét
+                {t('kanji:strokeFilters.6to10', '6 - 10 nét')}
               </button>
               <button
                 onClick={() => setStrokeFilter('gt10')}
@@ -294,24 +296,24 @@ export default function Kanji() {
                     : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant'
                 }`}
               >
-                &gt; 10 nét
+                {t('kanji:strokeFilters.gt10', '> 10 nét')}
               </button>
             </div>
           </Card>
 
           {/* Access Restricted Banner */}
           {accessRestricted && (
-            <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-primary/10 via-tertiary/10 to-surface-container-high border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+            <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-primary/10 via-tertiary/10 to-surface-container-high border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm font-serif">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center flex-shrink-0">
                   <Lock size={20} />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
-                    Nội dung Hán tự cấp độ {selectedLevel} bị giới hạn (Tài khoản Dùng thử)
+                    {t('kanji:restricted.title', { level: selectedLevel, defaultValue: `Nội dung Hán tự cấp độ ${selectedLevel} bị giới hạn (Tài khoản Dùng thử)` })}
                   </h4>
                   <p className="text-xs text-on-surface-variant">
-                    Nâng cấp gói học để mở khóa toàn bộ Hán tự, thứ tự nét vẽ và ví dụ thực tế cho cấp độ này.
+                    {t('kanji:restricted.desc', 'Nâng cấp gói học để mở khóa toàn bộ Hán tự, thứ tự nét vẽ và ví dụ thực tế cho cấp độ này.')}
                   </p>
                 </div>
               </div>
@@ -324,20 +326,20 @@ export default function Kanji() {
                   window.dispatchEvent(new HashChangeEvent('hashchange'));
                 }}
               >
-                Xem gói học
+                {t('kanji:restricted.cta', 'Xem gói học')}
               </Button>
             </div>
           )}
 
           {/* Grid view */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <div className="flex flex-col items-center justify-center py-20 gap-3 font-serif">
               <Loader2 className="animate-spin text-primary" size={40} />
-              <span className="text-sm font-semibold text-on-surface-variant">Đang tải chữ Hán...</span>
+              <span className="text-sm font-semibold text-on-surface-variant">{t('kanji:loading', 'Đang tải chữ Hán...')}</span>
             </div>
           ) : paginatedKanjis.length === 0 ? (
-            <div className="text-center py-20 bg-surface-container-low rounded-2xl border border-outline-variant/30">
-              <p className="text-base text-on-surface-variant font-medium">Không tìm thấy chữ Hán nào phù hợp.</p>
+            <div className="text-center py-20 bg-surface-container-low rounded-2xl border border-outline-variant/30 font-serif">
+              <p className="text-base text-on-surface-variant font-medium">{t('kanji:empty', 'Không tìm thấy chữ Hán nào phù hợp.')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pb-12">
@@ -360,32 +362,32 @@ export default function Kanji() {
                   >
                     <div>
                       {/* Badge and Stroke count */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <Badge variant="primary">{kanji.strokeCount} Nét</Badge>
-                        {kanji.radical && <Badge variant="secondary">Bộ: {kanji.radical}</Badge>}
+                      <div className="flex items-center gap-2 mb-3 font-serif">
+                        <Badge variant="primary">{t('kanji:card.strokes', { count: kanji.strokeCount, defaultValue: `${kanji.strokeCount} Nét` })}</Badge>
+                        {kanji.radical && <Badge variant="secondary">{t('kanji:card.radical', { radical: kanji.radical, defaultValue: `Bộ: ${kanji.radical}` })}</Badge>}
                         <Badge variant="crimson" className="ml-auto">{kanji.jlptLevel}</Badge>
                       </div>
 
                       {/* Character Display */}
                       <div className="flex items-end gap-4 mb-2">
                         <div className="text-5xl font-jp text-on-surface font-semibold">{kanji.character}</div>
-                        <div className="mb-1 text-lg font-bold text-primary">{kanji.meaning.split('(')[0].trim()}</div>
+                        <div className="mb-1 text-lg font-bold text-primary font-serif">{kanji.meaning.split('(')[0].trim()}</div>
                       </div>
 
                       {/* Meaning description */}
-                      <div className="text-xs text-on-surface-variant font-medium mt-1 mb-4">
+                      <div className="text-xs text-on-surface-variant font-medium mt-1 mb-4 font-serif">
                         {kanji.meaning.includes('(') ? `(${kanji.meaning.split('(')[1]}` : ''}
                       </div>
                     </div>
 
                     {/* Onyomi / Kunyomi preview */}
-                    <div className="pt-4 border-t border-outline-variant/30 space-y-1 mt-4 text-xs font-semibold">
+                    <div className="pt-4 border-t border-outline-variant/30 space-y-1 mt-4 text-xs font-semibold font-serif">
                       <div className="text-on-surface-variant">
-                        <span className="text-[10px] text-primary font-bold mr-1.5">ON:</span>
+                        <span className="text-[10px] text-primary font-bold mr-1.5 font-mono">ON:</span>
                         {kanji.onReading || '-'}
                       </div>
                       <div className="text-on-surface-variant">
-                        <span className="text-[10px] text-teal-600 font-bold mr-1.5">KUN:</span>
+                        <span className="text-[10px] text-teal-600 font-bold mr-1.5 font-mono">KUN:</span>
                         {kanji.kunReading || '-'}
                       </div>
                     </div>
@@ -397,7 +399,7 @@ export default function Kanji() {
 
           {/* Pagination */}
           {!loading && totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 py-8 border-t border-outline-variant/30">
+            <div className="flex items-center justify-center gap-2 py-8 border-t border-outline-variant/30 font-serif">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
                 disabled={currentPage === 0}
@@ -448,13 +450,13 @@ export default function Kanji() {
       {selectedKanji && (
         <div
           ref={detailPanelRef}
-          className="absolute top-0 right-0 h-full w-full sm:w-[450px] bg-surface-container-low border-l border-outline-variant shadow-2xl flex flex-col z-30"
+          className="absolute top-0 right-0 h-full w-full sm:w-[450px] bg-surface-container-low border-l border-outline-variant shadow-2xl flex flex-col z-30 font-serif"
         >
           {/* Header Panel */}
           <div className="p-6 border-b border-outline-variant flex items-center justify-between bg-surface-container-low/80 backdrop-blur-md">
             <div className="flex items-center gap-2">
               <BookOpen className="text-primary" size={20} />
-              <h2 className="text-lg font-bold text-on-surface">Chi tiết chữ Hán</h2>
+              <h2 className="text-lg font-bold text-on-surface">{t('kanji:detail.title', 'Chi tiết chữ Hán')}</h2>
             </div>
             <button
               onClick={handleCloseDetail}
@@ -473,12 +475,12 @@ export default function Kanji() {
                 {selectedKanji.character}
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-primary">{selectedKanji.meaning.split('(')[0].trim()}</div>
+                <div className="text-2xl font-bold text-primary font-serif">{selectedKanji.meaning.split('(')[0].trim()}</div>
                 <div className="text-sm text-on-surface-variant font-medium">
                   {selectedKanji.meaning.includes('(') ? selectedKanji.meaning : ''}
                 </div>
                 <div className="flex gap-1.5 mt-2">
-                  <Badge variant="primary">{selectedKanji.strokeCount} nét</Badge>
+                  <Badge variant="primary">{t('kanji:detail.strokeCount', { count: selectedKanji.strokeCount, defaultValue: `${selectedKanji.strokeCount} nét` })}</Badge>
                   <Badge variant="crimson">{selectedKanji.jlptLevel}</Badge>
                 </div>
               </div>
@@ -487,7 +489,7 @@ export default function Kanji() {
             {/* Stroke order animation section */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-semibold uppercase text-on-surface-variant tracking-wider">Hoạt ảnh nét vẽ</h3>
+                <h3 className="text-xs font-semibold uppercase text-on-surface-variant tracking-wider">{t('kanji:detail.strokeAnimation', 'Hoạt ảnh nét vẽ')}</h3>
                 <button
                   onClick={() => {
                     setCanvasInitialKanji(selectedKanji.character);
@@ -497,7 +499,7 @@ export default function Kanji() {
                   className="px-3 py-1 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <PenTool size={13} />
-                  Thực hành vẽ chữ này ✍️
+                  {t('kanji:detail.practiceWriting', 'Thực hành vẽ chữ này ✍️')}
                 </button>
               </div>
               <KanjiStrokeWriter character={selectedKanji.character} />
@@ -505,16 +507,16 @@ export default function Kanji() {
 
             {/* Onyomi / Kunyomi Details table */}
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold uppercase text-on-surface-variant tracking-wider">Cách đọc On / Kun</h3>
+              <h3 className="text-xs font-semibold uppercase text-on-surface-variant tracking-wider">{t('kanji:detail.readings', 'Cách đọc On / Kun')}</h3>
               <div className="border border-outline-variant/30 rounded-xl overflow-hidden bg-surface-container-lowest">
-                <table className="w-full text-sm text-left border-collapse">
+                <table className="w-full text-sm text-left border-collapse font-serif">
                   <tbody>
                     <tr className="border-b border-outline-variant/20">
-                      <td className="px-4 py-3 font-bold text-primary bg-primary/5 w-24">Âm ON (Katakana)</td>
+                      <td className="px-4 py-3 font-bold text-primary bg-primary/5 w-32">{t('kanji:detail.onLabel', 'Âm ON (Katakana)')}</td>
                       <td className="px-4 py-3 font-jp text-on-surface font-medium">{selectedKanji.onReading || '-'}</td>
                     </tr>
                     <tr>
-                      <td className="px-4 py-3 font-bold text-teal-600 bg-teal-600/5">Âm KUN (Hiragana)</td>
+                      <td className="px-4 py-3 font-bold text-teal-600 bg-teal-600/5">{t('kanji:detail.kunLabel', 'Âm KUN (Hiragana)')}</td>
                       <td className="px-4 py-3 font-jp text-on-surface font-medium">{selectedKanji.kunReading || '-'}</td>
                     </tr>
                   </tbody>
@@ -524,7 +526,7 @@ export default function Kanji() {
 
             {/* Related Words section */}
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold uppercase text-on-surface-variant tracking-wider">Từ vựng liên quan</h3>
+              <h3 className="text-xs font-semibold uppercase text-on-surface-variant tracking-wider">{t('kanji:detail.relatedVocab', 'Từ vựng liên quan')}</h3>
               <div className="space-y-2">
                 {selectedKanji.relatedWords ? (
                   selectedKanji.relatedWords.split('、').map((word, index) => {
@@ -538,13 +540,13 @@ export default function Kanji() {
                       >
                         <span className="font-jp text-lg font-bold text-on-surface">{kanjiWord}</span>
                         {meaningWord && (
-                          <span className="text-xs text-on-surface-variant font-semibold">{meaningWord}</span>
+                          <span className="text-xs text-on-surface-variant font-semibold font-serif">{meaningWord}</span>
                         )}
                       </div>
                     );
                   })
                 ) : (
-                  <p className="text-xs text-on-surface-variant italic">Không có dữ liệu từ vựng liên quan.</p>
+                  <p className="text-xs text-on-surface-variant italic">{t('kanji:detail.noRelatedVocab', 'Không có dữ liệu từ vựng liên quan.')}</p>
                 )}
               </div>
             </div>

@@ -1,0 +1,25 @@
+{
+  "brand": "NipponMaster",
+  "modules": {
+    "dashboard": "Dashboard",
+    "beginner": "Starter Course",
+    "kanji": "Kanji Hub",
+    "grammar": "Grammar",
+    "listening": "Listening",
+    "exams": "JLPT Exams",
+    "translation": "Translation",
+    "pricing": "Membership",
+    "teacher": "Teacher Workspace",
+    "admin": "Admin Workspace"
+  },
+  "sections": {
+    "learning": "Learning",
+    "practice": "Practice & Exams",
+    "tools": "Tools",
+    "account": "Account"
+  },
+  "lockedNotice": {
+    "title": "N5 Modules Locked",
+    "desc": "Complete the 5 Starter chapters to automatically unlock Kanji, Grammar, Mock Exams & Listening!"
+  }
+}

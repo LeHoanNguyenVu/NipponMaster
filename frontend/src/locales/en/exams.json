@@ -1,0 +1,33 @@
+{
+  "title": "Mock Exams Library",
+  "subtitle": "Test your knowledge under real exam conditions to prepare for the JLPT.",
+  "sectionTitle": "{{level}} Mock Exams",
+  "exam2023": "JLPT N3 Practice Exam 2023",
+  "examOfficial": "JLPT N3 Official Mock",
+  "newBadge": "New",
+  "minutes": "{{count}} min",
+  "questions": "{{count}} Questions",
+  "takeExam": "Take Exam",
+  "preview": {
+    "title": "Exam Experience Preview",
+    "simulate": "Simulates real test",
+    "timeRemaining": "Time remaining",
+    "vocabKanji": "Vocabulary / Kanji",
+    "endExam": "End Exam",
+    "questionNum": "Question {{num}}",
+    "prompt": "Select the correct reading for this Kanji:",
+    "navigator": "Navigator"
+  },
+  "readiness": {
+    "title": "Readiness Score",
+    "probability": "Pass probability"
+  },
+  "history": {
+    "title": "Recent History",
+    "viewAll": "View All",
+    "exam2022": "JLPT N3 Practice Exam 2022",
+    "passed": "Passed",
+    "failed": "Failed",
+    "incomplete": "Incomplete"
+  }
+}

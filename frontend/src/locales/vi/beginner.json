@@ -1,0 +1,185 @@
+{
+  "hub": {
+    "title": "Lộ Trình Sách Giáo Khoa Nhập Môn Tiếng Nhật",
+    "subtitle": "5 Chương nền tảng từ con số 0 — Chuẩn bị hoàn hảo cho trình độ JLPT N5",
+    "graduated": "Đã tốt nghiệp • Tự do ôn tập",
+    "courseProgress": "Tiến độ lộ trình",
+    "chaptersCount": "{{completed}}/{{total}} Chương ({{percent}}%)",
+    "tocTitle": "📘 Mục Lục Sách Giáo Khoa",
+    "chapters": {
+      "chapter-1": {
+        "title": "Chương 1: Bảng Chữ Cái Hiragana & Katakana",
+        "desc": "Học 104+ chữ cái, luyện viết canvas AI & phát âm chuẩn"
+      },
+      "chapter-2": {
+        "title": "Chương 2: Số Đếm, Đơn Vị Đếm & Thời Gian",
+        "desc": "Số 1-10.000, 8 đơn vị đếm biến âm & đọc Giờ/Phút/Thứ"
+      },
+      "chapter-3": {
+        "title": "Chương 3: Chào Hỏi Giao Tiếp & Xưng Hô Văn Hóa",
+        "desc": "Mẫu câu chào hỏi (Aisatsu), đại từ & hậu tố (-san, -sama)"
+      },
+      "chapter-4": {
+        "title": "Chương 4: 50+ Bộ Thủ Kanji Tượng Hình Nền Tảng",
+        "desc": "35+ bộ thủ tượng hình, giải thích nghĩa đa chiều & luyện viết Canvas AI"
+      },
+      "chapter-5": {
+        "title": "Chương 5: Cấu Trúc Câu & Thì Ngữ Pháp Nhập Môn",
+        "desc": "Trợ từ は/が/を, khẳng định/phủ định & thi tốt nghiệp"
+      }
+    },
+    "lockedCondition": "🔒 Cần test ≥ 85% {{prev}}",
+    "prevChapterFallback": "chương trước",
+    "passed": "✅ Đã vượt qua",
+    "testScore": "Điểm test",
+    "unlocked": "✅ Đã mở khóa (Trình độ {{level}})",
+    "target": "Mục tiêu: ≥85%",
+    "voiceWarning": "Lưu ý: Trình duyệt chưa có sẵn giọng đọc tiếng Nhật (ja-JP). Bạn vẫn có thể học chữ và làm bài bình thường!",
+    "loadingTitle": "Đang Tải Nội Dung Bài Học...",
+    "loadingSubtitle": "Đang tối ưu tài nguyên phát âm và bài tập thực hành",
+    "lockedChapterTitle": "Chương Này Đang Bị Khóa 🔒",
+    "lockedChapterDesc": "Theo quy chuẩn lộ trình học tập, bạn bắt buộc phải hoàn thành bài kiểm tra tổng hợp ở Chương trước đó với điểm số từ 85% trở lên thì mới được mở khóa chương này.",
+    "backToCh1": "Quay Lại Học Chương 1"
+  },
+  "alphabet": {
+    "headerTitle": "Bảng Chữ Cái Nhật Bản",
+    "headerSubtitle": "Học → Viết → Phát âm → Kiểm tra — Luồng học tuần tự theo từng hàng và ngân hàng 15 đề thi độc lập không trùng lặp",
+    "progressLabel": "Tiến độ thực tế Chương 1:",
+    "learnedRows": "Đã học {{count}} hàng chữ",
+    "completedTests": "Đã làm {{count}} bài test",
+    "passedScoreNote": "✅ Đạt điểm test {{score}}% (≥ 85%) — Đã mở khóa thành công Chương 2!",
+    "currentScoreNote": "📊 Điểm test cao nhất hiện tại: {{score}}% / 85%",
+    "advancedUnlockedNote": "🎓 Bạn đã đạt trình độ {{level}} (Tốt nghiệp Nhập Môn) — Toàn bộ các chương đã được mở khóa để bạn tự do ôn tập!",
+    "lockedNote": "🔒 Điểm test cao nhất hiện tại: {{score}}% / 85% — Cần đạt bài test ≥ 85% ở thẻ \"Luyện Tập Tổng Hợp\" để mở khóa Chương 2",
+    "highestScore": "Điểm test cao nhất",
+    "tabs": {
+      "overview": "Bảng Tổng Quan",
+      "lesson": "Bài Học",
+      "quiz": "Luyện Tập",
+      "practice_all": "Luyện Tập Tổng Hợp"
+    },
+    "subTabs": {
+      "hiragana": "Hiragana",
+      "katakana": "Katakana"
+    },
+    "sections": {
+      "seion": "1. Âm Trong (清音 Seion)",
+      "dakuon": "2. Âm Đục (濁音 Dakuon)",
+      "handakuon": "3. Âm Bán Đục (半濁音 Handakuon)",
+      "yoon": "4. Âm Ghép (拗音 Yōon)",
+      "extendedRules": "5. Quy Tắc Âm Đọc Mở Rộng",
+      "extendedRulesDesc": "Kiến thức nền tảng bắt buộc để phát âm chuẩn và nhận diện biến âm: Âm ngắt, Trường âm & Âm mũi."
+    },
+    "startButton": "Bắt đầu",
+    "formulaLabel": "Công thức ghi nhớ:",
+    "examplesLabel": "Ví dụ minh họa:",
+    "scopeTitle": "Hệ thống 15 Bài Test Độc Lập",
+    "scopeSubtitle": "Chọn một phần kiến thức để bắt đầu luyện tập với ngân hàng câu hỏi chuẩn"
+  },
+  "aisatsu": {
+    "badge": "CHƯƠNG 3 • SÁCH GIÁO KHOA NHẬP MÔN",
+    "title": "Chào Hỏi Giao Tiếp, Đại Từ & Xưng Hô Văn Hóa",
+    "subtitle": "Học các mẫu câu chào hỏi chuẩn văn hóa Nhật (Aisatsu), cách dùng đại từ (私/僕/俺) và các hậu tố kính ngữ (-san, -sama, -kun, -chan).",
+    "tabs": {
+      "greetings": "👋 1. Mẫu Câu Chào Hỏi (Aisatsu)",
+      "pronouns": "🗣️ 2. Đại Từ Xưng Hô",
+      "honorifics": "🏷️ 3. Hậu Tố Kính Ngữ (-san, -sama...)",
+      "test": "🧪 4. Bài Test Chương 3"
+    },
+    "filters": {
+      "all": "Tất cả",
+      "daily": "Hàng ngày (Sáng/Trưa/Tối)",
+      "farewell": "Tạm biệt & Ra về",
+      "gratitude": "Cảm ơn & Xin lỗi",
+      "meal": "Bữa ăn",
+      "home": "Đi & Về nhà"
+    },
+    "pronounsIntro": "Đại Từ Xưng Hô Tiếng Nhật & Mức Độ Lịch Sự",
+    "pronounsIntroDesc": "Khác với tiếng Việt hay tiếng Anh, tiếng Nhật phân hóa đại từ xưng hô rất rõ rệt theo giới tính, độ thân thiết và bối cảnh giao tiếp.",
+    "honorificsIntro": "Hậu Tố Kính Ngữ Tiếng Nhật (-san, -sama, -kun, -chan)",
+    "honorificsIntroDesc": "Gắn sau tên người khác để biểu thị sự kính trọng, lịch thiệp hoặc thân thiết.",
+    "testTitle": "Bài Kiểm Tra Tổng Hợp Chương 3",
+    "testSubtitle": "Kiểm tra kiến thức về các câu chào hỏi Aisatsu, đại từ và hậu tố xưng hô. (Mục tiêu: ≥ 85%)",
+    "questionCount": "Câu hỏi {{current}} / {{total}}",
+    "nextBtn": "Câu hỏi tiếp theo",
+    "finishBtn": "Hoàn thành bài kiểm tra",
+    "congrats": "Chúc mừng bạn đã vượt qua bài test Chương 3!",
+    "tryAgain": "Hãy ôn tập kỹ lại và thử lại nhé!",
+    "scoreLabel": "Điểm số của bạn:",
+    "retakeBtn": "Làm lại bài test",
+    "proceedNext": "Chuyển sang Chương 4"
+  },
+  "numbers": {
+    "badge": "CHƯƠNG 2 • SÁCH GIÁO KHOA NHẬP MÔN",
+    "title": "Số Đếm, Đơn Vị Đếm & Thời Gian",
+    "subtitle": "Số 1-10.000, 8 đơn vị đếm biến âm & đọc Giờ/Phút/Thứ chuẩn ngữ điệu.",
+    "tabs": {
+      "numbers": "🔢 1. Số Đếm & Đơn Vị Đếm",
+      "people": "👥 2. Đếm Người & Tuổi Tác",
+      "calendar": "📅 3. Ngày Trong Tháng",
+      "time": "⏰ 4. Giờ Giấc & Thứ",
+      "reflex": "⚡ 5. Phản Xạ Nhanh",
+      "test": "🧪 6. Bài Test Chương 2"
+    },
+    "quizTitle": "Bài Test Tổng Hợp Chương 2",
+    "quizSubtitle": "Kiểm tra năng lực số đếm, đơn vị đếm, ngày tháng và thời gian."
+  },
+  "radicals": {
+    "badge": "CHƯƠNG 4 • SÁCH GIÁO KHOA NHẬP MÔN",
+    "title": "50+ Bộ Thủ Kanji Tượng Hình Nền Tảng",
+    "subtitle": "Khám phá các bộ thủ tượng hình, quy tắc số nét và luyện viết Canvas AI.",
+    "tabs": {
+      "pictogram": "🎨 1. Tượng Hình & Ý Nghĩa",
+      "writing": "✍️ 2. Luyện Viết Canvas AI",
+      "mnemonics": "💡 3. Mẹo Nhớ Tượng Hình",
+      "test": "🧪 4. Bài Test Chương 4"
+    }
+  },
+  "basicGrammar": {
+    "badge": "CHƯƠNG 5 (CHƯƠNG CUỐI) • SÁCH GIÁO KHOA NHẬP MÔN",
+    "title": "Cấu Trúc Câu, Thì Ngữ Pháp & Lễ Tốt Nghiệp Nhập Môn",
+    "subtitle": "Nắm vững mẫu câu N1 は N2 です, từ chỉ định, bảng biến đổi thì và hoàn thành Bài Thi Tốt Nghiệp Nhập Môn!",
+    "tabs": {
+      "patterns": "📖 1. Cấu Trúc Câu Căn Bản",
+      "tenses": "⏱️ 2. Bảng Biến Đổi Thì",
+      "graduation": "🎓 3. Bài Test Tốt Nghiệp (20 câu)"
+    },
+    "grammarPattern": "Mẫu Ngữ Pháp",
+    "diagramTitle": "📐 Sơ đồ khối cấu trúc câu:",
+    "notesTitle": "💡 Lưu ý quan trọng:",
+    "examplesTitle": "Ví dụ minh họa:",
+    "listenExample": "Nghe ví dụ",
+    "tensesTableTitle": "⏱️ Bảng Biến Đổi Thì Nhập Môn",
+    "tensesTableSubtitle": "So sánh thì Hiện tại ↔ Quá khứ giữa Danh từ (`です`) và Động từ (`ます`).",
+    "tableWordType": "Loại từ / Thể",
+    "tablePresentAff": "Hiện tại (Khẳng định)",
+    "tablePresentNeg": "Hiện tại (Phủ định)",
+    "tablePastAff": "Quá khứ (Khẳng định)",
+    "tablePastNeg": "Quá khứ (Phủ định)",
+    "nounLabel": "Danh Từ (Noun)",
+    "verbLabel": "Động Từ (Verb)",
+    "realExamplesTitle": "💡 Ví dụ thực tế:",
+    "realEx1": "• 昨日は 雨でした (Hôm qua trời đã mưa — Quá khứ của Danh từ).",
+    "realEx2": "• きのう 勉強しました (Hôm qua tôi đã học — Quá khứ của Động từ ます ➔ ました).",
+    "quizProgress": "Bài Thi Tốt Nghiệp: Câu {{current}} / {{total}}",
+    "scoreLabel": "Điểm: {{score}}",
+    "listenAudio": "Nghe phát âm",
+    "explanationLabel": "💡 Giải thích:",
+    "nextQuestion": "Câu Tiếp Theo",
+    "viewResult": "Xem Kết Quả Tốt Nghiệp",
+    "resultTitle": "Kết Quả Thi Tốt Nghiệp Nhập Môn",
+    "correctCount": "Trả lời đúng {{score}} / {{total}} câu",
+    "passBannerTitle": "🎉 CHÚC MỪNG BẠN ĐÃ TỐT NGHIỆP XUẤT SẮC KHÓA NHẬP MÔN!",
+    "passBannerSubtitle": "Bạn đã nắm vững toàn bộ Bảng chữ cái, Số đếm, Thời gian, Aisatsu, 35+ Bộ thủ và Cấu trúc ngữ pháp N5!",
+    "failBanner": "⚠️ Bạn cần đạt tối thiểu 85% để tốt nghiệp lộ trình Nhập môn (Điểm hiện tại: {{pct}}%). Ôn lại kiến thức các chương chưa đúng và thử lại nhé!",
+    "reviewHintsTitle": "Gợi ý phần cần ôn lại:",
+    "reviewAction": "Ôn lại →",
+    "restartQuiz": "Làm Lại Bài Thi",
+    "modalBadge": "BẰNG CHỨNG NHẬN",
+    "modalTitle": "TỐT NGHIỆP NHẬP MÔN",
+    "modalSubtitle": "Học viện NipponMaster xác nhận bạn đã hoàn thành xuất sắc toàn bộ 5 Chương Lộ Trình Nhập Môn Tiếng Nhật từ Con Số 0!",
+    "modalAdvantage": "🏆 Đủ điều kiện tự tin bước vào Lộ Trình JLPT N5 Chính Thức!",
+    "downloadCert": "Tải Bằng Chứng Nhận (.PNG)",
+    "claimCertificate": "Nhận Bằng & Nâng Cấp Lên Trình Độ N5"
+  }
+}

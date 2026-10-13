@@ -194,6 +194,26 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
+    public UserResponse updatePreferences(Long userId, UpdatePreferencesRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng", userId));
+
+        if (request.getPreferredLanguage() != null && !request.getPreferredLanguage().isBlank()) {
+            String lang = request.getPreferredLanguage().trim().toLowerCase();
+            if ("vi".equals(lang) || "en".equals(lang)) {
+                user.setPreferredLanguage(lang);
+            }
+        }
+
+        User savedUser = userRepository.save(user);
+        log.info("Cập nhật preferences thành công cho user: {}, lang: {}", user.getEmail(), user.getPreferredLanguage());
+
+        String subStatus = subscriptionService.getSubscriptionStatus(userId);
+        return UserResponse.from(savedUser, subStatus);
+    }
+
+    @Override
     public void logout(String token) {
         long remainingMs = jwtTokenProvider.getRemainingExpirationMs(token);
         jwtBlacklistService.blacklistToken(token, remainingMs);

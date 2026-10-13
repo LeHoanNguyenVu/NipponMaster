@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Volume2, Check, ArrowRight, RotateCcw, Info, BookOpen, PenTool, AlertTriangle, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import {
   ESSENTIAL_RADICALS, RADICALS_CHAPTER_QUIZ, RADICAL_CATEGORIES,
   type RadicalItem, type RadicalCategory
@@ -16,6 +17,7 @@ interface KanjiRadicalsHubProps {
 }
 
 export default function KanjiRadicalsHub({ onChapterComplete }: KanjiRadicalsHubProps) {
+  const { t } = useTranslation(['beginner', 'common']);
   const [activeTab, setActiveTab] = useState<'pictogram' | 'writing' | 'mnemonics' | 'test'>('pictogram');
   const [selectedRadical, setSelectedRadical] = useState<RadicalItem>(ESSENTIAL_RADICALS[0]);
   const [categoryFilter, setCategoryFilter] = useState<RadicalCategory | 'all'>('all');
@@ -107,40 +109,39 @@ export default function KanjiRadicalsHub({ onChapterComplete }: KanjiRadicalsHub
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 font-serif">
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider mb-1">
-          <span>📖 CHƯƠNG 4</span>
-          <span>•</span>
-          <span>SÁCH GIÁO KHOA NHẬP MÔN</span>
+          <span>{t('beginner:radicals.badge')}</span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight">
-          50+ Bộ Thủ Kanji Tượng Hình Nền Tảng
+        <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight font-serif">
+          {t('beginner:radicals.title')}
         </h1>
-        <p className="text-sm text-on-surface-variant mt-1">
-          Học theo phương pháp 4 bước trực quan: Quan sát tượng hình ➔ Giải thích nghĩa đa chiều ➔ Luyện viết Canvas AI ➔ Mẹo nhớ câu chuyện ghép chữ.
+        <p className="text-sm text-on-surface-variant mt-1 font-serif">
+          {t('beginner:radicals.subtitle')}
         </p>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex flex-wrap gap-2 border-b border-outline-variant/30 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-outline-variant/30 pb-3 font-serif">
         {[
-          { id: 'pictogram', label: '👁️ 1. Thư Viện Tượng Hình' },
-          { id: 'writing', label: '✍️ 2. Luyện Viết Canvas AI' },
-          { id: 'mnemonics', label: '💡 3. Mẹo Nhớ & Ghép Chữ' },
-          { id: 'test', label: '🧪 4. Bài Test Chương 4' },
-        ].map(t => (
+          { id: 'pictogram', label: t('beginner:radicals.tabs.pictogram') },
+          { id: 'writing', label: t('beginner:radicals.tabs.writing') },
+          { id: 'mnemonics', label: t('beginner:radicals.tabs.mnemonics') },
+          { id: 'test', label: t('beginner:radicals.tabs.test') },
+        ].map(tTab => (
           <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id as any)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === t.id
+            key={tTab.id}
+            onClick={() => setActiveTab(tTab.id as any)}
+            className={`px-4 py-2 text-sm font-semibold transition-all cursor-pointer font-serif ${
+              activeTab === tTab.id
                 ? 'bg-primary text-on-primary shadow-sm scale-102'
                 : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
             }`}
+            style={{ borderRadius: '2px' }}
           >
-            {t.label}
+            {tTab.label}
           </button>
         ))}
       </div>

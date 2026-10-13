@@ -1,0 +1,64 @@
+{
+  "title": "System Settings",
+  "subtitle": "Customize interface language, typography style, and personalized preferences",
+  "tabs": {
+    "language": "Language & Typography",
+    "theme": "Theme & Colors",
+    "account": "Account & Security"
+  },
+  "languageSection": {
+    "title": "Interface Language",
+    "description": "Choose your primary display language across NipponMaster. The corresponding font automatically adjusts to Washi Editorial standards.",
+    "syncNotice": "This preference is automatically synced to the cloud across all your active devices.",
+    "options": {
+      "vi": {
+        "name": "Tiếng Việt (Vietnamese)",
+        "tag": "Vietnam Default",
+        "fontName": "Times New Roman (Classic Serif)",
+        "description": "Standard editorial serif font with complete Vietnamese diacritic support, optimized for intensive reading."
+      },
+      "en": {
+        "name": "English",
+        "tag": "International",
+        "fontName": "Georgia (International Serif)",
+        "description": "Classic literary serif font designed for elegant clarity and effortless readability on digital screens."
+      }
+    }
+  },
+  "typographySection": {
+    "title": "Typography Preview",
+    "description": "Each language uses a dedicated serif family paired seamlessly with Japanese Mincho for Kanji/Kana:",
+    "latinLabel": "UI Text & Explanations",
+    "latinSample": "The quick brown fox jumps over the lazy dog. Mastery in Japanese language begins with deliberate, daily practice.",
+    "japaneseLabel": "Kanji & Japanese Characters (Noto Serif JP / Mincho)",
+    "japaneseSample": "「千里の道も一歩から」— A journey of a thousand miles begins with a single step. 漢字・ひらがな・カタカナ。"
+  },
+  "furiganaSection": {
+    "title": "Furigana Display",
+    "description": "Toggle hiragana pronunciation ruby above Kanji characters in lessons and mock JLPT exams.",
+    "always": "Always show furigana",
+    "hoverOnly": "Show on hover only (Recommended for N3-N1)",
+    "hide": "Hide completely (Immersion challenge)"
+  },
+  "themeSection": {
+    "title": "Theme & Color Palette",
+    "description": "Choose a color scheme suited for daytime or evening study environments."
+  },
+  "accountSection": {
+    "accountDetails": "Account Details",
+    "fullName": "Full Name",
+    "email": "Registered Email",
+    "role": "Role",
+    "jlptLevel": "JLPT Level",
+    "savedLanguage": "Saved Language",
+    "securityTitle": "Security & Sessions",
+    "browser": "Browser",
+    "os": "Operating System",
+    "sessionStatus": "Session Status",
+    "sessionActive": "JWT Active (24 hours)",
+    "encryption": "Data Encryption",
+    "encryptionValue": "TLS / SHA-256 Cloud Encrypted",
+    "studentFallback": "Student"
+  },
+  "saveSuccess": "Preferences saved successfully!"
+}

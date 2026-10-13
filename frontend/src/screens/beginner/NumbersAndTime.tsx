@@ -4,6 +4,7 @@ import {
   Calendar, Users, Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import {
   BASIC_NUMBERS, COUNTERS, HOURS_DATA, MINUTES_SPECIAL, DAYS_OF_WEEK,
   AGE_DATA, AGE_QUESTION_PHRASES,
@@ -88,6 +89,7 @@ function DualReadingPlayer({
 }
 
 export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProps) {
+  const { t } = useTranslation(['beginner', 'common']);
   const [activeTab, setActiveTab] = useState<TabType>('numbers');
   const [selectedCounter, setSelectedCounter] = useState<CounterUnit>(COUNTERS[0]);
 
@@ -203,44 +205,41 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 font-serif">
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider mb-1">
-          <span>📖 CHƯƠNG 2</span>
-          <span>•</span>
-          <span>SÁCH GIÁO KHOA NHẬP MÔN</span>
+          <span>{t('beginner:numbers.badge')}</span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight">
-          Số Đếm, Đơn Vị Đếm & Thời Gian
+        <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight font-serif">
+          {t('beginner:numbers.title')}
         </h1>
-        <p className="text-sm text-on-surface-variant mt-1 max-w-3xl leading-relaxed">
-          Nắm vững trọn vẹn số đếm 1-10.000, <strong>Bảng đếm người đặc biệt (hitori, futari, yonin)</strong>, 
-          <strong>Quy tắc đếm tuổi (二十歳 - はたち hatachi)</strong>, 
-          <strong>31 Ngày trong tháng (tsuitachi, futsuka... hatsuka)</strong> và luyện phản xạ tốc độ.
+        <p className="text-sm text-on-surface-variant mt-1 max-w-3xl leading-relaxed font-serif">
+          {t('beginner:numbers.subtitle')}
         </p>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex flex-wrap gap-2 border-b border-outline-variant/30 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-outline-variant/30 pb-3 font-serif">
         {[
-          { id: 'numbers', label: '🔢 1. Số Đếm & Tuổi (Hatachi)' },
-          { id: 'people_counters', label: '👥 2. Đếm Người & Đơn Vị Đếm' },
-          { id: 'days_of_month', label: '📅 3. 31 Ngày Trong Tháng' },
-          { id: 'time', label: '⏰ 4. Giờ, Phút & Thứ' },
-          { id: 'reflex', label: '⚡ 5. Luyện Phản Xạ Nhanh' },
-          { id: 'test', label: '🧪 6. Bài Test Chương 2' },
-        ].map(t => (
+          { id: 'numbers', label: t('beginner:numbers.tabs.numbers') },
+          { id: 'people_counters', label: t('beginner:numbers.tabs.people') },
+          { id: 'days_of_month', label: t('beginner:numbers.tabs.calendar') },
+          { id: 'time', label: t('beginner:numbers.tabs.time') },
+          { id: 'reflex', label: t('beginner:numbers.tabs.reflex') },
+          { id: 'test', label: t('beginner:numbers.tabs.test') },
+        ].map(tTab => (
           <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id as any)}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === t.id
+            key={tTab.id}
+            onClick={() => setActiveTab(tTab.id as any)}
+            className={`px-4 py-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer font-serif ${
+              activeTab === tTab.id
                 ? 'bg-primary text-on-primary shadow-sm scale-102'
                 : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
             }`}
+            style={{ borderRadius: '2px' }}
           >
-            {t.label}
+            {tTab.label}
           </button>
         ))}
       </div>

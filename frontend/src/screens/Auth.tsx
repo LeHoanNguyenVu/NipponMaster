@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, GraduationCap, Presentation, ShieldAlert, ArrowRight, ShieldCheck, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, GraduationCap, Presentation, ShieldAlert, ArrowRight, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -12,6 +13,7 @@ interface AuthProps {
 }
 
 export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
+  const { t } = useTranslation(['auth', 'common']);
   const [view, setView] = useState<'login' | 'register' | 'verify'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [pendingSocialData, setPendingSocialData] = useState<any | null>(null);
@@ -218,13 +220,14 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
 
   // --- SUBVIEW: LOGIN ---
   const renderLogin = () => (
-    <div className="min-h-screen bg-pattern-hexagons flex flex-col items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-pattern-hexagons flex flex-col items-center justify-center p-4 relative font-serif">
       {/* Floating Back Button */}
       <button 
         onClick={onBack}
-        className="absolute top-6 left-6 text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 cursor-pointer font-bold text-sm bg-surface-container-low border border-outline-variant/60 py-2 px-4 rounded-xl shadow-sm z-30"
+        className="absolute top-6 left-6 text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 cursor-pointer font-bold text-sm bg-surface-container-low border border-outline-variant/60 py-2 px-4 shadow-sm z-30 font-serif"
+        style={{ borderRadius: '2px' }}
       >
-        <ArrowLeft size={16} /> Quay lại trang chủ
+        <ArrowLeft size={16} /> {t('auth:backToHome', 'Quay lại trang chủ')}
       </button>
 
       {/* Logo Area */}
@@ -234,12 +237,12 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
           NipponMaster
         </h1>
         <p className="font-serif italic text-on-surface-variant text-lg">
-          Hành trình chinh phục Nhật ngữ với tâm hồn Zen.
+          {t('auth:tagline', 'Hành trình chinh phục Nhật ngữ với tâm hồn Zen.')}
         </p>
       </div>
 
       {/* Login Card */}
-      <Card className="w-full max-w-md p-8 md:p-10 relative bg-surface-container-lowest border-outline-variant shadow-lg">
+      <Card className="w-full max-w-md p-8 md:p-10 relative bg-surface-container-lowest border-outline-variant shadow-lg font-serif">
         <form className="space-y-6" onSubmit={handleLoginSubmit}>
           {error && (
             <div className="p-3 bg-error-container text-error rounded-xl text-sm border border-error/20 flex gap-2 items-center">
@@ -251,9 +254,9 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
           {/* Inputs */}
           <div className="space-y-5">
             <Input
-              label="Tên đăng nhập hoặc Email"
+              label={t('auth:login.usernameOrEmail', 'Tên đăng nhập hoặc Email')}
               type="text"
-              placeholder="Nhập tên đăng nhập hoặc email..."
+              placeholder={t('auth:login.usernameOrEmailPlaceholder', 'Nhập tên đăng nhập hoặc email...')}
               value={loginForm.usernameOrEmail}
               onChange={(e) => setLoginForm({ ...loginForm, usernameOrEmail: e.target.value })}
               required
@@ -261,8 +264,8 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
 
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Mật khẩu</label>
-                <a href="#" className="text-xs text-primary font-medium hover:underline">Quên mật khẩu?</a>
+                <label className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">{t('auth:login.password', 'Mật khẩu')}</label>
+                <a href="#" className="text-xs text-primary font-medium hover:underline">{t('auth:login.forgotPassword', 'Quên mật khẩu?')}</a>
               </div>
               <div className="relative">
                 <input
@@ -290,7 +293,7 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
             className="w-full py-3"
             isLoading={isLoading}
           >
-            Đăng nhập
+            {t('auth:login.submitBtn', 'Đăng nhập')}
           </Button>
 
           {/* Social OAuth2 Divider */}
@@ -299,7 +302,7 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
               <div className="w-full border-t border-outline-variant/50"></div>
             </div>
             <div className="relative bg-surface-container-lowest px-4 text-xs font-bold text-outline uppercase tracking-wider">
-              hoặc tiếp tục với
+              {t('auth:login.orContinueWith', 'hoặc tiếp tục với')}
             </div>
           </div>
 
@@ -318,7 +321,7 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
-              <span className="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">Tiếp tục với Google</span>
+              <span className="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors font-serif">{t('auth:login.googleBtn', 'Tiếp tục với Google')}</span>
             </button>
 
             {/* Facebook 1-Click */}
@@ -331,7 +334,7 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
               <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
               </svg>
-              <span className="text-sm font-semibold text-on-surface group-hover:text-[#1877F2] transition-colors">Tiếp tục với Facebook</span>
+              <span className="text-sm font-semibold text-on-surface group-hover:text-[#1877F2] transition-colors font-serif">{t('auth:login.facebookBtn', 'Tiếp tục với Facebook')}</span>
             </button>
           </div>
 
@@ -340,17 +343,17 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-outline-variant/50"></div>
             </div>
-            <div className="relative bg-surface-container-lowest px-4 text-xs font-bold text-outline uppercase tracking-wider">
-              Lối vào dành cho
+            <div className="relative bg-surface-container-lowest px-4 text-xs font-bold text-outline uppercase tracking-wider font-serif">
+              {t('auth:login.portalFor', 'Lối vào dành cho')}
             </div>
           </div>
 
           {/* Role Selection */}
-          <div className="flex justify-between px-2">
+          <div className="flex justify-between px-2 font-serif">
             {[
-              { id: 'student', label: 'Học viên', icon: GraduationCap },
-              { id: 'teacher', label: 'Giảng viên', icon: Presentation },
-              { id: 'system', label: 'Hệ thống', icon: ShieldAlert }
+              { id: 'student', label: t('auth:login.roles.student', 'Học viên'), icon: GraduationCap },
+              { id: 'teacher', label: t('auth:login.roles.teacher', 'Giảng viên'), icon: Presentation },
+              { id: 'system', label: t('auth:login.roles.admin', 'Quản trị'), icon: ShieldAlert }
             ].map(r => (
               <button
                 key={r.id}
@@ -368,10 +371,10 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
         </form>
       </Card>
 
-      <div className="mt-8 text-on-surface-variant text-sm">
-        Chưa có tài khoản?{' '}
+      <div className="mt-8 text-on-surface-variant text-sm font-serif">
+        {t('auth:login.noAccountPrompt', 'Chưa có tài khoản?')} {' '}
         <button onClick={() => setView('register')} className="font-bold text-primary hover:underline cursor-pointer">
-          Đăng ký tham gia
+          {t('auth:login.registerNow', 'Đăng ký tham gia')}
         </button>
       </div>
       
@@ -384,60 +387,61 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
 
   // --- SUBVIEW: REGISTER ---
   const renderRegister = () => (
-    <div className="min-h-screen bg-pattern-paper flex relative">
+    <div className="min-h-screen bg-pattern-paper flex relative font-serif">
       {/* Floating Back Button */}
       <button 
         onClick={onBack}
-        className="absolute top-6 left-6 text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 cursor-pointer font-bold text-sm bg-surface-container-low border border-outline-variant/60 py-2 px-4 rounded-xl shadow-sm z-30"
+        className="absolute top-6 left-6 text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 cursor-pointer font-bold text-sm bg-surface-container-low border border-outline-variant/60 py-2 px-4 shadow-sm z-30 font-serif"
+        style={{ borderRadius: '2px' }}
       >
-        <ArrowLeft size={16} /> Quay lại trang chủ
+        <ArrowLeft size={16} /> {t('auth:backToHome', 'Quay lại trang chủ')}
       </button>
 
       {/* Left Column (Hero Card) */}
       <div className="hidden lg:flex w-5/12 flex-col justify-between p-16 xl:p-24 border-r border-outline-variant/40 bg-surface-container-low relative">
         <div>
           <div onClick={onBack} className="flex items-center gap-3 mb-24 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-serif font-bold text-xl">
+            <div className="w-10 h-10 bg-primary flex items-center justify-center text-white font-serif font-bold text-xl" style={{ borderRadius: '2px' }}>
               学
             </div>
             <span className="font-serif font-bold text-xl text-on-surface">NipponMaster</span>
           </div>
 
           <h1 className="font-serif text-[3.5rem] leading-[1.1] font-bold text-on-surface tracking-tight mb-4">
-            Bắt đầu hành<br />trình
+            {t('auth:register.title', 'Bắt đầu hành trình')}
           </h1>
           <h2 className="font-serif text-[3.5rem] leading-[1.1] italic text-primary/95 font-light mb-10">
-            Chinh phục Nhật<br />Ngữ
+            {t('auth:register.subtitle', 'Chinh phục Nhật Ngữ')}
           </h2>
 
-          <p className="text-on-surface-variant text-base leading-relaxed max-w-sm mb-16">
-            Hòa mình vào không gian học tập tĩnh lặng, nơi tri thức cổ điển gặp gỡ công nghệ hiện đại. NipponMaster mang đến sự an lạc trong từng bài học.
+          <p className="text-on-surface-variant text-base leading-relaxed max-w-sm mb-16 font-serif">
+            {t('auth:tagline', 'Hòa mình vào không gian học tập tĩnh lặng, nơi tri thức cổ điển gặp gỡ công nghệ hiện đại.')}
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 font-serif">
           <div className="flex -space-x-3">
             <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Avatar" className="w-10 h-10 rounded-full border-2 border-surface object-cover" />
             <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80" alt="Avatar" className="w-10 h-10 rounded-full border-2 border-surface object-cover" />
             <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" alt="Avatar" className="w-10 h-10 rounded-full border-2 border-surface object-cover" />
           </div>
-          <span className="text-xs font-medium text-on-surface-variant">Hơn 50,000 học viên đã tham gia ôn tập SRS</span>
+          <span className="text-xs font-medium text-on-surface-variant">50,000+ Active Students</span>
         </div>
       </div>
 
       {/* Right Column (Form Panel) */}
-      <div className="w-full lg:w-7/12 flex flex-col justify-center p-6 md:p-12 lg:p-16 xl:px-24 overflow-y-auto">
+      <div className="w-full lg:w-7/12 flex flex-col justify-center p-6 md:p-12 lg:p-16 xl:px-24 overflow-y-auto font-serif">
         <div className="max-w-xl w-full mx-auto">
           {/* Mobile Logo */}
           <div onClick={onBack} className="flex lg:hidden items-center gap-3 mb-10 cursor-pointer hover:opacity-80 transition-opacity">
-             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-serif font-bold text-xl">
+             <div className="w-10 h-10 bg-primary flex items-center justify-center text-white font-serif font-bold text-xl" style={{ borderRadius: '2px' }}>
               学
             </div>
             <span className="font-serif font-bold text-xl text-on-surface">NipponMaster</span>
           </div>
 
-          <h2 className="font-serif text-4xl font-bold text-on-surface mb-2">Tạo tài khoản mới</h2>
-          <p className="text-on-surface-variant mb-8 text-base">Khám phá vẻ đẹp của ngôn ngữ cùng chúng tôi.</p>
+          <h2 className="font-serif text-4xl font-bold text-on-surface mb-2">{t('auth:register.title', 'Tạo tài khoản mới')}</h2>
+          <p className="text-on-surface-variant mb-8 text-base font-serif">{t('auth:register.subtitle', 'Bắt đầu hành trình học tiếng Nhật của bạn.')}</p>
 
           <form className="space-y-6" onSubmit={handleRegisterSubmit}>
             {error && (
@@ -449,27 +453,35 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
 
             {/* Role Selection */}
             <div>
-              <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-3">Bạn tham gia với tư cách là?</label>
+              <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-3 font-serif">
+                {t('auth:register.roleSelector', 'Bạn tham gia với tư cách là?')}
+              </label>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
                   onClick={() => setRegisterForm({ ...registerForm, role: 'student' })}
-                  className={`flex flex-col items-center justify-center py-4 px-4 rounded-xl border transition-all cursor-pointer ${
+                  className={`flex flex-col items-center justify-center py-4 px-4 border transition-all cursor-pointer font-serif ${
                     registerForm.role === 'student' ? 'border-primary bg-primary/5 shadow-sm' : 'border-outline-variant bg-surface hover:bg-surface-container-low'
                   }`}
+                  style={{ borderRadius: '2px' }}
                 >
                   <GraduationCap className={`mb-2 ${registerForm.role === 'student' ? 'text-primary' : 'text-outline'}`} size={24} />
-                  <span className={`text-sm font-bold ${registerForm.role === 'student' ? 'text-on-surface' : 'text-on-surface-variant'}`}>Học viên</span>
+                  <span className={`text-sm font-bold ${registerForm.role === 'student' ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+                    {t('auth:login.roles.student', 'Học viên')}
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setRegisterForm({ ...registerForm, role: 'teacher' })}
-                  className={`flex flex-col items-center justify-center py-4 px-4 rounded-xl border transition-all cursor-pointer ${
+                  className={`flex flex-col items-center justify-center py-4 px-4 border transition-all cursor-pointer font-serif ${
                     registerForm.role === 'teacher' ? 'border-primary bg-primary/5 shadow-sm' : 'border-outline-variant bg-surface hover:bg-surface-container-low'
                   }`}
+                  style={{ borderRadius: '2px' }}
                 >
                   <Presentation className={`mb-2 ${registerForm.role === 'teacher' ? 'text-primary' : 'text-outline'}`} size={24} />
-                  <span className={`text-sm font-bold ${registerForm.role === 'teacher' ? 'text-on-surface' : 'text-on-surface-variant'}`}>Giảng viên</span>
+                  <span className={`text-sm font-bold ${registerForm.role === 'teacher' ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+                    {t('auth:login.roles.teacher', 'Giảng viên')}
+                  </span>
                 </button>
               </div>
             </div>
@@ -477,35 +489,35 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
             {/* Common Inputs */}
             <div className="space-y-4">
               <Input
-                label="Họ và Tên"
-                placeholder="Nhập họ và tên đầy đủ..."
+                label={t('auth:register.fullName', 'Họ và Tên')}
+                placeholder={t('auth:register.fullNamePlaceholder', 'Nhập họ và tên...')}
                 value={registerForm.fullName}
                 onChange={(e) => setRegisterForm({ ...registerForm, fullName: e.target.value })}
                 required
               />
 
               <Input
-                label="Địa chỉ Email"
+                label={t('auth:register.email', 'Địa chỉ Email')}
                 type="email"
-                placeholder="email@example.com"
+                placeholder={t('auth:register.emailPlaceholder', 'email@example.com')}
                 value={registerForm.email}
                 onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
                 required
               />
 
               <Input
-                label="Số điện thoại"
+                label={t('auth:register.phone', 'Số điện thoại')}
                 type="tel"
-                placeholder="Nhập số điện thoại..."
+                placeholder={t('auth:register.phonePlaceholder', '0901234567')}
                 value={registerForm.phone}
                 onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })}
                 required
               />
 
               <Input
-                label="Mật khẩu"
+                label={t('auth:register.password', 'Mật khẩu')}
                 type="password"
-                placeholder="Tối thiểu 6 ký tự..."
+                placeholder={t('auth:register.passwordPlaceholder', 'Tối thiểu 6 ký tự...')}
                 value={registerForm.password}
                 onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
                 required
@@ -513,13 +525,18 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
 
               {/* Dynamic Teacher Inputs */}
               {registerForm.role === 'teacher' && (
-                <div className="p-5 bg-surface border border-outline-variant/60 rounded-xl space-y-4">
-                  <div className="text-xs font-bold text-primary uppercase tracking-wider">Thông tin giảng dạy bổ sung</div>
+                <div className="p-5 bg-surface border border-outline-variant/60 space-y-4" style={{ borderRadius: '2px' }}>
+                  <div className="text-xs font-bold text-primary uppercase tracking-wider font-serif">
+                    {t('auth:register.teacherFields.jlptLevel', 'Thông tin giảng dạy')}
+                  </div>
                   
                   <div>
-                    <label className="block text-xs font-bold text-on-surface-variant mb-1.5 uppercase tracking-wide">Trình độ JLPT cao nhất</label>
+                    <label className="block text-xs font-bold text-on-surface-variant mb-1.5 uppercase tracking-wide font-serif">
+                      {t('auth:register.teacherFields.jlptLevel', 'Trình độ JLPT cao nhất')}
+                    </label>
                     <select
-                      className="w-full bg-surface-container-lowest border border-outline-variant focus:ring-primary/20 focus:border-primary text-on-surface rounded-xl text-sm py-2.5 px-4 outline-none"
+                      className="w-full bg-surface-container-lowest border border-outline-variant focus:ring-primary/20 focus:border-primary text-on-surface text-sm py-2.5 px-4 outline-none font-serif"
+                      style={{ borderRadius: '2px' }}
                       value={registerForm.jlptLevel}
                       onChange={(e) => setRegisterForm({ ...registerForm, jlptLevel: e.target.value })}
                     >
@@ -530,19 +547,19 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
                   </div>
 
                   <Input
-                    label="Số năm kinh nghiệm giảng dạy"
+                    label={t('auth:register.teacherFields.experienceYears', 'Số năm kinh nghiệm giảng dạy')}
                     type="number"
                     min="0"
-                    placeholder="Ví dụ: 3"
+                    placeholder={t('auth:register.teacherFields.experiencePlaceholder', 'Ví dụ: 3')}
                     value={registerForm.experienceYears}
                     onChange={(e) => setRegisterForm({ ...registerForm, experienceYears: e.target.value })}
                     required
                   />
 
                   <Input
-                    label="Link CV / Hồ sơ năng lực (LinkedIn, Drive...)"
+                    label={t('auth:register.teacherFields.cvUrl', 'Link CV / Hồ sơ năng lực')}
                     type="url"
-                    placeholder="https://drive.google.com/..."
+                    placeholder={t('auth:register.teacherFields.cvUrlPlaceholder', 'https://drive.google.com/...')}
                     value={registerForm.cvUrl}
                     onChange={(e) => setRegisterForm({ ...registerForm, cvUrl: e.target.value })}
                     required
@@ -554,8 +571,8 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
             {/* Checkbox */}
             <div className="flex items-start gap-3 pt-1">
               <input type="checkbox" id="terms" required className="mt-1 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary cursor-pointer" />
-              <label htmlFor="terms" className="text-on-surface-variant text-sm leading-relaxed cursor-pointer select-none">
-                Tôi đồng ý với <a href="#" className="font-bold text-primary hover:underline">Điều khoản dịch vụ</a> và <a href="#" className="font-bold text-primary hover:underline">Chính sách bảo mật</a> của NipponMaster.
+              <label htmlFor="terms" className="text-on-surface-variant text-sm leading-relaxed cursor-pointer select-none font-serif">
+                I agree to the <a href="#" className="font-bold text-primary hover:underline">Terms of Service</a> & <a href="#" className="font-bold text-primary hover:underline">Privacy Policy</a> of NipponMaster.
               </label>
             </div>
 
@@ -567,14 +584,14 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
               icon={<ArrowRight size={18} />}
               iconPosition="right"
             >
-              Đăng ký tham gia
+              {t('auth:register.submitBtn', 'Tạo tài khoản')}
             </Button>
           </form>
 
-          <div className="mt-8 text-center text-on-surface-variant text-sm">
-            Bạn đã có tài khoản?{' '}
+          <div className="mt-8 text-center text-on-surface-variant text-sm font-serif">
+            {t('auth:register.hasAccountPrompt', 'Bạn đã có tài khoản?')} {' '}
             <button onClick={() => setView('login')} className="font-bold text-primary hover:underline cursor-pointer">
-              Đăng nhập ngay
+              {t('auth:register.loginNow', 'Đăng nhập ngay')}
             </button>
           </div>
         </div>
@@ -584,83 +601,56 @@ export default function Auth({ onAuthSuccess, onBack }: AuthProps) {
 
   // --- SUBVIEW: VERIFY (Approval Flow State) ---
   const renderVerify = () => (
-    <div className="min-h-screen bg-pattern-waves flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Stamp */}
-      <div className="absolute bottom-10 left-10 opacity-10 pointer-events-none transform -rotate-12 border-2 border-primary/50 p-2 w-48 text-center text-primary">
-        <div className="text-xl font-bold tracking-widest">管理者</div>
-        <div className="text-[9px] uppercase mt-1">Authorized Personnel Only</div>
-      </div>
-
+    <div className="min-h-screen bg-pattern-waves flex flex-col items-center justify-center p-4 relative overflow-hidden font-serif">
       {/* Verify Card */}
-      <Card className="w-full max-w-md p-8 md:p-10 relative bg-surface-container-lowest border-outline-variant shadow-lg z-10">
+      <Card className="w-full max-w-md p-8 md:p-10 relative bg-surface-container-lowest border-outline-variant shadow-lg z-10 font-serif">
         <div className="absolute -bottom-16 -right-16 text-primary-container/20 opacity-40 pointer-events-none">
           <ShieldCheck size={200} strokeWidth={1} />
         </div>
 
-        <div className="relative z-10 text-center">
+        <div className="relative z-10 text-center font-serif">
           <div className="flex flex-col items-center mb-8">
             <h1 className="font-serif text-4xl font-bold text-on-surface tracking-tight">
               NipponMaster
             </h1>
-            <div className="w-12 h-1 bg-primary mt-4 mb-6 rounded-full"></div>
+            <div className="w-12 h-1 bg-primary mt-4 mb-6" style={{ borderRadius: '1px' }}></div>
             
-            <h2 className="font-serif text-2xl font-bold text-on-surface mb-3">Xác minh bảo mật</h2>
+            <h2 className="font-serif text-2xl font-bold text-on-surface mb-3">
+              {registerForm.role === 'teacher' ? t('auth:verification.teacherPendingTitle', 'Hồ Sơ Đang Chờ Xét Duyệt') : t('auth:verification.studentSuccessTitle', 'Đăng Ký Thành Công!')}
+            </h2>
             
             {registerForm.role === 'teacher' ? (
-              <div className="text-on-surface-variant text-sm leading-relaxed px-2 space-y-3 text-left bg-surface p-4 rounded-xl border border-outline-variant mt-2">
-                <p className="font-bold text-primary">Cảm ơn Giảng viên {registerForm.fullName} đã đăng ký!</p>
-                <p>Để đảm bảo chất lượng giảng dạy trên NipponMaster, tài khoản của bạn đã được chuyển sang trạng thái <strong>Chờ phê duyệt</strong>.</p>
-                <p>Quản trị viên hệ thống sẽ kiểm tra CV của bạn trong vòng 24 giờ làm việc. Bạn sẽ nhận được email thông báo kích hoạt.</p>
+              <div className="text-on-surface-variant text-sm leading-relaxed px-2 space-y-3 text-left bg-surface p-4 border border-outline-variant mt-2" style={{ borderRadius: '2px' }}>
+                <p className="font-bold text-primary">{registerForm.fullName}</p>
+                <p>{t('auth:verification.teacherPendingDesc')}</p>
               </div>
             ) : (
               <p className="text-on-surface-variant text-sm leading-relaxed px-4">
-                Một mã xác thực 6 chữ số đã được gửi đến địa chỉ email của bạn. Vui lòng nhập mã để hoàn thành đăng ký.
+                {t('auth:verification.studentSuccessDesc')}
               </p>
             )}
           </div>
 
           {registerForm.role !== 'teacher' && (
-            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); onAuthSuccess(); }}>
-              {/* 6-digit Code Inputs */}
-              <div className="flex justify-between gap-2">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <input
-                    key={i}
-                    type="text"
-                    maxLength={1}
-                    className="w-12 h-14 bg-surface-container-lowest border border-outline-variant focus:ring-primary/20 focus:border-primary text-on-surface rounded-xl text-center text-xl font-bold transition-all focus:ring-4 outline-none"
-                    placeholder=""
-                  />
-                ))}
-              </div>
-
+            <div className="pt-2">
               <Button
-                type="submit"
+                onClick={() => onAuthSuccess()}
                 variant="primary"
                 className="w-full py-3.5"
                 icon={<ShieldCheck size={18} />}
               >
-                Xác nhận kích hoạt
+                {t('auth:verification.returnToLogin', 'Bắt đầu học ngay')}
               </Button>
-
-              {/* Resend & Timer */}
-              <div className="flex items-center justify-between text-xs pt-1">
-                <button type="button" className="text-primary hover:underline font-bold flex items-center gap-1 cursor-pointer">
-                  <RefreshCw size={12} />
-                  Gửi lại mã
-                </button>
-                <span className="text-on-surface-variant font-mono">01:57</span>
-              </div>
-            </form>
+            </div>
           )}
 
           {/* Back to Login */}
           <div className="mt-8 pt-6 border-t border-outline-variant/30">
             <button
               onClick={() => setView('login')}
-              className="text-on-surface-variant hover:text-primary font-bold flex items-center justify-center gap-2 w-full transition-colors cursor-pointer text-sm"
+              className="text-on-surface-variant hover:text-primary font-bold flex items-center justify-center gap-2 w-full transition-colors cursor-pointer text-sm font-serif"
             >
-              <ArrowLeft size={16} /> Quay lại đăng nhập
+              <ArrowLeft size={16} /> {t('auth:verification.returnToLogin', 'Quay lại đăng nhập')}
             </button>
           </div>
         </div>

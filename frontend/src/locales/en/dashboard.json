@@ -1,0 +1,152 @@
+{
+  "greetings": {
+    "morning": "Good morning 🌅",
+    "afternoon": "Good afternoon ☀️",
+    "evening": "Good evening 🌙",
+    "sub": "Today is a wonderful day to continue your Japanese mastery journey.",
+    "level": "Level: {{level}}",
+    "target": "🎯 Target: {{level}}",
+    "refreshing": "Updating...",
+    "studentFallback": "Student"
+  },
+  "level": {
+    "starter": "Starter Course",
+    "levelSuffix": "Level"
+  },
+  "streak": {
+    "title": "Study Streak",
+    "days": "Days Streak",
+    "saved": "✓ Streak Saved",
+    "notCheckedIn": "Not Checked In",
+    "todayProgress": "Today's progress:",
+    "cardsCount": "{{reviewed}}/{{goal}} cards",
+    "note": "* Complete all daily flashcards to maintain your streak",
+    "daysOfWeek": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  },
+  "roadmap": {
+    "starterTitle": "Starter Course Progress",
+    "levelTitle": "{{level}} Roadmap",
+    "starterCompleted": "{{completed}}/5 Chapters",
+    "starterPercent": "{{percent}}% completed",
+    "overall4Skills": "Overall 4 Core Skills",
+    "starterGoal": "🎯 Complete all 5 chapters & graduate to unlock N5",
+    "syncNote": "✓ Synced with your real learning progress"
+  },
+  "mission": {
+    "title": "Flashcard Mission",
+    "dailyTarget": "Daily target cards",
+    "completed": "Successfully completed & checked in!",
+    "remaining": "{{count}} cards remaining to save streak"
+  },
+  "skillsSection": {
+    "title": "Core 4 Skills Roadmap & Progress",
+    "subtitle": "Comprehensive curriculum structured for real-world Japanese fluency",
+    "overallProgress": "Overall Progress:",
+    "completionLabel": "Completion:",
+    "modules": {
+      "beginner": {
+        "title": "Kana & Phonics Foundation",
+        "subtitle": "Hiragana, Katakana & Dakuon rules...",
+        "categoryTag": "STARTER COURSE",
+        "action": "Start Course",
+        "unitLabel": "chapters"
+      },
+      "kanji": {
+        "title": "Kanji & Core Radicals",
+        "subtitle": "Visual mnemonics & stroke rules...",
+        "categoryTag": "214 KANGXI RADICALS",
+        "action": "Practice Kanji",
+        "unitLabel": "radicals"
+      },
+      "grammar": {
+        "title": "Core Grammar Mastery",
+        "subtitle": "Curated lessons from N5 to N1...",
+        "categoryTag": "50 CURATED LESSONS",
+        "action": "View Lessons",
+        "unitLabel": "lessons"
+      },
+      "listening": {
+        "title": "Listening & Audio Immersion",
+        "subtitle": "Daily life, transit, restaurants...",
+        "categoryTag": "20 REAL SCENARIOS",
+        "action": "Listen Now",
+        "unitLabel": "scenarios"
+      }
+    }
+  },
+  "beginnerBanner": {
+    "badge": "Key Learning Path",
+    "title": "Japanese Starter Course (5 Chapters from Zero)",
+    "description": "Complete all 5 chapters (Kana, Numbers & Time, Aisatsu, Radicals, Grammar) with 85%+ scores to receive your certificate and automatically unlock N5 Level along with Kanji, Grammar, Mock Exams and Listening rooms.",
+    "cta": "Start Starter Course",
+    "chapters": [
+      { "num": "01", "title": "Kana Alphabet", "desc": "Hiragana & Katakana" },
+      { "num": "02", "title": "Numbers & Time", "desc": "Counting & time units" },
+      { "num": "03", "title": "Aisatsu Greetings", "desc": "Situational phrases" },
+      { "num": "04", "title": "Kanji Radicals", "desc": "214 Kangxi radicals" },
+      { "num": "05", "title": "Grammar & Degree", "desc": "Starter graduation" }
+    ]
+  },
+  "flashcardWidget": {
+    "title": "Quick Flashcard Mastery",
+    "subtitle": "Tap anywhere on the card to flip back and forth",
+    "cardNumber": "Card {{current}} / {{total}}",
+    "checkedInBadge": "Completed 10/10 cards & Checked in!",
+    "checkInBadge": "Check-in: {{reviewed}}/{{goal}} cards",
+    "volumeLabel": "Audio Volume",
+    "volumeTitle": "Audio volume: {{volume}}% (Click to adjust)",
+    "testVolume": "Test Audio",
+    "dealCard": "Next Card",
+    "dealCardTitle": "Switch to next card",
+    "tapToFlip": "Tap card to reveal meaning & reading",
+    "clickSpaceToFlip": "Click anywhere on the card to flip",
+    "sinoVietnamese": "Sino-Vietnamese:",
+    "pronounce": "Pronounce",
+    "meaningLabel": "Meaning:",
+    "mnemonicTitle": "Mnemonic hint",
+    "exampleLabel": "Real-life example:",
+    "listenSentence": "Listen",
+    "noExample": "No example sentence for this card. Tap speaker 🔊 to listen.",
+    "srsHard": "🔴 Hard",
+    "srsHardSub": "+1 day (tomorrow)",
+    "srsHardTitle": "Hard card, review tomorrow (+1 day)",
+    "srsMedium": "🟡 Good",
+    "srsMediumSub": "+3 days later",
+    "srsMediumTitle": "Normal card, review in 3 days (+3 days)",
+    "srsEasy": "🟢 Easy",
+    "srsEasySub": "+7 days (next week)",
+    "srsEasyTitle": "Easy card mastered, review next week (+7 days)",
+    "exploreKanji": "Explore all 214 Kanji Radicals"
+  },
+  "guest": {
+    "badge": "Guest Explorer",
+    "welcome": "Welcome to NipponMaster, {{name}}!",
+    "welcomeSub": "Explore the features of our smart AI Japanese platform before starting your journey.",
+    "placementBanner": {
+      "title": "Free Japanese Placement Test Available Now!",
+      "desc": "Take a standardized mock JLPT exam (N5–N1), receive in-depth diagnostic analysis and a personalized study roadmap in minutes.",
+      "cta": "🎌 Sign Up & Test Now"
+    },
+    "upgradeCard": {
+      "title": "Ready to elevate your learning experience?",
+      "desc": "Choose your role to unlock the full power of NipponMaster. Students enjoy personalized SRS review, while Instructors can author and deliver rich lessons.",
+      "studentBtn": "Become a Student",
+      "teacherBtn": "Become an Instructor"
+    },
+    "featuresTitle": "Explore Core Learning Modules",
+    "features": {
+      "vocab": {
+        "title": "Smart Vocabulary N5-N1",
+        "desc": "Study vocabulary with intuitive card grids, native pronunciation audio, and vivid contextual examples."
+      },
+      "kanji": {
+        "title": "Visual Kanji & Stroke Orders",
+        "desc": "Practice Kanji ordered by radicals, master On/Kun readings, and memorize with mnemonics."
+      },
+      "grammar": {
+        "title": "Grammar Patterns Library",
+        "desc": "Hundreds of real-world sentence structures with particles, usages, and clear explanations for self-learners."
+      }
+    }
+  }
+}

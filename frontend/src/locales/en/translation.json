@@ -1,0 +1,61 @@
+{
+  "badge": "AI Smart Tools",
+  "title": "AI Translation & Syntax Breakdown",
+  "subtitle": "Multidirectional translation and smart Japanese sentence analysis with Furigana and Grammar Handbook.",
+  "tabs": {
+    "translate": "Multilingual Translation",
+    "breakdown": "🧩 AI Sentence Syntax Breakdown"
+  },
+  "swapTooltip": "Swap translation languages",
+  "sourceLabel": "Source text in {{lang}}",
+  "charCount": "{{count}} characters",
+  "inputPlaceholder": "Type or paste a {{lang}} sentence here (e.g., {{sample}})",
+  "suggestions": "Suggestions:",
+  "translating": "Translating...",
+  "translateBtn": "Translate Now",
+  "analyzing": "AI is analyzing the sentence...",
+  "errorTitle": "An error occurred",
+  "errorDefault": "Failed to connect to the AI translation service.",
+  "furiganaSource": "Furigana Pronunciation (Source Text)",
+  "furiganaTarget": "Furigana Pronunciation (Translated Text)",
+  "translationResult": "Translation in {{lang}}",
+  "breakdownBtn": "Break down syntax 🧩",
+  "copyBtn": "Copy translation",
+  "vocabTitle": "Japanese Vocabulary Breakdown ({{count}} words)",
+  "placeholderTitle": "Results will appear here",
+  "placeholderSourceJa": "Enter Japanese text on the left and click translate to view Furigana readings and translations.",
+  "placeholderSourceOther": "Enter text in {{lang}} on the left and click translate to get Japanese translations, Furigana, and vocabulary breakdown.",
+  "languages": {
+    "ja": "Japanese",
+    "vi": "Vietnamese",
+    "en": "English"
+  },
+  "studio": {
+    "badge": "AI Syntax Parser & Reading Studio",
+    "title": "JLPT Sentence Syntax & Grammar Breakdown Studio",
+    "subtitle": "Automatically parse Subject/Predicate, display Furigana above Kanji, and inspect dictionary meanings on hover.",
+    "inputLabel": "Enter or Select a Japanese Sentence",
+    "inputPlaceholder": "Paste a Japanese sentence or passage here...",
+    "analyzing": "⏳ Analyzing...",
+    "analyzeBtn": "🤖 AI Syntax Breakdown",
+    "legendTitle": "Color Legend:",
+    "sectionTokens": "1. Phrase Parsing & Furigana Inspection",
+    "hoverHint": "Hover over any phrase above to see Furigana, readings, and dictionary definitions.",
+    "sinoVietnamese": "Sino-Vietnamese:",
+    "fullTranslationTitle": "Standard Meaning Translation",
+    "grammarNotesTitle": "Grammar Structure Notes",
+    "samples": {
+      "n5": "Beginner N5",
+      "n4": "Elementary N4",
+      "n3": "Intermediate N3",
+      "n2n1": "Advanced N2-N1"
+    },
+    "roles": {
+      "SUBJECT": "主語 (Subject)",
+      "PREDICATE": "述語 (Predicate)",
+      "COMPLEMENT": "補語/助詞 (Particle / Complement)",
+      "OBJECT": "目的語 (Object)",
+      "MODIFIER": "修飾語 (Modifier)"
+    }
+  }
+}

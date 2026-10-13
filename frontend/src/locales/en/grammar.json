@@ -1,0 +1,47 @@
+{
+  "title": "NipponMaster Grammar Handbook",
+  "subtitle": "Select a level and day to explore corresponding grammar structures.",
+  "restricted": {
+    "title": "Grammar content for level {{level}} is restricted (Trial Account)",
+    "desc": "Upgrade your membership to unlock all grammar structures, particle analysis and real-world examples for this level.",
+    "cta": "View Plans"
+  },
+  "dayPrompt": "Curriculum for {{level}} — Select a day to begin",
+  "noCurriculum": "No curriculum yet for level {{level}}.",
+  "comingSoon": "Content will be updated soon.",
+  "dayBadge": "Day {{day}}",
+  "structuresCount": "{{count}}+ structures",
+  "back": "Back",
+  "dayHeader": "Day {{day}}: {{title}}",
+  "searchPlaceholder": "Search in this day...",
+  "emptyDay": "No data available for this day.",
+  "emptySearch": "No matching grammar patterns found.",
+  "grammarBadge": "Grammar",
+  "detailTitle": "Structure Details",
+  "structureHeading": "Sentence Structure",
+  "explanationHeading": "Explanation & Usage",
+  "exampleHeading": "Example Sentences",
+  "lessons": {
+    "N5": {
+      "day1": { "title": "Affirmative & Negative Structures", "desc": "Introduction to the topic particle は and fundamental sentence patterns." },
+      "day2": { "title": "Action Particles", "desc": "Using を, に, and で to describe actions, directions, and locations." },
+      "day3": { "title": "Existence & Desires", "desc": "Expressing existence (います / あります) and what one wants to do (たいです)." },
+      "day4": { "title": "Polite Requests & Prohibitions", "desc": "Asking someone politely to do or not do something (てください / ないでください)." }
+    },
+    "N4": {
+      "day1": { "title": "Te-form (Advanced)", "desc": "Connecting consecutive actions, ongoing states, and completion." },
+      "day2": { "title": "Conditions & Hypotheses", "desc": "Expressing conditional logic in Japanese (たら, ば, なら)." },
+      "day3": { "title": "Potential & Permission", "desc": "Expressing ability, possibility, and giving permission." }
+    },
+    "N3": {
+      "day1": { "title": "Nuanced Expressions", "desc": "Advanced grammar patterns for natural spoken and written communication." },
+      "day2": { "title": "Passive & Causative Forms", "desc": "Expressing passive perspective and causative agency." }
+    },
+    "N2": {
+      "day1": { "title": "Academic & Formal Grammar N2", "desc": "Common written discourse and JLPT N2 exam patterns." }
+    },
+    "N1": {
+      "day1": { "title": "Advanced Mastery N1", "desc": "Nuanced, subtle, and sophisticated sentence structures in Japanese." }
+    }
+  }
+}

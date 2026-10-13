@@ -16,10 +16,12 @@ import {
   type ChapterProgressMap as ChapterProgress 
 } from '../utils/beginnerProgressManager';
 import { useAuthStore } from '../store/useAuthStore';
+import { useTranslation } from 'react-i18next';
 
 export { computeStrictCourseProgress, UNLOCK_THRESHOLD };
 
 export default function BeginnerCourseHub() {
+  const { t } = useTranslation(['beginner', 'common']);
   const { user } = useAuthStore();
   const [activeChapter, setActiveChapter] = useState<string>('chapter-1');
   const [progress, setProgress] = useState<ChapterProgress>(computeStrictCourseProgress);
@@ -116,7 +118,7 @@ export default function BeginnerCourseHub() {
       {!hasJaVoice && (
         <div className="bg-tertiary/15 border-b border-tertiary/30 px-4 py-2 text-xs text-tertiary font-medium flex items-center justify-center gap-2">
           <VolumeX size={15} />
-          <span>Lưu ý: Trình duyệt chưa có sẵn giọng đọc tiếng Nhật (ja-JP). Bạn vẫn có thể học chữ và làm bài bình thường!</span>
+          <span>{t('beginner:hub.voiceWarning')}</span>
         </div>
       )}
 
@@ -124,32 +126,32 @@ export default function BeginnerCourseHub() {
       <div className="bg-surface-container-low border-b border-outline-variant/30 px-4 md:px-8 py-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary text-on-primary flex items-center justify-center font-bold shadow-sm">
+            <div className="w-10 h-10 bg-primary text-on-primary flex items-center justify-center font-bold shadow-2xs" style={{ borderRadius: '2px' }}>
               <GraduationCap size={22} />
             </div>
             <div>
               <h1 className="text-lg md:text-xl font-bold text-on-surface tracking-tight flex items-center flex-wrap gap-2">
-                <span>Lộ Trình Sách Giáo Khoa Nhập Môn Tiếng Nhật</span>
+                <span>{t('beginner:hub.title')}</span>
                 {progressPercent === 100 && (
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 border border-emerald-500/40 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 flex items-center gap-1" style={{ borderRadius: '2px' }}>
                     <Sparkles size={12} />
-                    <span>Đã tốt nghiệp • Tự do ôn tập</span>
+                    <span>{t('beginner:hub.graduated')}</span>
                   </span>
                 )}
               </h1>
-              <p className="text-xs text-on-surface-variant">Lộ trình học chuẩn từ con số 0 dành cho học viên mới bắt đầu</p>
+              <p className="text-xs text-on-surface-variant">{t('beginner:hub.subtitle')}</p>
             </div>
           </div>
 
           {/* Progress Indicator */}
           <div className="w-full md:w-64 space-y-1">
             <div className="flex justify-between text-xs font-semibold">
-              <span className="text-on-surface-variant">Tiến độ lộ trình</span>
-              <span className="text-primary font-bold">{completedCount}/{CHAPTERS.length} Chương ({progressPercent}%)</span>
+              <span className="text-on-surface-variant">{t('beginner:hub.courseProgress')}</span>
+              <span className="text-primary font-bold">{t('beginner:hub.chaptersCount', { completed: completedCount, total: CHAPTERS.length, percent: progressPercent })}</span>
             </div>
-            <div className="h-2 rounded-full bg-surface-container-high overflow-hidden">
+            <div className="h-2 bg-surface-container-high overflow-hidden" style={{ borderRadius: '2px' }}>
               <div
-                className="h-full bg-primary rounded-full transition-all duration-500"
+                className="h-full bg-primary transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -162,7 +164,7 @@ export default function BeginnerCourseHub() {
         {/* Left Table of Contents (Desktop sidebar / Mobile cards) */}
         <div className="w-full lg:w-80 flex-shrink-0 space-y-3">
           <h2 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-1">
-            📘 Mục Lục Sách Giáo Khoa
+            {t('beginner:hub.tocTitle')}
           </h2>
 
           <div className="space-y-2.5">
@@ -171,6 +173,11 @@ export default function BeginnerCourseHub() {
               const isActive = activeChapter === ch.id;
               const isLocked = !chProgress.unlocked;
               const prevChapter = CHAPTERS[idx - 1];
+              const chTitle = t(`beginner:hub.chapters.${ch.id}.title`, ch.title);
+              const titleParts = chTitle.split(':');
+              const prevTitle = prevChapter
+                ? t(`beginner:hub.chapters.${prevChapter.id}.title`, prevChapter.title).split(':')[0]
+                : t('beginner:hub.prevChapterFallback');
 
               return (
                 <button
@@ -179,19 +186,20 @@ export default function BeginnerCourseHub() {
                     if (!isLocked) setActiveChapter(ch.id);
                   }}
                   disabled={isLocked}
-                  className={`w-full text-left p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col gap-2 relative ${
+                  className={`w-full text-left p-3.5 border transition-all cursor-pointer flex flex-col gap-2 relative ${
                     isActive
-                      ? 'bg-primary text-on-primary border-primary shadow-md scale-101'
+                      ? 'bg-primary text-on-primary border-primary shadow-flat-sm'
                       : isLocked
                       ? 'bg-surface-container/40 border-outline-variant/20 opacity-60 cursor-not-allowed'
                       : 'bg-surface-container-lowest border-outline-variant/30 text-on-surface hover:border-primary/40 hover:bg-surface-container-low'
                   }`}
+                  style={{ borderRadius: '2px' }}
                 >
                   <div className="flex items-center gap-3 w-full">
                     {/* Chapter Icon / Status */}
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base flex-shrink-0 ${
+                    <div className={`w-9 h-9 flex items-center justify-center font-bold text-base flex-shrink-0 ${
                       isActive ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-container text-primary'
-                    }`}>
+                    }`} style={{ borderRadius: '2px' }}>
                       {ch.icon}
                     </div>
 
@@ -199,14 +207,14 @@ export default function BeginnerCourseHub() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className={`text-xs font-bold ${isActive ? 'text-on-primary' : 'text-on-surface'}`}>
-                          {ch.title.split(':')[0]}
+                          {titleParts[0]}
                         </span>
                         {chProgress.completed && (
                           <CheckCircle2 size={14} className={isActive ? 'text-on-primary' : 'text-secondary'} />
                         )}
                       </div>
                       <p className={`text-[11px] truncate ${isActive ? 'text-on-primary/80' : 'text-on-surface-variant'}`}>
-                        {ch.title.split(':')[1]}
+                        {titleParts[1] ? titleParts.slice(1).join(':').trim() : ''}
                       </p>
                     </div>
 
@@ -223,30 +231,30 @@ export default function BeginnerCourseHub() {
                     <div className="flex items-center justify-between text-[10px] font-semibold">
                       {isLocked ? (
                         <span className="text-error/80 flex items-center gap-1 font-medium truncate">
-                          🔒 Cần test ≥ 85% {prevChapter ? prevChapter.title.split(':')[0] : 'chương trước'}
+                          {t('beginner:hub.lockedCondition', { prev: prevTitle })}
                         </span>
                       ) : chProgress.bestScore > 0 ? (
                         <span className={isActive ? 'text-on-primary font-bold' : chProgress.bestScore >= UNLOCK_THRESHOLD ? 'text-secondary font-bold' : 'text-primary font-bold'}>
-                          {chProgress.bestScore >= UNLOCK_THRESHOLD ? '✅ Đã vượt qua' : 'Điểm test'}: <strong>{chProgress.bestScore}%</strong>
+                          {chProgress.bestScore >= UNLOCK_THRESHOLD ? t('beginner:hub.passed') : t('beginner:hub.testScore')}: <strong>{chProgress.bestScore}%</strong>
                         </span>
                       ) : chProgress.completed ? (
                         <span className={isActive ? 'text-on-primary font-bold' : 'text-secondary font-bold'}>
-                          ✅ Đã mở khóa (Trình độ N5)
+                          {t('beginner:hub.unlocked', { level: user?.jlptLevel || 'N5' })}
                         </span>
                       ) : (
                         <span className={isActive ? 'text-on-primary/90' : 'text-on-surface-variant'}>
-                          Điểm test: <strong className={isActive ? 'text-on-primary' : 'text-primary'}>0%</strong> / 85%
+                          {t('beginner:hub.testScore')}: <strong className={isActive ? 'text-on-primary' : 'text-primary'}>0%</strong> / 85%
                         </span>
                       )}
                       <span className={`font-mono text-[9px] flex-shrink-0 ${isActive ? 'text-on-primary/80' : 'text-on-surface-variant/70'}`}>
-                        Mục tiêu: ≥85%
+                        {t('beginner:hub.target')}
                       </span>
                     </div>
 
                     {/* Mini Progress Bar with 85% Marker */}
-                    <div className={`h-1.5 w-full rounded-full overflow-hidden relative ${isActive ? 'bg-black/20' : 'bg-surface-container-high'}`}>
+                    <div className={`h-1.5 w-full overflow-hidden relative ${isActive ? 'bg-black/20' : 'bg-surface-container-high'}`} style={{ borderRadius: '1px' }}>
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${
+                        className={`h-full transition-all duration-500 ${
                           isActive
                             ? 'bg-white'
                             : chProgress.completed
@@ -259,7 +267,7 @@ export default function BeginnerCourseHub() {
                       <div
                         className="absolute top-0 bottom-0 w-0.5 bg-tertiary/70 z-10"
                         style={{ left: '85%' }}
-                        title="Mốc 85% để mở khóa chương tiếp theo"
+                        title="85%"
                       />
                     </div>
                   </div>
@@ -270,7 +278,7 @@ export default function BeginnerCourseHub() {
         </div>
 
         {/* Right Chapter Display Area with Custom Top & Center Loading Indicator */}
-        <div className="flex-1 min-w-0 bg-surface-container-lowest border border-outline-variant/30 rounded-3xl min-h-[600px] shadow-sm">
+        <div className="flex-1 min-w-0 bg-surface-container-lowest border border-outline-variant/30 min-h-[600px] shadow-sm" style={{ borderRadius: '2px' }}>
           {!progress[activeChapter]?.unlocked ? (
             <LockedChapterView onGoBack={() => setActiveChapter('chapter-1')} />
           ) : (
@@ -319,6 +327,7 @@ export default function BeginnerCourseHub() {
  * Displayed when user switches chapters to prevent waiting anxiety
  */
 function ChapterLoadingState() {
+  const { t } = useTranslation(['beginner']);
   return (
     <div className="w-full h-full min-h-[500px] flex flex-col justify-between relative overflow-hidden">
       {/* Top Animated Progress Bar */}
@@ -333,8 +342,8 @@ function ChapterLoadingState() {
           <Sparkles className="absolute inset-0 m-auto text-primary" size={20} />
         </div>
         <div>
-          <h4 className="text-base font-bold text-on-surface">Đang Tải Nội Dung Bài Học...</h4>
-          <p className="text-xs text-on-surface-variant mt-1">Đang tối ưu tài nguyên phát âm và bài tập thực hành</p>
+          <h4 className="text-base font-bold text-on-surface">{t('beginner:hub.loadingTitle')}</h4>
+          <p className="text-xs text-on-surface-variant mt-1">{t('beginner:hub.loadingSubtitle')}</p>
         </div>
       </div>
     </div>
@@ -345,25 +354,27 @@ function ChapterLoadingState() {
  * Màn hình bảo vệ khi người dùng cố truy cập chương chưa mở khóa
  */
 function LockedChapterView({ onGoBack }: { onGoBack: () => void }) {
+  const { t } = useTranslation(['beginner']);
   return (
     <div className="w-full h-full min-h-[550px] flex flex-col items-center justify-center p-8 text-center space-y-5">
-      <div className="w-20 h-20 rounded-3xl bg-error/10 border border-error/20 text-error flex items-center justify-center shadow-inner">
+      <div className="w-20 h-20 bg-error/10 border border-error/20 text-error flex items-center justify-center shadow-inner" style={{ borderRadius: '2px' }}>
         <Lock size={36} />
       </div>
 
       <div className="space-y-1.5 max-w-md">
-        <h3 className="text-2xl font-bold text-on-surface">Chương Này Đang Bị Khóa 🔒</h3>
+        <h3 className="text-2xl font-bold text-on-surface">{t('beginner:hub.lockedChapterTitle')}</h3>
         <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-          Theo quy chuẩn lộ trình học tập, bạn bắt buộc phải hoàn thành bài kiểm tra tổng hợp ở Chương trước đó với điểm số <strong>từ 85% trở lên</strong> thì mới được mở khóa chương này.
+          {t('beginner:hub.lockedChapterDesc')}
         </p>
       </div>
 
       <div className="pt-2">
         <button
           onClick={onGoBack}
-          className="px-6 py-3 rounded-2xl bg-primary text-on-primary font-bold text-xs sm:text-sm cursor-pointer hover:bg-primary-container transition-all shadow-sm active:scale-98 flex items-center gap-2"
+          className="px-6 py-3 bg-primary text-on-primary font-bold text-xs sm:text-sm cursor-pointer hover:bg-primary-container transition-all shadow-sm active:scale-98 flex items-center gap-2"
+          style={{ borderRadius: '2px' }}
         >
-          <span>Quay Lại Học Chương 1</span>
+          <span>{t('beginner:hub.backToCh1')}</span>
         </button>
       </div>
     </div>

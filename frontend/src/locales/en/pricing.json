@@ -1,0 +1,36 @@
+{
+  "badge": "Premium Membership",
+  "heroTitle": "Invest in your Japanese <span style=\"color: #c01538\">future</span>",
+  "heroSubtitle": "Select the right plan to unlock all vocabulary, Kanji, and grammar. Unlimited learning for 365 days.",
+  "success": {
+    "title": "🎉 Payment successful!",
+    "desc": "Your membership has been activated. You can start learning right away!",
+    "close": "Close"
+  },
+  "bundle": {
+    "featured": "Featured",
+    "startingFrom": "Starting from",
+    "daysSuffix": "/ {{days}} days",
+    "owned": "Owned",
+    "buyBtn": "Get Full Bundle Now",
+    "processing": "Processing..."
+  },
+  "divider": "Or choose single-level plans",
+  "single": {
+    "moreFeatures": "+{{count}} more features",
+    "perYear": " ₫ / year",
+    "owned": "Owned",
+    "buyBtn": "Buy Now",
+    "processing": "Processing..."
+  },
+  "trust": {
+    "secure": "100% Secure Checkout",
+    "updates": "Free Content Updates",
+    "guarantee": "7-Day Money Back Guarantee"
+  },
+  "history": {
+    "title": "Purchased Memberships History",
+    "paymentDetails": "Payment: {{amount}} {{currency}} • {{provider}}",
+    "active": "✓ Active"
+  }
+}

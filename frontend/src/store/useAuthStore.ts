@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axiosClient from '../api/axiosClient';
+import { useSettingsStore } from './useSettingsStore';
 
 export interface User {
   id: number;
@@ -12,6 +13,7 @@ export interface User {
   jlptLevel?: string;
   targetLevel?: string;
   onboardingCompleted?: boolean;
+  preferredLanguage?: 'vi' | 'en' | string;
   subscriptionStatus?: 'NONE' | 'ACTIVE' | 'EXPIRED';
 }
 
@@ -40,6 +42,7 @@ interface AuthState {
   changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
   updateUserAvatar: (avatarUrl: string) => Promise<void>;
   updateUserLevel: (level: string) => Promise<void>;
+  updateUserPreferences: (preferredLanguage: string) => Promise<void>;
 }
 
 export const clearUserLocalProgress = () => {
@@ -99,7 +102,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         username: data.user.fullName || data.user.email,
         role: data.user.role?.toLowerCase(),
         jlptLevel: resolvedLevel,
+        preferredLanguage: data.user.preferredLanguage || 'vi',
       };
+      
+      if (data.user?.preferredLanguage) {
+        useSettingsStore.getState().syncFromServer(data.user.preferredLanguage);
+      }
       
       if (rememberDevice) {
         localStorage.setItem('token', token);
@@ -141,7 +149,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         username: data.user.fullName || data.user.email,
         role: data.user.role?.toLowerCase(),
         jlptLevel: 'STARTER',
+        preferredLanguage: data.user.preferredLanguage || 'vi',
       };
+      if (data.user?.preferredLanguage) {
+        useSettingsStore.getState().syncFromServer(data.user.preferredLanguage);
+      }
 
       if (rememberDevice) {
         localStorage.setItem('token', token);
@@ -176,8 +188,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       const user = {
         ...resData.user,
         username: resData.user.fullName || resData.user.email,
-        role: resData.user.role?.toLowerCase()
+        role: resData.user.role?.toLowerCase(),
+        preferredLanguage: resData.user?.preferredLanguage || 'vi',
       };
+      if (resData.user?.preferredLanguage) {
+        useSettingsStore.getState().syncFromServer(resData.user.preferredLanguage);
+      }
 
       if (rememberDevice) {
         localStorage.setItem('token', token);
@@ -247,8 +263,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         jlptLevel: resolvedLevel,
         targetLevel: data.targetLevel ?? null,
         onboardingCompleted: data.onboardingCompleted ?? true,
+        preferredLanguage: data.preferredLanguage || 'vi',
         subscriptionStatus: data.subscriptionStatus ?? 'NONE',
       };
+      if (data.preferredLanguage) {
+        useSettingsStore.getState().syncFromServer(data.preferredLanguage);
+      }
       set({
         user,
         isAuthenticated: true,
@@ -343,6 +363,17 @@ export const useAuthStore = create<AuthState>((set) => ({
       await axiosClient.put(`/dashboard/level?level=${upper}`);
     } catch (e) {
       console.warn('Failed to sync level to backend:', e);
+    }
+  },
+
+  updateUserPreferences: async (preferredLanguage: string) => {
+    set((state) => ({
+      user: state.user ? { ...state.user, preferredLanguage } : null,
+    }));
+    try {
+      await axiosClient.patch('/auth/preferences', { preferredLanguage });
+    } catch (e) {
+      console.warn('Failed to sync preferences to backend:', e);
     }
   },
 }));

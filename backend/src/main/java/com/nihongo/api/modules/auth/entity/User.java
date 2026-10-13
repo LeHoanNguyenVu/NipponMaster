@@ -61,6 +61,13 @@ public class User extends BaseEntity {
     @Builder.Default
     private Boolean onboardingCompleted = false;
 
+    /**
+     * Tùy chọn ngôn ngữ giao diện (vi, en). Mặc định là 'vi'.
+     */
+    @Column(name = "preferred_language", length = 5)
+    @Builder.Default
+    private String preferredLanguage = "vi";
+
     public enum Role {
         ADMIN, STUDENT, TEACHER, GUEST, USER
     }

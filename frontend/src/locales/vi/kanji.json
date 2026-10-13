@@ -1,0 +1,66 @@
+{
+  "title": "NipponMaster Kanji",
+  "subtitle": "Tra cứu chữ Hán {{level}} ({{count}} chữ), luyện nét vẽ Kanji & nhận diện OCR AI.",
+  "tabs": {
+    "dictionary": "📚 Thư viện Kanji",
+    "canvas": "✍️ Bảng vẽ & OCR Studio"
+  },
+  "searchPlaceholder": "Tìm Kanji, nghĩa Việt, âm On/Kun...",
+  "strokeFilters": {
+    "all": "Tất cả số nét",
+    "1to5": "1 - 5 nét",
+    "6to10": "6 - 10 nét",
+    "gt10": "> 10 nét"
+  },
+  "restricted": {
+    "title": "Nội dung Hán tự cấp độ {{level}} bị giới hạn (Tài khoản Dùng thử)",
+    "desc": "Nâng cấp gói học để mở khóa toàn bộ Hán tự, thứ tự nét vẽ và ví dụ thực tế cho cấp độ này.",
+    "cta": "Xem gói học"
+  },
+  "loading": "Đang tải chữ Hán...",
+  "empty": "Không tìm thấy chữ Hán nào phù hợp.",
+  "card": {
+    "strokes": "{{count}} Nét",
+    "radical": "Bộ: {{radical}}"
+  },
+  "detail": {
+    "title": "Chi tiết chữ Hán",
+    "strokeCount": "{{count}} nét",
+    "strokeAnimation": "Hoạt ảnh nét vẽ",
+    "practiceWriting": "Thực hành vẽ chữ này ✍️",
+    "readings": "Cách đọc On / Kun",
+    "onLabel": "Âm ON (Katakana)",
+    "kunLabel": "Âm KUN (Hiragana)",
+    "relatedVocab": "Từ vựng liên quan",
+    "noRelatedVocab": "Không có dữ liệu từ vựng liên quan."
+  },
+  "canvasStudio": {
+    "title": "Kanji Canvas & OCR Studio",
+    "subtitle": "Luyện vẽ Kanji chuẩn nét & Nhận diện chữ vẽ tự do bằng AI",
+    "modes": {
+      "practice": "🎯 Chế độ Luyện Nét (Practice)",
+      "ocr": "🔍 Nhận diện AI (Free OCR)"
+    },
+    "chooseKanji": "Chọn chữ Kanji muốn luyện:",
+    "practicePrompt": "Hãy tập vẽ chữ [ {{char}} ] theo thứ tự nét mẫu",
+    "ocrPrompt": "Vẽ tự do chữ Kanji bất kỳ lên bảng bên dưới",
+    "guideTip": "Dùng chuột hoặc ngón tay (trên di động) để di chuyển từng nét",
+    "evaluating": "Đang chấm điểm...",
+    "evaluateBtn": "Chấm điểm nét vẽ ✍️",
+    "recognizing": "Đang nhận diện...",
+    "recognizeBtn": "Nhận diện chữ Kanji 🔍",
+    "strokeCountLabel": "Số nét: {{count}} | Bộ thủ: {{radical}}",
+    "accuracyEval": "Đánh giá nét vẽ",
+    "confidenceOcr": "Độ tự tin nhận diện AI",
+    "gradeExcellent": "Xuất sắc ⭐",
+    "gradePass": "Đạt 👍",
+    "gradeTryAgain": "Cần cố gắng ✍️",
+    "outOfPoints": "/ 100 điểm",
+    "strokeOrderDetails": "Chi tiết thứ tự nét:",
+    "strokeFeedbackItem": "Nét {{num}}: Đúng thứ tự và hướng vẽ.",
+    "topMatches": "Top chữ Kanji khớp nhất:",
+    "emptyTitle": "Chưa có dữ liệu đánh giá",
+    "emptyPractice": "Hãy dùng chuột hoặc ngón tay di chuyển nét vẽ lên bảng bên trái và nhấn \"Chấm điểm nét\".",
+    "emptyOcr": "Hãy vẽ một chữ Kanji tự do lên bảng bên trái và nhấn \"Nhận diện chữ Kanji\"."
+  }
+}

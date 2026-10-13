@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { PlacementResult, JlptLevel, Section } from '../../api/placementApi';
 
 interface Props {
@@ -9,12 +10,6 @@ interface Props {
   onTakeTestLevel?: (level: JlptLevel) => void;
   isConfirming: boolean;
 }
-
-const SECTION_LABEL: Record<Section, string> = {
-  VOCAB: 'Từ Vựng & Kanji',
-  GRAMMAR: 'Ngữ Pháp',
-  READING: 'Đọc Hiểu',
-};
 
 const SECTION_EMOJI: Record<Section, string> = {
   VOCAB: '📖',
@@ -33,6 +28,7 @@ const isQuestionCorrect = (q: any): boolean => {
 };
 
 export default function PlacementResultView({ result, onConfirm, onRetry, onTakeTestLevel, isConfirming }: Props) {
+  const { t } = useTranslation(['onboarding', 'common']);
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const pct = result.scorePercent;
   const isIntroRecommended = (result.targetLevel === 'N5' && pct < 50) || result.recommendedLevel === 'STARTER';
@@ -110,10 +106,12 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
           </svg>
           <div style={{ marginTop: -108, marginBottom: 88, textAlign: 'center', position: 'relative', zIndex: 1 }}>
             <div style={{ fontSize: 28, fontWeight: 800, color: scoreColor }}>{pct.toFixed(0)}%</div>
-            <div style={{ fontSize: 12, color: '#8c827b' }}>{result.score}/{result.totalQuestions} câu</div>
+            <div style={{ fontSize: 12, color: '#8c827b' }}>
+              {t('onboarding:resultView.scoreOutOf', { score: result.score, total: result.totalQuestions, defaultValue: `${result.score}/${result.totalQuestions} câu` })}
+            </div>
           </div>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#231815', textAlign: 'center' }}>
-            Bài Test {result.targetLevel}
+            {t('onboarding:resultView.testTitle', { level: result.targetLevel, defaultValue: `Bài Test ${result.targetLevel}` })}
           </div>
         </div>
 
@@ -138,13 +136,13 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
               <span style={{ fontSize: 24 }}>🌱</span>
               <div>
                 <div style={{ fontSize: 11, color: '#137333', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>
-                  Đề xuất ưu tiên hàng đầu
+                  {t('onboarding:resultView.topPriority', 'Đề xuất ưu tiên hàng đầu')}
                 </div>
                 <div style={{ fontWeight: 800, fontSize: 16, color: '#0d5225' }}>
-                  Khóa Tiếng Nhật Nhập Môn (Cơ Bản Từ 0)
+                  {t('onboarding:resultView.starterTitle', 'Khóa Tiếng Nhật Nhập Môn (Cơ Bản Từ 0)')}
                 </div>
                 <div style={{ fontSize: 11, color: '#1e8e3e', marginTop: 2 }}>
-                  Học 50 bảng chữ cái Hiragana/Katakana, Số đếm, Aisatsu & Bộ thủ Kanji
+                  {t('onboarding:resultView.starterDesc', 'Học 50 bảng chữ cái Hiragana/Katakana, Số đếm, Aisatsu & Bộ thủ Kanji')}
                 </div>
               </div>
             </div>
@@ -155,9 +153,13 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
             }}>
               <span style={{ fontSize: 20 }}>🎯</span>
               <div>
-                <div style={{ fontSize: 12, color: '#8c827b', marginBottom: 2 }}>Đề xuất phù hợp</div>
+                <div style={{ fontSize: 12, color: '#8c827b', marginBottom: 2 }}>
+                  {t('onboarding:resultView.recommendedBadge', 'Đề xuất phù hợp')}
+                </div>
                 <div style={{ fontWeight: 800, fontSize: 17, color: LEVEL_COLOR[result.recommendedLevel] || '#137333' }}>
-                  Trình độ {result.recommendedLevel === 'STARTER' ? 'Nhập môn (STARTER)' : result.recommendedLevel}
+                  {result.recommendedLevel === 'STARTER'
+                    ? t('onboarding:resultView.levelStarter', 'Nhập môn (STARTER)')
+                    : t('onboarding:resultView.levelStandard', { level: result.recommendedLevel, defaultValue: `Trình độ ${result.recommendedLevel}` })}
                 </div>
               </div>
             </div>
@@ -175,7 +177,9 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
             <span style={{ fontSize: 20 }}>{isIntroRecommended ? '⚠️' : '🔬'}</span>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: isIntroRecommended ? '#ba1a1a' : '#231815', margin: 0 }}>
-              {isIntroRecommended ? 'Chẩn Đoán: Bạn Cần Xây Lại Nền Tảng Tiếng Nhật Căn Bản' : 'Phân Tích Chẩn Đoán Lỗi Sai & Đánh Giá Năng Lực'}
+              {isIntroRecommended
+                ? t('onboarding:resultView.diagnosticIntroTitle', 'Chẩn Đoán: Bạn Cần Xây Lại Nền Tảng Tiếng Nhật Căn Bản')
+                : t('onboarding:resultView.diagnosticGeneralTitle', 'Phân Tích Chẩn Đoán Lỗi Sai & Đánh Giá Năng Lực')}
             </h3>
           </div>
           {result.diagnosticSummary && (
@@ -200,7 +204,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                   boxShadow: '0 4px 12px rgba(192,21,56,0.2)',
                 }}
               >
-                📝 Làm bài test {result.recommendedLevel} để đo lại chính xác
+                {t('onboarding:resultView.takeTestAgain', { level: result.recommendedLevel, defaultValue: `📝 Làm bài test ${result.recommendedLevel} để đo lại chính xác` })}
               </button>
             </div>
           )}
@@ -211,14 +215,14 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
       {result.sectionScores && Object.keys(result.sectionScores).length > 0 && (
         <div style={{ padding: '20px 22px', borderRadius: 18, background: '#fff', border: '1.5px solid #e2dbce' }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: '#5a5450', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 18 }}>
-            Phân Tích Kỹ Năng
+            {t('onboarding:resultView.skillAnalysis', 'Phân Tích Kỹ Năng')}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {(Object.entries(result.sectionScores) as [Section, any][]).map(([section, score]) => (
               <div key={section}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#231815' }}>
-                    {SECTION_EMOJI[section]} {SECTION_LABEL[section]}
+                    {SECTION_EMOJI[section]} {t(`onboarding:sections.${section}`, section)}
                   </span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: scoreColor }}>
                     {score.correct}/{score.total} ({score.percent.toFixed(0)}%)
@@ -242,7 +246,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
       {/* ── LEVEL CONFIRMATION ────────────────────────────────────── */}
       <div style={{ padding: '20px 22px', borderRadius: 18, background: '#f7f5f0', border: '1.5px solid #e2dbce' }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, color: '#5a5450', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
-          Xác nhận lộ trình học tập phù hợp
+          {t('onboarding:resultView.confirmTitle', 'Xác nhận lộ trình học tập phù hợp')}
         </h3>
 
         {/* INLINE WARNING BANNER FOR UNTESTED / UNPASSED LEVEL */}
@@ -255,10 +259,15 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
             <span style={{ fontSize: 20, flexShrink: 0 }}>⚠️</span>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 800, color: '#b78103', fontSize: 13, marginBottom: 2 }}>
-                Khuyến nghị: Bạn chưa làm bài test trình độ {chosenLevel}!
+                {t('onboarding:resultView.untestedWarningTitle', { level: chosenLevel, defaultValue: `Khuyến nghị: Bạn chưa làm bài test trình độ ${chosenLevel}!` })}
               </div>
               <div style={{ color: '#5a5450' }}>
-                Do bạn chưa kiểm tra thực lực ở bài test <b>{chosenLevel}</b> (vừa đạt {pct.toFixed(1)}% ở bài test {result.targetLevel}), hệ thống chưa thể đảm bảo bạn không bị hỏng kiến thức từ trình độ {chosenLevel} trở xuống.
+                {t('onboarding:resultView.untestedWarningDesc', {
+                  chosenLevel,
+                  pct: pct.toFixed(1),
+                  targetLevel: result.targetLevel,
+                  defaultValue: `Do bạn chưa kiểm tra thực lực ở bài test ${chosenLevel} (vừa đạt ${pct.toFixed(1)}% ở bài test ${result.targetLevel}), hệ thống chưa thể đảm bảo bạn không bị hỏng kiến thức từ trình độ ${chosenLevel} trở xuống.`
+                })}
               </div>
               {onTakeTestLevel && (
                 <div style={{ marginTop: 8 }}>
@@ -273,7 +282,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                       boxShadow: '0 2px 8px rgba(183,129,3,0.25)',
                     }}
                   >
-                    📝 Làm bài test {chosenLevel} ngay (Khuyên dùng)
+                    {t('onboarding:resultView.takeTestNow', { level: chosenLevel, defaultValue: `📝 Làm bài test ${chosenLevel} ngay (Khuyên dùng)` })}
                   </button>
                 </div>
               )}
@@ -295,7 +304,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
               display: 'flex', alignItems: 'center', gap: 6,
             }}
           >
-            🌱 Tiếng Nhật Nhập Môn {isIntroRecommended ? '⭐ (Khuyên dùng)' : ''}
+            {t('onboarding:resultView.introPill', '🌱 Tiếng Nhật Nhập Môn')} {isIntroRecommended ? t('onboarding:resultView.recommendedPill', '⭐ (Khuyên dùng)') : ''}
           </button>
 
           {(['N5', 'N4', 'N3', 'N2', 'N1'] as JlptLevel[]).map(lv => (
@@ -329,10 +338,10 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
             }}
           >
             {isConfirming
-              ? '⏳ Đang lưu...'
+              ? t('onboarding:resultView.saving', '⏳ Đang lưu...')
               : chosenLevel === 'INTRO'
-              ? '🌱 Bắt Đầu Học Tiếng Nhật Nhập Môn (Từ 0)!'
-              : `🎌 Bắt đầu học ${chosenLevel}!`}
+              ? t('onboarding:resultView.startIntroBtn', '🌱 Bắt Đầu Học Tiếng Nhật Nhập Môn (Từ 0)!')
+              : t('onboarding:resultView.startLevelBtn', { level: chosenLevel, defaultValue: `🎌 Bắt đầu học ${chosenLevel}!` })}
           </button>
           <button
             id="retry-test-btn"
@@ -344,7 +353,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
               color: '#5a5450', fontWeight: 600, fontSize: 14, cursor: 'pointer',
             }}
           >
-            Làm lại {result.targetLevel}
+            {t('onboarding:resultView.retryBtn', { level: result.targetLevel, defaultValue: `Làm lại ${result.targetLevel}` })}
           </button>
         </div>
       </div>
@@ -372,8 +381,8 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
               id="modal-close-btn"
               type="button"
               onClick={() => setShowWarningModal(false)}
-              aria-label="Đóng cảnh báo"
-              title="Đóng để chọn trình độ khác"
+              aria-label={t('onboarding:resultView.warningModal.close', 'Đóng cảnh báo')}
+              title={t('onboarding:resultView.warningModal.closeTitle', 'Đóng để chọn trình độ khác')}
               style={{
                 position: 'absolute',
                 top: 18,
@@ -416,10 +425,10 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
               </div>
               <div>
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: '#ba1a1a', margin: 0, lineHeight: 1.3 }}>
-                  Cảnh Báo Nền Tảng Kiến Thức
+                  {t('onboarding:resultView.warningModal.title', 'Cảnh Báo Nền Tảng Kiến Thức')}
                 </h3>
                 <div style={{ fontSize: 12, color: '#8c827b', marginTop: 2 }}>
-                  Khuyên dùng: Nên làm bài test {chosenLevel} trước khi bắt đầu học
+                  {t('onboarding:resultView.warningModal.subtitle', { level: chosenLevel, defaultValue: `Khuyên dùng: Nên làm bài test ${chosenLevel} trước khi bắt đầu học` })}
                 </div>
               </div>
             </div>
@@ -427,14 +436,22 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
             {/* Modal Body */}
             <div style={{ fontSize: 14, color: '#231815', lineHeight: 1.65 }}>
               <p style={{ margin: 0, marginBottom: 12 }}>
-                Bạn chưa thực hiện bài test đánh giá trình độ <b>{chosenLevel}</b> (kết quả bài test <b>{result.targetLevel}</b> vừa rồi đạt <b>{pct.toFixed(1)}%</b>).
+                {t('onboarding:resultView.warningModal.p1', {
+                  chosenLevel,
+                  targetLevel: result.targetLevel,
+                  pct: pct.toFixed(1),
+                  defaultValue: `Bạn chưa thực hiện bài test đánh giá trình độ ${chosenLevel} (kết quả bài test ${result.targetLevel} vừa rồi đạt ${pct.toFixed(1)}%).`
+                })}
               </p>
               <div style={{
                 padding: '12px 16px', borderRadius: 12, background: '#fff5f5',
                 border: '1px solid #fecaca', color: '#7f1d1d', fontSize: 13, lineHeight: 1.6,
               }}>
-                💡 <b>Vì sao nên làm bài test {chosenLevel}?</b><br />
-                Chưa có gì đảm bảo bạn không bị hỏng kiến thức từ trình độ {chosenLevel} hoặc Tiếng Nhật Nhập Môn. Nếu chưa đo lại thực lực mà nhảy vào học ngay, bạn có thể bị rỗng kiến thức căn bản và gặp khó khăn sau này.
+                {t('onboarding:resultView.warningModal.whyTitle', { level: chosenLevel, defaultValue: `💡 Vì sao nên làm bài test ${chosenLevel}?` })}<br />
+                {t('onboarding:resultView.warningModal.whyDesc', {
+                  chosenLevel,
+                  defaultValue: `Chưa có gì đảm bảo bạn không bị hỏng kiến thức từ trình độ ${chosenLevel} hoặc Tiếng Nhật Nhập Môn. Nếu chưa đo lại thực lực mà nhảy vào học ngay, bạn có thể bị rỗng kiến thức căn bản và gặp khó khăn sau này.`
+                })}
               </div>
             </div>
 
@@ -456,7 +473,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                     transition: 'transform 0.15s ease',
                   }}
                 >
-                  🎯 Làm bài test {chosenLevel} ngay (Khuyên dùng)
+                  {t('onboarding:resultView.warningModal.takeTestBtn', { level: chosenLevel, defaultValue: `🎯 Làm bài test ${chosenLevel} ngay (Khuyên dùng)` })}
                 </button>
               )}
 
@@ -474,7 +491,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 }}
               >
-                🌱 Học Tiếng Nhật Nhập Môn (Xây gốc từ 0)
+                {t('onboarding:resultView.warningModal.startIntroBtn', '🌱 Học Tiếng Nhật Nhập Môn (Xây gốc từ 0)')}
               </button>
 
               {/* Bypass option */}
@@ -490,7 +507,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                   cursor: 'pointer', textDecoration: 'underline', marginTop: 2,
                 }}
               >
-                Vẫn bắt đầu học {chosenLevel} ngay (Tôi đã hiểu rủi ro)
+                {t('onboarding:resultView.warningModal.bypassBtn', { level: chosenLevel, defaultValue: `Vẫn bắt đầu học ${chosenLevel} ngay (Tôi đã hiểu rủi ro)` })}
               </button>
             </div>
           </div>
@@ -505,7 +522,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
           }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: '#5a5450', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-              📋 Đáp Án Chi Tiết ({filteredReviews.length}/{result.questionReviews.length} câu)
+              {t('onboarding:resultView.reviewTitle', { count: filteredReviews.length, total: result.questionReviews.length, defaultValue: `📋 Đáp Án Chi Tiết (${filteredReviews.length}/${result.questionReviews.length} câu)` })}
             </h3>
             {/* Filter buttons */}
             <div style={{ display: 'flex', gap: 6 }}>
@@ -519,7 +536,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                   color: filterTab === 'all' ? '#fff' : '#5a5450',
                 }}
               >
-                Tất cả ({result.questionReviews.length})
+                {t('onboarding:resultView.filterAll', { total: result.questionReviews.length, defaultValue: `Tất cả (${result.questionReviews.length})` })}
               </button>
               <button
                 id="filter-wrong-btn"
@@ -531,7 +548,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                   color: filterTab === 'wrong' ? '#fff' : '#ba1a1a',
                 }}
               >
-                ❌ Câu sai ({wrongCount})
+                {t('onboarding:resultView.filterWrong', { count: wrongCount, defaultValue: `❌ Câu sai (${wrongCount})` })}
               </button>
               <button
                 id="filter-correct-btn"
@@ -543,7 +560,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                   color: filterTab === 'correct' ? '#fff' : '#2b5f43',
                 }}
               >
-                ✓ Câu đúng ({correctCount})
+                {t('onboarding:resultView.filterCorrect', { count: correctCount, defaultValue: `✓ Câu đúng (${correctCount})` })}
               </button>
             </div>
           </div>
@@ -551,7 +568,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
           <div style={{ background: '#fff' }}>
             {filteredReviews.length === 0 ? (
               <div style={{ padding: 24, textAlign: 'center', color: '#8c827b', fontSize: 13 }}>
-                Không có câu hỏi nào khớp với bộ lọc này.
+                {t('onboarding:resultView.filterEmpty', 'Không có câu hỏi nào khớp với bộ lọc này.')}
               </div>
             ) : (
               filteredReviews.map((review, idx) => {
@@ -580,7 +597,9 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                         {isQuestionCorrect(review) ? '✓' : '✗'}
                       </span>
                       <span style={{ flex: 1, fontSize: 13, color: '#231815', lineHeight: 1.5, fontFamily: 'var(--font-jp)' }}>
-                        <b style={{ color: '#8c827b', marginRight: 6 }}>Câu {idx + 1}.</b>
+                        <b style={{ color: '#8c827b', marginRight: 6 }}>
+                          {t('onboarding:resultView.questionNum', { num: idx + 1, defaultValue: `Câu ${idx + 1}.` })}
+                        </b>
                         {review.questionText.split('\n')[0].slice(0, 80)}{review.questionText.length > 80 ? '…' : ''}
                       </span>
                       <span style={{ fontSize: 12, color: '#8c827b', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>▼</span>
@@ -607,8 +626,8 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                                   {['A', 'B', 'C', 'D'][oi]}
                                 </span>
                                 <span style={{ fontSize: 13, color, fontFamily: 'var(--font-jp)', flex: 1 }}>{opt}</span>
-                                {isCorrect && <span style={{ fontSize: 12, color: '#2b5f43', fontWeight: 700 }}>✓ Đúng</span>}
-                                {isChosen && !isCorrect && <span style={{ fontSize: 12, color: '#ba1a1a', fontWeight: 700 }}>✗ Bạn chọn</span>}
+                                {isCorrect && <span style={{ fontSize: 12, color: '#2b5f43', fontWeight: 700 }}>{t('onboarding:resultView.correct', '✓ Đúng')}</span>}
+                                {isChosen && !isCorrect && <span style={{ fontSize: 12, color: '#ba1a1a', fontWeight: 700 }}>{t('onboarding:resultView.yourChoice', '✗ Bạn chọn')}</span>}
                               </div>
                             );
                           })}
@@ -616,7 +635,9 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                         {/* Explanation */}
                         {review.explanation && (
                           <div style={{ padding: '12px 16px', borderRadius: 12, background: '#f1ede6', border: '1px solid #d9cfbe' }}>
-                            <p style={{ fontSize: 12, fontWeight: 700, color: '#5a5450', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>💡 Giải thích</p>
+                            <p style={{ fontSize: 12, fontWeight: 700, color: '#5a5450', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+                              {t('onboarding:resultView.explanation', '💡 Giải thích')}
+                            </p>
                             <p style={{ fontSize: 13, color: '#231815', lineHeight: 1.7, margin: 0 }}>{review.explanation}</p>
                           </div>
                         )}

@@ -1,0 +1,116 @@
+{
+  "hub": {
+    "greeting": "Chào mừng, {{name}}! 🎌",
+    "subtitle": "Trước khi bắt đầu hành trình học tiếng Nhật, hãy cho chúng tôi biết trình độ của bạn để cá nhân hóa lộ trình học tập nhé.",
+    "directOptionTitle": "Tôi biết trình độ của mình",
+    "directOptionDesc": "Chọn thẳng cấp độ JLPT phù hợp (N5 → N1) và bắt đầu học ngay.",
+    "testOptionTitle": "Làm bài kiểm tra trình độ JLPT",
+    "testOptionDesc": "15 câu hỏi phản xạ nhanh bao quát Kanji, Từ vựng và Ngữ pháp.",
+    "recommendedBadge": "Khuyên dùng",
+    "skipLink": "Bỏ qua, tôi sẽ học từ con số 0 (Bảng chữ cái 50 âm)",
+    "logout": "Đăng xuất"
+  },
+  "levelTest": {
+    "title": "Chọn cấp độ bạn muốn kiểm tra",
+    "subtitle": "Mỗi cấp độ có bộ đề thi riêng. Chọn đúng cấp độ bạn đang hướng tới để nhận đánh giá chính xác nhất.",
+    "questionsCount": "{{count}} câu",
+    "minutesCount": "⏱ {{count}} phút",
+    "levels": {
+      "N5": {
+        "label": "N5 — Cơ Bản",
+        "desc": "Từ vựng Hiragana/Katakana, Kanji sơ cấp, Trợ từ cơ bản"
+      },
+      "N4": {
+        "label": "N4 — Sơ Cấp",
+        "desc": "Ngữ pháp kính ngữ, Thể khả năng, Từ vựng ghép"
+      },
+      "N3": {
+        "label": "N3 — Trung Cấp",
+        "desc": "Cấu trúc câu phức, Từ nối, Đọc hiểu ngắn"
+      },
+      "N2": {
+        "label": "N2 — Cao Cấp",
+        "desc": "Từ vựng chuyên ngành, Ngữ pháp tinh tế, Bài đọc trung bình"
+      },
+      "N1": {
+        "label": "N1 — Thượng Thừa",
+        "desc": "Thành ngữ, Kanji hiếm, Ngữ pháp văn học"
+      }
+    }
+  },
+  "quiz": {
+    "submitting": "Đang chấm điểm bài thi...",
+    "errorEmpty": "Đề thi chưa có câu hỏi nào. Vui lòng chọn cấp độ khác!",
+    "errorLoad": "Không thể tải đề thi. Vui lòng thử lại!",
+    "errorSubmit": "Không thể nộp bài. Vui lòng thử lại!"
+  },
+  "loadingTest": "Đang tải đề thi...",
+  "back": "Quay lại",
+  "result": {
+    "title": "Kết Quả Kiểm Tra Trình Độ 📊",
+    "subtitle": "Xem lại đáp án, chọn trình độ phù hợp và bắt đầu học ngay!"
+  },
+  "confirming": {
+    "title": "Đang thiết lập hồ sơ học tập...",
+    "subtitle": "Chỉ mất vài giây thôi!"
+  },
+  "sections": {
+    "VOCAB": "Từ Vựng & Kanji",
+    "GRAMMAR": "Ngữ Pháp",
+    "READING": "Đọc Hiểu"
+  },
+  "player": {
+    "testTitle": "Bài Test {{level}}",
+    "questionNum": "Câu {{current}}/{{total}}",
+    "prevQuestion": "← Câu trước",
+    "answeredCount": "{{count}}/{{total}} câu đã trả lời",
+    "nextQuestion": "Câu tiếp →",
+    "submitting": "⏳ Đang chấm...",
+    "submit": "✓ Nộp bài"
+  },
+  "resultView": {
+    "scoreOutOf": "{{score}}/{{total}} câu",
+    "testTitle": "Bài Test {{level}}",
+    "topPriority": "Đề xuất ưu tiên hàng đầu",
+    "starterTitle": "Khóa Tiếng Nhật Nhập Môn (Cơ Bản Từ 0)",
+    "starterDesc": "Học 50 bảng chữ cái Hiragana/Katakana, Số đếm, Aisatsu & Bộ thủ Kanji",
+    "recommendedBadge": "Đề xuất phù hợp",
+    "levelStarter": "Nhập môn (STARTER)",
+    "levelStandard": "Trình độ {{level}}",
+    "diagnosticIntroTitle": "Chẩn Đoán: Bạn Cần Xây Lại Nền Tảng Tiếng Nhật Căn Bản",
+    "diagnosticGeneralTitle": "Phân Tích Chẩn Đoán Lỗi Sai & Đánh Giá Năng Lực",
+    "takeTestAgain": "📝 Làm bài test {{level}} để đo lại chính xác",
+    "skillAnalysis": "Phân Tích Kỹ Năng",
+    "confirmTitle": "Xác nhận lộ trình học tập phù hợp",
+    "untestedWarningTitle": "Khuyến nghị: Bạn chưa làm bài test trình độ {{level}}!",
+    "untestedWarningDesc": "Do bạn chưa kiểm tra thực lực ở bài test {{chosenLevel}} (vừa đạt {{pct}}% ở bài test {{targetLevel}}), hệ thống chưa thể đảm bảo bạn không bị hỏng kiến thức từ trình độ {{chosenLevel}} trở xuống.",
+    "takeTestNow": "📝 Làm bài test {{level}} ngay (Khuyên dùng)",
+    "introPill": "🌱 Tiếng Nhật Nhập Môn",
+    "recommendedPill": "⭐ (Khuyên dùng)",
+    "saving": "⏳ Đang lưu...",
+    "startIntroBtn": "🌱 Bắt Đầu Học Tiếng Nhật Nhập Môn (Từ 0)!",
+    "startLevelBtn": "🎌 Bắt đầu học {{level}}!",
+    "retryBtn": "Làm lại {{level}}",
+    "warningModal": {
+      "close": "Đóng cảnh báo",
+      "closeTitle": "Đóng để chọn trình độ khác",
+      "title": "Cảnh Báo Nền Tảng Kiến Thức",
+      "subtitle": "Khuyên dùng: Nên làm bài test {{level}} trước khi bắt đầu học",
+      "p1": "Bạn chưa thực hiện bài test đánh giá trình độ {{chosenLevel}} (kết quả bài test {{targetLevel}} vừa rồi đạt {{pct}}%).",
+      "whyTitle": "Vì sao nên làm bài test {{level}}?",
+      "whyDesc": "Chưa có gì đảm bảo bạn không bị hỏng kiến thức từ trình độ {{chosenLevel}} hoặc Tiếng Nhật Nhập Môn. Nếu chưa đo lại thực lực mà nhảy vào học ngay, bạn có thể bị rỗng kiến thức căn bản và gặp khó khăn sau này.",
+      "takeTestBtn": "🎯 Làm bài test {{level}} ngay (Khuyên dùng)",
+      "startIntroBtn": "🌱 Học Tiếng Nhật Nhập Môn (Xây gốc từ 0)",
+      "bypassBtn": "Vẫn bắt đầu học {{level}} ngay (Tôi đã hiểu rủi ro)"
+    },
+    "reviewTitle": "📋 Đáp Án Chi Tiết ({{count}}/{{total}} câu)",
+    "filterAll": "Tất cả ({{total}})",
+    "filterWrong": "❌ Câu sai ({{count}})",
+    "filterCorrect": "✓ Câu đúng ({{count}})",
+    "filterEmpty": "Không có câu hỏi nào khớp với bộ lọc này.",
+    "questionNum": "Câu {{num}}.",
+    "correct": "✓ Đúng",
+    "yourChoice": "✗ Bạn chọn",
+    "explanation": "💡 Giải thích"
+  }
+}

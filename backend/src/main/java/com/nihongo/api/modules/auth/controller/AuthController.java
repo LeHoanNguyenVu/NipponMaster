@@ -81,6 +81,20 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("Cập nhật ảnh đại diện thành công", response));
     }
 
+    @PatchMapping({"/preferences", "/me/preferences"})
+    @Operation(summary = "Cập nhật tùy chọn ngôn ngữ/giao diện người dùng (cần JWT)")
+    public ResponseEntity<ApiResponse<UserResponse>> updatePreferences(
+            Authentication authentication,
+            @Valid @RequestBody UpdatePreferencesRequest request) {
+        if (authentication == null || authentication.getPrincipal() == null || !(authentication.getPrincipal() instanceof Long)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Chưa đăng nhập hoặc phiên đăng nhập đã hết hạn"));
+        }
+        Long userId = (Long) authentication.getPrincipal();
+        UserResponse response = authService.updatePreferences(userId, request);
+        return ResponseEntity.ok(ApiResponse.ok("Cập nhật tùy chọn thành công", response));
+    }
+
     @PostMapping("/logout")
     @Operation(summary = "Đăng xuất — vô hiệu hóa JWT token hiện tại")
     public ResponseEntity<ApiResponse<Void>> logout(

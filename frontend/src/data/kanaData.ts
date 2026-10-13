@@ -604,8 +604,12 @@ export function getNextRow(currentRow: string): string | null {
 }
 
 /** Lấy nhãn hàng */
-export function getKanaRowLabel(row: string): string {
-  return ROW_LABELS[row] || row;
+export function getKanaRowLabel(row: string, lang = 'vi'): string {
+  const label = ROW_LABELS[row] || row;
+  if (lang === 'en') {
+    return label.replace('Hàng ', 'Row ');
+  }
+  return label;
 }
 
 /** Nhóm ký tự theo hàng */

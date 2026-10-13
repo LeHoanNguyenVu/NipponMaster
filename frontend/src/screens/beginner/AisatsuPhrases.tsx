@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Volume2, Check, ArrowRight, RotateCcw, AlertTriangle } from 'lucide-react';
+import { Volume2, Check, ArrowRight, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import {
   GREETINGS, PRONOUNS, HONORIFIC_SUFFIXES, AISATSU_CHAPTER_QUIZ
 } from '../../data/aisatsuData';
@@ -12,6 +13,7 @@ interface AisatsuPhrasesProps {
 }
 
 export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProps) {
+  const { t } = useTranslation(['beginner', 'common']);
   const [activeTab, setActiveTab] = useState<'greetings' | 'pronouns' | 'honorifics' | 'test'>('greetings');
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
@@ -21,7 +23,6 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
-  const [wrongQuestions, setWrongQuestions] = useState<typeof AISATSU_CHAPTER_QUIZ>([]);
 
   const filteredGreetings = filterCategory === 'all'
     ? GREETINGS
@@ -36,8 +37,6 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
     if (optionIdx === currentQ.correctIndex) {
       setScore(s => s + 1);
       if (currentQ.audioText) speakJapanese(currentQ.audioText);
-    } else {
-      setWrongQuestions(prev => [...prev, currentQ]);
     }
   };
 
@@ -65,44 +64,42 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
     setIsAnswered(false);
     setScore(0);
     setQuizDone(false);
-    setWrongQuestions([]);
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 font-serif">
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider mb-1">
-          <span>📖 CHƯƠNG 3</span>
-          <span>•</span>
-          <span>SÁCH GIÁO KHOA NHẬP MÔN</span>
+          <span>{t('beginner:aisatsu.badge')}</span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight">
-          Chào Hỏi Giao Tiếp, Đại Từ & Xưng Hô Văn Hóa
+        <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight font-serif">
+          {t('beginner:aisatsu.title')}
         </h1>
-        <p className="text-sm text-on-surface-variant mt-1">
-          Học các mẫu câu chào hỏi chuẩn văn hóa Nhật (Aisatsu), cách dùng đại từ (私/僕/俺) và các hậu tố kính ngữ (-san, -sama, -kun, -chan).
+        <p className="text-sm text-on-surface-variant mt-1 font-serif">
+          {t('beginner:aisatsu.subtitle')}
         </p>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex flex-wrap gap-2 border-b border-outline-variant/30 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-outline-variant/30 pb-3 font-serif">
         {[
-          { id: 'greetings', label: '👋 1. Mẫu Câu Chào Hỏi (Aisatsu)' },
-          { id: 'pronouns', label: '🗣️ 2. Đại Từ Xưng Hô' },
-          { id: 'honorifics', label: '🏷️ 3. Hậu Tố Kính Ngữ (-san, -sama...)' },
-          { id: 'test', label: '🧪 4. Bài Test Chương 3' },
-        ].map(t => (
+          { id: 'greetings', label: t('beginner:aisatsu.tabs.greetings') },
+          { id: 'pronouns', label: t('beginner:aisatsu.tabs.pronouns') },
+          { id: 'honorifics', label: t('beginner:aisatsu.tabs.honorifics') },
+          { id: 'test', label: t('beginner:aisatsu.tabs.test') },
+        ].map(tTab => (
           <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id as any)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === t.id
+            key={tTab.id}
+            onClick={() => setActiveTab(tTab.id as any)}
+            className={`px-4 py-2 text-sm font-semibold transition-all cursor-pointer font-serif ${
+              activeTab === tTab.id
                 ? 'bg-primary text-on-primary shadow-sm scale-102'
                 : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
             }`}
+            style={{ borderRadius: '2px' }}
           >
-            {t.label}
+            {tTab.label}
           </button>
         ))}
       </div>
@@ -113,23 +110,24 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
         {activeTab === 'greetings' && (
           <motion.div key="greetings" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
             {/* Category Filter Pills */}
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 font-serif">
               {[
-                { id: 'all', label: 'Tất cả' },
-                { id: 'daily', label: 'Hàng ngày (Sáng/Trưa/Tối)' },
-                { id: 'farewell', label: 'Tạm biệt & Ra về' },
-                { id: 'gratitude', label: 'Cảm ơn & Xin lỗi' },
-                { id: 'meal', label: 'Bữa ăn' },
-                { id: 'home', label: 'Đi & Về nhà' },
+                { id: 'all', label: t('beginner:aisatsu.filters.all') },
+                { id: 'daily', label: t('beginner:aisatsu.filters.daily') },
+                { id: 'farewell', label: t('beginner:aisatsu.filters.farewell') },
+                { id: 'gratitude', label: t('beginner:aisatsu.filters.gratitude') },
+                { id: 'meal', label: t('beginner:aisatsu.filters.meal') },
+                { id: 'home', label: t('beginner:aisatsu.filters.home') },
               ].map(c => (
                 <button
                   key={c.id}
                   onClick={() => setFilterCategory(c.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                  className={`px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors font-serif ${
                     filterCategory === c.id
                       ? 'bg-secondary text-on-secondary'
                       : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
                   }`}
+                  style={{ borderRadius: '2px' }}
                 >
                   {c.label}
                 </button>
@@ -242,28 +240,29 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
             {!quizDone ? (
               <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 md:p-8 space-y-6 shadow-sm">
                 {/* Progress Header */}
-                <div className="flex items-center justify-between text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20 pb-4">
-                  <span>Câu hỏi {quizIdx + 1} / {AISATSU_CHAPTER_QUIZ.length}</span>
-                  <span className="text-secondary font-bold">Điểm hiện tại: {score}</span>
+                <div className="flex items-center justify-between text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20 pb-4 font-serif">
+                  <span>{t('beginner:aisatsu.questionCount', { current: quizIdx + 1, total: AISATSU_CHAPTER_QUIZ.length })}</span>
+                  <span className="text-secondary font-bold">{t('beginner:aisatsu.scoreLabel')} {score}</span>
                 </div>
 
                 {/* Question */}
-                <div className="space-y-3">
+                <div className="space-y-3 font-serif">
                   <h3 className="text-lg font-bold text-on-surface leading-relaxed">
                     {AISATSU_CHAPTER_QUIZ[quizIdx].question}
                   </h3>
                   {AISATSU_CHAPTER_QUIZ[quizIdx].audioText && (
                     <button
                       onClick={() => speakJapanese(AISATSU_CHAPTER_QUIZ[quizIdx].audioText!)}
-                      className="px-3 py-1.5 rounded-xl bg-secondary/10 text-secondary text-xs font-bold hover:bg-secondary/20 cursor-pointer flex items-center gap-1.5 transition-colors"
+                      className="px-3 py-1.5 bg-secondary/10 text-secondary text-xs font-bold hover:bg-secondary/20 cursor-pointer flex items-center gap-1.5 transition-colors font-serif"
+                      style={{ borderRadius: '2px' }}
                     >
-                      <Volume2 size={14} /> Nghe câu phát âm
+                      <Volume2 size={14} /> <span>Audio</span>
                     </button>
                   )}
                 </div>
 
                 {/* Options */}
-                <div className="space-y-2.5">
+                <div className="space-y-2.5 font-serif">
                   {AISATSU_CHAPTER_QUIZ[quizIdx].options.map((opt, idx) => {
                     let btnStyle = 'bg-surface-container-low border-outline-variant/30 hover:border-primary/50 text-on-surface';
                     if (isAnswered) {
@@ -279,7 +278,8 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
                         key={idx}
                         onClick={() => handleAnswerSelect(idx)}
                         disabled={isAnswered}
-                        className={`w-full p-4 rounded-2xl border text-left text-sm transition-all cursor-pointer flex items-center justify-between ${btnStyle}`}
+                        className={`w-full p-4 border text-left text-sm transition-all cursor-pointer flex items-center justify-between font-serif ${btnStyle}`}
+                        style={{ borderRadius: '2px' }}
                       >
                         <span>{opt}</span>
                         {isAnswered && idx === AISATSU_CHAPTER_QUIZ[quizIdx].correctIndex && <Check size={18} className="text-secondary" />}
@@ -290,8 +290,8 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
 
                 {/* Explanation */}
                 {isAnswered && (
-                  <div className="p-4 rounded-2xl bg-surface-container border border-outline-variant/30 text-xs text-on-surface space-y-1">
-                    <div className="font-bold text-primary">💡 Giải thích:</div>
+                  <div className="p-4 bg-surface-container border border-outline-variant/30 text-xs text-on-surface space-y-1 font-serif" style={{ borderRadius: '2px' }}>
+                    <div className="font-bold text-primary">💡 {t('common:labels.explanation', 'Giải thích')}:</div>
                     <p>{AISATSU_CHAPTER_QUIZ[quizIdx].explanation}</p>
                   </div>
                 )}
@@ -300,69 +300,48 @@ export default function AisatsuPhrases({ onChapterComplete }: AisatsuPhrasesProp
                 {isAnswered && (
                   <button
                     onClick={handleNextQuestion}
-                    className="w-full py-3 rounded-2xl bg-primary text-on-primary font-bold text-sm cursor-pointer hover:bg-primary-container transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-primary text-on-primary font-bold text-sm cursor-pointer hover:bg-primary-container transition-colors flex items-center justify-center gap-2 font-serif"
+                    style={{ borderRadius: '2px' }}
                   >
-                    <span>{quizIdx + 1 < AISATSU_CHAPTER_QUIZ.length ? 'Câu Tiếp Theo' : 'Xem Kết Quả'}</span>
+                    <span>{quizIdx + 1 < AISATSU_CHAPTER_QUIZ.length ? t('beginner:aisatsu.nextBtn') : t('beginner:aisatsu.finishBtn')}</span>
                     <ArrowRight size={16} />
                   </button>
                 )}
               </div>
             ) : (
               /* Quiz Result Screen */
-              <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 text-center space-y-6 shadow-sm">
-                <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto text-3xl font-bold">
+              <div className="bg-surface-container-lowest border border-outline-variant/30 p-8 text-center space-y-6 shadow-sm font-serif" style={{ borderRadius: '2px' }}>
+                <div className="w-16 h-16 bg-primary/10 text-primary flex items-center justify-center mx-auto text-3xl font-bold" style={{ borderRadius: '2px' }}>
                   {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100) >= 85 ? '🎉' : '💪'}
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-on-surface">Kết Quả Bài Test Chương 3</h2>
-                  <div className="text-4xl font-extrabold text-primary my-2">
+                  <h2 className="text-2xl font-bold text-on-surface font-serif">{t('beginner:aisatsu.testTitle')}</h2>
+                  <div className="text-4xl font-extrabold text-primary my-2 font-mono">
                     {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100)}%
                   </div>
-                  <p className="text-sm text-on-surface-variant">
-                    Trả lời đúng {score} / {AISATSU_CHAPTER_QUIZ.length} câu
+                  <p className="text-sm text-on-surface-variant font-serif">
+                    {score} / {AISATSU_CHAPTER_QUIZ.length}
                   </p>
                 </div>
 
                 {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100) >= 85 ? (
-                  <div className="p-4 rounded-2xl bg-secondary/10 text-secondary text-sm font-semibold">
-                    ✅ Chúc mừng! Bạn đã đạt {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100)}% (≥ 85%) và mở khóa thành công **Chương 4: 50+ Bộ Thủ Kanji Tượng Hình**!
+                  <div className="p-4 bg-secondary/10 text-secondary text-sm font-semibold font-serif" style={{ borderRadius: '2px' }}>
+                    {t('beginner:aisatsu.congrats')}
                   </div>
                 ) : (
-                  <div className="p-4 rounded-2xl bg-crimson-500/10 text-crimson-600 text-sm font-semibold">
-                    ⚠️ Bạn cần đạt tối thiểu <strong>85%</strong> để mở khóa chương tiếp theo (Điểm hiện tại: {Math.round((score / AISATSU_CHAPTER_QUIZ.length) * 100)}%). Ôn lại kiến thức và thử lại nhé!
+                  <div className="p-4 bg-crimson-500/10 text-crimson-600 text-sm font-semibold font-serif" style={{ borderRadius: '2px' }}>
+                    {t('beginner:aisatsu.tryAgain')}
                   </div>
                 )}
 
-                {/* Wrong Questions Review Links */}
-                {wrongQuestions.length > 0 && (
-                  <div className="text-left space-y-3 pt-4 border-t border-outline-variant/20">
-                    <h3 className="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-1.5">
-                      <AlertTriangle size={14} className="text-tertiary" />
-                      <span>Gợi ý phần cần ôn lại:</span>
-                    </h3>
-                    <div className="space-y-2">
-                      {wrongQuestions.map((wq, i) => (
-                        <div key={i} className="p-3 rounded-xl bg-surface-container text-xs flex items-center justify-between gap-2">
-                          <span className="text-on-surface font-medium line-clamp-1">{wq.question}</span>
-                          <button
-                            onClick={() => setActiveTab(wq.targetTab)}
-                            className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-bold hover:bg-primary/20 flex-shrink-0 cursor-pointer"
-                          >
-                            Ôn lại {wq.targetTab === 'greetings' ? 'Chào hỏi' : wq.targetTab === 'pronouns' ? 'Đại từ' : 'Hậu tố'} →
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-4 font-serif">
                   <button
                     onClick={handleRestartQuiz}
-                    className="flex-1 py-3 rounded-2xl bg-surface-container border border-outline-variant/40 text-on-surface font-bold text-sm cursor-pointer hover:bg-surface-container-high flex items-center justify-center gap-2"
+                    className="flex-1 py-3 bg-surface-container border border-outline-variant/40 text-on-surface font-bold text-sm cursor-pointer hover:bg-surface-container-high flex items-center justify-center gap-2 font-serif"
+                    style={{ borderRadius: '2px' }}
                   >
-                    <RotateCcw size={16} /> Làm Lại Test
+                    <RotateCcw size={16} /> {t('beginner:aisatsu.retakeBtn')}
                   </button>
                 </div>
               </div>

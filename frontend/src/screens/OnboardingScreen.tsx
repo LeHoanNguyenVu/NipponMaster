@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { LogOut, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { useTranslation } from 'react-i18next';
 import { placementApi } from '../api/placementApi';
 import axiosClient from '../api/axiosClient';
 import type { JlptLevel, PlacementTestData, PlacementResult } from '../api/placementApi';
@@ -24,6 +25,7 @@ interface OnboardingScreenProps {
 }
 
 export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
+  const { t } = useTranslation(['onboarding', 'common']);
   const { user, completeOnboarding, logout } = useAuthStore();
   const [step, setStep] = useState<Step>('hub');
   const [testData, setTestData] = useState<PlacementTestData | null>(null);
@@ -57,12 +59,12 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
     try {
       const data = await placementApi.getQuestions(level);
       if (!data || !data.questions || data.questions.length === 0) {
-        throw new Error('Đề thi chưa có câu hỏi nào. Vui lòng chọn cấp độ khác!');
+        throw new Error(t('onboarding:quiz.errorEmpty', 'Đề thi chưa có câu hỏi nào. Vui lòng chọn cấp độ khác!'));
       }
       setTestData(data);
       setStep('quiz');
     } catch (err: any) {
-      const msg = err?.message || 'Không thể tải đề thi. Vui lòng thử lại!';
+      const msg = err?.message || t('onboarding:quiz.errorLoad', 'Không thể tải đề thi. Vui lòng thử lại!');
       setError(msg);
       setStep('test-level-pick');
     } finally {
@@ -171,7 +173,7 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
             }}
           >
             <LogOut size={15} />
-            <span>Đăng xuất</span>
+            <span>{t('onboarding:hub.logout', 'Đăng xuất')}</span>
           </button>
         </div>
 
@@ -186,10 +188,10 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
         {step === 'hub' && (
           <div>
             <h1 style={{ fontSize: 26, fontWeight: 800, color: '#231815', lineHeight: 1.3, marginBottom: 8 }}>
-              Chào mừng, {firstName}! 🎌
+              {t('onboarding:hub.greeting', { name: firstName, defaultValue: `Chào mừng, ${firstName}! 🎌` })}
             </h1>
             <p style={{ color: '#5a5450', fontSize: 15, marginBottom: 32, lineHeight: 1.7 }}>
-              Trước khi bắt đầu hành trình học tiếng Nhật, hãy cho chúng tôi biết trình độ của bạn để cá nhân hóa lộ trình học tập nhé.
+              {t('onboarding:hub.subtitle', 'Trước khi bắt đầu hành trình học tiếng Nhật, hãy cho chúng tôi biết trình độ của bạn để cá nhân hóa lộ trình học tập nhé.')}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {/* Option 1 */}
@@ -214,10 +216,10 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
                 <span style={{ fontSize: 32, flexShrink: 0, marginTop: 2 }}>🎯</span>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 16, color: '#231815', marginBottom: 4 }}>
-                    Tôi biết trình độ của mình
+                    {t('onboarding:hub.directOptionTitle', 'Tôi biết trình độ của mình')}
                   </div>
                   <div style={{ fontSize: 13, color: '#5a5450', lineHeight: 1.6 }}>
-                    Chọn thẳng cấp độ JLPT phù hợp (N5 → N1) và bắt đầu học ngay.
+                    {t('onboarding:hub.directOptionDesc', 'Chọn thẳng cấp độ JLPT phù hợp (N5 → N1) và bắt đầu học ngay.')}
                   </div>
                 </div>
               </button>
@@ -247,11 +249,13 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
                 <span style={{ fontSize: 32, flexShrink: 0, marginTop: 2 }}>📝</span>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontWeight: 700, fontSize: 16, color: '#231815' }}>Làm bài kiểm tra trình độ JLPT</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#c01538', background: '#c0153818', padding: '2px 8px', borderRadius: 99 }}>Khuyên dùng</span>
+                    <span style={{ fontWeight: 700, fontSize: 16, color: '#231815' }}>{t('onboarding:hub.testOptionTitle', 'Làm bài kiểm tra trình độ JLPT')}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#c01538', background: '#c0153818', padding: '2px 8px', borderRadius: 99 }}>
+                      {t('onboarding:hub.recommendedBadge', 'Khuyên dùng')}
+                    </span>
                   </div>
                   <div style={{ fontSize: 13, color: '#5a5450', lineHeight: 1.6 }}>
-                    Làm bài thi thử chuẩn JLPT theo từng cấp độ. Nhận đánh giá năng lực và đề xuất lộ trình chính xác nhất.
+                    {t('onboarding:hub.testOptionDesc', '15 câu hỏi phản xạ nhanh bao quát Kanji, Từ vựng và Ngữ pháp.')}
                   </div>
                 </div>
               </button>
@@ -271,7 +275,7 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#c01538'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#8c827b'; }}
               >
-                <span>Bỏ qua bước này (Bắt đầu với trình độ Nhập môn)</span>
+                <span>{t('onboarding:hub.skipLink', 'Bỏ qua, tôi sẽ học từ con số 0 (Bảng chữ cái 50 âm)')}</span>
                 <ArrowRight size={14} />
               </button>
             </div>
@@ -301,7 +305,7 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
               }}
             >
               <ArrowLeft size={14} />
-              <span>Quay lại</span>
+              <span>{t('onboarding:back', 'Quay lại')}</span>
             </button>
             <LevelSelector onSelect={handleDirectSelect} isLoading={false} />
           </>
@@ -330,12 +334,12 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
               }}
             >
               <ArrowLeft size={14} />
-              <span>Quay lại</span>
+              <span>{t('onboarding:back', 'Quay lại')}</span>
             </button>
             {loadingTest ? (
               <div style={{ textAlign: 'center', padding: '60px 0', color: '#5a5450' }}>
                 <div style={{ fontSize: 36, marginBottom: 12 }}>⏳</div>
-                <p style={{ fontSize: 15 }}>Đang tải đề thi...</p>
+                <p style={{ fontSize: 15 }}>{t('onboarding:loadingTest', 'Đang tải đề thi...')}</p>
               </div>
             ) : (
               <LevelTestSelector onSelect={handleLoadTest} />
@@ -358,8 +362,12 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
         {step === 'result' && resultData && (
           <>
             <div style={{ marginBottom: 20 }}>
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: '#231815', marginBottom: 6 }}>Kết Quả Kiểm Tra Trình Độ 📊</h1>
-              <p style={{ color: '#5a5450', fontSize: 14 }}>Xem lại đáp án, chọn trình độ phù hợp và bắt đầu học ngay!</p>
+              <h1 style={{ fontSize: 22, fontWeight: 800, color: '#231815', marginBottom: 6 }}>
+                {t('onboarding:result.title', 'Kết Quả Kiểm Tra Trình Độ 📊')}
+              </h1>
+              <p style={{ color: '#5a5450', fontSize: 14 }}>
+                {t('onboarding:result.subtitle', 'Xem lại đáp án, chọn trình độ phù hợp và bắt đầu học ngay!')}
+              </p>
             </div>
             <PlacementResultView
               result={resultData}
@@ -375,8 +383,12 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
         {step === 'confirming' && (
           <div style={{ textAlign: 'center', padding: '60px 0' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🎌</div>
-            <p style={{ fontSize: 16, fontWeight: 600, color: '#231815', marginBottom: 8 }}>Đang thiết lập hồ sơ học tập...</p>
-            <p style={{ fontSize: 13, color: '#5a5450' }}>Chỉ mất vài giây thôi!</p>
+            <p style={{ fontSize: 16, fontWeight: 600, color: '#231815', marginBottom: 8 }}>
+              {t('onboarding:confirming.title', 'Đang thiết lập hồ sơ học tập...')}
+            </p>
+            <p style={{ fontSize: 13, color: '#5a5450' }}>
+              {t('onboarding:confirming.subtitle', 'Chỉ mất vài giây thôi!')}
+            </p>
           </div>
         )}
       </div>

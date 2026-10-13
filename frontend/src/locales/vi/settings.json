@@ -1,0 +1,64 @@
+{
+  "title": "Cài Đặt Hệ Thống",
+  "subtitle": "Tùy biến ngôn ngữ giao diện, kiểu chữ và trải nghiệm cá nhân hóa",
+  "tabs": {
+    "language": "Ngôn Ngữ & Kiểu Chữ",
+    "theme": "Giao Diện & Màu Sắc",
+    "account": "Tài Khoản & Bảo Mật"
+  },
+  "languageSection": {
+    "title": "Ngôn Ngữ Giao Diện (Interface Language)",
+    "description": "Lựa chọn ngôn ngữ hiển thị chính trên toàn bộ ứng dụng NipponMaster. Font chữ tương ứng sẽ tự động điều chỉnh theo tiêu chuẩn in ấn Washi Editorial.",
+    "syncNotice": "Tùy chọn này được tự động lưu vào đám mây và đồng bộ trên mọi thiết bị bạn đăng nhập.",
+    "options": {
+      "vi": {
+        "name": "Tiếng Việt",
+        "tag": "Mặc định VN",
+        "fontName": "Times New Roman (Serif Cổ Điển)",
+        "description": "Font chữ in ấn chuẩn mực, hỗ trợ dấu tiếng Việt đầy đủ và tối ưu cho việc đọc tài liệu ngữ pháp."
+      },
+      "en": {
+        "name": "English",
+        "tag": "International",
+        "fontName": "Georgia (Serif Quốc Tế)",
+        "description": "Classic literary serif font designed for maximum legibility on digital screens."
+      }
+    }
+  },
+  "typographySection": {
+    "title": "Xem Trước Kiểu Chữ (Typography Preview)",
+    "description": "Mỗi ngôn ngữ sử dụng một bộ font serif chuyên biệt kết hợp cùng Mincho cho ký tự Kanji/Kana:",
+    "latinLabel": "Văn Bản Giao Diện & Diễn Giải",
+    "latinSample": "Trăm năm trong cõi người ta / Chữ tài chữ mệnh khéo là ghét nhau. Việc học Hán tự đòi hỏi sự kiên trì và kỷ luật cao độ.",
+    "japaneseLabel": "Hán Tự & Ký Tự Tiếng Nhật (Noto Serif JP / Mincho)",
+    "japaneseSample": "「千里の道も一歩から」— Hành trình vạn dặm khởi đầu từ một bước chân. 漢字・ひらがな・カタカナ。"
+  },
+  "furiganaSection": {
+    "title": "Hiển Thị Furigana",
+    "description": "Bật/tắt phiên âm cách đọc hiragana phía trên chữ Hán trong các bài học và đề thi JLPT.",
+    "always": "Luôn hiển thị furigana",
+    "hoverOnly": "Chỉ hiển thị khi rê chuột (Khuyên dùng N3-N1)",
+    "hide": "Ẩn hoàn toàn (Thử thách thực chiến)"
+  },
+  "themeSection": {
+    "title": "Giao Diện & Màu Sắc",
+    "description": "Chọn chủ đề màu sắc phù hợp với môi trường học tập ban ngày hoặc ban đêm."
+  },
+  "accountSection": {
+    "accountDetails": "Thông Tin Tài Khoản",
+    "fullName": "Họ và tên",
+    "email": "Email đăng ký",
+    "role": "Vai trò",
+    "jlptLevel": "Trình độ JLPT",
+    "savedLanguage": "Ngôn ngữ lưu trữ",
+    "securityTitle": "Bảo Mật & Phiên Đăng Nhập",
+    "browser": "Trình duyệt",
+    "os": "Hệ điều hành",
+    "sessionStatus": "Trạng thái phiên",
+    "sessionActive": "JWT Active (24 giờ)",
+    "encryption": "Mã hóa dữ liệu",
+    "encryptionValue": "TLS / SHA-256 Cloud Encrypted",
+    "studentFallback": "Học viên"
+  },
+  "saveSuccess": "Đã lưu cài đặt tùy chọn thành công!"
+}

@@ -1,0 +1,70 @@
+{
+  "searchPlaceholder": "Tìm kiếm từ vựng, ngữ pháp, kanji N5-N1...",
+  "levelTitle": "Trình độ JLPT hiện tại: {{level}}",
+  "starter": "Nhập Môn",
+  "studentFallback": "Học viên",
+  "notifications": {
+    "title": "Thông Báo",
+    "newBadge": "{{count}} mới",
+    "allRead": "Đã đọc tất cả",
+    "markAllRead": "Đã đọc tất cả",
+    "empty": "Không có thông báo nào"
+  },
+  "menu": {
+    "settings": "Cài Đặt Hệ Thống",
+    "changeAvatar": "Thay Đổi Ảnh Đại Diện",
+    "changePassword": "Đổi Mật Khẩu Tài Khoản",
+    "theme": "Giao Diện & Chủ Đề",
+    "wallet": "Ví Tiền & Nạp Coins",
+    "security": "Bảo Mật & Thiết Bị",
+    "logout": "Đăng Xuất Khỏi Thiết Bị"
+  },
+  "modals": {
+    "avatar": {
+      "title": "Thay Đổi Ảnh Đại Diện",
+      "uploadBtn": "Tự tải ảnh lên từ máy tính của bạn",
+      "uploadSub": "Hỗ trợ PNG, JPG, WEBP (Tối đa 5MB)",
+      "selectFile": "Chọn Ảnh Từ Thiết Bị",
+      "uploading": "Đang xử lý ảnh...",
+      "presetTitle": "Hoặc Chọn Ảnh Phong Cảnh & Động Vật Nhật Bản",
+      "success": "Đã cập nhật ảnh đại diện thành công!"
+    },
+    "password": {
+      "title": "Đổi Mật Khẩu Tài Khoản",
+      "current": "Mật khẩu hiện tại",
+      "currentPlaceholder": "Nhập mật khẩu bạn đang dùng",
+      "new": "Mật khẩu mới",
+      "newPlaceholder": "Tối thiểu 6 ký tự",
+      "confirm": "Xác nhận lại mật khẩu mới",
+      "confirmPlaceholder": "Nhập lại chính xác mật khẩu mới",
+      "submit": "Cập Nhật Mật Khẩu",
+      "submitting": "Đang cập nhật...",
+      "success": "Đổi mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới này."
+    },
+    "theme": {
+      "title": "Giao Diện & Chủ Đề Màu Sắc",
+      "subtitle": "Chọn phong cách màu sắc yêu thích",
+      "apply": "Áp Dụng"
+    },
+    "wallet": {
+      "title": "Ví Tiền & Nạp Coins",
+      "balanceTitle": "Số Dư Khả Dụng",
+      "standardAccount": "Tài khoản Chuẩn",
+      "packagesTitle": "Các Gói Nạp Coins Ưu Đãi",
+      "comingSoon": "Sắp Ra Mắt 🚀",
+      "notice": "Cổng nạp tự động qua VietQR, MoMo và VNPay đang được hoàn thiện.",
+      "close": "Đóng Cửa Sổ"
+    },
+    "security": {
+      "title": "Bảo Mật & Thiết Bị",
+      "session": "Phiên Đăng Nhập Hiện Tại",
+      "browser": "Trình duyệt",
+      "os": "Hệ điều hành",
+      "tokenStatus": "Trạng thái token",
+      "tokenActive": "JWT Hoạt Động (24 giờ)",
+      "authAccount": "Xác Thực Tài Khoản",
+      "registeredEmail": "Email đăng ký",
+      "understand": "Đã Hiểu"
+    }
+  }
+}

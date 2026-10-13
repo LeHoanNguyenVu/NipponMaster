@@ -26,6 +26,7 @@ import {
 } from '../data/quizBankData';
 import { saveChapterScore, isUserAdvancedLevel } from '../utils/beginnerProgressManager';
 import { useAuthStore } from '../store/useAuthStore';
+import { useTranslation } from 'react-i18next';
 
 type Tab = 'overview' | 'lesson' | 'quiz' | 'practice_all';
 type KanaType = 'hiragana' | 'katakana';
@@ -40,6 +41,8 @@ interface AlphabetExplorerProps {
 }
 
 export default function AlphabetExplorer({ onChapterComplete }: AlphabetExplorerProps = {}) {
+  const { t, i18n } = useTranslation(['beginner', 'common']);
+  const currentLang = i18n.language || 'vi';
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [kanaType, setKanaType] = useState<KanaType>('hiragana');
 
@@ -241,50 +244,50 @@ export default function AlphabetExplorer({ onChapterComplete }: AlphabetExplorer
   };
 
   const TABS = [
-    { id: 'overview' as Tab, label: 'Bảng Tổng Quan', icon: BookOpen },
-    { id: 'lesson' as Tab, label: 'Bài Học', icon: PenTool },
-    { id: 'quiz' as Tab, label: 'Luyện Tập', icon: Sparkles },
-    { id: 'practice_all' as Tab, label: 'Luyện Tập Tổng Hợp', icon: Trophy },
+    { id: 'overview' as Tab, label: t('beginner:alphabet.tabs.overview'), icon: BookOpen },
+    { id: 'lesson' as Tab, label: t('beginner:alphabet.tabs.lesson'), icon: PenTool },
+    { id: 'quiz' as Tab, label: t('beginner:alphabet.tabs.quiz'), icon: Sparkles },
+    { id: 'practice_all' as Tab, label: t('beginner:alphabet.tabs.practice_all'), icon: Trophy },
   ];
 
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
       {/* ── Header ── */}
       <div className="mb-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight mb-1 flex items-center gap-2">
-          <span>あ</span> Bảng Chữ Cái Nhật Bản
+        <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight mb-1 flex items-center gap-2 font-serif">
+          <span className="font-jp text-primary">あ</span> {t('beginner:alphabet.headerTitle')}
         </h1>
-        <p className="text-sm text-on-surface-variant">
-          Học → Viết → Phát âm → Kiểm tra — Luồng học tuần tự theo từng hàng và ngân hàng 15 đề thi độc lập không trùng lặp
+        <p className="text-sm text-on-surface-variant leading-relaxed">
+          {t('beginner:alphabet.headerSubtitle')}
         </p>
       </div>
 
       {/* ── Real Progress Indicator Banner for Chapter 1 ── */}
-      <div className="mb-6 p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="mb-6 p-4 bg-surface-container-low border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-4" style={{ borderRadius: '2px' }}>
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-primary">Tiến độ thực tế Chương 1:</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-primary">{t('beginner:alphabet.progressLabel')}</span>
             <span className="text-xs text-on-surface-variant">•</span>
-            <span className="text-xs font-semibold text-on-surface">Đã học <strong>{learnedRows.length}</strong> hàng chữ</span>
+            <span className="text-xs font-semibold text-on-surface">{t('beginner:alphabet.learnedRows', { count: learnedRows.length })}</span>
             <span className="text-xs text-on-surface-variant">•</span>
-            <span className="text-xs font-semibold text-on-surface">Đã làm <strong>{completedTestsCount}</strong> bài test</span>
+            <span className="text-xs font-semibold text-on-surface">{t('beginner:alphabet.completedTests', { count: completedTestsCount })}</span>
           </div>
           <div className="text-xs">
             {realMaxScore >= 85 ? (
               <span className="text-secondary font-bold flex items-center gap-1">
-                ✅ Đạt điểm test {realMaxScore}% (≥ 85%) — Đã mở khóa thành công Chương 2!
+                {t('beginner:alphabet.passedScoreNote', { score: realMaxScore })}
               </span>
             ) : realMaxScore > 0 ? (
               <span className="text-primary font-bold flex items-center gap-1">
-                📊 Điểm test cao nhất hiện tại: <strong>{realMaxScore}%</strong> / 85% {isAdvanced && `— Đã mở khóa toàn bộ chương (Trình độ ${currentLevel})`}
+                {t('beginner:alphabet.currentScoreNote', { score: realMaxScore })} {isAdvanced && `— ${t('beginner:hub.unlocked', { level: currentLevel })}`}
               </span>
             ) : isAdvanced ? (
               <span className="text-secondary font-bold flex items-center gap-1">
-                🎓 Bạn đã đạt trình độ {currentLevel} (Tốt nghiệp Nhập Môn) — Toàn bộ các chương đã được mở khóa để bạn tự do ôn tập!
+                {t('beginner:alphabet.advancedUnlockedNote', { level: currentLevel })}
               </span>
             ) : (
               <span className="text-amber-800 dark:text-amber-400 font-medium flex items-center gap-1">
-                🔒 Điểm test cao nhất hiện tại: <strong>{realMaxScore}%</strong> / 85% — Cần đạt bài test ≥ 85% ở thẻ "Luyện Tập Tổng Hợp" để mở khóa Chương 2
+                {t('beginner:alphabet.lockedNote', { score: realMaxScore })}
               </span>
             )}
           </div>
@@ -293,30 +296,31 @@ export default function AlphabetExplorer({ onChapterComplete }: AlphabetExplorer
         {/* Progress Bar with 85% Marker */}
         <div className="w-full md:w-64 space-y-1 flex-shrink-0">
           <div className="flex justify-between text-[11px] font-bold">
-            <span className="text-on-surface-variant">Điểm test cao nhất</span>
+            <span className="text-on-surface-variant">{t('beginner:alphabet.highestScore')}</span>
             <span className={realMaxScore >= 85 ? 'text-secondary' : 'text-primary'}>{realMaxScore}% / 85%</span>
           </div>
-          <div className="h-2 rounded-full bg-surface-container-high overflow-hidden relative">
+          <div className="h-2 bg-surface-container-high overflow-hidden relative" style={{ borderRadius: '1px' }}>
             <div
-              className={`h-full rounded-full transition-all duration-500 ${realMaxScore >= 85 ? 'bg-secondary' : 'bg-primary'}`}
+              className={`h-full transition-all duration-500 ${realMaxScore >= 85 ? 'bg-secondary' : 'bg-primary'}`}
               style={{ width: `${Math.min(100, realMaxScore)}%` }}
             />
-            <div className="absolute top-0 bottom-0 w-0.5 bg-amber-500 z-10" style={{ left: '85%' }} title="Mốc 85% để mở Chương 2" />
+            <div className="absolute top-0 bottom-0 w-0.5 bg-amber-500 z-10" style={{ left: '85%' }} title="85%" />
           </div>
         </div>
       </div>
 
       {/* ── Tab Bar (4 Thẻ) ── */}
-      <div className="flex flex-wrap gap-1 p-1 mb-6 bg-surface-container rounded-2xl w-fit">
+      <div className="flex flex-wrap gap-1 p-1 mb-6 bg-surface-container border border-outline-variant/40 w-fit" style={{ borderRadius: '2px' }}>
         {TABS.map(t => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-4 py-2 text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === t.id
-                ? 'bg-primary text-on-primary shadow-sm'
+                ? 'bg-primary text-on-primary shadow-flat-sm'
                 : 'text-on-surface-variant hover:bg-surface-container-high'
             }`}
+            style={{ borderRadius: '2px' }}
           >
             <t.icon size={16} />
             {t.label}
@@ -393,7 +397,7 @@ export default function AlphabetExplorer({ onChapterComplete }: AlphabetExplorer
                 total={rowQuizChars.length}
                 wrongList={rowQuizWrongList}
                 elapsed={Math.round((Date.now() - rowQuizStartTime) / 1000)}
-                rowLabel={lessonRow ? getKanaRowLabel(lessonRow) : 'Hàng vừa học'}
+                rowLabel={lessonRow ? getKanaRowLabel(lessonRow, currentLang) : (currentLang === 'en' ? 'Learned Row' : 'Hàng vừa học')}
                 onRetry={() => startRowQuiz(lessonRow)}
                 onNextRow={handleNextRow}
                 hasNextRow={!!(lessonRow && getNextRow(lessonRow))}
@@ -401,8 +405,8 @@ export default function AlphabetExplorer({ onChapterComplete }: AlphabetExplorer
             ) : (
               <div>
                 <div className="max-w-md mx-auto mb-3 flex items-center justify-between text-xs font-semibold text-on-surface-variant">
-                  <span>🎯 Luyện tập: <strong className="text-primary">{lessonRow ? getKanaRowLabel(lessonRow) : ''}</strong></span>
-                  <span>Câu {rowQuizIdx + 1}/{rowQuizChars.length}</span>
+                  <span>🎯 {currentLang === 'en' ? 'Practice' : 'Luyện tập'}: <strong className="text-primary">{lessonRow ? getKanaRowLabel(lessonRow, currentLang) : ''}</strong></span>
+                  <span>{currentLang === 'en' ? 'Question' : 'Câu'} {rowQuizIdx + 1}/{rowQuizChars.length}</span>
                 </div>
                 <QuizCard
                   current={rowQuizChars[rowQuizIdx]}
@@ -497,6 +501,8 @@ function OverviewGrid({
   onStartLesson: (row: string) => void;
   gridRef: React.RefObject<HTMLDivElement | null>;
 }) {
+  const { t, i18n } = useTranslation(['beginner']);
+  const currentLang = i18n.language || 'vi';
   const [selectedChar, setSelectedChar] = useState<KanaChar | null>(null);
   const [activeRuleTab, setActiveRuleTab] = useState<string>('sokuon');
   const chars = getChars();
@@ -510,19 +516,20 @@ function OverviewGrid({
     const grouped = groupByRow(data);
     return (
       <div className="mb-8">
-        <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-3">{title}</h3>
+        <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-3 font-serif">{title}</h3>
         {rowOrder.map(row => {
           const rowChars = grouped.get(row);
           if (!rowChars) return null;
           return (
             <div key={row} className="mb-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-on-surface-variant">{getKanaRowLabel(row)}</span>
+                <span className="text-xs font-semibold text-on-surface-variant">{getKanaRowLabel(row, currentLang)}</span>
                 <button
                   onClick={() => onStartLesson(row)}
-                  className="text-xs font-semibold text-primary hover:text-primary-container cursor-pointer flex items-center gap-1 transition-colors px-2.5 py-1 rounded-lg hover:bg-primary/10"
+                  className="text-xs font-semibold text-primary hover:text-primary-container cursor-pointer flex items-center gap-1 transition-colors px-2.5 py-1 border border-primary/30 hover:bg-primary/10"
+                  style={{ borderRadius: '2px' }}
                 >
-                  <Play size={12} fill="currentColor" /> Bắt đầu
+                  <Play size={12} fill="currentColor" /> {t('beginner:alphabet.startButton')}
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -531,11 +538,12 @@ function OverviewGrid({
                     key={c.char}
                     data-kana-cell
                     onClick={() => handleCellClick(c)}
-                    className={`w-14 h-16 md:w-16 md:h-[72px] rounded-xl border-2 flex flex-col items-center justify-center gap-0.5 cursor-pointer transition-all hover:scale-105 hover:shadow-md ${
+                    className={`w-14 h-16 md:w-16 md:h-[72px] border-2 flex flex-col items-center justify-center gap-0.5 cursor-pointer transition-all hover:scale-102 hover:shadow-flat-sm ${
                       selectedChar?.char === c.char
-                        ? 'border-primary bg-primary/8 shadow-md scale-105'
+                        ? 'border-primary bg-primary/8 shadow-flat-sm scale-102'
                         : 'border-outline-variant/40 bg-surface-container-lowest hover:border-primary/50'
                     }`}
+                    style={{ borderRadius: '2px' }}
                   >
                     <span className={`text-xl md:text-2xl font-bold font-jp ${selectedChar?.char === c.char ? 'text-primary' : 'text-on-surface'}`}>
                       {c.char}
@@ -561,40 +569,42 @@ function OverviewGrid({
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={onToggleType}
-            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
-              kanaType === 'hiragana' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+            className={`px-4 py-2 text-sm font-bold transition-all cursor-pointer border ${
+              kanaType === 'hiragana' ? 'bg-primary text-on-primary border-primary shadow-flat-sm' : 'bg-surface-container border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high'
             }`}
+            style={{ borderRadius: '2px' }}
           >
-            あ Hiragana
+            あ {t('beginner:alphabet.subTabs.hiragana')}
           </button>
           <button
             onClick={onToggleType}
-            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
-              kanaType === 'katakana' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+            className={`px-4 py-2 text-sm font-bold transition-all cursor-pointer border ${
+              kanaType === 'katakana' ? 'bg-primary text-on-primary border-primary shadow-flat-sm' : 'bg-surface-container border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high'
             }`}
+            style={{ borderRadius: '2px' }}
           >
-            ア Katakana
+            ア {t('beginner:alphabet.subTabs.katakana')}
           </button>
         </div>
 
         {/* Kana Table Sections */}
         <div ref={gridRef}>
-          {renderSection('1. Âm Trong (清音 Seion)', chars.seion, SEION_ROW_ORDER)}
-          {renderSection('2. Âm Đục (濁音 Dakuon)', chars.dakuon, DAKUON_ROW_ORDER)}
-          {renderSection('3. Âm Bán Đục (半濁音 Handakuon)', chars.handakuon, HANDAKUON_ROW_ORDER)}
-          {renderSection('4. Âm Ghép (拗音 Yōon)', chars.yoon, YOON_ROW_ORDER)}
+          {renderSection(t('beginner:alphabet.sections.seion'), chars.seion, SEION_ROW_ORDER)}
+          {renderSection(t('beginner:alphabet.sections.dakuon'), chars.dakuon, DAKUON_ROW_ORDER)}
+          {renderSection(t('beginner:alphabet.sections.handakuon'), chars.handakuon, HANDAKUON_ROW_ORDER)}
+          {renderSection(t('beginner:alphabet.sections.yoon'), chars.yoon, YOON_ROW_ORDER)}
         </div>
 
         {/* ── BỔ SUNG QUY TẮC ÂM ĐỌC MỞ RỘNG ── */}
         <div className="mt-10 pt-8 border-t border-outline-variant/30">
           <div className="flex items-center gap-2 mb-2">
             <Lightbulb size={20} className="text-amber-500" />
-            <h2 className="text-lg font-bold text-on-surface tracking-tight">
-              5. Quy Tắc Âm Đọc Mở Rộng
+            <h2 className="text-lg font-bold text-on-surface tracking-tight font-serif">
+              {t('beginner:alphabet.sections.extendedRules')}
             </h2>
           </div>
           <p className="text-xs text-on-surface-variant mb-5">
-            Kiến thức nền tảng bắt buộc để phát âm chuẩn và nhận diện biến âm: Âm ngắt, Trường âm & Âm mũi.
+            {t('beginner:alphabet.sections.extendedRulesDesc')}
           </p>
 
           {/* Rule Tabs */}
@@ -603,11 +613,12 @@ function OverviewGrid({
               <button
                 key={rule.id}
                 onClick={() => setActiveRuleTab(rule.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
                   activeRuleTab === rule.id
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                    ? 'bg-amber-600 text-white border-amber-600 shadow-flat-sm'
+                    : 'bg-surface-container border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high'
                 }`}
+                style={{ borderRadius: '2px' }}
               >
                 <span>{rule.badge}</span>
                 <span>{rule.name}</span>
@@ -616,12 +627,12 @@ function OverviewGrid({
           </div>
 
           {/* Rule Detail Card */}
-          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-5 md:p-6 shadow-sm">
+          <div className="bg-surface-container-lowest border border-outline-variant/40 p-5 md:p-6 shadow-sm" style={{ borderRadius: '2px' }}>
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
                 <h3 className="text-base font-bold text-on-surface flex items-center gap-2">
                   <span>{currentRule.name}</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 font-semibold">{currentRule.subtitle}</span>
+                  <span className="text-xs px-2 py-0.5 border border-amber-500/30 bg-amber-500/10 text-amber-700 font-semibold" style={{ borderRadius: '2px' }}>{currentRule.subtitle}</span>
                 </h3>
                 <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                   {currentRule.description}
@@ -630,8 +641,8 @@ function OverviewGrid({
             </div>
 
             {/* Formula box */}
-            <div className="p-3 rounded-xl bg-amber-500/8 border border-amber-500/20 mb-4">
-              <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider block mb-1">Công thức ghi nhớ:</span>
+            <div className="p-3 bg-amber-500/8 border border-amber-500/20 mb-4" style={{ borderRadius: '2px' }}>
+              <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider block mb-1">{t('beginner:alphabet.formulaLabel')}</span>
               <span className="text-xs font-semibold text-on-surface font-mono">{currentRule.formula}</span>
             </div>
 
@@ -648,7 +659,7 @@ function OverviewGrid({
             {/* Examples grid */}
             <div>
               <h4 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2.5">
-                Ví dụ minh họa & Phát âm trực quan
+                {t('beginner:alphabet.examplesLabel')}
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {currentRule.examples.map((ex, i) => (
