@@ -579,7 +579,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                       }}>
                         {isQuestionCorrect(review) ? '✓' : '✗'}
                       </span>
-                      <span style={{ flex: 1, fontSize: 13, color: '#231815', lineHeight: 1.5, fontFamily: '"Noto Sans JP", sans-serif' }}>
+                      <span style={{ flex: 1, fontSize: 13, color: '#231815', lineHeight: 1.5, fontFamily: 'var(--font-jp)' }}>
                         <b style={{ color: '#8c827b', marginRight: 6 }}>Câu {idx + 1}.</b>
                         {review.questionText.split('\n')[0].slice(0, 80)}{review.questionText.length > 80 ? '…' : ''}
                       </span>
@@ -590,7 +590,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                     {isOpen && (
                       <div style={{ padding: '0 22px 18px', borderTop: '1px solid #f1ede6' }}>
                         {/* Full question */}
-                        <p style={{ fontSize: 14, color: '#231815', lineHeight: 1.75, marginBottom: 14, fontFamily: '"Noto Sans JP", sans-serif', whiteSpace: 'pre-wrap', paddingTop: 12 }}>
+                        <p style={{ fontSize: 14, color: '#231815', lineHeight: 1.75, marginBottom: 14, fontFamily: 'var(--font-jp)', whiteSpace: 'pre-wrap', paddingTop: 12 }}>
                           {review.questionText}
                         </p>
                         {/* Options */}
@@ -606,7 +606,7 @@ export default function PlacementResultView({ result, onConfirm, onRetry, onTake
                                 <span style={{ fontWeight: 700, fontSize: 12, color, flexShrink: 0 }}>
                                   {['A', 'B', 'C', 'D'][oi]}
                                 </span>
-                                <span style={{ fontSize: 13, color, fontFamily: '"Noto Sans JP", sans-serif', flex: 1 }}>{opt}</span>
+                                <span style={{ fontSize: 13, color, fontFamily: 'var(--font-jp)', flex: 1 }}>{opt}</span>
                                 {isCorrect && <span style={{ fontSize: 12, color: '#2b5f43', fontWeight: 700 }}>✓ Đúng</span>}
                                 {isChosen && !isCorrect && <span style={{ fontSize: 12, color: '#ba1a1a', fontWeight: 700 }}>✗ Bạn chọn</span>}
                               </div>

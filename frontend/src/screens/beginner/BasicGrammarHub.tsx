@@ -100,18 +100,18 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
 
     // Header decorations
     ctx.fillStyle = '#c01538';
-    ctx.font = 'bold 16px "Noto Sans JP", sans-serif';
+    ctx.font = 'bold 16px "Times New Roman", "Noto Serif JP", serif';
     ctx.textAlign = 'center';
     ctx.fillText('🎓 NIPPONMASTER ACADEMY 🎓', 450, 80);
 
     // Certificate title
     ctx.fillStyle = '#231815';
-    ctx.font = 'bold 36px "Noto Sans JP", sans-serif';
+    ctx.font = 'bold 36px "Times New Roman", "Noto Serif JP", serif';
     ctx.fillText('BẰNG CHỨNG NHẬN', 450, 140);
 
     // Subtitle
     ctx.fillStyle = '#c01538';
-    ctx.font = 'bold 28px "Noto Sans JP", sans-serif';
+    ctx.font = 'bold 28px "Times New Roman", "Noto Serif JP", serif';
     ctx.fillText('TỐT NGHIỆP NHẬP MÔN TIẾNG NHẬT', 450, 190);
 
     // Divider
@@ -124,13 +124,13 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
 
     // Body text
     ctx.fillStyle = '#5a5450';
-    ctx.font = '16px "Noto Sans JP", sans-serif';
+    ctx.font = '16px "Times New Roman", "Noto Serif JP", serif';
     ctx.fillText('Học viện NipponMaster xác nhận bạn đã hoàn thành', 450, 270);
     ctx.fillText('xuất sắc toàn bộ 5 Chương Lộ Trình Nhập Môn Tiếng Nhật', 450, 300);
 
     // Chapters completed
     ctx.fillStyle = '#2b5f43';
-    ctx.font = 'bold 14px "Noto Sans JP", sans-serif';
+    ctx.font = 'bold 14px "Times New Roman", "Noto Serif JP", serif';
     const chapters = [
       '📖 Bảng Chữ Cái Kana',
       '📖 Số Đếm & Thời Gian',
@@ -145,12 +145,12 @@ export default function BasicGrammarHub({ onChapterComplete }: BasicGrammarHubPr
     // Score
     const pct = Math.round((score / GRAMMAR_GRADUATION_QUIZ.length) * 100);
     ctx.fillStyle = '#c01538';
-    ctx.font = 'bold 20px "Noto Sans JP", sans-serif';
+    ctx.font = 'bold 20px "Times New Roman", "Noto Serif JP", serif';
     ctx.fillText(`Điểm thi tốt nghiệp: ${pct}%`, 450, 510);
 
     // Date
     ctx.fillStyle = '#8c827b';
-    ctx.font = '13px "Noto Sans JP", sans-serif';
+    ctx.font = '13px "Times New Roman", "Noto Serif JP", serif';
     ctx.fillText(`Ngày cấp: ${new Date().toLocaleDateString('vi-VN')}`, 450, 545);
 
     // Download

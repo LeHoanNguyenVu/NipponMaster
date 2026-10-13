@@ -133,7 +133,7 @@ export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmi
       {/* Question */}
       {q && (
         <div style={{ flex: 1 }}>
-          <p style={{ fontWeight: 600, fontSize: 16, color: '#231815', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap', fontFamily: '"Noto Sans JP", sans-serif' }}>
+          <p style={{ fontWeight: 600, fontSize: 16, color: '#231815', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap', fontFamily: 'var(--font-jp)' }}>
             <span style={{ fontSize: 13, color: '#8c827b', marginRight: 8 }}>Câu {current + 1}/{questions.length}</span>
             {q.questionText}
           </p>
@@ -151,7 +151,7 @@ export default function QuizPlayer({ level, questions, timeLimitMinutes, onSubmi
                     border: isSelected ? '2.5px solid #c01538' : '2px solid #e2dbce',
                     background: isSelected ? '#fff1f2' : '#fff',
                     textAlign: 'left', transition: 'all 0.15s ease',
-                    fontFamily: '"Noto Sans JP", sans-serif', fontSize: 14,
+                    fontFamily: 'var(--font-jp)', fontSize: 14,
                   }}
                   onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.borderColor = '#c0153866'; }}
                   onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.borderColor = '#e2dbce'; }}

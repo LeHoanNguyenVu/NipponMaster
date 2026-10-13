@@ -16,7 +16,7 @@ const LEVELS: { level: JlptLevel; label: string; desc: string; vocab: string; ti
 export default function LevelSelector({ onSelect, isLoading }: LevelSelectorProps) {
   return (
     <div>
-      <h2 style={{ fontFamily: 'Geist, sans-serif', fontSize: 20, fontWeight: 600, color: '#231815', marginBottom: 8 }}>
+      <h2 style={{ fontFamily: 'var(--font-ui)', fontSize: 20, fontWeight: 600, color: '#231815', marginBottom: 8 }}>
         Chọn trình độ phù hợp với bạn
       </h2>
       <p style={{ color: '#5a5450', fontSize: 14, marginBottom: 24 }}>

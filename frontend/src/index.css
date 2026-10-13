@@ -1,12 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Source+Serif+4:opsz,wght@8..60,400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600;700;900&display=swap');
 
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════ */
+/* DYNAMIC FONT SYSTEM: Vietnamese (Times) / English (Georgia) + Japanese Serif Fallback */
+/* ═══════════════════════════════════════════════════ */
+:root {
+  --font-ui: "Times New Roman", Times, "Liberation Serif", serif;
+  --font-jp-serif: "Noto Serif JP", "Yu Mincho", "MS Mincho", serif;
+}
+
+:root:lang(vi), html[lang="vi"] {
+  --font-ui: "Times New Roman", Times, "Liberation Serif", serif;
+}
+
+:root:lang(en), html[lang="en"] {
+  --font-ui: Georgia, "Times New Roman", "Liberation Serif", serif;
+}
+
 @theme {
-  --font-sans: 'Geist', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Geist Mono', monospace;
-  --font-jp: "Noto Sans JP", sans-serif;
-  --font-serif: "Source Serif 4", serif;
+  --font-ui: var(--font-ui);
+  --font-sans: var(--font-ui), "Noto Serif JP", "Yu Mincho", serif;
+  --font-serif: var(--font-ui), "Noto Serif JP", "Yu Mincho", serif;
+  --font-jp: "Noto Serif JP", "Yu Mincho", "MS Mincho", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Custom Japanese-inspired Dark Palette (used in Landing Page) */
   --color-charcoal-50: #f4f4f5;
@@ -94,8 +111,14 @@
   }
 }
 
+html {
+  font-size: 17px;
+}
+
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-ui), "Noto Serif JP", "Yu Mincho", serif;
+  font-size: 17px;
+  line-height: 1.6;
   background-color: var(--color-surface);
   color: var(--color-on-surface);
   overflow-x: hidden;

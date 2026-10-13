@@ -141,7 +141,7 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
         {/* Logo & brand + Logout Button */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, position: 'relative', zIndex: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 38, height: 38, background: '#c01538', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18, fontFamily: '"Noto Sans JP"' }}>
+            <div style={{ width: 38, height: 38, background: '#c01538', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18, fontFamily: 'var(--font-jp)' }}>
               日
             </div>
             <span style={{ fontWeight: 800, fontSize: 18, color: '#231815', letterSpacing: '-0.02em' }}>NipponMaster</span>

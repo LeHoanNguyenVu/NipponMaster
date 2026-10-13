@@ -185,7 +185,7 @@ export default function JapaneseWelcomeTransition({
         padding: 24,
         overflow: 'hidden',
         userSelect: 'none',
-        fontFamily: '"Plus Jakarta Sans", "Noto Sans JP", sans-serif',
+        fontFamily: 'var(--font-ui), var(--font-jp)',
       }}
     >
       {/* Background Sakura Petals Canvas */}
@@ -288,7 +288,7 @@ export default function JapaneseWelcomeTransition({
               boxShadow: '0 8px 24px rgba(192, 21, 56, 0.45)',
             }}
           >
-            <span style={{ fontSize: 32, fontFamily: '"Noto Sans JP", sans-serif', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
+            <span style={{ fontSize: 32, fontFamily: 'var(--font-jp)', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
               {levelInfo.kanji}
             </span>
             <span style={{ fontSize: 10, fontWeight: 800, color: '#ffd6e0', letterSpacing: '0.08em', marginTop: 2 }}>
@@ -366,7 +366,7 @@ export default function JapaneseWelcomeTransition({
               <Sparkles size={14} className="text-amber-400 animate-pulse" />
               <span>Tiến trình khởi tạo</span>
             </span>
-            <span style={{ fontSize: 14, fontWeight: 800, color: '#ffffff', fontFamily: 'monospace' }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>
               {progress}%
             </span>
           </div>

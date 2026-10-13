@@ -15,7 +15,7 @@ const LEVELS: { level: JlptLevel; label: string; questions: number; minutes: num
 export default function LevelTestSelector({ onSelect }: LevelTestSelectorProps) {
   return (
     <div>
-      <h2 style={{ fontFamily: 'Geist, sans-serif', fontSize: 20, fontWeight: 600, color: '#231815', marginBottom: 8 }}>
+      <h2 style={{ fontFamily: 'var(--font-ui)', fontSize: 20, fontWeight: 600, color: '#231815', marginBottom: 8 }}>
         Chọn cấp độ bạn muốn kiểm tra
       </h2>
       <p style={{ color: '#5a5450', fontSize: 14, marginBottom: 24 }}>

@@ -38,6 +38,9 @@ build/
 PLAN_DETAILED.md
 PROJECT_PROGRESS.md
 PLAN_KANJI_*.md
+PLAN_*.md
+*_PLAN.md
+qa-plan/
 
 ### Logs & Temp Files ###
 *.log
@@ -67,3 +70,6 @@ frontend/public/assets/kanji/
 scripts/data/
 scratch/
 
+
+### Design mockups ###
+design-mockups/

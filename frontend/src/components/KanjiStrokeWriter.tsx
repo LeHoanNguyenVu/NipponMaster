@@ -181,7 +181,7 @@ export default function KanjiStrokeWriter({
               txt.setAttribute('fill', color);
               txt.setAttribute('font-size', '6.5px');
               txt.setAttribute('font-weight', '800');
-              txt.setAttribute('font-family', 'system-ui, sans-serif');
+              txt.setAttribute('font-family', 'var(--font-ui), "Times New Roman", serif');
               txt.setAttribute('opacity', '0.95');
             });
           }

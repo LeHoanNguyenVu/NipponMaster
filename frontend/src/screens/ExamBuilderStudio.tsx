@@ -169,7 +169,7 @@ export default function ExamBuilderStudio({ onBack, onSuccess, initialExam }: Ex
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
       <head><meta charset='utf-8'><title>${title}</title>
       <style>
-        body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-height: 1.6; }
+        body { font-family: 'Times New Roman', 'Noto Serif JP', serif; padding: 40px; color: #000; line-height: 1.6; }
         .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 30px; }
         .title { font-size: 20pt; font-weight: bold; text-transform: uppercase; }
         .meta { font-size: 11pt; font-style: italic; margin-top: 5px; }
