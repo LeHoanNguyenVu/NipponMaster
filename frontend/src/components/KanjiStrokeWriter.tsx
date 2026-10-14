@@ -41,7 +41,6 @@ export default function KanjiStrokeWriter({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [totalStrokes, setTotalStrokes] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.core.Timeline | null>(null);
 
@@ -96,7 +95,6 @@ export default function KanjiStrokeWriter({
     if (!activeChar) return;
     setLoading(true);
     setError(false);
-    setTotalStrokes(0);
 
     if (animationRef.current) {
       animationRef.current.kill();
@@ -152,7 +150,6 @@ export default function KanjiStrokeWriter({
           // 2. Multi-color stroke paths for the foreground
           originalStrokeGroup.setAttribute('class', 'fg-paths');
           const paths = originalStrokeGroup.querySelectorAll('path');
-          setTotalStrokes(paths.length);
           if (onStrokesLoaded) {
             onStrokesLoaded(paths.length);
           }
@@ -253,42 +250,46 @@ export default function KanjiStrokeWriter({
   // Standalone Full Screen Mode
   return (
     <div
-      style={{ width: size, height: size + (chars.length > 1 ? 40 : 0) }}
-      className="relative flex flex-col items-center justify-center bg-surface-container-lowest rounded-2xl border-2 border-outline-variant/50 shadow-inner p-2"
+      style={{ width: size }}
+      className="relative flex flex-col items-center bg-white border border-[#e7e5e4] p-3 select-none"
     >
       {/* Multi-character Selector Pills */}
       {chars.length > 1 && (
-        <div className="flex items-center gap-1.5 mb-2 bg-surface-container-low p-1 rounded-xl border border-outline-variant/30">
+        <div className="flex items-center gap-1.5 mb-2 bg-[#fafaf9] p-1 border border-[#e7e5e4] w-full overflow-x-auto">
           {chars.map((c, idx) => (
             <button
               key={idx}
               onClick={() => setSelectedCharIndex(idx)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all cursor-pointer ${
+              className={`px-2 py-0.5 text-xs font-mono font-bold transition-all cursor-pointer ${
                 selectedCharIndex === idx
-                  ? 'bg-primary text-on-primary shadow-xs'
-                  : 'text-outline hover:text-on-surface'
+                  ? 'bg-[#1c1917] text-white shadow-xs'
+                  : 'text-[#78716c] hover:text-[#1c1917]'
               }`}
             >
-              Ký tự {idx + 1}: {c}
+              {c} ({idx + 1})
             </button>
           ))}
         </div>
       )}
 
-      <div className="relative w-full flex-1 flex items-center justify-center">
+      {/* SVG Canvas Area with explicit fixed dimensions */}
+      <div
+        style={{ width: size - 24, height: size - 24 }}
+        className="relative flex items-center justify-center bg-[#fafaf9] border border-[#f5f5f4]"
+      >
         {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-surface-container-lowest/80 rounded-2xl z-10">
-            <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
-            <p className="text-xs text-outline font-medium">Đang tải nét viết...</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10">
+            <Loader2 className="w-6 h-6 text-[#b91c1c] animate-spin mb-1.5" />
+            <p className="text-[11px] text-[#78716c] font-mono">Đang nạp nét viết...</p>
           </div>
         )}
 
         {error ? (
-          <div className="flex flex-col items-center justify-center text-center p-4">
-            <span className="text-5xl font-black text-primary font-serif mb-2">{activeChar}</span>
-            <div className="flex items-center gap-1 text-xs text-outline">
-              <AlertCircle size={13} />
-              <span>Thứ tự nét viết tiêu chuẩn</span>
+          <div className="flex flex-col items-center justify-center text-center p-2">
+            <span className="text-4xl font-black text-[#1c1917] font-serif mb-1">{activeChar}</span>
+            <div className="flex items-center gap-1 text-[11px] text-[#78716c]">
+              <AlertCircle size={12} />
+              <span>Nét viết tiêu chuẩn</span>
             </div>
           </div>
         ) : (
@@ -296,17 +297,14 @@ export default function KanjiStrokeWriter({
         )}
       </div>
 
-      {/* Control Footer */}
-      <div className="w-full flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/20">
-        <span className="text-xs font-bold text-outline">
-          {totalStrokes > 0 ? `${totalStrokes} Nét Bút` : `Ký tự: ${activeChar}`}
-        </span>
+      {/* Control Footer - clean centered button without redundant stroke count */}
+      <div className="w-full flex items-center justify-center mt-3 pt-2 border-t border-[#e7e5e4]">
         <button
           onClick={animateStrokes}
           disabled={loading || isPlaying}
-          className="px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-on-primary text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+          className="w-full py-1.5 bg-[#b91c1c]/10 hover:bg-[#b91c1c] text-[#b91c1c] hover:text-white text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
         >
-          <RotateCcw size={13} className={isPlaying ? 'animate-spin' : ''} />
+          <RotateCcw size={12} className={isPlaying ? 'animate-spin' : ''} />
           <span>Vẽ lại</span>
         </button>
       </div>

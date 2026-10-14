@@ -105,60 +105,70 @@ try:
 
     print(f"Seeded {len(reading_exercises)} reading exercises and {len(writing_exercises)} writing exercises for Chapter 1.")
 
-    # 5. Seed Chapter 1 Minigames (P.20 & P.21)
+    # 5. Seed Chapter 1 Minigames (P.20 & P.21 - Cropped authentic images)
     minigames = [
         {
             "game_type": "ORDERING",
-            "title": "Minigame 1: Sắp xếp chữ số tăng dần (<)",
-            "instruction": "Kéo hoặc chọn các chữ số Kanji sau để xếp theo thứ tự giá trị tăng dần từ bé đến lớn.",
-            "image_url": "/assets/kanji/n5/minigames/chap1_minigame_p20.webp",
+            "title": "Minigame 1: Sắp xếp chữ số tăng dần (<) — Trang 20",
+            "instruction": "Kéo hoặc chọn các chữ số Kanji sau để xếp theo thứ tự giá trị tăng dần từ bé đến lớn theo bài tập 【1】 trang 20.",
+            "image_url": "/assets/kanji/n5/minigames/chap1_minigame_part1.webp",
             "display_order": 1,
             "data": {
-                "question": "Sắp xếp: 八, 三, 四",
-                "items": ["八", "三", "四"],
-                "correct_order": ["三", "四", "八"],
-                "formula": "三 < 四 < 八"
+                "example": {"prompt": "Ví dụ (れい): 八, 三, 四", "formula": "三 < 四 < 八"},
+                "questions": [
+                    {"id": 1, "prompt": "Câu 1: 九, 二, 七", "items": ["九", "二", "七"], "formula": "二 < 七 < 九", "correct_order": ["二", "七", "九"]},
+                    {"id": 2, "prompt": "Câu 2: 五, 八, 六", "items": ["五", "八", "六"], "formula": "五 < 六 < 八", "correct_order": ["五", "六", "八"]},
+                    {"id": 3, "prompt": "Câu 3: 万, 千, 百", "items": ["万", "千", "百"], "formula": "百 < 千 < 万", "correct_order": ["百", "千", "万"]}
+                ]
             }
         },
         {
             "game_type": "COUNTING",
-            "title": "Minigame 2: Đếm đồ vật trong tranh minh họa (Trang 20)",
-            "instruction": "Quan sát bức tranh trang 20 và đếm số lượng từng loại đồ vật, chọn chữ Kanji số lượng chính xác.",
-            "image_url": "/assets/kanji/n5/minigames/chap1_minigame_p20.webp",
+            "title": "Minigame 2: Đếm đồ vật trong tranh & Viết cách đọc — Trang 20",
+            "instruction": "Quan sát hình vẽ các đồ vật trong bài tập 【2】 trang 20, chọn chữ Kanji và cách đọc tương ứng cho từng hình.",
+            "image_url": "/assets/kanji/n5/minigames/chap1_minigame_part2.webp",
             "display_order": 2,
             "data": {
+                "example": {"item": "Ví dụ (れい): 3 người", "kanji": "三人", "reading": "さんにん"},
                 "questions": [
-                    {"item": "Áo sơ mi (シャツ)", "options": ["二つ", "三つ", "四つ"], "answer": "三つ"},
-                    {"item": "Bút chì (えんぴつ)", "options": ["五つ", "六つ", "七つ"], "answer": "五つ"},
-                    {"item": "Quả táo (りんご)", "options": ["二つ", "四つ", "六つ"], "answer": "四つ"},
-                    {"item": "Máy tính (パソコン)", "options": ["一つ", "二つ", "三つ"], "answer": "二つ"}
+                    {"id": 1, "item": "1. 6 cây bút chì (えんぴつ)", "counter": "ぽん", "options": ["六本 (ろっぽん)", "五本 (ごほん)", "七本 (ななほん)"], "answer": "六本 (ろっぽん)"},
+                    {"id": 2, "item": "2. 4 máy vi tính (パソコン)", "counter": "だい", "options": ["四台 (よんだい)", "三台 (さんだい)", "五台 (ごだい)"], "answer": "四台 (よんだい)"},
+                    {"id": 3, "item": "3. 5 cái áo sơ mi (シャツ)", "counter": "まい", "options": ["五枚 (ごまい)", "六枚 (ろくまい)", "四枚 (よんまい)"], "answer": "五枚 (ごまい)"},
+                    {"id": 4, "item": "4. 8 quả táo (りんご)", "counter": "つ", "options": ["八つ (やっつ)", "七つ (ななつ)", "九つ (ここのつ)"], "answer": "八つ (やっつ)"},
+                    {"id": 5, "item": "5. 7 cuốn sách (ほん)", "counter": "さつ", "options": ["七冊 (ななさつ)", "八冊 (はっさつ)", "六冊 (ろくさつ)"], "answer": "七冊 (ななさつ)"}
                 ]
             }
         },
         {
             "game_type": "CALCULATION",
-            "title": "Minigame 3: Tính tổng tiền mua sắm tại cửa hàng",
-            "instruction": "Tính tổng chi phí khi mua các món đồ trong quầy và điền số tiền bằng chữ Kanji.",
-            "image_url": "/assets/kanji/n5/minigames/chap1_minigame_p20.webp",
+            "title": "Minigame 3: Tính tổng tiền mua sắm (あわせて いくらですか) — Trang 21",
+            "instruction": "Tính tổng chi phí khi mua các món đồ trong bài tập 【3】 trang 21 và chọn số tiền viết bằng chữ Hán.",
+            "image_url": "/assets/kanji/n5/minigames/chap1_minigame_part3.webp",
             "display_order": 3,
             "data": {
+                "example": {"items": "Ví dụ (れい): Tシャツ ¥1,000 + かばん ¥2,500 = ¥3,500", "answer": "三千五百円"},
                 "problems": [
-                    {"items": "Áo thun (1,500円) + Cặp sách (3,500円)", "total": 5000, "answer": "五千円", "options": ["四千円", "五千円", "六千円"]},
-                    {"items": "Hamburger (300円) + Nước ép cam (200円)", "total": 500, "answer": "五百円", "options": ["五百円", "六百円", "四百円"]}
+                    {"id": 1, "items": "1. シャープペン (¥200) + ノート (¥480) = 680円", "answer": "六百八十円", "options": ["六百八十円", "五百八十円", "七百八十円"]},
+                    {"id": 2, "items": "2. ハンバーガー (¥300) + ジュース (¥170) = 470円", "answer": "四百七十円", "options": ["四百七十円", "五百七十円", "三百七十円"]},
+                    {"id": 3, "items": "3. でんしじしょ (¥30,000) + でんち (¥105) = 30,105円", "answer": "三万百五円", "options": ["三万百五円", "三万千五円", "三万五円"]},
+                    {"id": 4, "items": "4. マンション (¥50,000,000) + くるま (¥2,000,000) = 52,000,000円", "answer": "五千二百万円", "options": ["五千二百万円", "五千三百万", "四千二百万円"]},
+                    {"id": 5, "items": "5. パン (¥500) + ワイン (¥1,780) = 2,280円", "answer": "二千二百八十円", "options": ["二千二百八十円", "二千三百八十円", "二千百八十円"]}
                 ]
             }
         },
         {
             "game_type": "POSTCARD_FILL",
-            "title": "Minigame 4: Điền số nhà, tầng lầu và mã bưu điện vào bưu thiếp (Trang 21)",
-            "instruction": "Nhìn bức tranh bưu thiếp trang 21 gửi cho bạn Yamada, chọn các con số Kanji thích hợp vào các ô trống.",
-            "image_url": "/assets/kanji/n5/minigames/chap1_minigame_p21.webp",
+            "title": "Minigame 4: Điền số nhà, tầng lầu & mã bưu điện vào bưu thiếp — Trang 21",
+            "instruction": "Nhìn bức tranh bưu thiếp gửi cho bạn Suzuki Takashi trong bài tập 【4】 trang 21, chọn các con số Kanji thích hợp vào các ô trống.",
+            "image_url": "/assets/kanji/n5/minigames/chap1_minigame_part4.webp",
             "display_order": 4,
             "data": {
+                "example": {"label": "Ví dụ (れい): アークビル [3かい]", "answer": "三かい (三階)"},
                 "sections": [
-                    {"label": "Mã bưu điện (郵便番号)", "prompt": "〒105-0014: 1, 0, 5, 0, 0, 1, 4", "answer": "一〇五-〇〇一四"},
-                    {"label": "Số tầng lầu (ビル)", "prompt": "Tòa nhà Sakura tầng 7", "answer": "七階", "options": ["五階", "六階", "七階"]},
-                    {"label": "Số phòng (部屋番号)", "prompt": "Phòng số 302", "answer": "三〇二号室", "options": ["三〇二号室", "四〇二号室", "二〇一号室"]}
+                    {"id": 1, "label": "① Mã bưu điện (郵便番号): 100-1000", "prompt": "100-1000", "answer": "一〇〇-一〇〇〇", "options": ["一〇〇-一〇〇〇", "一〇五-〇〇一四", "一〇〇-〇〇〇一"]},
+                    {"id": 2, "label": "② Địa chỉ Shibuya: とうきょうと しぶやく にししぶや [2-14-9]", "prompt": "2-14-9", "answer": "二-十四-九", "options": ["二-十四-九", "三-十四-九", "二-十五-八"]},
+                    {"id": 3, "label": "③ Địa chỉ Shinjuku: しんじゅくく しんじゅくきた [6-17-18]", "prompt": "6-17-18", "answer": "六-十七-十八", "options": ["六-十七-十八", "七-十七-十八", "六-十六-十八"]},
+                    {"id": 4, "label": "④ Tòa nhà ARCハイツ [503号室]", "prompt": "Phòng số 503", "answer": "五〇三", "options": ["五〇三", "四〇三", "五〇二"]}
                 ]
             }
         }
