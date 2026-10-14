@@ -55,4 +55,7 @@ public interface KanjiRepository extends JpaRepository<Kanji, Long> {
     List<Kanji> findNewKanjisNoExclude(
             @Param("level") User.JlptLevel level,
             Pageable pageable);
+
+    /** Lấy danh sách chữ Hán thuộc một chương theo thứ tự bài học */
+    List<Kanji> findByChapterIdOrderByChapterOrderAsc(Long chapterId);
 }

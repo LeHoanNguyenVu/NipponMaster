@@ -89,4 +89,12 @@ public class Kanji extends BaseEntity {
     /** Icon emoji đại diện */
     @Column(name = "mnemonic_icon", length = 20)
     private String mnemonicIcon;
+
+    /** ID chương học (thuộc Kanji Master Roadmap) */
+    @Column(name = "chapter_id")
+    private Long chapterId;
+
+    /** Thứ tự xuất hiện trong chương */
+    @Column(name = "chapter_order")
+    private Integer chapterOrder;
 }

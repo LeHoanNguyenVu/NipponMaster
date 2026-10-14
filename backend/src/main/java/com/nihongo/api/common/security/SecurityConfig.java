@@ -46,8 +46,9 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
 
-                        // Cho phép GET public cho Kanji, Grammar (tra cứu không cần login)
-                        .requestMatchers(HttpMethod.GET, "/api/v1/kanjis/**").permitAll()
+                        // Cho phép truy cập Kanji, Grammar (lộ trình, bài tập, tra cứu, submit bài test)
+                        .requestMatchers("/api/v1/kanjis/**").permitAll()
+                        .requestMatchers("/api/v1/kanji/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/grammars/**").permitAll()
                         .requestMatchers("/api/v1/tts/**").permitAll()
 
