@@ -290,11 +290,23 @@ export default function Kanji() {
     });
   };
 
-  // Thẻ 4: State bài thi ふくしゅう
+  // Thẻ 4: State bài thi & lịch sử các lần thi
   const [testAnswers, setTestAnswers] = useState<Record<number, string>>({});
   const [submittingTest, setSubmittingTest] = useState<boolean>(false);
   const [submitResult, setSubmitResult] = useState<SubmitResult | null>(null);
   const [showResultCard, setShowResultCard] = useState<boolean>(false);
+  const [testHistory, setTestHistory] = useState<
+    Array<{
+      id: string;
+      date: string;
+      score: number;
+      correctCount: number;
+      totalQuestions: number;
+      isPassed: boolean;
+      answers: Record<number, string>;
+    }>
+  >([]);
+  const [showHistoryDropdown, setShowHistoryDropdown] = useState<boolean>(false);
 
   // Minigame states
   const [minigameInputs, setMinigameInputs] = useState<Record<string, string>>({});
@@ -322,9 +334,29 @@ export default function Kanji() {
     setShowIllustrationModal(true);
   };
 
+  const REVIEW_PAGES_CONFIG: Record<number, { page: number; file: string }> = {
+    1: { page: 18, file: 'chap1_review_p18.webp' },
+    2: { page: 27, file: 'chap2_review_p27.webp' },
+    3: { page: 35, file: 'chap3_review_p35.webp' },
+    4: { page: 43, file: 'chap4_review_p43.webp' },
+    5: { page: 51, file: 'chap5_review_p51.webp' },
+    6: { page: 61, file: 'chap6_review_p61.webp' },
+    7: { page: 69, file: 'chap7_review_p69.webp' },
+    8: { page: 77, file: 'chap8_review_p77.webp' },
+    9: { page: 85, file: 'chap9_review_p85.webp' },
+    10: { page: 93, file: 'chap10_review_p93.webp' },
+    11: { page: 103, file: 'chap11_review_p103.webp' },
+    12: { page: 111, file: 'chap12_review_p111.webp' },
+    13: { page: 119, file: 'chap13_review_p119.webp' },
+    14: { page: 127, file: 'chap14_review_p127.webp' },
+    15: { page: 135, file: 'chap15_review_p135.webp' },
+  };
+
   const handleOpenReviewPage = () => {
-    setModalImageUrl(`/assets/kanji/n5/reviews/chap${selectedChapterId}_review_p18.webp`);
-    setModalImageTitle(`Chương ${chapterDetail?.chapter.chapterNumber || selectedChapterId}: Trang 18 ふくしゅう (Câu ngữ cảnh & Viết chữ trong giáo trình)`);
+    const chNum = chapterDetail?.chapter.chapterNumber || selectedChapterId;
+    const revConfig = REVIEW_PAGES_CONFIG[chNum] || { page: 18, file: `chap${chNum}_review_p18.webp` };
+    setModalImageUrl(`/assets/kanji/n5/reviews/${revConfig.file}`);
+    setModalImageTitle(`Chương ${chNum}: Trang ${revConfig.page} (Câu ngữ cảnh & Viết chữ trong giáo trình)`);
     setShowIllustrationModal(true);
   };
 
@@ -346,9 +378,14 @@ export default function Kanji() {
       if (data && data.chapters) {
         setRoadmap(data);
         if (data.chapters.length > 0) {
-          // Mặc định chọn chương đang mở khóa đầu tiên
-          const currentUnlocked = data.chapters.find((c) => c.isUnlocked && !c.isPassed) || data.chapters[0];
-          setSelectedChapterId(currentUnlocked.id);
+          // Giữ nguyên chương người dùng đang xem, chỉ mặc định nếu chưa chọn chương
+          setSelectedChapterId((prev) => {
+            if (prev && data.chapters.some((c) => c.id === prev)) {
+              return prev;
+            }
+            const currentUnlocked = data.chapters.find((c) => c.isUnlocked && !c.isPassed) || data.chapters[0];
+            return currentUnlocked.id;
+          });
         }
       }
     } catch (err) {
@@ -370,6 +407,19 @@ export default function Kanji() {
       setShowResultCard(false);
       setTestAnswers({});
       setMinigameInputs({});
+      setShowHistoryDropdown(false);
+
+      // Tải lịch sử làm bài thi của chương này từ localStorage
+      try {
+        const savedHistory = localStorage.getItem(`kanji_test_history_${chapterId}`);
+        if (savedHistory) {
+          setTestHistory(JSON.parse(savedHistory));
+        } else {
+          setTestHistory([]);
+        }
+      } catch (e) {
+        setTestHistory([]);
+      }
 
       const res: any = await axiosClient.get(`/kanji/n5/chapters/${chapterId}`);
       const data: ChapterDetailResponse = res?.data ?? res;
@@ -392,7 +442,7 @@ export default function Kanji() {
     }
   }, [selectedChapterId]);
 
-  // 3. Xử lý nộp bài test ふくしゅう
+  // 3. Xử lý nộp bài test ôn tập
   const handleSubmitReviewTest = async () => {
     if (!chapterDetail) return;
     const allExercises = [
@@ -426,7 +476,29 @@ export default function Kanji() {
         setSubmitResult(result);
         setShowResultCard(true);
 
-        // Tải lại roadmap để cập nhật ổ khóa & điểm số trên cột trái
+        // Lưu kết quả làm bài vào lịch sử của chương này
+        const newHistoryItem = {
+          id: Date.now().toString(),
+          date: new Date().toLocaleString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          score: calculatedScore,
+          correctCount,
+          totalQuestions,
+          isPassed: calculatedScore >= 85,
+          answers: { ...testAnswers },
+        };
+        const nextHistory = [newHistoryItem, ...testHistory];
+        setTestHistory(nextHistory);
+        try {
+          localStorage.setItem(`kanji_test_history_${selectedChapterId}`, JSON.stringify(nextHistory));
+        } catch (e) {}
+
+        // Tải lại roadmap để cập nhật ổ khóa & điểm số trên cột trái mà không nhảy trang
         fetchRoadmap();
       }
     } catch (err) {
@@ -434,6 +506,21 @@ export default function Kanji() {
     } finally {
       setSubmittingTest(false);
     }
+  };
+
+  // Helper xem lại kết quả lần test trước
+  const handleReviewPastAttempt = (attempt: any) => {
+    setTestAnswers(attempt.answers);
+    setSubmitResult({
+      score: attempt.score,
+      isPassed: attempt.isPassed,
+      unlockedNextChapter: false,
+      message: attempt.isPassed
+        ? `Lần thi (${attempt.date}): Xuất sắc đạt ${attempt.score}% (${attempt.correctCount}/${attempt.totalQuestions} câu đúng).`
+        : `Lần thi (${attempt.date}): Đạt ${attempt.score}% (${attempt.correctCount}/${attempt.totalQuestions} câu đúng).`,
+    });
+    setShowResultCard(true);
+    setShowHistoryDropdown(false);
   };
 
   // Helper chuyển sang Canvas Studio luyện chữ
@@ -501,32 +588,11 @@ export default function Kanji() {
               </div>
               <div className="h-8 w-px bg-[#e7e5e4]" />
               <div>
-                <div className="text-xs text-[#78716c] uppercase font-mono">CHỮ HÁN ĐÃ NẮM VỮNG</div>
-                <div className="text-lg font-serif font-bold text-[#b91c1c]">
-                  {roadmap.learnedKanji} <span className="text-xs font-normal text-[#a8a29e]">/ {roadmap.totalKanji} Chữ</span>
-                </div>
-              </div>
-              <div className="h-8 w-px bg-[#e7e5e4] hidden md:block" />
-              <div className="hidden md:block">
                 <div className="text-xs text-[#78716c] uppercase font-mono">ĐIỀU KIỆN MỞ KHÓA</div>
                 <div className="text-xs font-medium text-[#44403c] mt-1">
                   Đạt điểm test <span className="font-bold text-[#b91c1c]">≥ 85%</span> ở bài kiểm tra cuối chương
                 </div>
               </div>
-            </div>
-
-            {/* Stage Indicators */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#78716c] font-mono mr-1">CHẶNG THI:</span>
-              <span className={`px-2 py-0.5 text-xs font-mono border ${roadmap.completedChapters >= 5 ? 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]' : 'bg-[#fafaf9] text-[#a8a29e] border-[#e7e5e4]'}`}>
-                Chặng 1 (C1-5)
-              </span>
-              <span className={`px-2 py-0.5 text-xs font-mono border ${roadmap.completedChapters >= 10 ? 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]' : 'bg-[#fafaf9] text-[#a8a29e] border-[#e7e5e4]'}`}>
-                Chặng 2 (C6-10)
-              </span>
-              <span className={`px-2 py-0.5 text-xs font-mono border ${roadmap.completedChapters >= 15 ? 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]' : 'bg-[#fafaf9] text-[#a8a29e] border-[#e7e5e4]'}`}>
-                Tốt nghiệp N5
-              </span>
             </div>
           </div>
         )}
@@ -681,67 +747,59 @@ export default function Kanji() {
                   </div>
 
                   {/* 4 THẺ ĐIỀU HƯỚNG CHUYÊN SÂU */}
-                  <div className="flex items-center gap-1 border-t border-[#e7e5e4] mt-6 pt-4 overflow-x-auto">
+                  {/* 4 THẺ ĐIỀU HƯỚNG CHUYÊN SÂU */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 border-t border-[#e7e5e4] mt-6 pt-4">
                     <button
                       onClick={() => setActiveTab('kanjis')}
-                      className={`px-4 py-2 text-xs font-medium tracking-wide border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+                      className={`px-3 py-2.5 text-xs font-medium tracking-wide border transition-all flex items-center justify-center gap-1.5 sm:gap-2 text-center ${
                         activeTab === 'kanjis'
-                          ? 'border-[#b91c1c] text-[#b91c1c] font-bold'
-                          : 'border-transparent text-[#78716c] hover:text-[#1c1917]'
+                          ? 'border-[#b91c1c] bg-[#fff5f5] text-[#b91c1c] font-bold shadow-sm'
+                          : 'border-[#e7e5e4] bg-[#fafaf9] text-[#78716c] hover:bg-white hover:text-[#1c1917]'
                       }`}
                     >
-                      <span>🎴</span>
                       <span>{t('master.tab1', 'Chữ Hán & Nét vẽ')}</span>
-                      <span className="text-[10px] bg-[#f5f5f4] px-1.5 py-0.2 rounded font-mono">
+                      <span className="text-[10px] bg-[#f5f5f4] px-1.5 py-0.5 rounded font-mono font-bold">
                         {chapterDetail.kanjis.length}
                       </span>
                     </button>
 
                     <button
                       onClick={() => setActiveTab('context')}
-                      className={`px-4 py-2 text-xs font-medium tracking-wide border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+                      className={`px-3 py-2.5 text-xs font-medium tracking-wide border transition-all flex items-center justify-center gap-1.5 sm:gap-2 text-center ${
                         activeTab === 'context'
-                          ? 'border-[#b91c1c] text-[#b91c1c] font-bold'
-                          : 'border-transparent text-[#78716c] hover:text-[#1c1917]'
+                          ? 'border-[#b91c1c] bg-[#fff5f5] text-[#b91c1c] font-bold shadow-sm'
+                          : 'border-[#e7e5e4] bg-[#fafaf9] text-[#78716c] hover:bg-white hover:text-[#1c1917]'
                       }`}
                     >
-                      <span>📖</span>
                       <span>{t('master.tab2', 'Câu ngữ cảnh')}</span>
-                      <span className="text-[10px] bg-[#f5f5f4] px-1.5 py-0.2 rounded font-mono">
+                      <span className="text-[10px] bg-[#f5f5f4] px-1.5 py-0.5 rounded font-mono font-bold">
                         {(chapterDetail.readingExercises?.length || 0) + (chapterDetail.writingExercises?.length || 0)}
                       </span>
                     </button>
 
                     <button
                       onClick={() => setActiveTab('minigame')}
-                      className={`px-4 py-2 text-xs font-medium tracking-wide border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+                      className={`px-3 py-2.5 text-xs font-medium tracking-wide border transition-all flex items-center justify-center gap-1.5 sm:gap-2 text-center ${
                         activeTab === 'minigame'
-                          ? 'border-[#b91c1c] text-[#b91c1c] font-bold'
-                          : 'border-transparent text-[#78716c] hover:text-[#1c1917]'
+                          ? 'border-[#b91c1c] bg-[#fff5f5] text-[#b91c1c] font-bold shadow-sm'
+                          : 'border-[#e7e5e4] bg-[#fafaf9] text-[#78716c] hover:bg-white hover:text-[#1c1917]'
                       }`}
                     >
-                      <span>🧩</span>
                       <span>{t('master.tab3', 'Minigame tình huống')}</span>
-                      <span className="text-[10px] bg-[#f5f5f4] px-1.5 py-0.2 rounded font-mono">
+                      <span className="text-[10px] bg-[#f5f5f4] px-1.5 py-0.5 rounded font-mono font-bold">
                         {chapterDetail.minigames?.length || 0}
                       </span>
                     </button>
 
                     <button
                       onClick={() => setActiveTab('test')}
-                      className={`px-4 py-2 text-xs font-medium tracking-wide border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+                      className={`px-3 py-2.5 text-xs font-medium tracking-wide border transition-all flex items-center justify-center gap-1.5 sm:gap-2 text-center ${
                         activeTab === 'test'
-                          ? 'border-[#b91c1c] text-[#b91c1c] font-bold'
-                          : 'border-transparent text-[#78716c] hover:text-[#1c1917]'
+                          ? 'border-[#b91c1c] bg-[#fff5f5] text-[#b91c1c] font-bold shadow-sm'
+                          : 'border-[#e7e5e4] bg-[#fafaf9] text-[#78716c] hover:bg-white hover:text-[#1c1917]'
                       }`}
                     >
-                      <span>📝</span>
-                      <span>{t('master.tab4', 'Test ôn tập (ふくしゅう)')}</span>
-                      {chapterDetail.userProgress?.highestScore ? (
-                        <span className="text-[10px] bg-[#f0fdf4] text-[#166534] px-1.5 py-0.2 font-mono font-bold">
-                          {chapterDetail.userProgress.highestScore}%
-                        </span>
-                      ) : null}
+                      <span>{t('master.tab4', 'Test ôn tập')}</span>
                     </button>
                   </div>
                 </div>
@@ -780,13 +838,15 @@ export default function Kanji() {
                     </div>
 
                     {/* Khung chi tiết chữ Hán đang chọn */}
-                    {/* Khung chi tiết chữ Hán đang chọn */}
                     {activeKanji && (() => {
                       const activeKanjiIndex = chapterDetail?.kanjis ? chapterDetail.kanjis.findIndex((k) => k.id === activeKanji.id) : 0;
                       const illustrationUrl =
-                        selectedChapterId === 1 && activeKanjiIndex >= 0
+                        activeKanji.imageUrl ||
+                        (selectedChapterId === 1 && activeKanjiIndex >= 0
                           ? `/assets/kanji/n5/illustrations/chap1_kanji_${activeKanjiIndex + 1}.webp`
-                          : activeKanji.imageUrl || '/assets/kanji/n5/illustrations/kanji_1_finger.png';
+                          : selectedChapterId === 2 && activeKanjiIndex >= 0
+                          ? `/assets/kanji/n5/illustrations/chap2_kanji_${activeKanjiIndex + 1}.webp`
+                          : `/assets/kanji/n5/illustrations/chap${selectedChapterId}_kanji_${activeKanjiIndex + 1}.webp`);
 
                       return (
                         <div className="bg-white border border-[#e7e5e4] p-5 sm:p-6 shadow-xs">
@@ -827,7 +887,10 @@ export default function Kanji() {
                                       alt={`Minh họa nét chữ ${activeKanji.character}`}
                                       className="max-h-[145px] max-w-full object-contain transition-transform hover:scale-105"
                                       onError={(e) => {
-                                        (e.target as HTMLImageElement).src = '/assets/kanji/n5/illustrations/kanji_1_finger.png';
+                                        (e.target as HTMLImageElement).src =
+                                          selectedChapterId === 2
+                                            ? `/assets/kanji/n5/illustrations/chap2_kanji_${activeKanjiIndex + 1}.webp`
+                                            : `/assets/kanji/n5/illustrations/chap1_kanji_${activeKanjiIndex + 1}.webp`;
                                       }}
                                     />
                                   </div>
@@ -1606,6 +1669,84 @@ export default function Kanji() {
                                 </div>
                               </div>
                             )}
+
+                            {/* Dạng 5: Trắc nghiệm tình huống & Câu hỏi tương tác (PICTURE_MATCH / Generic questions) */}
+                            {((game.gameType === 'PICTURE_MATCH' || !['ORDERING', 'COUNTING'].includes(game.gameType)) &&
+                              parsedData.questions &&
+                              parsedData.questions.length > 0 &&
+                              !parsedData.questions[0].formula &&
+                              !parsedData.questions[0].counter) && (
+                              <div className="space-y-4">
+                                {parsedData.example && (
+                                  <div className="p-3 bg-[#f5f5f4] border border-[#e7e5e4] text-xs font-mono flex items-center justify-between">
+                                    <span className="font-bold text-[#1c1917]">
+                                      📌 {parsedData.example.prompt || parsedData.example.item || 'Ví dụ mẫu (れい)'}
+                                    </span>
+                                    <span className="font-bold text-[#15803d] bg-white px-2 py-0.5 border border-[#e7e5e4]">
+                                      {parsedData.example.answer || parsedData.example.kanji || ''}
+                                    </span>
+                                  </div>
+                                )}
+
+                                <div className="space-y-3">
+                                  {parsedData.questions.map((q: any) => {
+                                    const key = `q_${game.id}_${q.id}`;
+                                    const selectedOpt = minigameInputs[key];
+
+                                    return (
+                                      <div key={q.id} className="bg-white p-4 border border-[#e7e5e4] shadow-xs">
+                                        <div className="text-xs sm:text-sm font-serif font-bold text-[#1c1917] mb-2.5 flex items-center gap-2">
+                                          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#fafaf9] border border-[#e7e5e4] text-[10px] font-mono text-[#78716c]">
+                                            {q.id}
+                                          </span>
+                                          <span>{q.prompt}</span>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          {q.options?.map((opt: string) => {
+                                            const isSelected = selectedOpt === opt;
+                                            const isCorrect = opt === q.answer;
+                                            let style = 'bg-[#fafaf9] text-[#44403c] border-[#e7e5e4] hover:bg-white hover:border-[#a8a29e]';
+                                            if (selectedOpt) {
+                                              if (isCorrect) style = 'bg-[#15803d] text-white border-[#15803d] font-bold shadow-xs';
+                                              else if (isSelected) style = 'bg-[#dc2626] text-white border-[#dc2626] font-bold shadow-xs';
+                                              else style = 'opacity-40 bg-[#f5f5f4] border-[#e7e5e4] text-[#a8a29e]';
+                                            }
+
+                                            return (
+                                              <button
+                                                key={opt}
+                                                onClick={() =>
+                                                  setMinigameInputs({
+                                                    ...minigameInputs,
+                                                    [key]: opt,
+                                                  })
+                                                }
+                                                className={`px-3.5 py-2 text-xs sm:text-sm font-serif border transition-all cursor-pointer ${style}`}
+                                              >
+                                                {opt}
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                        {selectedOpt && (
+                                          <div className="mt-3 pt-2.5 border-t border-[#f5f5f4] flex flex-col gap-1">
+                                            <div className="text-xs font-mono font-bold text-[#15803d] flex items-center gap-1.5">
+                                              <span>✓ Đáp án đúng:</span>
+                                              <span className="underline decoration-2">{q.answer}</span>
+                                            </div>
+                                            {q.explanation && (
+                                              <div className="text-[11px] font-sans text-[#78716c] bg-[#fafaf9] p-2 border border-[#f5f5f4] rounded">
+                                                💡 {q.explanation}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -1620,61 +1761,170 @@ export default function Kanji() {
                   <div className="space-y-6">
                     {/* Hướng dẫn bài test */}
                     <div className="bg-white border border-[#e7e5e4] p-6">
-                      <div className="flex items-center justify-between pb-3 border-b border-[#e7e5e4]">
+                      <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#e7e5e4] gap-2">
                         <div>
                           <h3 className="font-serif font-bold text-lg text-[#1c1917]">
-                            {t('master.reviewTestTitle', 'Bài test ôn tập chương (ふくしゅう)')}
+                            {t('master.reviewTestTitle', 'Bài test ôn tập chương')}
                           </h3>
-                          <p className="text-xs text-[#78716c] mt-0.5">
-                            {t(
-                              'master.reviewTestDesc',
-                              'Gồm 20 câu trắc nghiệm (10 câu đọc + 10 câu viết). Đạt từ 85% trở lên để ghi nhận điểm thật và tự động mở khóa chương tiếp theo.'
-                            )}
-                          </p>
                         </div>
-                        <Badge variant="outline" className="text-xs font-mono">
-                          MỤC TIÊU: ≥ 85%
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          {testHistory.length > 0 && (
+                            <button
+                              onClick={() => setShowHistoryDropdown(!showHistoryDropdown)}
+                              className="px-3 py-1.5 text-xs font-mono font-medium border border-[#d6d3d1] bg-[#fafaf9] hover:bg-white text-[#44403c] flex items-center gap-1.5 transition-colors cursor-pointer"
+                            >
+                              <span>📜 Lịch sử làm test ({testHistory.length})</span>
+                            </button>
+                          )}
+                          <Badge variant="outline" className="text-xs font-mono">
+                            MỤC TIÊU: ≥ 85%
+                          </Badge>
+                        </div>
                       </div>
 
-                      {/* Thông báo kết quả nộp bài */}
-                      {showResultCard && submitResult && (
-                        <div
-                          className={`mt-4 p-4 border ${
-                            submitResult.isPassed
-                              ? 'bg-[#f0fdf4] border-[#86efac] text-[#166534]'
-                              : 'bg-[#fef2f2] border-[#fca5a5] text-[#991b1b]'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              {submitResult.isPassed ? (
-                                <CheckCircle2 className="w-6 h-6 text-[#166534]" />
-                              ) : (
-                                <AlertCircle className="w-6 h-6 text-[#991b1b]" />
-                              )}
-                              <div>
-                                <div className="font-bold text-sm">
-                                  {submitResult.message}
+                      {/* Dropdown / Danh sách các lần test trước */}
+                      {showHistoryDropdown && testHistory.length > 0 && (
+                        <div className="mt-4 p-4 border border-[#e7e5e4] bg-[#fafaf9]">
+                          <div className="text-xs font-mono uppercase font-bold text-[#78716c] mb-3 flex items-center justify-between">
+                            <span>LỊCH SỬ CÁC LẦN LÀM BÀI TRƯỚC ĐÓ:</span>
+                            <button
+                              onClick={() => setShowHistoryDropdown(false)}
+                              className="text-xs text-[#78716c] hover:text-[#1c1917] cursor-pointer"
+                            >
+                              ✕ Đóng
+                            </button>
+                          </div>
+                          <div className="space-y-2 max-h-60 overflow-y-auto">
+                            {testHistory.map((item, idx) => (
+                              <div
+                                key={item.id || idx}
+                                className="p-3 bg-white border border-[#e7e5e4] flex flex-wrap items-center justify-between gap-3"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="font-mono text-xs font-bold text-[#78716c]">
+                                    #{testHistory.length - idx}
+                                  </span>
+                                  <div>
+                                    <div className="text-xs font-medium text-[#1c1917]">
+                                      {item.date}
+                                    </div>
+                                    <div className="text-[11px] font-mono text-[#78716c]">
+                                      Đúng {item.correctCount}/{item.totalQuestions} câu
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="text-xs mt-0.5 font-mono">
-                                  Điểm số ghi nhận trên Database: {submitResult.score}%
+
+                                <div className="flex items-center gap-3">
+                                  <span
+                                    className={`px-2 py-0.5 text-xs font-mono font-bold border ${
+                                      item.isPassed
+                                        ? 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]'
+                                        : 'bg-[#fef2f2] text-[#991b1b] border-[#fecaca]'
+                                    }`}
+                                  >
+                                    {item.score}% {item.isPassed ? '✓ Đạt' : '✕ Chưa đạt'}
+                                  </span>
+                                  <button
+                                    onClick={() => handleReviewPastAttempt(item)}
+                                    className="px-3 py-1 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-medium transition-colors cursor-pointer"
+                                  >
+                                    Xem lại bài thi 👁️
+                                  </button>
                                 </div>
                               </div>
-                            </div>
-
-                            {submitResult.unlockedNextChapter && submitResult.nextChapterId && (
-                              <button
-                                onClick={() => setSelectedChapterId(submitResult.nextChapterId!)}
-                                className="px-4 py-2 bg-[#166534] text-white text-xs font-medium hover:bg-[#14532d] flex items-center gap-1.5 transition-colors"
-                              >
-                                <span>Chuyển sang Chương {submitResult.nextChapterNumber}</span>
-                                <ArrowRight className="w-3.5 h-3.5" />
-                              </button>
-                            )}
+                            ))}
                           </div>
                         </div>
                       )}
+
+                      {/* Thông báo nếu đã từng làm bài trước đó và đang ở bài mới */}
+                      {!showResultCard && testHistory.length > 0 && !showHistoryDropdown && (
+                        <div className="mt-4 p-3 bg-[#f5f5f4] border border-[#e7e5e4] flex flex-wrap items-center justify-between gap-2 text-xs">
+                          <span className="text-[#44403c]">
+                            Bạn đã từng làm bài test này (Lần gần nhất: <strong className="font-mono">{testHistory[0].date}</strong> — đạt <strong className="font-mono text-[#b91c1c]">{testHistory[0].score}%</strong>).
+                          </span>
+                          <button
+                            onClick={() => handleReviewPastAttempt(testHistory[0])}
+                            className="text-[#b91c1c] hover:underline font-bold text-xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <span>Xem lại kết quả lần trước 👁️</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Thông báo kết quả nộp bài */}
+                      {showResultCard && submitResult && (() => {
+                        const allEx = [
+                          ...(chapterDetail.readingExercises || []),
+                          ...(chapterDetail.writingExercises || []),
+                        ];
+                        const correctNum = allEx.filter((ex) => testAnswers[ex.id] === ex.correctAnswer).length;
+                        const wrongNum = allEx.length - correctNum;
+
+                        return (
+                          <div
+                            className={`mt-4 p-5 border ${
+                              submitResult.isPassed
+                                ? 'bg-[#f0fdf4] border-[#86efac] text-[#166534]'
+                                : 'bg-[#fef2f2] border-[#fca5a5] text-[#991b1b]'
+                            }`}
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                              <div className="flex items-start gap-3.5">
+                                {submitResult.isPassed ? (
+                                  <CheckCircle2 className="w-7 h-7 text-[#166534] flex-shrink-0 mt-0.5" />
+                                ) : (
+                                  <AlertCircle className="w-7 h-7 text-[#991b1b] flex-shrink-0 mt-0.5" />
+                                )}
+                                <div>
+                                  <div className="font-bold text-base">
+                                    {submitResult.isPassed
+                                      ? '🎉 XUẤT SẮC! BẠN ĐÃ VƯỢT QUA BÀI TEST CHƯƠNG!'
+                                      : '⚠️ CHƯA ĐẠT CHUẨN MỞ KHÓA!'}
+                                  </div>
+                                  <div className="text-xs mt-1 text-[#44403c] leading-relaxed">
+                                    {submitResult.message}
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-2.5 text-xs font-mono">
+                                    <span className="font-bold">
+                                      Điểm số: <span className="text-sm font-bold">{submitResult.score}%</span>
+                                    </span>
+                                    <span className="text-[#a8a29e]">•</span>
+                                    <span>
+                                      Đúng: <span className="font-bold text-[#166534]">{correctNum}</span> / {allEx.length} câu
+                                    </span>
+                                    <span className="text-[#a8a29e]">•</span>
+                                    <span>
+                                      Sai: <span className="font-bold text-[#b91c1c]">{wrongNum}</span> câu
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 self-end sm:self-center">
+                                {submitResult.unlockedNextChapter && submitResult.nextChapterId && (
+                                  <button
+                                    onClick={() => setSelectedChapterId(submitResult.nextChapterId!)}
+                                    className="px-4 py-2 bg-[#166534] text-white text-xs font-medium hover:bg-[#14532d] flex items-center gap-1.5 transition-colors shadow-sm"
+                                  >
+                                    <span>Sang Chương {submitResult.nextChapterNumber}</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => {
+                                    setTestAnswers({});
+                                    setShowResultCard(false);
+                                  }}
+                                  className="px-3.5 py-2 bg-white border border-[#d6d3d1] text-xs font-medium text-[#44403c] hover:bg-[#fafaf9] transition-colors"
+                                >
+                                  Làm lại bài 🔄
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* Danh sách 20 câu trắc nghiệm */}
                       <div className="mt-6 space-y-6">
@@ -1690,15 +1940,38 @@ export default function Kanji() {
                           }
 
                           const currentSelected = testAnswers[ex.id];
+                          const isCorrect = currentSelected === ex.correctAnswer;
+                          const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 
                           return (
                             <div
                               key={ex.id}
-                              className="p-4 border border-[#e7e5e4] bg-[#fafaf9]"
+                              className={`p-4 border transition-all ${
+                                showResultCard
+                                  ? isCorrect
+                                    ? 'border-l-4 border-l-[#166534] border-[#e7e5e4] bg-white'
+                                    : 'border-l-4 border-l-[#b91c1c] border-[#e7e5e4] bg-[#fffbfb]'
+                                  : 'border-[#e7e5e4] bg-[#fafaf9]'
+                              }`}
                             >
                               <div className="flex items-center justify-between text-xs text-[#78716c] font-mono mb-2">
-                                <span>CÂU {index + 1} / 20</span>
-                                <span>{ex.exerciseType === 'READING' ? 'よみましょう' : 'かきましょう'}</span>
+                                <span className="font-bold">CÂU {index + 1} / 20</span>
+                                <div className="flex items-center gap-2">
+                                  <span>{ex.exerciseType === 'READING' ? 'よみましょう (Đọc câu)' : 'かきましょう (Viết chữ)'}</span>
+                                  {showResultCard && (
+                                    isCorrect ? (
+                                      <span className="px-2 py-0.5 text-[11px] font-bold bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0] flex items-center gap-1 rounded">
+                                        <CheckCircle2 className="w-3.5 h-3.5" />
+                                        ĐÚNG
+                                      </span>
+                                    ) : (
+                                      <span className="px-2 py-0.5 text-[11px] font-bold bg-[#fef2f2] text-[#991b1b] border border-[#fecaca] flex items-center gap-1 rounded">
+                                        <X className="w-3.5 h-3.5" />
+                                        SAI
+                                      </span>
+                                    )
+                                  )}
+                                </div>
                               </div>
 
                               <div className="font-serif text-base font-medium text-[#1c1917] mb-3">
@@ -1706,8 +1979,49 @@ export default function Kanji() {
                               </div>
 
                               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                {options.map((opt) => {
+                                {options.map((opt, optIdx) => {
+                                  const letter = OPTION_LETTERS[optIdx] || '';
                                   const isChecked = currentSelected === opt;
+                                  const isAnswer = opt === ex.correctAnswer;
+
+                                  if (showResultCard) {
+                                    // Chế độ xem nhận xét / sửa bài
+                                    let btnClass = 'border-[#e7e5e4] bg-[#fafaf9] text-[#78716c] opacity-60';
+                                    let tag = null;
+
+                                    if (isAnswer) {
+                                      // Đáp án đúng luôn được highlight xanh lá
+                                      btnClass = 'border-2 border-[#166534] bg-[#f0fdf4] text-[#166534] font-bold shadow-sm';
+                                      tag = (
+                                        <span className="text-[10px] bg-[#166534] text-white px-1.5 py-0.5 font-sans font-semibold rounded">
+                                          Đúng ✓
+                                        </span>
+                                      );
+                                    } else if (isChecked && !isAnswer) {
+                                      // Lựa chọn của người dùng nhưng sai -> highlight đỏ
+                                      btnClass = 'border-2 border-[#b91c1c] bg-[#fef2f2] text-[#991b1b] font-bold line-through';
+                                      tag = (
+                                        <span className="text-[10px] bg-[#b91c1c] text-white px-1.5 py-0.5 font-sans font-semibold rounded">
+                                          Bạn chọn ✕
+                                        </span>
+                                      );
+                                    }
+
+                                    return (
+                                      <div
+                                        key={opt}
+                                        className={`p-2.5 text-xs font-medium border text-center transition-all flex items-center justify-between gap-1 select-none ${btnClass}`}
+                                      >
+                                        <span className="truncate">
+                                          <span className="font-bold font-mono mr-1">{letter}.</span>
+                                          {opt}
+                                        </span>
+                                        {tag}
+                                      </div>
+                                    );
+                                  }
+
+                                  // Chế độ làm bài bình thường
                                   return (
                                     <button
                                       key={opt}
@@ -1717,26 +2031,41 @@ export default function Kanji() {
                                           [ex.id]: opt,
                                         })
                                       }
-                                      className={`p-2.5 text-xs font-medium border text-center transition-all ${
+                                      className={`p-2.5 text-xs font-medium border text-center transition-all flex items-center justify-center gap-1 ${
                                         isChecked
                                           ? 'border-[#b91c1c] bg-[#b91c1c] text-white font-bold shadow-sm'
                                           : 'border-[#e7e5e4] bg-white text-[#44403c] hover:border-[#d6d3d1]'
                                       }`}
                                     >
-                                      {opt}
+                                      <span className="font-mono font-bold">{letter}.</span>
+                                      <span>{opt}</span>
                                     </button>
                                   );
                                 })}
                               </div>
+
+                              {/* Lời giải thích chi tiết khi nộp bài */}
+                              {showResultCard && (
+                                <div className="mt-3.5 pt-3 border-t border-[#e7e5e4] text-xs flex items-start gap-2.5">
+                                  <span className="font-bold text-[#1c1917] bg-[#f5f5f4] px-2 py-0.5 text-[11px] font-mono uppercase tracking-wide flex-shrink-0">
+                                    💡 GIẢI THÍCH
+                                  </span>
+                                  <span className="text-[#44403c] leading-relaxed">
+                                    {ex.explanation || `Từ vựng trong câu là "${ex.targetWord}", đáp án chính xác là "${ex.correctAnswer}".`}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
                       </div>
 
-                      {/* Nút nộp bài */}
-                      <div className="mt-8 pt-4 border-t border-[#e7e5e4] flex items-center justify-between">
+                      {/* Nút nộp bài / thao tác */}
+                      <div className="mt-8 pt-4 border-t border-[#e7e5e4] flex flex-wrap items-center justify-between gap-4">
                         <span className="text-xs text-[#78716c] font-mono">
-                          Đã trả lời: {Object.keys(testAnswers).length} / 20 câu
+                          {showResultCard && submitResult
+                            ? `Hoàn thành chấm điểm: ${submitResult.score}% • Kiểm tra chi tiết đúng/sai bên trên`
+                            : `Đã trả lời: ${Object.keys(testAnswers).length} / 20 câu`}
                         </span>
 
                         <div className="flex items-center gap-3">
@@ -1747,23 +2076,25 @@ export default function Kanji() {
                             }}
                             className="px-4 py-2 border border-[#d6d3d1] text-xs font-medium text-[#44403c] hover:bg-white transition-colors"
                           >
-                            Làm lại từ đầu
+                            {showResultCard ? 'Làm bài kiểm tra mới 📝' : 'Làm lại từ đầu'}
                           </button>
 
-                          <button
-                            onClick={handleSubmitReviewTest}
-                            disabled={submittingTest || Object.keys(testAnswers).length === 0}
-                            className="px-6 py-2.5 bg-[#b91c1c] text-white text-xs font-bold tracking-wide hover:bg-[#991b1b] transition-all flex items-center gap-2 shadow disabled:opacity-50"
-                          >
-                            {submittingTest ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Đang chấm điểm...</span>
-                              </>
-                            ) : (
-                              <span>Nộp bài kiểm tra & Lưu điểm thật 📝</span>
-                            )}
-                          </button>
+                          {!showResultCard && (
+                            <button
+                              onClick={handleSubmitReviewTest}
+                              disabled={submittingTest || Object.keys(testAnswers).length === 0}
+                              className="px-6 py-2.5 bg-[#b91c1c] text-white text-xs font-bold tracking-wide hover:bg-[#991b1b] transition-all flex items-center gap-2 shadow disabled:opacity-50"
+                            >
+                              {submittingTest ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  <span>Đang chấm điểm...</span>
+                                </>
+                              ) : (
+                                <span>Nộp bài kiểm tra & Lưu điểm thật 📝</span>
+                              )}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

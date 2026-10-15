@@ -94,7 +94,7 @@
     "checkAnswer": "Check Answer",
     "correct": "Correct! 🎉",
     "incorrect": "Incorrect, please try again! ❌",
-    "reviewTestTitle": "Chapter Review Test (ふくしゅう)",
+    "reviewTestTitle": "Chapter Review Test",
     "reviewTestDesc": "Contains 20 multiple-choice questions (10 reading + 10 writing). Score 85% or higher to record progress and automatically unlock the next chapter.",
     "question": "Question {{current}}/{{total}}",
     "submitTest": "Submit Review Test 📝",
