@@ -84,8 +84,8 @@ public class KanjiCanvasServiceImpl implements KanjiCanvasService {
     @Override
     public KanjiRecognizeResponse evaluateTargetKanji(KanjiRecognizeRequest request) {
         String targetChar = request.getTargetKanji();
-        List<DrawnStroke> drawnStrokes = request.getDrawnStrokes();
-        int drawnCount = (drawnStrokes != null) ? drawnStrokes.size() : 0;
+        List<DrawnStroke> drawnStrokes = request.getDrawnStrokes() != null ? request.getDrawnStrokes() : Collections.emptyList();
+        int drawnCount = drawnStrokes.size();
 
         Optional<Kanji> targetOpt = (targetChar != null && !targetChar.isEmpty())
                 ? kanjiRepository.findByCharacter(targetChar)

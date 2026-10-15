@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 /**
  * Service quản lý JWT Blacklist trên Redis.
@@ -32,7 +32,7 @@ public class JwtBlacklistService {
     public void blacklistToken(String token, long expirationMs) {
         try {
             String key = BLACKLIST_PREFIX + token;
-            redisTemplate.opsForValue().set(key, "blacklisted", expirationMs, TimeUnit.MILLISECONDS);
+            redisTemplate.opsForValue().set(key, "blacklisted", Duration.ofMillis(expirationMs));
             log.info("🔒 Token đã được thêm vào blacklist, hết hạn sau {}ms", expirationMs);
         } catch (Exception e) {
             log.warn("⚠️ Không thể blacklist token (Redis có thể không khả dụng): {}", e.getMessage());

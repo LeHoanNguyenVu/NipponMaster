@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.8</version>
+		<version>4.1.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.nihongo</groupId>
@@ -179,4 +179,18 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>m2e</id>
+			<activation>
+				<property>
+					<name>m2e.version</name>
+				</property>
+			</activation>
+			<properties>
+				<maven.compiler.source>25</maven.compiler.source>
+				<maven.compiler.target>17</maven.compiler.target>
+			</properties>
+		</profile>
+	</profiles>
 </project>

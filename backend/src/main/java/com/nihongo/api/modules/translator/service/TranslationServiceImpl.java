@@ -19,7 +19,7 @@ import java.util.*;
 public class TranslationServiceImpl implements TranslationService {
 
     private final KanjiRepository kanjiRepository;
-    private final RestTemplate restTemplate = createRestTemplateWithTimeout();
+    private RestTemplate restTemplate = createRestTemplateWithTimeout();
 
     private static RestTemplate createRestTemplateWithTimeout() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
