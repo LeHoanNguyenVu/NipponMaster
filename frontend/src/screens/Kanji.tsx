@@ -20,6 +20,7 @@ import {
 import axiosClient from '../api/axiosClient';
 import KanjiStrokeWriter from '../components/KanjiStrokeWriter';
 import KanjiCanvasStudio from './KanjiCanvasStudio';
+import SakuraCelebrationModal from '../components/kanji/SakuraCelebrationModal';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '../components/ui/Badge';
 
@@ -295,6 +296,7 @@ export default function Kanji() {
   const [submittingTest, setSubmittingTest] = useState<boolean>(false);
   const [submitResult, setSubmitResult] = useState<SubmitResult | null>(null);
   const [showResultCard, setShowResultCard] = useState<boolean>(false);
+  const [showSakuraCelebration, setShowSakuraCelebration] = useState<boolean>(false);
   const [testHistory, setTestHistory] = useState<
     Array<{
       id: string;
@@ -476,6 +478,11 @@ export default function Kanji() {
         setSubmitResult(result);
         setShowResultCard(true);
 
+        // Kích hoạt pop-up chúc mừng hoa anh đào rơi nếu đạt chuẩn pass (>= 85%)
+        if (result.isPassed || calculatedScore >= 85) {
+          setShowSakuraCelebration(true);
+        }
+
         // Lưu kết quả làm bài vào lịch sử của chương này
         const newHistoryItem = {
           id: Date.now().toString(),
@@ -622,33 +629,34 @@ export default function Kanji() {
               </span>
             </div>
 
+
             {loadingRoadmap ? (
               <div className="py-12 flex flex-col items-center justify-center text-[#78716c]">
                 <Loader2 className="w-6 h-6 animate-spin mb-2 text-[#b91c1c]" />
                 <span className="text-xs">Đang tải dữ liệu lộ trình...</span>
               </div>
             ) : (
-              <div className="space-y-1.5 max-h-[calc(100vh-280px)] overflow-y-auto pr-1">
+              <div className="space-y-1.5 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">
                 {roadmap?.chapters.map((chap) => {
                   const isSelected = selectedChapterId === chap.id;
                   const isLocked = !chap.isUnlocked;
                   const isPassed = chap.isPassed;
+                  const canAccess = !isLocked;
 
                   return (
-                    <button
+                    <div
                       key={chap.id}
                       onClick={() => {
-                        if (!isLocked) {
+                        if (canAccess) {
                           setSelectedChapterId(chap.id);
                         }
                       }}
-                      disabled={isLocked}
                       className={`w-full text-left p-3 border transition-all flex items-center justify-between group ${
                         isSelected
                           ? 'border-[#b91c1c] bg-[#fef2f2] shadow-sm'
-                          : isLocked
+                          : !canAccess
                           ? 'border-[#f5f5f4] bg-[#fafaf9] opacity-60 cursor-not-allowed'
-                          : 'border-[#e7e5e4] bg-white hover:border-[#d6d3d1]'
+                          : 'border-[#e7e5e4] bg-white hover:border-[#d6d3d1] cursor-pointer'
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -688,17 +696,21 @@ export default function Kanji() {
                         </div>
                       </div>
 
-                      {/* Trạng thái khóa */}
-                      <div>
+                      {/* Trạng thái khóa / đã qua bài */}
+                      <div className="flex items-center gap-1.5">
                         {isLocked ? (
                           <Lock className="w-4 h-4 text-[#a8a29e]" />
                         ) : isPassed ? (
                           <CheckCircle2 className="w-4 h-4 text-[#166534]" />
                         ) : (
-                          <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-[#b91c1c] translate-x-0.5' : 'text-[#d6d3d1] group-hover:text-[#78716c]'}`} />
+                          <ChevronRight
+                            className={`w-4 h-4 transition-transform ${
+                              isSelected ? 'text-[#b91c1c] translate-x-0.5' : 'text-[#d6d3d1] group-hover:text-[#78716c]'
+                            }`}
+                          />
                         )}
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -734,16 +746,19 @@ export default function Kanji() {
                       </p>
                     </div>
 
-                    {/* Nút xem tranh tượng hình mở đầu */}
-                    {chapterDetail.chapter.illustrationUrl && (
-                      <button
-                        onClick={handleOpenIllustration}
-                        className="self-start md:self-auto px-4 py-2 border border-[#e7e5e4] bg-[#fafaf9] hover:bg-white text-xs font-medium text-[#1c1917] flex items-center gap-2 transition-all shadow-sm cursor-pointer"
-                      >
-                        <Eye className="w-4 h-4 text-[#b91c1c]" />
-                        <span>Xem tranh tượng hình</span>
-                      </button>
-                    )}
+                    {/* Cụm nút công cụ */}
+                    <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
+                      {/* Nút xem tranh tượng hình mở đầu */}
+                      {chapterDetail.chapter.illustrationUrl && (
+                        <button
+                          onClick={handleOpenIllustration}
+                          className="px-3.5 py-2 border border-[#e7e5e4] bg-[#fafaf9] hover:bg-white text-xs font-medium text-[#1c1917] flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-[#b91c1c]" />
+                          <span>Xem tranh tượng hình</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* 4 THẺ ĐIỀU HƯỚNG CHUYÊN SÂU */}
@@ -840,13 +855,10 @@ export default function Kanji() {
                     {/* Khung chi tiết chữ Hán đang chọn */}
                     {activeKanji && (() => {
                       const activeKanjiIndex = chapterDetail?.kanjis ? chapterDetail.kanjis.findIndex((k) => k.id === activeKanji.id) : 0;
+                      const chapterNum = chapterDetail?.chapter.chapterNumber || selectedChapterId;
                       const illustrationUrl =
                         activeKanji.imageUrl ||
-                        (selectedChapterId === 1 && activeKanjiIndex >= 0
-                          ? `/assets/kanji/n5/illustrations/chap1_kanji_${activeKanjiIndex + 1}.webp`
-                          : selectedChapterId === 2 && activeKanjiIndex >= 0
-                          ? `/assets/kanji/n5/illustrations/chap2_kanji_${activeKanjiIndex + 1}.webp`
-                          : `/assets/kanji/n5/illustrations/chap${selectedChapterId}_kanji_${activeKanjiIndex + 1}.webp`);
+                        `/assets/kanji/n5/illustrations/chap${chapterNum}_kanji_${activeKanjiIndex + 1}.webp`;
 
                       return (
                         <div className="bg-white border border-[#e7e5e4] p-5 sm:p-6 shadow-xs">
@@ -887,12 +899,19 @@ export default function Kanji() {
                                       alt={`Minh họa nét chữ ${activeKanji.character}`}
                                       className="max-h-[145px] max-w-full object-contain transition-transform hover:scale-105"
                                       onError={(e) => {
-                                        (e.target as HTMLImageElement).src =
-                                          selectedChapterId === 2
-                                            ? `/assets/kanji/n5/illustrations/chap2_kanji_${activeKanjiIndex + 1}.webp`
-                                            : `/assets/kanji/n5/illustrations/chap1_kanji_${activeKanjiIndex + 1}.webp`;
+                                        // Ẩn ảnh nếu không tìm thấy file thay vì hiển thị nhầm ảnh chữ Hán chương 1
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        if (target.parentElement) {
+                                          const fallbackEl = target.parentElement.querySelector('.kanji-fallback-badge');
+                                          if (fallbackEl) (fallbackEl as HTMLElement).style.display = 'flex';
+                                        }
                                       }}
                                     />
+                                    <div className="kanji-fallback-badge hidden flex-col items-center justify-center text-center p-2 text-[#a8a29e]">
+                                      <span className="text-3xl font-serif text-[#d6d3d1] mb-1">{activeKanji.character}</span>
+                                      <span className="text-[10px] font-mono">Hình tượng hình</span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -2207,6 +2226,47 @@ export default function Kanji() {
         </div>,
         document.body
       )}
+      {/* Pop-up chúc mừng vượt qua bài thi ôn tập kèm hiệu ứng cánh hoa anh đào rơi */}
+      <SakuraCelebrationModal
+        isOpen={showSakuraCelebration}
+        onClose={() => setShowSakuraCelebration(false)}
+        score={submitResult?.score ?? 0}
+        correctCount={
+          submitResult && chapterDetail
+            ? Math.round(
+                ((submitResult.score ?? 0) / 100) *
+                  ((chapterDetail.readingExercises?.length || 0) + (chapterDetail.writingExercises?.length || 0))
+              )
+            : 0
+        }
+        totalQuestions={(chapterDetail?.readingExercises?.length || 0) + (chapterDetail?.writingExercises?.length || 0)}
+        currentChapterNumber={chapterDetail?.chapter.chapterNumber || selectedChapterId}
+        currentChapterTitle={chapterDetail ? `${chapterDetail.chapter.titleJa} (${chapterDetail.chapter.titleVi})` : ''}
+        nextChapterId={
+          submitResult?.nextChapterId ||
+          roadmap?.chapters.find(
+            (c) => c.chapterNumber === ((chapterDetail?.chapter.chapterNumber || selectedChapterId) + 1)
+          )?.id ||
+          null
+        }
+        nextChapterNumber={
+          submitResult?.nextChapterNumber ||
+          ((chapterDetail?.chapter.chapterNumber || selectedChapterId) + 1)
+        }
+        nextChapterTitle={
+          roadmap?.chapters.find(
+            (c) => c.chapterNumber === ((chapterDetail?.chapter.chapterNumber || selectedChapterId) + 1)
+          )
+            ? `${roadmap.chapters.find((c) => c.chapterNumber === ((chapterDetail?.chapter.chapterNumber || selectedChapterId) + 1))?.titleJa} (${roadmap.chapters.find((c) => c.chapterNumber === ((chapterDetail?.chapter.chapterNumber || selectedChapterId) + 1))?.titleVi})`
+            : null
+        }
+        onContinueToNextChapter={(nextId) => {
+          setSelectedChapterId(nextId);
+          setActiveTab('kanjis');
+          setShowResultCard(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
     </div>
   );
 }

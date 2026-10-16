@@ -86,6 +86,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Xử lý lỗi không tìm thấy tài nguyên tĩnh hoặc route API (404)
+     */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        log.warn("Resource/route not found: {}", ex.getResourcePath());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Không tìm thấy tài nguyên: " + ex.getResourcePath()));
+    }
+
+    /**
      * Xử lý mọi lỗi không mong muốn (500)
      */
     @ExceptionHandler(Exception.class)

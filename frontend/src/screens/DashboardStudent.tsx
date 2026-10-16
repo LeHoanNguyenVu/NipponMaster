@@ -8,7 +8,7 @@ import QuickFlashcardWidget from '../components/dashboard/QuickFlashcardWidget';
 import { INITIAL_FALLBACK_CARDS, type FlashcardItem } from '../data/flashcardMnemonics';
 import { loadStreakState, recordFlashcardReviewed, type StreakState } from '../utils/streakManager';
 import { loadAllModulesProgress } from '../utils/moduleProgressManager';
-import { getDaily10CardsDeck } from '../utils/srsCardManager';
+import { getDaily10CardsDeck, clearDailyDeckCache } from '../utils/srsCardManager';
 import { isBeginnerGraduated, getBeginnerCourseSummary } from '../utils/beginnerProgressManager';
 import { GraduationCap, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -102,16 +102,18 @@ export default function DashboardStudent({
   const rawLevel = (user?.jlptLevel || stats.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
   const isStarter = rawLevel === 'STARTER';
   const normalizedLevelKey = isStarter ? 'STARTER' : rawLevel;
+  const [deckVersion, setDeckVersion] = useState<number>(0);
 
-  // Fetch quick practice cards strictly from API for this level
+  // Fetch quick practice cards strictly from API for this level (lấy toàn bộ kho thẻ ~115+ thẻ N5)
   useEffect(() => {
     let active = true;
     const fetchQuickPracticeCards = async () => {
       try {
         const res = await axiosClient.get('/flashcards/quick-practice', {
-          params: { level: normalizedLevelKey, limit: 30 },
+          params: { level: normalizedLevelKey, limit: 150 },
         });
-        const data = res.data.data ?? res.data;
+        const raw = res as any;
+        const data = Array.isArray(raw) ? raw : (Array.isArray(raw?.data) ? raw.data : (raw?.data?.data ?? []));
         if (active && Array.isArray(data) && data.length > 0) {
           setCards(data);
           try {
@@ -166,6 +168,12 @@ export default function DashboardStudent({
     }
   }, []);
 
+  // Xử lý khi học viên bấm nút "Đổi bộ 10 thẻ mới"
+  const handleRefreshDeck = useCallback(() => {
+    clearDailyDeckCache(isStarter ? 'STARTER' : rawLevel);
+    setDeckVersion((prev) => prev + 1);
+  }, [isStarter, rawLevel]);
+
   const navigateTo = (screen: ScreenType) => {
     if (onNavigate) {
       onNavigate(screen);
@@ -179,8 +187,7 @@ export default function DashboardStudent({
   const levelDisplay = isStarter ? t('dashboard:level.starter', 'Starter Course') : `${rawLevel} Level`;
 
   // 10 Cards Daily Deck - Bốc theo thuật toán Spaced Repetition (SRS)
-  // Ở level Nhập Môn: CHỈ hiện những thẻ nằm bên trong nội dung nhập môn (STARTER)
-  // Khi lên N5: Mở rộng các thẻ theo N5
+  // Khi học viên bấm Đổi bộ thẻ (deckVersion > 0), hệ thống sẽ bốc 10 thẻ mới ngẫu nhiên khác từ kho
   const daily10Cards = useMemo(() => {
     let candidateCards = cards;
     if (isStarter) {
@@ -194,8 +201,8 @@ export default function DashboardStudent({
         candidateCards = cards.length > 0 ? cards : INITIAL_FALLBACK_CARDS;
       }
     }
-    return getDaily10CardsDeck(candidateCards, undefined, isStarter ? 'STARTER' : rawLevel);
-  }, [cards, rawLevel, isStarter]);
+    return getDaily10CardsDeck(candidateCards, undefined, isStarter ? 'STARTER' : rawLevel, deckVersion > 0);
+  }, [cards, rawLevel, isStarter, deckVersion]);
 
   // Tiến độ tích lũy thực tế của 4 Module Cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện nghe)
   const modulesProgress = useMemo(() => {
@@ -299,6 +306,7 @@ export default function DashboardStudent({
         todayGoalCards={streakState.todayGoalCards}
         checkedInToday={streakState.checkedInToday}
         onCardReviewed={handleCardReviewed}
+        onRefreshDeck={handleRefreshDeck}
       />
     </div>
   );

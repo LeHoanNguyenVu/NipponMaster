@@ -117,28 +117,38 @@ export const buildMasterCardPool = (): FlashcardItem[] => {
   return Array.from(cardMap.values());
 };
 
-// Thuật toán bốc 10 thẻ mỗi ngày:
-// - Cố định 10 thẻ trong suốt ngày hôm nay (cache key daily_deck_YYYY-MM-DD).
+// Xóa cache bộ thẻ trong ngày để bốc lại bộ thẻ mới
+export const clearDailyDeckCache = (levelKey = 'ALL', targetDate = getTodayDateString()): void => {
+  try {
+    const dailyDeckKey = `nippon_daily_deck_${levelKey.toUpperCase()}_${targetDate}`;
+    localStorage.removeItem(dailyDeckKey);
+  } catch {}
+};
+
+// Thuật toán bốc 10 thẻ:
+// - Mặc định giữ 10 thẻ trong suốt ngày hôm nay, hoặc bốc mới khi forceRefresh = true
 // - Ưu tiên: Thẻ đến hạn ôn tập (nextReviewDate <= today).
-// - Tiếp theo: Thẻ mới chưa từng học.
-// - Tuyệt đối không chọn: Thẻ đã học mà chưa đến hạn (nextReviewDate > today).
+// - Tiếp theo: Thẻ mới ngẫu nhiên từ kho thẻ.
 export const getDaily10CardsDeck = (
   customCards?: FlashcardItem[], 
   targetDate = getTodayDateString(),
-  levelKey = 'ALL'
+  levelKey = 'ALL',
+  forceRefresh = false
 ): FlashcardItem[] => {
   const dailyDeckKey = `nippon_daily_deck_${levelKey.toUpperCase()}_${targetDate}`;
 
-  // Nếu hôm nay đã có bộ thẻ được bốc thì giữ nguyên cho học viên trong ngày
-  try {
-    const cached = localStorage.getItem(dailyDeckKey);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (Array.isArray(parsed) && parsed.length === 10) {
-        return parsed;
+  // Nếu không yêu cầu bốc mới và hôm nay đã có bộ thẻ được bốc thì giữ nguyên
+  if (!forceRefresh) {
+    try {
+      const cached = localStorage.getItem(dailyDeckKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length >= 5) {
+          return parsed;
+        }
       }
-    }
-  } catch {}
+    } catch {}
+  }
 
   const masterPool = customCards && customCards.length >= 10 ? customCards : buildMasterCardPool();
   const srsRecords = loadSrsRecords();
@@ -163,20 +173,21 @@ export const getDaily10CardsDeck = (
     }
   }
 
-  // Shuffle thẻ mới theo ngày để mỗi ngày mới lại có thẻ mới khác nhau
-  const seed = targetDate.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
-  const shuffledNewCards = [...newCards].sort((a, b) => {
-    const hashA = (a.kanji + targetDate).split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    const hashB = (b.kanji + targetDate).split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    return ((hashA + seed) % 23) - ((hashB + seed) % 23);
-  });
+  // Shuffle thẻ mới ngẫu nhiên (Fisher-Yates) để mỗi lần bốc là một tập thẻ khác biệt
+  const shuffledNewCards = [...newCards];
+  for (let i = shuffledNewCards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledNewCards[i], shuffledNewCards[j]] = [shuffledNewCards[j], shuffledNewCards[i]];
+  }
 
-  // Gom thẻ: Ưu tiên thẻ đến hạn trước, rồi bù thẻ mới
+  // Gom thẻ: Ưu tiên thẻ đến hạn trước, rồi bù thẻ mới ngẫu nhiên
   let selected = [...dueCards, ...shuffledNewCards];
 
-  // Nếu vẫn chưa đủ 10 thẻ (trường hợp học viên đã cày hết sạch kho), lấy thêm thẻ xa nhất
+  // Nếu vẫn chưa đủ 10 thẻ, lấy thêm từ pool
   if (selected.length < 10) {
-    selected = [...selected, ...futureCards, ...masterPool];
+    const shuffledFuture = [...futureCards].sort(() => Math.random() - 0.5);
+    const shuffledPool = [...masterPool].sort(() => Math.random() - 0.5);
+    selected = [...selected, ...shuffledFuture, ...shuffledPool];
   }
 
   // Lọc lấy 10 thẻ duy nhất
@@ -185,14 +196,14 @@ export const getDaily10CardsDeck = (
 
   for (const card of selected) {
     const key = card.kanji || card.kana;
-    if (!uniqueKeys.has(key)) {
+    if (key && !uniqueKeys.has(key)) {
       uniqueKeys.add(key);
       daily10.push(card);
     }
     if (daily10.length === 10) break;
   }
 
-  // Lưu deck 10 thẻ hôm nay
+  // Lưu deck 10 thẻ vào cache
   try {
     localStorage.setItem(dailyDeckKey, JSON.stringify(daily10));
   } catch {}
