@@ -77,7 +77,14 @@ public class KanjiMasterService {
                     .build());
         }
 
-        List<KanjiAchievementTest> achievementTests = achievementTestRepository.findAllByOrderByStageAsc();
+        List<KanjiAchievementTest> achievementTests;
+        if ("N4".equalsIgnoreCase(targetLevel)) {
+            achievementTests = achievementTestRepository.findByStageInOrderByStageAsc(List.of(4, 5, 6));
+        } else if ("N5".equalsIgnoreCase(targetLevel)) {
+            achievementTests = achievementTestRepository.findByStageInOrderByStageAsc(List.of(1, 2, 3));
+        } else {
+            achievementTests = achievementTestRepository.findAllByOrderByStageAsc();
+        }
 
         return KanjiRoadmapResponseDto.builder()
                 .level(targetLevel)

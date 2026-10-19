@@ -19,23 +19,35 @@ public class KanjiMasterController {
     private final KanjiMasterService kanjiMasterService;
 
     /**
-     * Lấy lộ trình Kanji theo cấp độ (Mặc định N5, gồm 15 chương).
+     * Lấy lộ trình Kanji theo cấp độ (Mặc định N5, gồm 15 chương; N4 gồm 9 chương).
      */
-    @GetMapping({"/n5/roadmap", "/{level}/roadmap", "/roadmap"})
+    @GetMapping({"/n4/roadmap", "/n5/roadmap", "/{level}/roadmap", "/roadmap"})
     @Operation(summary = "Lộ trình học Kanji", description = "Lấy danh sách các chương, tiến độ thực tế và trạng thái mở khóa của học viên")
     public ResponseEntity<ApiResponse<KanjiRoadmapResponseDto>> getRoadmap(
             @PathVariable(required = false) String level,
+            jakarta.servlet.http.HttpServletRequest request,
             @AuthenticationPrincipal Long userId) {
-        String targetLevel = (level != null && !level.isBlank()) ? level : "N5";
+        String targetLevel = "N5";
+        if (level != null && !level.isBlank()) {
+            targetLevel = level.toUpperCase();
+        } else if (request != null && request.getRequestURI() != null) {
+            String uri = request.getRequestURI().toUpperCase();
+            if (uri.contains("/N4/")) {
+                targetLevel = "N4";
+            } else if (uri.contains("/N5/")) {
+                targetLevel = "N5";
+            }
+        }
         return ResponseEntity.ok(ApiResponse.ok(kanjiMasterService.getRoadmap(userId, targetLevel)));
     }
 
     /**
      * Lấy chi tiết nội dung chương (Chữ Hán, từ vựng, câu ngữ cảnh, minigame).
      */
-    @GetMapping({"/n5/chapters/{chapterId}", "/chapters/{chapterId}"})
+    @GetMapping({"/n4/chapters/{chapterId}", "/n5/chapters/{chapterId}", "/{level}/chapters/{chapterId}", "/chapters/{chapterId}"})
     @Operation(summary = "Chi tiết chương Kanji", description = "Lấy dữ liệu 4 thẻ học: Chữ Hán, Câu ngữ cảnh đọc/viết, Minigame và bài ôn tập")
     public ResponseEntity<ApiResponse<KanjiChapterDetailResponseDto>> getChapterDetail(
+            @PathVariable(required = false) String level,
             @PathVariable Long chapterId,
             @AuthenticationPrincipal Long userId) {
         return ResponseEntity.ok(ApiResponse.ok(kanjiMasterService.getChapterDetail(userId, chapterId)));
@@ -44,9 +56,10 @@ public class KanjiMasterController {
     /**
      * Nộp bài kiểm tra ôn tập chương (ふくしゅう) hoặc minigame để tính điểm thật và tự động mở khóa chương tiếp theo.
      */
-    @PostMapping({"/n5/chapters/{chapterId}/submit", "/chapters/{chapterId}/submit"})
+    @PostMapping({"/n4/chapters/{chapterId}/submit", "/n5/chapters/{chapterId}/submit", "/{level}/chapters/{chapterId}/submit", "/chapters/{chapterId}/submit"})
     @Operation(summary = "Nộp bài kiểm tra chương", description = "Chấm điểm và tự động mở khóa chương sau nếu đạt điểm >= 85%")
     public ResponseEntity<ApiResponse<KanjiSubmitResultDto>> submitChapterTest(
+            @PathVariable(required = false) String level,
             @PathVariable Long chapterId,
             @AuthenticationPrincipal Long userId,
             @RequestBody KanjiSubmitRequestDto request) {

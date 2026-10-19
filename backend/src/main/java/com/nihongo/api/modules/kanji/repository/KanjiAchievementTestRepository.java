@@ -8,5 +8,7 @@ public interface KanjiAchievementTestRepository extends JpaRepository<KanjiAchie
 
     List<KanjiAchievementTest> findAllByOrderByStageAsc();
 
+    List<KanjiAchievementTest> findByStageInOrderByStageAsc(List<Integer> stages);
+
     Optional<KanjiAchievementTest> findByStage(Integer stage);
 }
