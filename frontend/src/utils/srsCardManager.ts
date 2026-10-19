@@ -2,7 +2,8 @@
 // Thuật toán: Dễ (+7 ngày), Thường (+3 ngày), Khó (+1 ngày)
 
 import type { FlashcardItem } from '../data/flashcardMnemonics';
-import { INITIAL_FALLBACK_CARDS, STANDARD_KANJI_INFO, SMART_MNEMONIC_REGISTRY } from '../data/flashcardMnemonics';
+import { INITIAL_FALLBACK_CARDS, N4_FALLBACK_CARDS, STANDARD_KANJI_INFO, SMART_MNEMONIC_REGISTRY } from '../data/flashcardMnemonics';
+import { getUserScope } from './userScope';
 
 export type SrsDifficulty = 'easy' | 'medium' | 'hard';
 
@@ -15,7 +16,7 @@ export interface CardSrsRecord {
   repetitions: number;       // Số lần đã ôn tập
 }
 
-const SRS_STORAGE_KEY = 'nippon_card_srs_records_v1';
+const getSrsStorageKey = (): string => `${getUserScope()}nippon_card_srs_records_v1`;
 
 // Lấy ngày hiện tại YYYY-MM-DD
 export const getTodayDateString = (): string => {
@@ -43,7 +44,7 @@ export const addDaysToDateString = (dateStr: string, days: number): string => {
 // Đọc toàn bộ bản ghi SRS từ localStorage
 export const loadSrsRecords = (): Record<string, CardSrsRecord> => {
   try {
-    const raw = localStorage.getItem(SRS_STORAGE_KEY);
+    const raw = localStorage.getItem(getSrsStorageKey());
     if (!raw) return {};
     return JSON.parse(raw);
   } catch {
@@ -54,7 +55,7 @@ export const loadSrsRecords = (): Record<string, CardSrsRecord> => {
 // Lưu bản ghi SRS vào localStorage
 export const saveSrsRecords = (records: Record<string, CardSrsRecord>): void => {
   try {
-    localStorage.setItem(SRS_STORAGE_KEY, JSON.stringify(records));
+    localStorage.setItem(getSrsStorageKey(), JSON.stringify(records));
   } catch {}
 };
 
@@ -117,10 +118,27 @@ export const buildMasterCardPool = (): FlashcardItem[] => {
   return Array.from(cardMap.values());
 };
 
+// Lấy kho thẻ dự phòng bao hàm theo cấp độ (Cumulative Leveling)
+export const getCumulativeFallbackCards = (levelKey = 'ALL'): FlashcardItem[] => {
+  const lvl = levelKey.toUpperCase();
+  const n5Cards = buildMasterCardPool(); // Bộ thẻ N5 chuẩn (60+ thẻ)
+  
+  if (lvl === 'N4') {
+    return [...N4_FALLBACK_CARDS, ...n5Cards];
+  }
+  if (lvl === 'N3') {
+    return [...N4_FALLBACK_CARDS, ...n5Cards];
+  }
+  if (lvl === 'N2' || lvl === 'N1') {
+    return [...N4_FALLBACK_CARDS, ...n5Cards];
+  }
+  return n5Cards;
+};
+
 // Xóa cache bộ thẻ trong ngày để bốc lại bộ thẻ mới
 export const clearDailyDeckCache = (levelKey = 'ALL', targetDate = getTodayDateString()): void => {
   try {
-    const dailyDeckKey = `nippon_daily_deck_${levelKey.toUpperCase()}_${targetDate}`;
+    const dailyDeckKey = `${getUserScope()}nippon_daily_deck_${levelKey.toUpperCase()}_${targetDate}`;
     localStorage.removeItem(dailyDeckKey);
   } catch {}
 };
@@ -135,7 +153,7 @@ export const getDaily10CardsDeck = (
   levelKey = 'ALL',
   forceRefresh = false
 ): FlashcardItem[] => {
-  const dailyDeckKey = `nippon_daily_deck_${levelKey.toUpperCase()}_${targetDate}`;
+  const dailyDeckKey = `${getUserScope()}nippon_daily_deck_${levelKey.toUpperCase()}_${targetDate}`;
 
   // Nếu không yêu cầu bốc mới và hôm nay đã có bộ thẻ được bốc thì giữ nguyên
   if (!forceRefresh) {
@@ -150,7 +168,12 @@ export const getDaily10CardsDeck = (
     } catch {}
   }
 
-  const masterPool = customCards && customCards.length >= 10 ? customCards : buildMasterCardPool();
+  let masterPool: FlashcardItem[];
+  if (customCards && customCards.length >= 10) {
+    masterPool = customCards;
+  } else {
+    masterPool = getCumulativeFallbackCards(levelKey);
+  }
   const srsRecords = loadSrsRecords();
 
   // 1. Thẻ đến hạn ôn tập hôm nay

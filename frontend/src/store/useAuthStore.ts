@@ -60,12 +60,33 @@ export const clearUserLocalProgress = () => {
     'nippon_master_comprehensive_quiz_scores',
     'nippon_learned_kana_rows',
     'nippon_card_srs_records_v1',
+    'nippon_duolingo_streak_v1',
   ];
   keysToRemove.forEach((k) => {
     try {
       localStorage.removeItem(k);
     } catch {}
   });
+
+  try {
+    const toRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (
+        key.includes('nippon_cards_reviewed_') ||
+        key.includes('nippon_daily_deck_') ||
+        key.includes('nippon_quick_cards_cache') ||
+        key.includes('nippon_duolingo_streak')
+      )) {
+        toRemove.push(key);
+      }
+    }
+    toRemove.forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+      } catch {}
+    });
+  } catch {}
 };
 
 const getStoredToken = () => localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -225,6 +246,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (err) {
       console.warn('Backend logout failed, clearing local session anyway');
     }
+    clearUserLocalProgress();
     localStorage.removeItem('token');
     sessionStorage.removeItem('token');
     localStorage.removeItem('nippon_current_user_email');

@@ -5,11 +5,12 @@ import type { ScreenType } from '../App';
 import HeroCockpit from '../components/dashboard/HeroCockpit';
 import ModuleProgressOverview from '../components/dashboard/ModuleProgressOverview';
 import QuickFlashcardWidget from '../components/dashboard/QuickFlashcardWidget';
-import { INITIAL_FALLBACK_CARDS, type FlashcardItem } from '../data/flashcardMnemonics';
+import { INITIAL_FALLBACK_CARDS, N4_FALLBACK_CARDS, type FlashcardItem } from '../data/flashcardMnemonics';
 import { loadStreakState, recordFlashcardReviewed, type StreakState } from '../utils/streakManager';
 import { loadAllModulesProgress } from '../utils/moduleProgressManager';
-import { getDaily10CardsDeck, clearDailyDeckCache } from '../utils/srsCardManager';
+import { getDaily10CardsDeck, clearDailyDeckCache, getCumulativeFallbackCards } from '../utils/srsCardManager';
 import { isBeginnerGraduated, getBeginnerCourseSummary } from '../utils/beginnerProgressManager';
+import { getUserScope } from '../utils/userScope';
 import { GraduationCap, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -47,8 +48,13 @@ export default function DashboardStudent({
   const { t } = useTranslation(['dashboard', 'common']);
   const { user, updateUserLevel } = useAuthStore();
 
-  // 1. Quản lý trạng thái Streak vô hạn chuẩn Duolingo
+  // 1. Quản lý trạng thái Streak vô hạn chuẩn Duolingo (cô lập theo User Scope)
   const [streakState, setStreakState] = useState<StreakState>(() => loadStreakState());
+
+  // Đồng bộ lại streak khi đăng nhập tài khoản khác
+  useEffect(() => {
+    setStreakState(loadStreakState());
+  }, [user?.id, user?.email, user?.username]);
 
   // 2. Kiểm tra tiến độ 5 chương Nhập Môn và trạng thái tốt nghiệp
   const isGraduated = isBeginnerGraduated();
@@ -91,11 +97,16 @@ export default function DashboardStudent({
 
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [cards, setCards] = useState<FlashcardItem[]>(() => {
+    const scope = getUserScope();
+    const currentLvl = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
     try {
-      const cached = localStorage.getItem('nippon_quick_cards_cache');
-      if (cached) return JSON.parse(cached);
+      const cached = localStorage.getItem(`${scope}nippon_quick_cards_cache_${currentLvl}`);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
     } catch {}
-    return INITIAL_FALLBACK_CARDS;
+    return getCumulativeFallbackCards(currentLvl);
   });
 
   // User's strict JLPT Level (STARTER, N5, N4, N3, N2, N1)
@@ -104,7 +115,7 @@ export default function DashboardStudent({
   const normalizedLevelKey = isStarter ? 'STARTER' : rawLevel;
   const [deckVersion, setDeckVersion] = useState<number>(0);
 
-  // Fetch quick practice cards strictly from API for this level (lấy toàn bộ kho thẻ ~115+ thẻ N5)
+  // Fetch quick practice cards strictly from API for this level
   useEffect(() => {
     let active = true;
     const fetchQuickPracticeCards = async () => {
@@ -115,13 +126,25 @@ export default function DashboardStudent({
         const raw = res as any;
         const data = Array.isArray(raw) ? raw : (Array.isArray(raw?.data) ? raw.data : (raw?.data?.data ?? []));
         if (active && Array.isArray(data) && data.length > 0) {
-          setCards(data);
+          // Bổ sung thêm thẻ fallback cumulative nếu danh sách chưa đủ rộng
+          let finalCards = data;
+          if (data.length < 30) {
+            const existingKeys = new Set(data.map((c: any) => c.kanji || c.kana));
+            const cumulative = getCumulativeFallbackCards(normalizedLevelKey);
+            const extra = cumulative.filter(c => !existingKeys.has(c.kanji || c.kana));
+            finalCards = [...data, ...extra];
+          }
+          setCards(finalCards);
           try {
-            localStorage.setItem('nippon_quick_cards_cache', JSON.stringify(data));
+            const scope = getUserScope();
+            localStorage.setItem(`${scope}nippon_quick_cards_cache_${normalizedLevelKey}`, JSON.stringify(finalCards));
           } catch {}
         }
       } catch (err) {
         console.warn('Could not fetch quick practice cards from backend, using fallback', err);
+        if (active) {
+          setCards(getCumulativeFallbackCards(normalizedLevelKey));
+        }
       }
     };
 
@@ -187,7 +210,6 @@ export default function DashboardStudent({
   const levelDisplay = isStarter ? t('dashboard:level.starter', 'Starter Course') : `${rawLevel} Level`;
 
   // 10 Cards Daily Deck - Bốc theo thuật toán Spaced Repetition (SRS)
-  // Khi học viên bấm Đổi bộ thẻ (deckVersion > 0), hệ thống sẽ bốc 10 thẻ mới ngẫu nhiên khác từ kho
   const daily10Cards = useMemo(() => {
     let candidateCards = cards;
     if (isStarter) {
@@ -195,8 +217,11 @@ export default function DashboardStudent({
       if (candidateCards.length < 10) {
         candidateCards = INITIAL_FALLBACK_CARDS.filter(c => !c.jlptLevel || c.jlptLevel.toUpperCase() === 'STARTER');
       }
+    } else if (rawLevel === 'N4') {
+      const n4Cards = cards.filter(c => c.jlptLevel && c.jlptLevel.toUpperCase() === 'N4');
+      candidateCards = n4Cards.length >= 10 ? n4Cards : [...n4Cards, ...N4_FALLBACK_CARDS];
     } else {
-      candidateCards = cards.filter(c => !c.jlptLevel || c.jlptLevel.toUpperCase() === rawLevel || c.jlptLevel.toUpperCase() === 'N5');
+      candidateCards = cards.filter(c => c.jlptLevel && c.jlptLevel.toUpperCase() === rawLevel);
       if (candidateCards.length < 10) {
         candidateCards = cards.length > 0 ? cards : INITIAL_FALLBACK_CARDS;
       }

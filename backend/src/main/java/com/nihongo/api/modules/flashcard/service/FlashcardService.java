@@ -23,31 +23,49 @@ public class FlashcardService {
     private final KanjiRepository kanjiRepository;
 
     /**
-     * Lấy danh sách thẻ flashcard luyện tập nhanh theo cấp độ JLPT
+     * Lấy danh sách thẻ flashcard luyện tập nhanh theo cấp độ JLPT.
+     * Quy tắc bao hàm cấp độ (Cumulative Leveling):
+     * - N5: Kanji N5
+     * - N4: Kanji N4 + Kanji N5
+     * - N3: Kanji N3 + Kanji N4 + Kanji N5
+     * - N2: Kanji N2 + Kanji N3 + Kanji N4 + Kanji N5
+     * - N1: Toàn bộ Kanji từ N1 đến N5
      */
     @Transactional(readOnly = true)
     public List<FlashcardItemDto> getQuickPracticeCards(String rawLevel, int limit) {
-        int safeLimit = Math.min(Math.max(limit, 10), 200);
+        int safeLimit = Math.min(Math.max(limit, 10), 250);
         User.JlptLevel targetLevel = parseLevel(rawLevel);
 
-        Page<Kanji> kanjiPage = kanjiRepository.findByJlptLevel(
+        List<User.JlptLevel> cumulativeLevels = getCumulativeLevels(targetLevel);
+
+        // 1. Lấy Kanji của targetLevel trước
+        Page<Kanji> targetPage = kanjiRepository.findByJlptLevel(
                 targetLevel,
                 PageRequest.of(0, safeLimit, Sort.by("id").ascending())
         );
+        List<Kanji> kanjis = new ArrayList<>(targetPage.getContent());
 
-        List<Kanji> kanjis = new ArrayList<>(kanjiPage.getContent());
+        // 2. Lấy bổ sung các cấp độ thấp hơn (cumulative) để mở rộng kho thẻ
+        List<User.JlptLevel> lowerLevels = cumulativeLevels.stream()
+                .filter(l -> l != targetLevel)
+                .toList();
 
-        // Nếu cấp độ STARTER chưa đủ 10 chữ, lấy bổ sung thêm N5
-        if (kanjis.size() < 10 && targetLevel == User.JlptLevel.STARTER) {
-            int needed = safeLimit - kanjis.size();
-            Page<Kanji> n5Page = kanjiRepository.findByJlptLevel(
-                    User.JlptLevel.N5,
-                    PageRequest.of(0, Math.max(needed, 30), Sort.by("id").ascending())
-            );
-            kanjis.addAll(n5Page.getContent());
+        if (!lowerLevels.isEmpty()) {
+            int maxTarget = Math.max(10, (int) (safeLimit * 0.65));
+            if (kanjis.size() > maxTarget) {
+                kanjis = new ArrayList<>(kanjis.subList(0, maxTarget));
+            }
+            int remaining = safeLimit - kanjis.size();
+            if (remaining > 0) {
+                Page<Kanji> lowerPage = kanjiRepository.findByJlptLevelIn(
+                        lowerLevels,
+                        PageRequest.of(0, remaining, Sort.by("id").ascending())
+                );
+                kanjis.addAll(lowerPage.getContent());
+            }
         }
 
-        // Nếu level bất kỳ vẫn trống, lấy tất cả kanji có sẵn trong DB
+        // 3. Nếu level bất kỳ vẫn rỗng, lấy tất cả kanji có sẵn trong DB
         if (kanjis.isEmpty()) {
             Page<Kanji> anyPage = kanjiRepository.findAll(
                     PageRequest.of(0, safeLimit, Sort.by("id").ascending())
@@ -58,6 +76,20 @@ public class FlashcardService {
         return kanjis.stream()
                 .map(this::mapToFlashcardItemDto)
                 .toList();
+    }
+
+    private List<User.JlptLevel> getCumulativeLevels(User.JlptLevel level) {
+        if (level == null) {
+            return List.of(User.JlptLevel.N5);
+        }
+        return switch (level) {
+            case STARTER -> List.of(User.JlptLevel.STARTER, User.JlptLevel.N5);
+            case N5 -> List.of(User.JlptLevel.N5);
+            case N4 -> List.of(User.JlptLevel.N4, User.JlptLevel.N5);
+            case N3 -> List.of(User.JlptLevel.N3, User.JlptLevel.N4, User.JlptLevel.N5);
+            case N2 -> List.of(User.JlptLevel.N2, User.JlptLevel.N3, User.JlptLevel.N4, User.JlptLevel.N5);
+            case N1 -> List.of(User.JlptLevel.N1, User.JlptLevel.N2, User.JlptLevel.N3, User.JlptLevel.N4, User.JlptLevel.N5);
+        };
     }
 
     private User.JlptLevel parseLevel(String rawLevel) {

@@ -1,4 +1,4 @@
-// Duolingo-style Infinite Streak Manager
+import { getUserScope } from './userScope';
 
 export interface StreakState {
   currentStreak: number;
@@ -9,7 +9,9 @@ export interface StreakState {
   streakHistory: string[]; // Mảng các ngày YYYY-MM-DD đã điểm danh
 }
 
-const STREAK_STORAGE_KEY = 'nippon_duolingo_streak_v1';
+// Hàm lấy khóa lưu trữ theo User Scope
+const getStreakStorageKey = (): string => `${getUserScope()}nippon_duolingo_streak_v1`;
+const getTodayCardsKey = (today: string): string => `${getUserScope()}nippon_cards_reviewed_${today}`;
 
 // Lấy ngày hiện tại YYYY-MM-DD (local timezone)
 export const getTodayDateString = (): string => {
@@ -45,7 +47,7 @@ export const loadStreakState = (): StreakState => {
   };
 
   try {
-    const raw = localStorage.getItem(STREAK_STORAGE_KEY);
+    const raw = localStorage.getItem(getStreakStorageKey());
     if (!raw) return defaultState;
 
     const parsed = JSON.parse(raw);
@@ -71,7 +73,7 @@ export const loadStreakState = (): StreakState => {
     }
 
     // Đọc số thẻ đã học hôm nay (chỉ giữ thẻ của ngày hôm nay)
-    const savedTodayCardsKey = `nippon_cards_reviewed_${today}`;
+    const savedTodayCardsKey = getTodayCardsKey(today);
     let todayReviewedCards: number[] = [];
     try {
       const rawCards = localStorage.getItem(savedTodayCardsKey);
@@ -99,14 +101,14 @@ export const loadStreakState = (): StreakState => {
 // Lưu trạng thái Streak vào localStorage
 export const saveStreakState = (state: StreakState): void => {
   try {
-    localStorage.setItem(STREAK_STORAGE_KEY, JSON.stringify({
+    localStorage.setItem(getStreakStorageKey(), JSON.stringify({
       currentStreak: state.currentStreak,
       lastCheckInDate: state.lastCheckInDate,
       streakHistory: state.streakHistory,
     }));
 
     const today = getTodayDateString();
-    localStorage.setItem(`nippon_cards_reviewed_${today}`, JSON.stringify(state.todayReviewedCards));
+    localStorage.setItem(getTodayCardsKey(today), JSON.stringify(state.todayReviewedCards));
   } catch {}
 };
 
