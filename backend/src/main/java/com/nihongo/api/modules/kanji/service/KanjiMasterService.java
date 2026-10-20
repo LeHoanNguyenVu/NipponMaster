@@ -1,6 +1,8 @@
 package com.nihongo.api.modules.kanji.service;
 
 import com.nihongo.api.common.exception.ResourceNotFoundException;
+import com.nihongo.api.modules.auth.entity.User;
+import com.nihongo.api.modules.auth.repository.UserRepository;
 import com.nihongo.api.modules.kanji.dto.*;
 import com.nihongo.api.modules.kanji.entity.*;
 import com.nihongo.api.modules.kanji.repository.*;
@@ -24,9 +26,26 @@ public class KanjiMasterService {
     private final KanjiMinigameRepository minigameRepository;
     private final UserKanjiProgressRepository progressRepository;
     private final KanjiAchievementTestRepository achievementTestRepository;
+    private final UserRepository userRepository;
 
     /**
-     * Lấy lộ trình 15 chương Kanji cùng tiến độ và trạng thái khóa của học viên.
+     * Lấy thứ hạng cấp độ JLPT để so sánh (STARTER: 0, N5: 1, N4: 2, N3: 3, N2: 4, N1: 5).
+     */
+    private int getLevelRank(String levelStr) {
+        if (levelStr == null || levelStr.isBlank()) return 0;
+        return switch (levelStr.trim().toUpperCase()) {
+            case "STARTER" -> 0;
+            case "N5" -> 1;
+            case "N4" -> 2;
+            case "N3" -> 3;
+            case "N2" -> 4;
+            case "N1" -> 5;
+            default -> 0;
+        };
+    }
+
+    /**
+     * Lấy lộ trình các chương Kanji cùng tiến độ và trạng thái khóa của học viên.
      */
     @Transactional(readOnly = true)
     public KanjiRoadmapResponseDto getRoadmap(Long userId, String level) {
@@ -34,12 +53,29 @@ public class KanjiMasterService {
         List<KanjiChapter> chapters = chapterRepository.findByJlptLevelOrderByDisplayOrderAsc(targetLevel);
 
         Map<Long, UserKanjiProgress> progressMap = new HashMap<>();
+        User user = null;
         if (userId != null) {
+            user = userRepository.findById(userId).orElse(null);
             List<UserKanjiProgress> progressList = progressRepository.findByUserId(userId);
             for (UserKanjiProgress p : progressList) {
                 progressMap.put(p.getChapterId(), p);
             }
         }
+
+        // Xác định cấp độ hiện tại của học viên
+        int userRank = 0;
+        if (user != null) {
+            String uLevel = user.getJlptLevel() != null ? user.getJlptLevel().name() : null;
+            if (uLevel == null && user.getTargetLevel() != null) {
+                uLevel = user.getTargetLevel().name();
+            }
+            userRank = getLevelRank(uLevel);
+        }
+        int targetRank = getLevelRank(targetLevel);
+
+        // Quy tắc mở khóa cấp tiến: Nếu học viên đang ở trình độ cao hơn (VD: User N4 xem N5),
+        // thì toàn bộ các chương của cấp độ thấp hơn này đều tự động mở khóa để học viên thoải mái ôn tập.
+        boolean isAllChaptersUnlocked = userRank > targetRank;
 
         int completedChapters = 0;
         int learnedKanji = 0;
@@ -50,8 +86,13 @@ public class KanjiMasterService {
             totalKanji += ch.getKanjiCount();
             UserKanjiProgress prog = progressMap.get(ch.getId());
 
-            // Chương 1 luôn mở khóa mặc định
-            boolean isUnlocked = (ch.getChapterNumber() == 1) || (prog != null && Boolean.TRUE.equals(prog.getIsUnlocked()));
+            // Chương mở khóa nếu:
+            // 1. Học viên có level cao hơn cấp độ đang xem (VD: Level N4 xem lộ trình N5)
+            // 2. Chương 1 luôn mở mặc định
+            // 3. Đã có tiến độ mở khóa lưu trong DB (đã qua bài test chương trước >= 85%)
+            boolean isUnlocked = isAllChaptersUnlocked
+                    || (ch.getChapterNumber() == 1)
+                    || (prog != null && Boolean.TRUE.equals(prog.getIsUnlocked()));
             int highestScore = prog != null ? prog.getHighestScore() : 0;
             boolean isPassed = prog != null && Boolean.TRUE.equals(prog.getIsPassed());
 

@@ -73,7 +73,7 @@
     "tab2": "📖 Câu ngữ cảnh",
     "tab3": "🧩 Minigame tình huống",
     "tab4": "📝 Test ôn tập",
-    "chapterList": "Mục lục 15 chương N5",
+    "chapterList": "Mục lục {{total}} chương {{level}}",
     "chapter": "Chương {{num}}",
     "kanjiCount": "{{count}} chữ",
     "locked": "Đã khóa (Cần ≥ 85% chương trước)",

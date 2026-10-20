@@ -73,7 +73,7 @@
     "tab2": "📖 Context Sentences",
     "tab3": "🧩 Scenario Minigames",
     "tab4": "📝 Chapter Review Test",
-    "chapterList": "15 N5 Chapters",
+    "chapterList": "{{total}} {{level}} Chapters",
     "chapter": "Chapter {{num}}",
     "kanjiCount": "{{count}} Kanji",
     "locked": "Locked (Requires ≥ 85% on previous chapter)",

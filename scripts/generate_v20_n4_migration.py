@@ -23,10 +23,10 @@ CHAPTERS_DATA = [
         "title_ja": "家族の生かつ",
         "title_vi": "Đời sống gia đình & Thói quen",
         "title_en": "Family Life & Habits",
-        "kanji_count": 8,
+        "kanji_count": 18,
         "display_order": 1,
         "illustration_url": "/assets/kanji/n4/illustrations/chap1_sub1_full.webp",
-        "description": "8 chữ Hán về các mối quan hệ gia đình ruột thịt và nuôi dạy con cái: 家, 族, 兄, 弟, 姉, 妹, 私, 育."
+        "description": "18 chữ Hán về quan hệ gia đình ruột thịt và thời gian biểu sinh hoạt hàng ngày: 家, 族, 兄, 弟, 姉, 妹, 私, 育, 朝, 昼, 晩, 夜, 起, 寝, 洗, 浴, 始, 終."
     },
     {
         "chapter_number": 2,

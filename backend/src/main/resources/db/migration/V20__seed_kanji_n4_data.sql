@@ -5,7 +5,7 @@
 
 -- 1. SEED 9 CHƯƠNG KANJI MASTER N4
 INSERT INTO kanji_chapters (chapter_number, jlpt_level, title_ja, title_vi, title_en, kanji_count, display_order, illustration_url, description) VALUES
-(1, 'N4', '家族の生かつ', 'Đời sống gia đình & Thói quen', 'Family Life & Habits', 8, 1, '/assets/kanji/n4/illustrations/chap1_sub1_full.webp', '8 chữ Hán về các mối quan hệ gia đình ruột thịt và nuôi dạy con cái: 家, 族, 兄, 弟, 姉, 妹, 私, 育.'),
+(1, 'N4', '家族', 'Gia đình', 'Family', 8, 1, '/assets/kanji/n4/illustrations/chap1_mnemonics_full.webp', '8 chữ Hán về các mối quan hệ thành viên trong gia đình ruột thịt: 家, 族, 兄, 弟, 姉, 妹, 私, 育.'),
 (2, 'N4', 'コンビニ', 'Cửa hàng tiện lợi Conbini & Nhịp sống 24h', 'Convenience Store & 24h Life', 22, 2, '/assets/kanji/n4/illustrations/chap2_sub1_full.webp', '22 chữ Hán về thanh toán quầy thu ngân, thiết bị dịch vụ trong cửa hàng và mốc thời gian ngày đêm: 店, 客, 親, 切, 売, 当, 品, 便, 利, 使, 銀, 白, 黒, 紙, 朝, 晩, 昼, 夜, 前, 後, 午, 早.'),
 (3, 'N4', 'おくり物', 'Quà tặng, Bưu phẩm & Địa chỉ hành chính', 'Gifts, Delivery & Addresses', 23, 3, '/assets/kanji/n4/illustrations/chap3_sub1_full.webp', '23 chữ Hán về dịch vụ chuyển phát nhanh bưu kiện, bì thư bưu điện và hệ thống tỉnh thành quận huyện: 荷, 送, 宅, 急, 速, 遅, 重, 軽, 住, 所, 様, 主, 番, 地, 号, 京, 都, 道, 府, 県, 市, 区, 村.'),
 (4, 'N4', 'デート', 'Hẹn hò, Đời sống vợ chồng & Thời trang', 'Dating, Marriage & Fashion', 23, 4, '/assets/kanji/n4/illustrations/chap4_sub1_full.webp', '23 chữ Hán về lịch trình giải trí hẹn hò rạp phim, kỷ niệm hôn nhân và trang phục thời trang dạo phố: 毎, 週, 映, 画, 図, 館, 公, 園, 夫, 妻, 特, 思, 料, 理, 有, 洋, 服, 衣, 短, 毛, 糸, 玉, 光.'),
@@ -41,7 +41,7 @@ BEGIN
     SELECT id INTO v_ch9_id FROM kanji_chapters WHERE jlpt_level = 'N4' AND chapter_number = 9;
 
     INSERT INTO kanjis (character, on_reading, kun_reading, romaji, han_viet, meaning, stroke_count, stroke_guide, example_sentence, example_romaji, example_meaning, jlpt_level, mnemonic_title, mnemonic_hint, mnemonic_icon, chapter_id, chapter_order, image_url, created_at) VALUES
-    ('家', 'カ, ケ', 'いえ, や, うち', 'ie', 'GIA', 'Nhà ở, gia đình', 10, '宀 -> 豕', 'わたしの 家の ちかくに コンビニが あります。', 'Watashi no ie no chikaku ni konbini ga arimasu.', 'Gần nhà tôi có một cửa hàng tiện lợi.', 'N4', 'Mái nhà gia đình', 'Heo rừng sống dưới mái nhà che chở ấm cúng.', '🏠', v_ch1_id, 1, '/assets/kanji/n4/illustrations/chap1_sub1_illus.webp', NOW())
+    ('家', 'カ, ケ', 'いえ, や, うち', 'ie', 'GIA', 'Nhà ở, gia đình', 10, '宀 -> 豕', 'わたしの 家の ちかくに コンビニが あります。', 'Watashi no ie no chikaku ni konbini ga arimasu.', 'Gần nhà tôi có một cửa hàng tiện lợi.', 'N4', 'Mái nhà gia đình', 'Heo rừng sống dưới mái nhà che chở ấm cúng.', '🏠', v_ch1_id, 1, '/assets/kanji/n4/illustrations/kanji_n4_家.webp', NOW())
     ON CONFLICT (character) DO UPDATE SET
         on_reading = EXCLUDED.on_reading, kun_reading = EXCLUDED.kun_reading, romaji = EXCLUDED.romaji,
         han_viet = EXCLUDED.han_viet, meaning = EXCLUDED.meaning, stroke_count = EXCLUDED.stroke_count,
@@ -50,7 +50,7 @@ BEGIN
         mnemonic_hint = EXCLUDED.mnemonic_hint, mnemonic_icon = EXCLUDED.mnemonic_icon, chapter_id = EXCLUDED.chapter_id,
         chapter_order = EXCLUDED.chapter_order, image_url = EXCLUDED.image_url;
     INSERT INTO kanjis (character, on_reading, kun_reading, romaji, han_viet, meaning, stroke_count, stroke_guide, example_sentence, example_romaji, example_meaning, jlpt_level, mnemonic_title, mnemonic_hint, mnemonic_icon, chapter_id, chapter_order, image_url, created_at) VALUES
-    ('族', 'ゾク', '', 'zoku', 'TỘC', 'Gia tộc, bộ tộc, họ hàng', 11, '方 -> 矢', '山田さんは 何人 家族ですか。', 'Yamada-san wa nannin kazoku desu ka.', 'Gia đình anh Yamada có mấy người?', 'N4', 'Gia tộc mũi tên', 'Các thành viên trong tộc giương cờ và mũi tên đoàn kết.', '👨‍👩‍👧‍👦', v_ch1_id, 2, '/assets/kanji/n4/illustrations/chap1_sub1_illus.webp', NOW())
+    ('族', 'ゾク', '', 'zoku', 'TỘC', 'Gia tộc, bộ tộc, họ hàng', 11, '方 -> 矢', '山田さんは 何人 家族ですか。', 'Yamada-san wa nannin kazoku desu ka.', 'Gia đình anh Yamada có mấy người?', 'N4', 'Gia tộc mũi tên', 'Các thành viên trong tộc giương cờ và mũi tên đoàn kết.', '👨‍👩‍👧‍👦', v_ch1_id, 2, '/assets/kanji/n4/illustrations/kanji_n4_族.webp', NOW())
     ON CONFLICT (character) DO UPDATE SET
         on_reading = EXCLUDED.on_reading, kun_reading = EXCLUDED.kun_reading, romaji = EXCLUDED.romaji,
         han_viet = EXCLUDED.han_viet, meaning = EXCLUDED.meaning, stroke_count = EXCLUDED.stroke_count,
@@ -59,7 +59,7 @@ BEGIN
         mnemonic_hint = EXCLUDED.mnemonic_hint, mnemonic_icon = EXCLUDED.mnemonic_icon, chapter_id = EXCLUDED.chapter_id,
         chapter_order = EXCLUDED.chapter_order, image_url = EXCLUDED.image_url;
     INSERT INTO kanjis (character, on_reading, kun_reading, romaji, han_viet, meaning, stroke_count, stroke_guide, example_sentence, example_romaji, example_meaning, jlpt_level, mnemonic_title, mnemonic_hint, mnemonic_icon, chapter_id, chapter_order, image_url, created_at) VALUES
-    ('兄', 'ケイ, キョウ', 'あに', 'ani', 'HUYNH', 'Anh trai', 5, '口 -> 儿', 'あには アメリカに りゅう学しています。', 'Ani wa Amerika ni ryuugaku shiteimasu.', 'Anh trai tôi đang du học ở Mỹ.', 'N4', 'Anh cả trong nhà', 'Người anh trai miệng hô to điều hành việc nhà.', '👦', v_ch1_id, 3, '/assets/kanji/n4/illustrations/chap1_sub1_illus.webp', NOW())
+    ('兄', 'ケイ, キョウ', 'あに', 'ani', 'HUYNH', 'Anh trai', 5, '口 -> 儿', 'あには アメリカに りゅう学しています。', 'Ani wa Amerika ni ryuugaku shiteimasu.', 'Anh trai tôi đang du học ở Mỹ.', 'N4', 'Anh cả trong nhà', 'Người anh trai miệng hô to điều hành việc nhà.', '👦', v_ch1_id, 3, '/assets/kanji/n4/illustrations/kanji_n4_兄.webp', NOW())
     ON CONFLICT (character) DO UPDATE SET
         on_reading = EXCLUDED.on_reading, kun_reading = EXCLUDED.kun_reading, romaji = EXCLUDED.romaji,
         han_viet = EXCLUDED.han_viet, meaning = EXCLUDED.meaning, stroke_count = EXCLUDED.stroke_count,
@@ -68,7 +68,7 @@ BEGIN
         mnemonic_hint = EXCLUDED.mnemonic_hint, mnemonic_icon = EXCLUDED.mnemonic_icon, chapter_id = EXCLUDED.chapter_id,
         chapter_order = EXCLUDED.chapter_order, image_url = EXCLUDED.image_url;
     INSERT INTO kanjis (character, on_reading, kun_reading, romaji, han_viet, meaning, stroke_count, stroke_guide, example_sentence, example_romaji, example_meaning, jlpt_level, mnemonic_title, mnemonic_hint, mnemonic_icon, chapter_id, chapter_order, image_url, created_at) VALUES
-    ('弟', 'テイ, ダイ', 'おとうと', 'otouto', 'ĐỆ', 'Em trai', 7, '弓 -> 丨', 'おとうとは 今年 小学生に なりました。', 'Otouto wa kotoshi shougakusei ni narimashita.', 'Năm nay em trai tôi đã vào tiểu học.', 'N4', 'Cây cung em trai', 'Em trai buộc dải ruy băng vào cây cung đồ chơi.', '🧒', v_ch1_id, 4, '/assets/kanji/n4/illustrations/chap1_sub1_illus.webp', NOW())
+    ('弟', 'テイ, ダイ', 'おとうと', 'otouto', 'ĐỆ', 'Em trai', 7, '弓 -> 丨', 'おとうとは 今年 小学生に なりました。', 'Otouto wa kotoshi shougakusei ni narimashita.', 'Năm nay em trai tôi đã vào tiểu học.', 'N4', 'Cây cung em trai', 'Em trai buộc dải ruy băng vào cây cung đồ chơi.', '🧒', v_ch1_id, 4, '/assets/kanji/n4/illustrations/kanji_n4_弟.webp', NOW())
     ON CONFLICT (character) DO UPDATE SET
         on_reading = EXCLUDED.on_reading, kun_reading = EXCLUDED.kun_reading, romaji = EXCLUDED.romaji,
         han_viet = EXCLUDED.han_viet, meaning = EXCLUDED.meaning, stroke_count = EXCLUDED.stroke_count,
@@ -77,7 +77,7 @@ BEGIN
         mnemonic_hint = EXCLUDED.mnemonic_hint, mnemonic_icon = EXCLUDED.mnemonic_icon, chapter_id = EXCLUDED.chapter_id,
         chapter_order = EXCLUDED.chapter_order, image_url = EXCLUDED.image_url;
     INSERT INTO kanjis (character, on_reading, kun_reading, romaji, han_viet, meaning, stroke_count, stroke_guide, example_sentence, example_romaji, example_meaning, jlpt_level, mnemonic_title, mnemonic_hint, mnemonic_icon, chapter_id, chapter_order, image_url, created_at) VALUES
-    ('姉', 'シ', 'あね', 'ane', 'TỶ', 'Chị gái', 8, '女 -> 市', '姉は けっこんして 名字が かわりました。', 'Ane wa kekkon shite myouji ga kawarimashita.', 'Chị gái kết hôn nên đã đổi họ.', 'N4', 'Chị gái đảm đang', 'Người phụ nữ đảm đang đi chợ thành thị mua đồ.', '👩', v_ch1_id, 5, '/assets/kanji/n4/illustrations/chap1_sub1_illus.webp', NOW())
+    ('姉', 'シ', 'あね', 'ane', 'TỶ', 'Chị gái', 8, '女 -> 市', '姉は けっこんして 名字が かわりました。', 'Ane wa kekkon shite myouji ga kawarimashita.', 'Chị gái kết hôn nên đã đổi họ.', 'N4', 'Chị gái đảm đang', 'Người phụ nữ đảm đang đi chợ thành thị mua đồ.', '👩', v_ch1_id, 5, '/assets/kanji/n4/illustrations/kanji_n4_姉.webp', NOW())
     ON CONFLICT (character) DO UPDATE SET
         on_reading = EXCLUDED.on_reading, kun_reading = EXCLUDED.kun_reading, romaji = EXCLUDED.romaji,
         han_viet = EXCLUDED.han_viet, meaning = EXCLUDED.meaning, stroke_count = EXCLUDED.stroke_count,
@@ -86,7 +86,7 @@ BEGIN
         mnemonic_hint = EXCLUDED.mnemonic_hint, mnemonic_icon = EXCLUDED.mnemonic_icon, chapter_id = EXCLUDED.chapter_id,
         chapter_order = EXCLUDED.chapter_order, image_url = EXCLUDED.image_url;
     INSERT INTO kanjis (character, on_reading, kun_reading, romaji, han_viet, meaning, stroke_count, stroke_guide, example_sentence, example_romaji, example_meaning, jlpt_level, mnemonic_title, mnemonic_hint, mnemonic_icon, chapter_id, chapter_order, image_url, created_at) VALUES
-    ('妹', 'マイ', 'いもうと', 'imouto', 'MUỘI', 'Em gái', 8, '女 -> 未', '妹は おなかが すくと すぐ なきます。', 'Imouto wa onaka ga suku to sugu nakimasu.', 'Em gái hễ đói bụng là khóc ngay.', 'N4', 'Em gái nhỏ', 'Bé gái còn nhỏ chưa đến tuổi trưởng thành (Vị).', '👧', v_ch1_id, 6, '/assets/kanji/n4/illustrations/chap1_sub1_illus.webp', NOW())
+    ('妹', 'マイ', 'いもうと', 'imouto', 'MUỘI', 'Em gái', 8, '女 -> 未', '妹は おなかが すくと すぐ なきます。', 'Imouto wa onaka ga suku to sugu nakimasu.', 'Em gái hễ đói bụng là khóc ngay.', 'N4', 'Em gái nhỏ', 'Bé gái còn nhỏ chưa đến tuổi trưởng thành (Vị).', '👧', v_ch1_id, 6, '/assets/kanji/n4/illustrations/kanji_n4_妹.webp', NOW())
     ON CONFLICT (character) DO UPDATE SET
         on_reading = EXCLUDED.on_reading, kun_reading = EXCLUDED.kun_reading, romaji = EXCLUDED.romaji,
         han_viet = EXCLUDED.han_viet, meaning = EXCLUDED.meaning, stroke_count = EXCLUDED.stroke_count,
@@ -95,7 +95,7 @@ BEGIN
         mnemonic_hint = EXCLUDED.mnemonic_hint, mnemonic_icon = EXCLUDED.mnemonic_icon, chapter_id = EXCLUDED.chapter_id,
         chapter_order = EXCLUDED.chapter_order, image_url = EXCLUDED.image_url;
     INSERT INTO kanjis (character, on_reading, kun_reading, romaji, han_viet, meaning, stroke_count, stroke_guide, example_sentence, example_romaji, example_meaning, jlpt_level, mnemonic_title, mnemonic_hint, mnemonic_icon, chapter_id, chapter_order, image_url, created_at) VALUES
-    ('私', 'シ', 'わたし, わたくし', 'watashi', 'TƯ', 'Tôi, bản thân, riêng tư', 7, '禾 -> 厶', '私は 家の にわで 花を 育てています。', 'Watashi wa ie no niwa de hana o sodateteimasu.', 'Tôi đang trồng hoa trong vườn nhà.', 'N4', 'Cây lúa của tôi', 'Cây lúa này thuộc về phần riêng của tôi.', '🙋‍♂️', v_ch1_id, 7, '/assets/kanji/n4/illustrations/chap1_sub1_illus.webp', NOW())
+    ('私', 'シ', 'わたし, わたくし', 'watashi', 'TƯ', 'Tôi, bản thân, riêng tư', 7, '禾 -> 厶', '私は 家の にわで 花を 育てています。', 'Watashi wa ie no niwa de hana o sodateteimasu.', 'Tôi đang trồng hoa trong vườn nhà.', 'N4', 'Cây lúa của tôi', 'Cây lúa này thuộc về phần riêng của tôi.', '🙋‍♂️', v_ch1_id, 7, '/assets/kanji/n4/illustrations/kanji_n4_私.webp', NOW())
     ON CONFLICT (character) DO UPDATE SET
         on_reading = EXCLUDED.on_reading, kun_reading = EXCLUDED.kun_reading, romaji = EXCLUDED.romaji,
         han_viet = EXCLUDED.han_viet, meaning = EXCLUDED.meaning, stroke_count = EXCLUDED.stroke_count,
@@ -104,7 +104,7 @@ BEGIN
         mnemonic_hint = EXCLUDED.mnemonic_hint, mnemonic_icon = EXCLUDED.mnemonic_icon, chapter_id = EXCLUDED.chapter_id,
         chapter_order = EXCLUDED.chapter_order, image_url = EXCLUDED.image_url;
     INSERT INTO kanjis (character, on_reading, kun_reading, romaji, han_viet, meaning, stroke_count, stroke_guide, example_sentence, example_romaji, example_meaning, jlpt_level, mnemonic_title, mnemonic_hint, mnemonic_icon, chapter_id, chapter_order, image_url, created_at) VALUES
-    ('育', 'イク', 'そだ・つ, そだ・てる', 'soda', 'DỤC', 'Nuôi dạy, lớn lên, giáo dục', 8, '亠 -> 月', '山川さんは いなかで 育ちました。', 'Yamakawa-san wa inaka de sodachimashita.', 'Anh Yamakawa lớn lên ở vùng nông thôn.', 'N4', 'Nuôi nấng con cái', 'Đứa trẻ được đội nón nuôi dưỡng lớn khôn từng ngày.', '🌱', v_ch1_id, 8, '/assets/kanji/n4/illustrations/chap1_sub1_illus.webp', NOW())
+    ('育', 'イク', 'そだ・つ, そだ・てる', 'soda', 'DỤC', 'Nuôi dạy, lớn lên, giáo dục', 8, '亠 -> 月', '山川さんは いなかで 育ちました。', 'Yamakawa-san wa inaka de sodachimashita.', 'Anh Yamakawa lớn lên ở vùng nông thôn.', 'N4', 'Nuôi nấng con cái', 'Đứa trẻ được đội nón nuôi dưỡng lớn khôn từng ngày.', '🌱', v_ch1_id, 8, '/assets/kanji/n4/illustrations/kanji_n4_育.webp', NOW())
     ON CONFLICT (character) DO UPDATE SET
         on_reading = EXCLUDED.on_reading, kun_reading = EXCLUDED.kun_reading, romaji = EXCLUDED.romaji,
         han_viet = EXCLUDED.han_viet, meaning = EXCLUDED.meaning, stroke_count = EXCLUDED.stroke_count,

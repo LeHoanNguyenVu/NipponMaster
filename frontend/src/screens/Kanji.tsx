@@ -23,6 +23,7 @@ import KanjiCanvasStudio from './KanjiCanvasStudio';
 import SakuraCelebrationModal from '../components/kanji/SakuraCelebrationModal';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '../components/ui/Badge';
+import { useAuthStore } from '../store/useAuthStore';
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 interface RoadmapChapter {
@@ -165,12 +166,57 @@ const WRITING_THEMES: Record<number, { emoji: string; badge: string; scene: stri
   10: { emoji: '🤝', badge: 'Gặp gỡ', scene: 'Bạn bè tụ họp', meaningVi: 'Sáu người bạn đã cùng nhau tụ họp.' },
 };
 
+// Minh họa ngữ cảnh đặc thù N4 Chương 1 (Bài 1-1 Gia đình & Bài 1-2 Sinh hoạt hàng ngày)
+// Minh họa ngữ cảnh đặc thù N4 Chương 1 (Chương 1: 家族 - Gia đình)
+const N4_CH1_READING_THEMES: Record<number, { emoji: string; badge: string; scene: string; meaningVi: string }> = {
+  1: { emoji: '👩', badge: 'Chị gái', scene: 'Sống tự lập ở Tokyo', meaningVi: 'Chị gái tôi đang sống một mình ở Tokyo.' },
+  2: { emoji: '👨‍👩‍👧‍👦', badge: 'Gia đình', scene: 'Thành viên trong nhà', meaningVi: 'Gia đình tôi có 5 người.' },
+  3: { emoji: '👨‍🏫', badge: 'Anh trai', scene: 'Nghề nghiệp giáo viên', meaningVi: 'Anh trai tôi là giáo viên tiếng Anh trường cấp ba.' },
+  4: { emoji: '🙋‍♂️', badge: 'Bản thân', scene: 'Giới thiệu họ tên', meaningVi: 'Tên tôi là Yamada Taro.' },
+  5: { emoji: '🎓', badge: 'Em gái', scene: 'Bước vào cổng đại học', meaningVi: 'Năm nay em gái tôi đã trở thành sinh viên đại học.' },
+  6: { emoji: '👴👵', badge: 'Cha mẹ', scene: 'Kính trọng đấng sinh thành', meaningVi: 'Tôi rất kính trọng cha mẹ mình.' },
+  7: { emoji: '🤝', badge: 'Anh em', scene: 'Thuận hòa yêu thương', meaningVi: 'Anh em trong nhà phải thuận hòa, đoàn kết.' },
+  8: { emoji: '🛍️', badge: 'Vợ chồng', scene: 'Đi mua sắm cùng nhau', meaningVi: 'Tôi đã cùng vợ đi mua sắm.' },
+  9: { emoji: '🌾', badge: 'Nuôi nấng', scene: 'Lớn lên giữa thiên nhiên', meaningVi: 'Anh ấy đã lớn lên giữa thiên nhiên Hokkaido.' },
+  10: { emoji: '👴', badge: 'Ông nội', scene: 'Kỷ niệm người thầy xưa', meaningVi: 'Ông nội tôi ngày xưa là thầy giáo.' },
+};
+
+const N4_CH1_WRITING_THEMES: Record<number, { emoji: string; badge: string; scene: string; meaningVi: string }> = {
+  1: { emoji: '🏥', badge: 'Chị gái', scene: 'Nghề y tá điều dưỡng', meaningVi: 'Chị gái tôi làm nghề y tá.' },
+  2: { emoji: '👨‍👩‍👧', badge: 'Gia đình', scene: 'Giới thiệu tổ ấm', meaningVi: 'Tôi xin giới thiệu về gia đình mình.' },
+  3: { emoji: '⚽', badge: 'Anh trai', scene: 'Xem bóng đá sôi động', meaningVi: 'Tôi đã cùng anh trai đi xem trận bóng đá.' },
+  4: { emoji: '🎧', badge: 'Bản thân', scene: 'Sở thích nghe nhạc', meaningVi: 'Sở thích của tôi là nghe nhạc.' },
+  5: { emoji: '✉️', badge: 'Em gái', scene: 'Lá thư từ phương xa', meaningVi: 'Tôi đã nhận được thư từ em gái gửi tới.' },
+  6: { emoji: '🎮', badge: 'Em trai', scene: 'Đam mê trò chơi điện tử', meaningVi: 'Em trai tôi rất thích chơi điện tử.' },
+  7: { emoji: '👵', badge: 'Nuôi dạy', scene: 'Bà nuôi 6 người con', meaningVi: 'Bà tôi đã nuôi nấng 6 người con khôn lớn.' },
+  8: { emoji: '🏡', badge: 'Nhà ở', scene: 'Cuối tuần thảnh thơi ở nhà', meaningVi: 'Cuối tuần tôi thảnh thơi nghỉ ngơi ở nhà mình.' },
+  9: { emoji: '📏', badge: 'Anh em', scene: 'Chiều cao các anh em', meaningVi: 'Trong số các anh em thì ai là người cao nhất?' },
+  10: { emoji: '🧳', badge: 'Gia đình', scene: 'Cả nhà sum vầy du lịch', meaningVi: 'Cả gia đình sum họp cùng nhau đi du lịch.' },
+};
+
 // ─── COMPONENT CHÍNH ────────────────────────────────────────────────────────
 export default function Kanji() {
   const { t, i18n } = useTranslation(['kanji', 'common']);
   const isEn = i18n.language === 'en';
+  const { user } = useAuthStore();
 
-  // Chế độ xem: 'master' (Kanji Master N5) | 'canvas' (Studio vẽ nét) | 'dictionary' (Tra cứu tự do)
+  // Cấp độ đang học (Mặc định theo level tài khoản của User hoặc N4)
+  const [selectedLevel, setSelectedLevel] = useState<string>(() => {
+    const userLvl = user?.jlptLevel ? user.jlptLevel.toUpperCase() : 'N4';
+    return ['N4', 'N5'].includes(userLvl) ? userLvl : 'N4';
+  });
+
+  // Xếp hạng cấp độ JLPT: STARTER < N5 < N4 < N3 < N2 < N1
+  // Nếu học viên có level cao hơn cấp độ đang xem (VD: User N4 xem N5), toàn bộ chương sẽ tự động mở khóa
+  const JLPT_RANK: Record<string, number> = { STARTER: 0, N5: 1, N4: 2, N3: 3, N2: 4, N1: 5 };
+  const userRank = JLPT_RANK[user?.jlptLevel?.toUpperCase() || ''] || 0;
+  const currentLevelRank = JLPT_RANK[selectedLevel?.toUpperCase() || ''] || 0;
+  const isLowerLevel = userRank > currentLevelRank;
+
+  // Bộ lọc bài học nhỏ trong chương (VD: Bài 1-1: 家族 vs Bài 1-2: 毎日)
+  const [lessonFilter, setLessonFilter] = useState<'ALL' | '1-1' | '1-2'>('ALL');
+
+  // Chế độ xem: 'master' (Kanji Master N5/N4) | 'canvas' (Studio vẽ nét) | 'dictionary' (Tra cứu tự do)
   const [viewMode, setViewMode] = useState<'master' | 'canvas' | 'dictionary'>('master');
 
   // Dữ liệu Roadmap
@@ -355,10 +401,15 @@ export default function Kanji() {
   };
 
   const handleOpenReviewPage = () => {
-    const chNum = chapterDetail?.chapter.chapterNumber || selectedChapterId;
-    const revConfig = REVIEW_PAGES_CONFIG[chNum] || { page: 18, file: `chap${chNum}_review_p18.webp` };
-    setModalImageUrl(`/assets/kanji/n5/reviews/${revConfig.file}`);
-    setModalImageTitle(`Chương ${chNum}: Trang ${revConfig.page} (Câu ngữ cảnh & Viết chữ trong giáo trình)`);
+    const chNum = chapterDetail?.chapter.chapterNumber || 1;
+    if (selectedLevel === 'N4') {
+      setModalImageUrl(`/assets/kanji/n4/reviews/chap${chNum}_review_p11.webp`);
+      setModalImageTitle(`Chương ${chNum} N4: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang 11)`);
+    } else {
+      const revConfig = REVIEW_PAGES_CONFIG[chNum] || { page: 18, file: `chap${chNum}_review_p18.webp` };
+      setModalImageUrl(`/assets/kanji/n5/reviews/${revConfig.file}`);
+      setModalImageTitle(`Chương ${chNum}: Trang ${revConfig.page} (Câu ngữ cảnh & Viết chữ trong giáo trình)`);
+    }
     setShowIllustrationModal(true);
   };
 
@@ -371,21 +422,21 @@ export default function Kanji() {
   // Canvas Studio target
   const [canvasInitialKanji, setCanvasInitialKanji] = useState<string>('一');
 
-  // 1. Tải lộ trình 15 chương N5 từ Database
-  const fetchRoadmap = async () => {
+  // 1. Tải lộ trình các chương từ Database theo Level được chọn (N5 / N4)
+  const fetchRoadmap = async (level: string = selectedLevel) => {
     try {
       setLoadingRoadmap(true);
-      const res: any = await axiosClient.get('/kanji/n5/roadmap');
+      const res: any = await axiosClient.get(`/kanji/${level.toLowerCase()}/roadmap`);
       const data: RoadmapResponse = res?.data ?? res;
       if (data && data.chapters) {
         setRoadmap(data);
         if (data.chapters.length > 0) {
-          // Giữ nguyên chương người dùng đang xem, chỉ mặc định nếu chưa chọn chương
+          // Giữ nguyên chương người dùng đang xem nếu thuộc level này, hoặc chọn chương đầu tiên
           setSelectedChapterId((prev) => {
             if (prev && data.chapters.some((c) => c.id === prev)) {
               return prev;
             }
-            const currentUnlocked = data.chapters.find((c) => c.isUnlocked && !c.isPassed) || data.chapters[0];
+            const currentUnlocked = data.chapters.find((c) => (c.isUnlocked || isLowerLevel) && !c.isPassed) || data.chapters[0];
             return currentUnlocked.id;
           });
         }
@@ -398,11 +449,11 @@ export default function Kanji() {
   };
 
   useEffect(() => {
-    fetchRoadmap();
-  }, []);
+    fetchRoadmap(selectedLevel);
+  }, [selectedLevel]);
 
   // 2. Tải chi tiết chương được chọn
-  const fetchChapterDetail = async (chapterId: number) => {
+  const fetchChapterDetail = async (chapterId: number, level: string = selectedLevel) => {
     try {
       setLoadingDetail(true);
       setSubmitResult(null);
@@ -410,6 +461,7 @@ export default function Kanji() {
       setTestAnswers({});
       setMinigameInputs({});
       setShowHistoryDropdown(false);
+      setLessonFilter('ALL');
 
       // Tải lịch sử làm bài thi của chương này từ localStorage
       try {
@@ -423,7 +475,7 @@ export default function Kanji() {
         setTestHistory([]);
       }
 
-      const res: any = await axiosClient.get(`/kanji/n5/chapters/${chapterId}`);
+      const res: any = await axiosClient.get(`/kanji/${level.toLowerCase()}/chapters/${chapterId}`);
       const data: ChapterDetailResponse = res?.data ?? res;
       if (data && data.chapter) {
         setChapterDetail(data);
@@ -440,9 +492,9 @@ export default function Kanji() {
 
   useEffect(() => {
     if (selectedChapterId) {
-      fetchChapterDetail(selectedChapterId);
+      fetchChapterDetail(selectedChapterId, selectedLevel);
     }
-  }, [selectedChapterId]);
+  }, [selectedChapterId, selectedLevel]);
 
   // 3. Xử lý nộp bài test ôn tập
   const handleSubmitReviewTest = async () => {
@@ -466,7 +518,7 @@ export default function Kanji() {
 
     try {
       setSubmittingTest(true);
-      const res: any = await axiosClient.post(`/kanji/n5/chapters/${selectedChapterId}/submit`, {
+      const res: any = await axiosClient.post(`/kanji/${selectedLevel.toLowerCase()}/chapters/${selectedChapterId}/submit`, {
         score: calculatedScore,
         totalQuestions,
         correctCount,
@@ -506,7 +558,7 @@ export default function Kanji() {
         } catch (e) {}
 
         // Tải lại roadmap để cập nhật ổ khóa & điểm số trên cột trái mà không nhảy trang
-        fetchRoadmap();
+        fetchRoadmap(selectedLevel);
       }
     } catch (err) {
       console.error('Failed to submit test:', err);
@@ -544,18 +596,60 @@ export default function Kanji() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block px-2 py-0.5 text-xs font-semibold tracking-wider bg-[#b91c1c] text-white rounded-none">
-                KANJI MASTER N5
+                KANJI MASTER {selectedLevel}
               </span>
               <span className="text-xs uppercase tracking-widest text-[#78716c] font-mono">
                 BẢN CHUẨN GIÁO TRÌNH
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#1c1917] mt-1 tracking-tight">
-              {t('master.title', 'Kho Hán Tự — Kanji Master N5')}
+              {t('master.title', `Kho Hán Tự — Kanji Master ${selectedLevel}`)}
             </h1>
             <p className="text-sm text-[#78716c] mt-1">
-              {t('master.subtitle', '15 Chương · 118 Chữ Hán · Tranh tượng hình · Minigame · Đạt ≥ 85% mở khóa chương.')}
+              {selectedLevel === 'N4'
+                ? '9 Chương · 199 Chữ Hán · Tranh tình huống & Minigame đời sống · Đạt ≥ 85% mở khóa chương.'
+                : '15 Chương · 118 Chữ Hán · Tranh tượng hình · Minigame · Đạt ≥ 85% mở khóa chương.'}
             </p>
+
+            {/* Level Selector Tabs: N5 & N4 */}
+            <div className="flex items-center gap-2 mt-3">
+              {(['N5', 'N4'] as const).map((lvl) => {
+                const isCur = selectedLevel === lvl;
+                const isUserLvl = user?.jlptLevel?.toUpperCase() === lvl;
+                return (
+                  <button
+                    key={lvl}
+                    onClick={() => {
+                      if (selectedLevel !== lvl) {
+                        setSelectedLevel(lvl);
+                        setSelectedChapterId(0);
+                      }
+                    }}
+                    className={`px-3 py-1.5 text-xs font-mono font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                      isCur
+                        ? 'bg-[#b91c1c] text-white border-[#b91c1c] shadow-xs'
+                        : 'bg-white text-[#44403c] border-[#e7e5e4] hover:border-[#a8a29e] hover:bg-[#fafaf9]'
+                    }`}
+                  >
+                    <span>JLPT {lvl}</span>
+                    {lvl === 'N4' ? (
+                      <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
+                        (9 Chương)
+                      </span>
+                    ) : (
+                      <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
+                        (15 Chương)
+                      </span>
+                    )}
+                    {isUserLvl && (
+                      <span className={`text-[9px] px-1 py-0.2 rounded-xs font-sans ${isCur ? 'bg-red-800 text-red-100' : 'bg-red-100 text-red-700'}`}>
+                        Mục tiêu
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Mode Switcher */}
@@ -622,10 +716,10 @@ export default function Kanji() {
           <div className="lg:col-span-4 bg-white border border-[#e7e5e4] p-4 sticky top-6">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#e7e5e4]">
               <h2 className="text-sm font-bold uppercase tracking-wider font-mono text-[#1c1917]">
-                {t('master.chapterList', 'Mục lục 15 chương N5')}
+                {t('master.chapterList', { total: roadmap?.totalChapters || (selectedLevel === 'N4' ? 9 : 15), level: selectedLevel, defaultValue: `Mục lục ${roadmap?.totalChapters || (selectedLevel === 'N4' ? 9 : 15)} chương ${selectedLevel}` })}
               </h2>
               <span className="text-xs text-[#78716c]">
-                {roadmap?.chapters.length || 15} Chương
+                {roadmap?.chapters.length || (selectedLevel === 'N4' ? 9 : 15)} Chương
               </span>
             </div>
 
@@ -637,9 +731,18 @@ export default function Kanji() {
               </div>
             ) : (
               <div className="space-y-1.5 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">
+                {isLowerLevel && (
+                  <div className="mb-3 p-2.5 bg-[#f0fdf4] border border-[#bbf7d0] text-[#166534] text-[11px] flex items-start gap-2 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-[#166534] shrink-0 mt-0.5" />
+                    <span className="leading-tight">
+                      Bạn đang ở trình độ <strong>{user?.jlptLevel?.toUpperCase()}</strong> — Toàn bộ các chương của <strong>{selectedLevel}</strong> đã được mở khóa tự do để bạn tra cứu và ôn tập!
+                    </span>
+                  </div>
+                )}
                 {roadmap?.chapters.map((chap) => {
                   const isSelected = selectedChapterId === chap.id;
-                  const isLocked = !chap.isUnlocked;
+                  const isUnlocked = chap.isUnlocked || isLowerLevel;
+                  const isLocked = !isUnlocked;
                   const isPassed = chap.isPassed;
                   const canAccess = !isLocked;
 
@@ -829,8 +932,11 @@ export default function Kanji() {
                       <div className="text-xs uppercase font-mono text-[#78716c] mb-3">
                         CHỌN CHỮ HÁN ĐỂ XEM CHI TIẾT & HOẠT ẢNH NÉT VẼ:
                       </div>
+
+                      {/* Grid Kanji */}
                       <div className="grid grid-cols-7 sm:grid-cols-14 gap-2">
-                        {chapterDetail.kanjis.map((k, idx) => {
+                        {chapterDetail.kanjis.map((k) => {
+                          const idx = chapterDetail.kanjis.findIndex((item) => item.id === k.id);
                           const isSelected = activeKanji?.id === k.id;
                           return (
                             <button
@@ -931,6 +1037,16 @@ export default function Kanji() {
                             {/* CỘT PHẢI: THÔNG TIN NGỮ ÂM, BỘ THỦ, MẸO NHỚ */}
                             <div className="xl:col-span-6 space-y-4">
                               <div>
+                                {chapterDetail?.chapter.jlptLevel === 'N4' && (
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-[10px] font-mono px-2 py-0.5 bg-[#fef2f2] text-[#b91c1c] border border-red-200 font-bold uppercase">
+                                      Chương {chapterDetail.chapter.chapterNumber}: {chapterDetail.chapter.titleJa} ({chapterDetail.chapter.titleVi})
+                                    </span>
+                                    <span className="text-[10px] font-mono text-[#78716c]">
+                                      Chữ {activeKanjiIndex + 1} / {chapterDetail.kanjis.length}
+                                    </span>
+                                  </div>
+                                )}
                                 <div className="flex items-baseline gap-3">
                                   <h3 className="text-4xl font-serif font-bold text-[#1c1917]">
                                     {activeKanji.character}
@@ -1016,10 +1132,14 @@ export default function Kanji() {
                         <span className="w-2.5 h-2.5 bg-[#b91c1c]" />
                         <div>
                           <h3 className="font-serif font-bold text-sm text-[#1c1917]">
-                            Tình Huống Ngữ Cảnh Chuẩn Giáo Trình (Trang 18)
+                            {chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1
+                              ? 'Tình Huống Ngữ Cảnh Chuẩn Giáo Trình N4 (Chương 1: 家族)'
+                              : `Tình Huống Ngữ Cảnh Chuẩn Giáo Trình (Chương ${chapterDetail.chapter.chapterNumber})`}
                           </h3>
                           <p className="text-[11px] text-[#78716c]">
-                            20 câu luyện đọc & viết chữ Hán trong bối cảnh đời sống Nhật Bản thực tế
+                            {chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1
+                              ? '20 câu luyện đọc & viết chữ Hán kèm 12 từ vựng ứng dụng về đời sống gia đình'
+                              : '20 câu luyện đọc & viết chữ Hán trong bối cảnh đời sống Nhật Bản thực tế'}
                           </p>
                         </div>
                       </div>
@@ -1028,7 +1148,7 @@ export default function Kanji() {
                         className="px-3.5 py-1.5 border border-[#b91c1c] bg-[#fef2f2] hover:bg-[#b91c1c] text-[#b91c1c] hover:text-white text-xs font-bold font-mono transition-all flex items-center gap-2 cursor-pointer shadow-2xs w-fit rounded-none"
                       >
                         <BookOpen className="w-3.5 h-3.5" />
-                        <span>Xem trang bài tập gốc trong sách (P.18)</span>
+                        <span>{selectedLevel === 'N4' ? 'Xem trang bài tập trong sách N4' : 'Xem trang bài tập gốc trong sách (P.18)'}</span>
                         <Maximize2 className="w-3 h-3 opacity-70" />
                       </button>
                     </div>
@@ -1052,13 +1172,21 @@ export default function Kanji() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {chapterDetail.readingExercises?.map((ex, idx) => {
-                          const theme = SCENARIO_THEMES[idx + 1] || {
-                            emoji: '📖',
-                            badge: `Tình huống ${idx + 1}`,
-                            scene: 'Ngữ cảnh giao tiếp',
-                            iconBg: 'bg-stone-50 text-stone-700 border-stone-200',
-                            meaningVi: ex.explanation || ''
-                          };
+                          const isN4Ch1 = chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1;
+                          const theme = isN4Ch1
+                            ? (N4_CH1_READING_THEMES[idx + 1] || {
+                                emoji: '📖',
+                                badge: 'Chương 1: 家族',
+                                scene: 'Ngữ cảnh giao tiếp',
+                                meaningVi: ex.explanation || ''
+                              })
+                            : (SCENARIO_THEMES[idx + 1] || {
+                                emoji: '📖',
+                                badge: `Tình huống ${idx + 1}`,
+                                scene: 'Ngữ cảnh giao tiếp',
+                                iconBg: 'bg-stone-50 text-stone-700 border-stone-200',
+                                meaningVi: ex.explanation || ''
+                              });
                           let options: string[] = [];
                           try {
                             options = typeof ex.optionsJson === 'string' ? JSON.parse(ex.optionsJson) : (ex.optionsJson || []);
@@ -1198,12 +1326,20 @@ export default function Kanji() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {chapterDetail.writingExercises?.map((ex, idx) => {
-                          const theme = WRITING_THEMES[idx + 1] || {
-                            emoji: '✍️',
-                            badge: `Chữ Hán ${idx + 1}`,
-                            scene: 'Thực hành chữ viết',
-                            meaningVi: ex.explanation || ''
-                          };
+                          const isN4Ch1 = chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1;
+                          const theme = isN4Ch1
+                            ? (N4_CH1_WRITING_THEMES[idx + 1] || {
+                                emoji: '✍️',
+                                badge: 'Chương 1: 家族',
+                                scene: 'Thực hành chữ viết',
+                                meaningVi: ex.explanation || ''
+                              })
+                            : (WRITING_THEMES[idx + 1] || {
+                                emoji: '✍️',
+                                badge: `Chữ Hán ${idx + 1}`,
+                                scene: 'Thực hành chữ viết',
+                                meaningVi: ex.explanation || ''
+                              });
                           let options: string[] = [];
                           try {
                             options = typeof ex.optionsJson === 'string' ? JSON.parse(ex.optionsJson) : (ex.optionsJson || []);
@@ -1344,33 +1480,37 @@ export default function Kanji() {
                           </span>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                          {chapterDetail.vocabularies.map((v) => (
-                            <div
-                              key={v.id}
-                              className="p-3 border border-[#e7e5e4] bg-[#fafaf9] flex items-center justify-between hover:bg-white transition-colors"
-                            >
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => speakJapanese(v.word)}
-                                  className="p-1 text-[#78716c] hover:text-[#b91c1c] hover:bg-[#fef2f2] transition-colors cursor-pointer"
-                                  title="Nghe phát âm từ"
-                                >
-                                  <Volume2 className="w-3.5 h-3.5" />
-                                </button>
-                                <div>
-                                  <span className="font-serif font-bold text-sm text-[#1c1917] mr-1.5">
-                                    {v.word}
-                                  </span>
-                                  <span className="text-xs text-[#78716c] font-mono">
-                                    ({v.reading})
-                                  </span>
+                          {chapterDetail.vocabularies.map((v) => {
+                            return (
+                              <div
+                                key={v.id}
+                                className="p-3 border border-[#e7e5e4] bg-[#fafaf9] flex items-center justify-between hover:bg-white transition-colors"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => speakJapanese(v.word)}
+                                    className="p-1 text-[#78716c] hover:text-[#b91c1c] hover:bg-[#fef2f2] transition-colors cursor-pointer"
+                                    title="Nghe phát âm từ"
+                                  >
+                                    <Volume2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <div>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="font-serif font-bold text-sm text-[#1c1917]">
+                                        {v.word}
+                                      </span>
+                                    </div>
+                                    <span className="text-xs text-[#78716c] font-mono">
+                                      ({v.reading})
+                                    </span>
+                                  </div>
                                 </div>
+                                <span className="text-xs text-[#44403c] font-medium text-right">
+                                  {isEn ? v.meaningEn : v.meaningVi}
+                                </span>
                               </div>
-                              <span className="text-xs text-[#44403c] font-medium text-right">
-                                {isEn ? v.meaningEn : v.meaningVi}
-                              </span>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     )}
