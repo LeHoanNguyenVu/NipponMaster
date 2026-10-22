@@ -64,7 +64,7 @@
     "emptyOcr": "Draw any Kanji on the left canvas and tap \"Recognize Kanji\"."
   },
   "master": {
-    "title": "Kanji Master N5",
+    "title": "Kanji Master {{level}}",
     "subtitle": "Textbook curriculum: 15 Chapters · 118 Kanji Characters · Pictographs · Minigames · Score ≥ 85% to unlock.",
     "tabRoadmap": "🗾 Kanji Master Roadmap",
     "tabDictionary": "📚 Kanji Dictionary",

@@ -143,18 +143,41 @@ public class KanjiMasterService {
      */
     @Transactional(readOnly = true)
     public KanjiChapterDetailResponseDto getChapterDetail(Long userId, Long chapterId) {
-        KanjiChapter chapter = chapterRepository.findById(chapterId)
-                .orElseThrow(() -> new ResourceNotFoundException("KanjiChapter", chapterId));
+        return getChapterDetail(userId, chapterId, null);
+    }
 
-        List<Kanji> kanjis = kanjiRepository.findByChapterIdOrderByChapterOrderAsc(chapterId);
-        List<KanjiChapterVocab> vocabularies = vocabRepository.findByChapterIdOrderByDisplayOrderAsc(chapterId);
-        List<KanjiExercise> readingExercises = exerciseRepository.findByChapterIdAndExerciseTypeOrderByDisplayOrderAsc(chapterId, "READING");
-        List<KanjiExercise> writingExercises = exerciseRepository.findByChapterIdAndExerciseTypeOrderByDisplayOrderAsc(chapterId, "WRITING");
-        List<KanjiMinigame> minigames = minigameRepository.findByChapterIdOrderByDisplayOrderAsc(chapterId);
+    /**
+     * Lấy chi tiết nội dung chương (Chữ Hán, từ vựng, câu đọc/viết, minigame) phục vụ 4 thẻ giao diện.
+     * Có hỗ trợ tham số level để đảm bảo luôn tải đúng chương của cấp độ JLPT tương ứng (tránh race condition).
+     */
+    @Transactional(readOnly = true)
+    public KanjiChapterDetailResponseDto getChapterDetail(Long userId, Long chapterId, String level) {
+        KanjiChapter chapter = null;
+        if (level != null && !level.isBlank()) {
+            String normLevel = level.trim().toUpperCase();
+            Optional<KanjiChapter> byId = chapterRepository.findById(chapterId);
+            if (byId.isPresent() && byId.get().getJlptLevel().equalsIgnoreCase(normLevel)) {
+                chapter = byId.get();
+            } else {
+                // Nếu chapterId truyền vào là số thứ tự chương (1..15) hoặc ID khác level, tìm theo (level, chapterNumber)
+                chapter = chapterRepository.findByJlptLevelAndChapterNumber(normLevel, chapterId.intValue())
+                        .orElseThrow(() -> new ResourceNotFoundException("KanjiChapter for level " + normLevel + " and id/number " + chapterId));
+            }
+        } else {
+            chapter = chapterRepository.findById(chapterId)
+                    .orElseThrow(() -> new ResourceNotFoundException("KanjiChapter", chapterId));
+        }
+
+        Long realChapterId = chapter.getId();
+        List<Kanji> kanjis = kanjiRepository.findByChapterIdOrderByChapterOrderAsc(realChapterId);
+        List<KanjiChapterVocab> vocabularies = vocabRepository.findByChapterIdOrderByDisplayOrderAsc(realChapterId);
+        List<KanjiExercise> readingExercises = exerciseRepository.findByChapterIdAndExerciseTypeOrderByDisplayOrderAsc(realChapterId, "READING");
+        List<KanjiExercise> writingExercises = exerciseRepository.findByChapterIdAndExerciseTypeOrderByDisplayOrderAsc(realChapterId, "WRITING");
+        List<KanjiMinigame> minigames = minigameRepository.findByChapterIdOrderByDisplayOrderAsc(realChapterId);
 
         UserKanjiProgress userProgress = null;
         if (userId != null) {
-            userProgress = progressRepository.findByUserIdAndChapterId(userId, chapterId).orElse(null);
+            userProgress = progressRepository.findByUserIdAndChapterId(userId, realChapterId).orElse(null);
         }
 
         return KanjiChapterDetailResponseDto.builder()
@@ -174,9 +197,27 @@ public class KanjiMasterService {
      */
     @Transactional
     public KanjiSubmitResultDto submitChapterTest(Long userId, Long chapterId, KanjiSubmitRequestDto request) {
-        KanjiChapter currentChapter = chapterRepository.findById(chapterId)
-                .orElseThrow(() -> new ResourceNotFoundException("KanjiChapter", chapterId));
+        return submitChapterTest(userId, chapterId, request, null);
+    }
 
+    @Transactional
+    public KanjiSubmitResultDto submitChapterTest(Long userId, Long chapterId, KanjiSubmitRequestDto request, String level) {
+        KanjiChapter currentChapter = null;
+        if (level != null && !level.isBlank()) {
+            String normLevel = level.trim().toUpperCase();
+            Optional<KanjiChapter> byId = chapterRepository.findById(chapterId);
+            if (byId.isPresent() && byId.get().getJlptLevel().equalsIgnoreCase(normLevel)) {
+                currentChapter = byId.get();
+            } else {
+                currentChapter = chapterRepository.findByJlptLevelAndChapterNumber(normLevel, chapterId.intValue())
+                        .orElseThrow(() -> new ResourceNotFoundException("KanjiChapter for level " + normLevel + " and id/number " + chapterId));
+            }
+        } else {
+            currentChapter = chapterRepository.findById(chapterId)
+                    .orElseThrow(() -> new ResourceNotFoundException("KanjiChapter", chapterId));
+        }
+
+        Long realChapterId = currentChapter.getId();
         int score = request.getScore() != null ? request.getScore() : 0;
         if (request.getTotalQuestions() != null && request.getTotalQuestions() > 0 && request.getCorrectCount() != null) {
             score = Math.round(((float) request.getCorrectCount() / request.getTotalQuestions()) * 100);
@@ -195,10 +236,10 @@ public class KanjiMasterService {
         }
 
         if (userId != null) {
-            UserKanjiProgress progress = progressRepository.findByUserIdAndChapterId(userId, chapterId)
+            UserKanjiProgress progress = progressRepository.findByUserIdAndChapterId(userId, realChapterId)
                     .orElseGet(() -> UserKanjiProgress.builder()
                             .userId(userId)
-                            .chapterId(chapterId)
+                            .chapterId(realChapterId)
                             .isUnlocked(true)
                             .highestScore(0)
                             .isPassed(false)

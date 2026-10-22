@@ -64,7 +64,7 @@
     "emptyOcr": "Hãy vẽ một chữ Kanji tự do lên bảng bên trái và nhấn \"Nhận diện chữ Kanji\"."
   },
   "master": {
-    "title": "Kho Hán Tự — Kanji Master N5",
+    "title": "Kho Hán Tự — Kanji Master {{level}}",
     "subtitle": "Học theo giáo trình Kanji Master bản chuẩn: 15 Chương · 118 Chữ Hán · Tranh tượng hình · Minigame · Đạt ≥ 85% mở khóa chương.",
     "tabRoadmap": "🗾 Lộ trình Kanji Master",
     "tabDictionary": "📚 Thư viện từ điển",

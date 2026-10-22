@@ -18,6 +18,21 @@ public class KanjiMasterController {
 
     private final KanjiMasterService kanjiMasterService;
 
+    private String resolveLevel(String level, jakarta.servlet.http.HttpServletRequest request) {
+        if (level != null && !level.isBlank()) {
+            return level.toUpperCase();
+        }
+        if (request != null && request.getRequestURI() != null) {
+            String uri = request.getRequestURI().toUpperCase();
+            if (uri.contains("/N4/") || uri.endsWith("/N4")) {
+                return "N4";
+            } else if (uri.contains("/N5/") || uri.endsWith("/N5")) {
+                return "N5";
+            }
+        }
+        return null;
+    }
+
     /**
      * Lấy lộ trình Kanji theo cấp độ (Mặc định N5, gồm 15 chương; N4 gồm 9 chương).
      */
@@ -27,16 +42,9 @@ public class KanjiMasterController {
             @PathVariable(required = false) String level,
             jakarta.servlet.http.HttpServletRequest request,
             @AuthenticationPrincipal Long userId) {
-        String targetLevel = "N5";
-        if (level != null && !level.isBlank()) {
-            targetLevel = level.toUpperCase();
-        } else if (request != null && request.getRequestURI() != null) {
-            String uri = request.getRequestURI().toUpperCase();
-            if (uri.contains("/N4/")) {
-                targetLevel = "N4";
-            } else if (uri.contains("/N5/")) {
-                targetLevel = "N5";
-            }
+        String targetLevel = resolveLevel(level, request);
+        if (targetLevel == null) {
+            targetLevel = "N5";
         }
         return ResponseEntity.ok(ApiResponse.ok(kanjiMasterService.getRoadmap(userId, targetLevel)));
     }
@@ -49,8 +57,10 @@ public class KanjiMasterController {
     public ResponseEntity<ApiResponse<KanjiChapterDetailResponseDto>> getChapterDetail(
             @PathVariable(required = false) String level,
             @PathVariable Long chapterId,
+            jakarta.servlet.http.HttpServletRequest request,
             @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(ApiResponse.ok(kanjiMasterService.getChapterDetail(userId, chapterId)));
+        String targetLevel = resolveLevel(level, request);
+        return ResponseEntity.ok(ApiResponse.ok(kanjiMasterService.getChapterDetail(userId, chapterId, targetLevel)));
     }
 
     /**
@@ -61,8 +71,10 @@ public class KanjiMasterController {
     public ResponseEntity<ApiResponse<KanjiSubmitResultDto>> submitChapterTest(
             @PathVariable(required = false) String level,
             @PathVariable Long chapterId,
+            jakarta.servlet.http.HttpServletRequest request,
             @AuthenticationPrincipal Long userId,
-            @RequestBody KanjiSubmitRequestDto request) {
-        return ResponseEntity.ok(ApiResponse.ok(kanjiMasterService.submitChapterTest(userId, chapterId, request)));
+            @RequestBody KanjiSubmitRequestDto requestBody) {
+        String targetLevel = resolveLevel(level, request);
+        return ResponseEntity.ok(ApiResponse.ok(kanjiMasterService.submitChapterTest(userId, chapterId, requestBody, targetLevel)));
     }
 }

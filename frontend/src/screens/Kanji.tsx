@@ -213,8 +213,6 @@ export default function Kanji() {
   const currentLevelRank = JLPT_RANK[selectedLevel?.toUpperCase() || ''] || 0;
   const isLowerLevel = userRank > currentLevelRank;
 
-  // Bộ lọc bài học nhỏ trong chương (VD: Bài 1-1: 家族 vs Bài 1-2: 毎日)
-  const [lessonFilter, setLessonFilter] = useState<'ALL' | '1-1' | '1-2'>('ALL');
 
   // Chế độ xem: 'master' (Kanji Master N5/N4) | 'canvas' (Studio vẽ nét) | 'dictionary' (Tra cứu tự do)
   const [viewMode, setViewMode] = useState<'master' | 'canvas' | 'dictionary'>('master');
@@ -222,7 +220,8 @@ export default function Kanji() {
   // Dữ liệu Roadmap
   const [roadmap, setRoadmap] = useState<RoadmapResponse | null>(null);
   const [loadingRoadmap, setLoadingRoadmap] = useState<boolean>(true);
-  const [selectedChapterId, setSelectedChapterId] = useState<number>(1);
+  const [selectedChapterId, setSelectedChapterId] = useState<number>(0);
+  const detailRequestIdRef = useRef<number>(0);
 
   // Chi tiết chương được chọn
   const [chapterDetail, setChapterDetail] = useState<ChapterDetailResponse | null>(null);
@@ -400,11 +399,24 @@ export default function Kanji() {
     15: { page: 135, file: 'chap15_review_p135.webp' },
   };
 
+  const N4_REVIEW_PAGES_CONFIG: Record<number, { page: number; file: string }> = {
+    1: { page: 27, file: 'chap1_review.webp' },
+    2: { page: 49, file: 'chap2_review.webp' },
+    3: { page: 71, file: 'chap3_review.webp' },
+    4: { page: 93, file: 'chap4_review.webp' },
+    5: { page: 117, file: 'chap5_review.webp' },
+    6: { page: 139, file: 'chap6_review.webp' },
+    7: { page: 161, file: 'chap7_review.webp' },
+    8: { page: 183, file: 'chap8_review.webp' },
+    9: { page: 205, file: 'chap9_review.webp' },
+  };
+
   const handleOpenReviewPage = () => {
     const chNum = chapterDetail?.chapter.chapterNumber || 1;
     if (selectedLevel === 'N4') {
-      setModalImageUrl(`/assets/kanji/n4/reviews/chap${chNum}_review_p11.webp`);
-      setModalImageTitle(`Chương ${chNum} N4: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang 11)`);
+      const revConfig = N4_REVIEW_PAGES_CONFIG[chNum] || { page: 27, file: `chap${chNum}_review.webp` };
+      setModalImageUrl(`/assets/kanji/n4/reviews/${revConfig.file}`);
+      setModalImageTitle(`Chương ${chNum} N4: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang ${revConfig.page})`);
     } else {
       const revConfig = REVIEW_PAGES_CONFIG[chNum] || { page: 18, file: `chap${chNum}_review_p18.webp` };
       setModalImageUrl(`/assets/kanji/n5/reviews/${revConfig.file}`);
@@ -449,11 +461,17 @@ export default function Kanji() {
   };
 
   useEffect(() => {
+    // Invalidate any in-flight detail requests from previous level
+    detailRequestIdRef.current++;
+    setSelectedChapterId(0);
+    setChapterDetail(null);
     fetchRoadmap(selectedLevel);
   }, [selectedLevel]);
 
   // 2. Tải chi tiết chương được chọn
   const fetchChapterDetail = async (chapterId: number, level: string = selectedLevel) => {
+    if (!chapterId || chapterId <= 0) return;
+    const reqId = ++detailRequestIdRef.current;
     try {
       setLoadingDetail(true);
       setSubmitResult(null);
@@ -461,7 +479,6 @@ export default function Kanji() {
       setTestAnswers({});
       setMinigameInputs({});
       setShowHistoryDropdown(false);
-      setLessonFilter('ALL');
 
       // Tải lịch sử làm bài thi của chương này từ localStorage
       try {
@@ -476,22 +493,35 @@ export default function Kanji() {
       }
 
       const res: any = await axiosClient.get(`/kanji/${level.toLowerCase()}/chapters/${chapterId}`);
+      if (reqId !== detailRequestIdRef.current) {
+        // Discard stale out-of-order response
+        return;
+      }
       const data: ChapterDetailResponse = res?.data ?? res;
       if (data && data.chapter) {
+        // Verify chapter level matches current selected level to avoid cross-level leakage
+        if (data.chapter.jlptLevel && data.chapter.jlptLevel.toUpperCase() !== level.toUpperCase()) {
+          console.warn(`[Kanji] Ignored mismatched chapter level: got ${data.chapter.jlptLevel}, expected ${level}`);
+          return;
+        }
         setChapterDetail(data);
         if (data.kanjis && data.kanjis.length > 0) {
           setActiveKanji(data.kanjis[0]);
         }
       }
     } catch (err) {
-      console.error('Failed to load chapter details:', err);
+      if (reqId === detailRequestIdRef.current) {
+        console.error('Failed to load chapter details:', err);
+      }
     } finally {
-      setLoadingDetail(false);
+      if (reqId === detailRequestIdRef.current) {
+        setLoadingDetail(false);
+      }
     }
   };
 
   useEffect(() => {
-    if (selectedChapterId) {
+    if (selectedChapterId && selectedChapterId > 0) {
       fetchChapterDetail(selectedChapterId, selectedLevel);
     }
   }, [selectedChapterId, selectedLevel]);
@@ -603,7 +633,7 @@ export default function Kanji() {
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#1c1917] mt-1 tracking-tight">
-              {t('master.title', `Kho Hán Tự — Kanji Master ${selectedLevel}`)}
+              {t('master.title', { level: selectedLevel, defaultValue: `Kho Hán Tự — Kanji Master ${selectedLevel}` })}
             </h1>
             <p className="text-sm text-[#78716c] mt-1">
               {selectedLevel === 'N4'
