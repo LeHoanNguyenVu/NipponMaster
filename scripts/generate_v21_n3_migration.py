@@ -75,8 +75,9 @@ def generate_sql():
         mt_esc = m_title.replace("'", "''")
         mh_esc = m_hint.replace("'", "''")
 
+        img_sql = f"'{img}'" if (img and 'intro' not in img and 'review' not in img) else "NULL"
         sql.append(f"    INSERT INTO kanjis (character, on_reading, kun_reading, romaji, han_viet, meaning, stroke_count, stroke_guide, example_sentence, example_romaji, example_meaning, jlpt_level, mnemonic_title, mnemonic_hint, mnemonic_icon, chapter_id, chapter_order, image_url, created_at) VALUES")
-        sql.append(f"    ('{char_esc}', '{on_esc}', '{kun_esc}', '{rom_esc}', '{hanv_esc}', '{mean_esc}', {strokes}, '{guide_esc}', '{ex_s_esc}', '{ex_r_esc}', '{ex_m_esc}', 'N3', '{mt_esc}', '{mh_esc}', '{m_icon}', v_ch{ch_num}_id, {ch_order}, '{img}', NOW())")
+        sql.append(f"    ('{char_esc}', '{on_esc}', '{kun_esc}', '{rom_esc}', '{hanv_esc}', '{mean_esc}', {strokes}, '{guide_esc}', '{ex_s_esc}', '{ex_r_esc}', '{ex_m_esc}', 'N3', '{mt_esc}', '{mh_esc}', '{m_icon}', v_ch{ch_num}_id, {ch_order}, {img_sql}, NOW())")
         sql.append("    ON CONFLICT (character) DO UPDATE SET")
         sql.append(f"        on_reading = EXCLUDED.on_reading, kun_reading = EXCLUDED.kun_reading, romaji = EXCLUDED.romaji,")
         sql.append(f"        han_viet = EXCLUDED.han_viet, meaning = EXCLUDED.meaning, stroke_count = EXCLUDED.stroke_count,")

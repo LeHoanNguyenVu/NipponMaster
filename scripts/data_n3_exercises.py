@@ -14,18 +14,48 @@ import json
 # ==============================================================================
 CHAPTER_EXERCISES = {
     1: [
-        ('READING', '天気がいいので、洗濯物をベランダに干しました。', '洗濯物', 'せんたくもの', ['せんたくもの', 'あらいたくもの', 'せんだくもの', 'そうじもの'], 'Chữ 洗 (TẨY) + 濯 (TRẠC) + 物 (VẬT) đọc là せんたくもの (quần áo giặt).', 1),
-        ('READING', 'この地域では、火曜日に燃えるゴミを出します。', '燃えるゴミ', 'もえるゴミ', ['もえるゴミ', 'きえるゴミ', 'ねるゴミ', 'たけるゴミ'], 'Động từ 燃える đọc là もえる (cháy được).', 2),
-        ('READING', '明日の午後、重要な予定が入っています。', '予定', 'よてい', ['よてい', 'よち', 'よじょう', 'みてい'], 'Chữ 予 (DỰ) + 定 (ĐỊNH) đọc là よてい (dự định, kế hoạch).', 3),
-        ('WRITING', 'こうえんで さいふを ひろいました。', 'ひろいました', '拾いました', ['拾いました', '捨ました', '探しました', '落としました'], 'Nhặt lên là động từ 拾う (THẬP) -> 拾いました.', 4),
-        ('WRITING', 'かいぎの ようじで おおさかへ 行きます。', 'ようじ', '用事', ['用事', '要事', '用時', '予事'], 'Công chuyện, việc bận là 用 (DỤNG) + 事 (SỰ) -> 用事.', 5),
+        ('READING', '毎朝 6時に 起きます。', '起きます', 'おきます', ['おきます', 'ねます', 'たちます', 'あるきます'], 'Động từ 起きる (KHỞI) đọc là おきる (thức dậy).', 1),
+        ('READING', '昨夜は 11時に 寝ました。', '寝ました', 'ねました', ['ねました', 'おきました', 'やすみました', 'とまりました'], 'Động từ 寝る (TẨM) đọc là ねる (đi ngủ).', 2),
+        ('READING', 'シャワーを 浴びて すっきりしました。', '浴びて', 'あびて', ['あびて', 'あらい', 'つかって', 'ながして'], 'Động từ 浴びる (DỤC) đọc là あびる (tắm vòi sen).', 3),
+        ('READING', 'お湯を わかして お茶を いれます。', 'お湯', 'おゆ', ['おゆ', 'おちゃ', 'おみず', 'おすう'], 'Chữ 湯 (THANG) đọc Kun là ゆ (nước sôi, nước nóng).', 4),
+        ('READING', '食事の まえに 手を 洗います。', '洗います', 'あらいます', ['あらいます', 'ふきます', 'きよめます', 'みがきます'], 'Động từ 洗う (TẨY) đọc là あらう (rửa tay).', 5),
+        ('READING', '天気がいいので、洗濯物をベランダに干しました。', '洗濯物', 'せんたくもの', ['せんたくもの', 'あらいたくもの', 'せんだくもの', 'そうじもの'], 'Chữ 洗 (TẨY) + 濯 (TRẠC) + 物 (VẬT) đọc là せんたくもの (quần áo giặt).', 6),
+        ('READING', '天気が いいので 布団を 干します。', '干します', 'ほします', ['ほします', '干します', 'かわかします', 'さらします'], 'Động từ 干す (CAN) đọc là ほす (phơi khô).', 7),
+        ('READING', '規則正しい 生活を 送ります。', '生活', 'せいかつ', ['せいかつ', 'しょうかつ', 'せいかつう', 'いきかつ'], 'Chữ 生 (SINH) + 活 (HOẠT) đọc là せいかつ (sinh hoạt, cuộc sống).', 8),
+        ('READING', '道で さいふを 拾いました。', '拾いました', 'ひろいました', ['ひろいました', 'すてました', 'みつけました', 'おとしました'], 'Động từ 拾う (THẬP) đọc là ひろう (nhặt lên).', 9),
+        ('READING', 'ゴミを ゴミ箱に 捨てます。', '捨てます', 'すてます', ['すてます', 'ひろいます', 'だします', 'いれます'], 'Động từ 捨てる (XẢ) đọc là すてる (vứt bỏ).', 10),
+        ('WRITING', 'この地域では、火曜日に もえるゴミを 出します。', 'もえるゴミ', '燃えるゴミ', ['燃えるゴミ', '消えるゴミ', '生ゴミ', '紙ゴミ'], 'Rác cháy được là 燃 (NHIÊN) + える -> 燃えるゴミ.', 11),
+        ('WRITING', 'スーパーで レジぶくろを もらいました。', 'レジぶくろ', 'レジ袋', ['レジ袋', 'レジ箱', 'レジ包', 'レジ布'], 'Túi đựng là chữ 袋 (ĐẠI) -> レジ袋.', 12),
+        ('WRITING', 'きょうは なんようび ですか。', 'なんようび', '何曜日', ['何曜日', '何曜目', '何光日', '何耀日'], 'Thứ trong tuần là 曜 (DIỆU) + 日 (NHẬT) -> 何曜日.', 13),
+        ('WRITING', 'こんげつまつに テストが あります。', 'げつまつ', '月末', ['月末', '月未', '月終', '月後'], 'Cuối tháng là 月 (NGUYỆT) + 末 (MẠT) -> 月末.', 14),
+        ('WRITING', 'きのうは いちにちじゅう あめでした。', 'きのう', '昨日', ['昨日', '今日', '明日', '昨夕'], 'Hôm qua là 昨 (TÁC) + 日 (NHẬT) -> 昨日.', 15),
+        ('WRITING', 'よくあさ はやく しゅっぱつしました。', 'よくあさ', '翌朝', ['翌朝', '次朝', '明朝', '前朝'], 'Sáng hôm sau là 翌 (DỰC) + 朝 (TRIÊU) -> 翌朝.', 16),
+        ('WRITING', 'らいしゅうの よていを たてます。', 'よてい', '予定', ['予定', '予程', '要定', '預定'], 'Kế hoạch, dự định là 予 (DỰ) + 定 (ĐỊNH) -> 予定.', 17),
+        ('WRITING', 'ていきゅうび なので みせは やすみです。', 'ていきゅうび', '定休日', ['定休日', '定休日', '定期日', '定休目'], 'Ngày nghỉ cố định là 定 (ĐỊNH) + 休 (HƯU) + 日 (NHẬT) -> 定休日.', 18),
+        ('WRITING', 'かいぎの ようじで おおさかへ 行きます。', 'ようじ', '用事', ['用事', '要事', '用時', '予事'], 'Công chuyện, việc bận là 用 (DỤNG) + 事 (SỰ) -> 用事.', 19),
+        ('WRITING', 'だいじな ことを わすれていました。', 'だいじな', '大事な', ['大事な', '太事な', '大時な', '要事な'], 'Việc quan trọng là 大 (ĐẠI) + 事 (SỰ) -> 大事な.', 20),
     ],
     2: [
-        ('READING', 'ドアの取っ手を押しても開きません。', '押して', 'おして', ['おして', 'ひいて', 'とって', 'けして'], 'Động từ 押す đọc là おす (ấn, đẩy).', 1),
-        ('READING', '駅の階段を急いで駆け上がりました。', '階段', 'かいだん', ['かいだん', 'きざはし', 'だんかい', 'かいちょう'], 'Chữ 階 (GIAI) + 段 (ĐOẠN) đọc là かいだん (cầu thang).', 2),
-        ('READING', '庭に新しい木を植えました。', '植えました', 'うえました', ['うえました', 'たてました', 'まきました', 'とりました'], 'Động từ 植える đọc là うえる (trồng cây).', 3),
-        ('WRITING', 'へやの まどを あけて かんきします。', 'まど', '窓', ['窓', '戸', '門', '扉'], 'Cửa sổ là chữ 窓 (SONG).', 4),
-        ('WRITING', '新しい ビルの けんせつが はじまりました。', 'けんせつ', '建設', ['建設', '建築', '設計', '建物'], 'Xây dựng, kiến thiết là 建 (KIẾN) + 設 (THIẾT) -> 建設.', 5),
+        ('READING', 'ドアのボタンを 押して ください。', '押して', 'おして', ['おして', 'ひいて', 'けして', 'とって'], 'Động từ 押す (ÁP) đọc là おす (ấn, bấm, đẩy).', 1),
+        ('READING', '引き出しを 引いて 書類を 出しました。', '引いて', 'ひいて', ['ひいて', 'おして', 'だして', 'いれて'], 'Động từ 引く (DẪN) đọc là ひく (kéo, rút ra).', 2),
+        ('READING', 'テーブルの上の しおを 取って ください。', '取って', 'とって', ['とって', 'もって', 'おいて', 'すてて'], 'Động từ 取る (THỦ) đọc là とる (lấy, cầm).', 3),
+        ('READING', '部屋を 出るときは 電気を 消して ください。', '消して', 'けして', ['けして', 'つけて', 'おして', 'とめて'], 'Động từ 消す (TIÊU) đọc là けす (tắt điện, dập lửa, xóa).', 4),
+        ('READING', '強い風で 戸が ガタガタ 鳴っています。', '戸', 'と', ['と', 'まど', 'もん', 'へや'], 'Chữ 戸 (HỘ) đọc Kun là と (cửa, cánh cửa).', 5),
+        ('READING', '天気が いいので 窓を 開けて かんきします。', '窓', 'まど', ['まど', 'と', 'ドア', 'かべ'], 'Chữ 窓 (SONG) đọc Kun là まど (cửa sổ).', 6),
+        ('READING', '私の 部屋は アパートの 三階に あります。', '三階', 'さんがい', ['さんがい', 'さんかい', 'さんだん', 'さんば階'], 'Chữ 三 (TAM) + 階 (GIAI) biến âm đọc là さんがい (tầng 3).', 7),
+        ('READING', '駅の 階段を 急いで 上がりました。', '階段', 'かいだん', ['かいだん', 'だんかい', 'かいちょう', 'きざはし'], 'Chữ 階 (GIAI) + 段 (ĐOẠN) đọc là かいだん (cầu thang).', 8),
+        ('READING', 'ベランダで きれいな 花を 植えました。', '植えました', 'うえました', ['うえました', 'たてました', 'まきました', 'とりました'], 'Động từ 植える (THỰC) đọc là うえる (trồng cây/hoa).', 9),
+        ('READING', '秋になると 木の 葉が 赤く なります。', '葉', 'は', ['は', 'えだ', 'み', 'ね'], 'Chữ 葉 (DIỆP) đọc Kun là は (lá cây, chiếc lá).', 10),
+        ('WRITING', '庭のみかんの木に みが なりました。', 'み', '実', ['実', '葉', '花', '根'], 'Quả, trái cây là chữ 実 (THỰC) đọc Kun là み.', 11),
+        ('WRITING', '植物の ねに 水を やります。', 'ね', '根', ['根', '木', '草', '枝'], 'Rễ cây là chữ 根 (CĂN) đọc Kun là ね.', 12),
+        ('WRITING', 'ここに 新しい ビルを たてます。', 'たてます', '建てます', ['建てます', '作ります', '設けます', '起てます'], 'Xây dựng nhà cửa là động từ 建てる (KIẾN) -> 建てます.', 13),
+        ('WRITING', 'このマンションは ちく 5年で まだ 新しいです。', 'ちく', '築', ['築', '建', '造', '設'], 'Số năm kể từ khi xây xong là chữ 築 (TRÚC) -> 築5年 (ちくごねん).', 14),
+        ('WRITING', '駅の こうないに カフェが あります。', 'こうない', '構内', ['構内', '校内', '広内', '館内'], 'Bên trong khuôn viên/nhà ga là 構 (CẤU) + 内 (NỘI) -> 構内.', 15),
+        ('WRITING', 'この家具は 木で つくられて います。', 'つくられて', '造られて', ['造られて', '作られて', '創られて', '建られて'], 'Chế tạo, gia công đồ vật lớn/kết cấu là chữ 造 (TẠO) -> 造られて.', 16),
+        ('WRITING', '部屋に エアコンを せっち しました。', 'せっち', '設置', ['設置', '設地', '設計', '建置'], 'Lắp đặt, trang bị thiết bị là 設 (THIẾT) + 置 (TRÍ) -> 設置.', 17),
+        ('WRITING', '家の はしらが しっかり しています。', 'はしら', '柱', ['柱', '木', '棒', '杭'], 'Cột nhà, trụ cột là chữ 柱 (TRỤ) đọc Kun là はしら.', 18),
+        ('WRITING', '使わない物を そうこに しまいました。', 'そうこ', '倉庫', ['倉庫', '創庫', '倉子', '車庫'], 'Nhà kho lưu trữ đồ đạc là 倉 (THƯƠNG) + 庫 (KHỐ) -> 倉庫.', 19),
+        ('WRITING', 'ベランダが 南を むいて います。', 'むいて', '向いて', ['向いて', '向かって', '対いて', '面いて'], 'Quay về hướng, hướng tới là động từ 向く (HƯỚNG) -> 向いて.', 20),
     ],
     3: [
         ('READING', 'フライパンの温度が上がるまで待ちます。', '温度', 'おんど', ['おんど', 'おんたく', 'あつど', 'ねつど'], 'Chữ 温 (ÔN) + 度 (ĐỘ) đọc là おんど (nhiệt độ).', 1),
@@ -155,401 +185,13 @@ CHAPTER_EXERCISES = {
     ],
 }
 
+
 # ==============================================================================
-# 2. CÂU ĐỐ TÌNH HUỐNG & MINIGAME — N3 AUTHENTIC MINIGAMES
+# 2. CÂU ĐỐ TÌNH HUỐNG & MINIGAME — N3 AUTHENTIC MINIGAMES (20 CHAPTERS x 5 QUESTIONS)
 # ==============================================================================
-CHAPTER_MINIGAMES = {
-    1: [
-        ('ORDERING', 'Minigame 1: Lịch trình sinh hoạt & Phân loại rác gia đình', 'Sắp xếp thời gian biểu buổi sáng và quy tắc xử lý rác tái chế chuẩn đời sống Nhật Bản.', '/assets/kanji/n3/illustrations/chap1_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Sắp xếp trình tự công việc buổi sáng: [干す / 起きる / 洗濯する]',
-                    'options': ['起きる → 洗濯する → 干す', '洗濯する → 起きる → 干す', '干す → 洗濯する → 起きる', '起きる → 干す → 洗濯する'],
-                    'answer': '起きる → 洗濯する → 干す',
-                    'explanation': 'Đúng thứ tự sinh hoạt: Thức dậy (起きる) -> Giặt quần áo (洗濯する) -> Đem phơi (干す).'
-                },
-                {
-                    'id': 2,
-                    'prompt': 'Phân loại rác: Chai nhựa và hộp giấy thuộc loại rác nào?',
-                    'options': ['燃えるゴミ (Rác cháy được)', '燃えないゴミ (Rác không cháy)', '資源ゴミ (Rác tái chế)', '粗大ゴミ (Rác cồng kềnh)'],
-                    'answer': '燃えるゴミ (Rác cháy được)',
-                    'explanation': 'Rác giấy và vỏ sạch thường xếp vào nhóm 燃えるゴミ hoặc rác tái chế có quy định phân loại rõ ràng.'
-                }
-            ]
-        }, 1)
-    ],
-    2: [
-        ('PICTURE_MATCH', 'Minigame 1: Ô chữ Kanji đời sống & Thiết kế nội thất (クロスワード)', 'Giải đố ô chữ Kanji ghép các từ chỉ vật dụng kiến trúc và cây cảnh gia đình.', '/assets/kanji/n3/quizzes/quiz_1_2_crossword.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Từ nào ghép với 戸 (cửa) mang nghĩa cửa sổ kính nhìn ra sân vườn?',
-                    'options': ['雨戸 (Cửa che mưa)', '窓戸 (Cửa sổ)', '戸棚 (Tủ chạn)', '門戸 (Cánh cổng)'],
-                    'answer': '雨戸 (Cửa che mưa)',
-                    'explanation': '雨戸 (あまど) là loại cửa trượt che mưa bão bảo vệ mặt kính cửa sổ truyền thống Nhật Bản.'
-                },
-                {
-                    'id': 2,
-                    'prompt': 'Phần nâng đỡ vững chãi toàn bộ kết cấu ngôi nhà được gọi là gì?',
-                    'options': ['大黒柱 (Trụ cột chính)', '屋根 (Mái nhà)', '階段 (Cầu thang)', '倉庫 (Nhà kho)'],
-                    'answer': '大黒柱 (Trụ cột chính)',
-                    'explanation': '柱 (TRỤ) là cây cột, 大黒柱 là cột trụ chính gia đình gánh vác cả căn nhà.'
-                }
-            ]
-        }, 1),
-        ('PICTURE_MATCH', 'Minigame 2: Phỏng vấn dọn phòng & Hẹn giờ thu gom rác', 'Đọc bài phỏng vấn lối sống và chọn đúng thao tác phân loại xử lý vật dụng.', '/assets/kanji/n3/quizzes/quiz_1_2_interview.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Khi nhặt được đồ thất lạc rơi trên sàn nhà, hành động đúng là gì?',
-                    'options': ['拾う (Nhặt lên cất cẩn thận)', '捨てる (Vứt đi)', '押す (Đẩy sang bên)', '消す (Xóa sạch)'],
-                    'answer': '拾う (Nhặt lên cất cẩn thận)',
-                    'explanation': 'Động từ 拾う (ひろう) nghĩa là nhặt lên, đối lập với 捨てる (vứt bỏ).'
-                }
-            ]
-        }, 2)
-    ],
-    3: [
-        ('PICTURE_MATCH', 'Minigame 1: Bếp trưởng & Điều chỉnh nhiệt độ gia vị', 'Đọc công thức nấu ăn và chọn đúng mức nhiệt độ, tỷ lệ muối đường và số lượng nguyên liệu.', '/assets/kanji/n3/illustrations/chap3_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Đơn vị đếm 2 quả trứng gà trong tiếng Nhật là gì?',
-                    'options': ['卵 2個 (2 quả trứng)', '卵 2枚 (2 tờ trứng)', '卵 2匹 (2 con trứng)', '卵 2杯 (2 cốc trứng)'],
-                    'answer': '卵 2個 (2 quả trứng)',
-                    'explanation': 'Trứng dùng hậu tố 個 (こ) để đếm số lượng vật thể nhỏ tròn.'
-                },
-                {
-                    'id': 2,
-                    'prompt': 'Khi hâm nóng canh miso, trạng thái nhiệt độ lý tưởng là gì?',
-                    'options': ['温める (Hâm ấm vừa ăn)', '冷やす (Làm lạnh ngắt)', '凍らせる (Đông đá)', '焦がす (Làm cháy khét)'],
-                    'answer': '温める (Hâm ấm vừa ăn)',
-                    'explanation': '温める (あたためる) nghĩa là làm ấm, giữ trọn hương vị súp miso.'
-                }
-            ]
-        }, 1)
-    ],
-    4: [
-        ('PICTURE_MATCH', 'Minigame 1: Công thức bánh gato dâu tây (ショートケーキのレシピ)', 'Đọc công thức làm bánh gato và điền đúng chữ Hán chỉ định lượng nguyên liệu.', '/assets/kanji/n3/quizzes/quiz_3_4_shortcake_recipe.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Nguyên liệu chính làm cốt bánh gato Shortcake là bột gì?',
-                    'options': ['小麦粉 (Bột mì trắng)', 'そば粉 (Bột kiều mạch)', '片栗粉 (Bột năng)', '米粉 (Bột gạo)'],
-                    'answer': '小麦粉 (Bột mì trắng)',
-                    'explanation': '小麦粉 (こむぎこ) gồm chữ 小 + 麦 + 粉 là bột mì chuyên làm bánh ngọt.'
-                },
-                {
-                    'id': 2,
-                    'prompt': 'Dụng cụ dùng để đánh kem tươi bông mềm là gì?',
-                    'options': ['泡立て器 (Cây đánh trứng/kem)', '炊飯器 (Nồi cơm điện)', '食器 (Bát đĩa ăn)', '容器 (Hộp chứa)'],
-                    'answer': '泡立て器 (Cây đánh trứng/kem)',
-                    'explanation': '器 (KHÍ) chỉ công cụ đồ dùng, 泡立て器 là cây phới đánh bọt kem.'
-                }
-            ]
-        }, 1),
-        ('PICTURE_MATCH', 'Minigame 2: Bệnh viện & Hội thoại Bác sĩ - Bệnh nhân', 'Xem đơn khám bệnh, giải mã triệu chứng sốt cao, đo huyết áp và hướng dẫn băng bó.', '/assets/kanji/n3/quizzes/quiz_3_4_doctor_patient.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Bệnh nhân than phiền: “深呼吸すると胸が痛いです”, nghĩa là bị đau ở đâu khi làm gì?',
-                    'options': ['Đau ngực khi hít thở sâu', 'Đau đầu khi cúi xuống', 'Đau họng khi nuốt thức ăn', 'Đau bụng khi uống nước'],
-                    'answer': 'Đau ngực khi hít thở sâu',
-                    'explanation': '深呼吸 (hít thở sâu) gồm chữ 深 (thâm) + 呼 (hô) + 吸 (hấp), kết hợp với 胸が痛い (đau ngực).'
-                }
-            ]
-        }, 2)
-    ],
-    5: [
-        ('PICTURE_MATCH', 'Minigame 1: Bảng điểm thi đấu & Kỷ lục thể thao', 'Phân tích bảng kết quả trận chung kết thể thao và xác định đội vô địch, vận động viên xuất sắc.', '/assets/kanji/n3/illustrations/chap5_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Người ném bóng trong môn bóng chày tiếng Nhật gọi là gì?',
-                    'options': ['投手 (ピッチャー - Cầu thủ ném bóng)', '打者 (バッター - Cầu thủ đánh bóng)', '捕手 (キャッチャー - Cầu thủ bắt bóng)', '審判 (Trọng tài)'],
-                    'answer': '投手 (ピッチャー - Cầu thủ ném bóng)',
-                    'explanation': '投 (ĐẦU) nghĩa là ném -> 投手 (とうしゅ) là vận động viên ném bóng.'
-                }
-            ]
-        }, 1)
-    ],
-    6: [
-        ('PICTURE_MATCH', 'Minigame 1: Bản tin thể thao Koshien & Cảm xúc thăng hoa', 'Đọc phóng sự bóng chày mùa hè Koshien, cảm nhận niềm xúc động chiến thắng và tiếc nuối.', '/assets/kanji/n3/quizzes/quiz_5_6_baseball_article.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Đội bóng lội ngược dòng giành cúp vô địch phút chót mang lại cảm xúc gì?',
-                    'options': ['大歓喜 (Vô cùng mừng rỡ sung sướng)', '失望 (Thất vọng tràn trề)', '怒り (Giận dữ tột cùng)', '恐怖 (Sợ hãi run rẩy)'],
-                    'answer': '大歓喜 (Vô cùng mừng rỡ sung sướng)',
-                    'explanation': 'Chữ 喜 (HỈ) kết hợp 歓喜 (かんき) diễn tả niềm hân hoan vui sướng ngập tràn khi thắng trận.'
-                },
-                {
-                    'id': 2,
-                    'prompt': 'Thành ngữ “勝負の行方” mang ý nghĩa là gì?',
-                    'options': ['Cục diện diễn biến của trận thắng bại', 'Thời gian bắt đầu trận đấu', 'Địa điểm sân vận động tổ chức', 'Số lượng khán giả mua vé'],
-                    'answer': 'Cục diện diễn biến của trận thắng bại',
-                    'explanation': '勝負 (thắng bại) + 行方 (tung tích, chiều hướng phát triển).'
-                }
-            ]
-        }, 1)
-    ],
-    7: [
-        ('PICTURE_MATCH', 'Minigame 1: Lễ thành hôn & Phong tục chúc mừng', 'Tìm hiểu quy tắc phong bì tiền mừng cưới Shugi-bukuro và thiệp đáp lễ hạnh phúc.', '/assets/kanji/n3/illustrations/chap7_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Trên phong bì mừng cưới tiếng Nhật thường in nổi chữ gì?',
-                    'options': ['寿 (Thọ - Chúc phúc hôn nhân)', '祝 (Chúc - Chúc mừng)', '幸 (Hạnh - May mắn)', '福 (Phúc - Hạnh phúc)'],
-                    'answer': '寿 (Thọ - Chúc phúc hôn nhân)',
-                    'explanation': 'Chữ 寿 (ことぶき) là chữ chúc mừng cưới hỏi truyền thống sang trọng nhất.'
-                }
-            ]
-        }, 1)
-    ],
-    8: [
-        ('PICTURE_MATCH', 'Minigame 1: Cây phả hệ & Xưng hô giao tiếp xã hội', 'Nhận biết các mối quan hệ người thân trong gia đình họ tộc và đối tác công việc.', '/assets/kanji/n3/illustrations/chap8_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Chữ nào dùng để chỉ người bạn thân thiết hiểu ý nhau?',
-                    'options': ['親友 (Bạn thân tri kỷ)', '他人 (Người ngoài xa lạ)', '知人 (Người quen sơ)', '同僚 (Đồng nghiệp)'],
-                    'answer': '親友 (Bạn thân tri kỷ)',
-                    'explanation': 'Chữ 親 (THÂN) + 友 (HỮU) đọc là しんゆう (bạn thân nhất).'
-                }
-            ]
-        }, 1)
-    ],
-    9: [
-        ('PICTURE_MATCH', 'Minigame 1: Thiệp mời đám cưới & Lời chúc phúc vĩnh cửu', 'Đọc thiệp cưới trang trọng phong cách Nhật Bản và chọn lời chúc hạnh phúc trăm năm.', '/assets/kanji/n3/quizzes/quiz_7_9_wedding_letter.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Thành ngữ nào chúc phúc hai bạn sống trọn đời hạnh phúc?',
-                    'options': ['永遠の幸福を祈る (Chúc phúc hạnh phúc vĩnh cửu)', '関係を解消する (Chấm dứt quan hệ)', '単独で行動する (Hành động một mình)', '約束を破る (Phá vỡ lời hứa)'],
-                    'answer': '永遠の幸福を祈る (Chúc phúc hạnh phúc vĩnh cửu)',
-                    'explanation': '永 (VĨNH) + 幸 (HẠNH) + 福 (PHÚC) tạo nên lời chúc hôn lễ kinh điển nhất.'
-                }
-            ]
-        }, 1),
-        ('PICTURE_MATCH', 'Minigame 2: Phỏng vấn đầu bếp & Quy tắc so sánh định lượng', 'Phân tích bảng định lượng gia vị: 以上 (trở lên), 未満 (chưa đầy), 全体 (toàn bộ).', '/assets/kanji/n3/quizzes/quiz_7_9_cooking_interview.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Quy định “20歳未満は飲酒禁止” có nghĩa là:',
-                    'options': ['Người dưới 20 tuổi cấm uống rượu', 'Người từ 20 tuổi trở lên cấm uống rượu', 'Ai cũng được phép uống rượu', 'Chỉ cấm người trên 20 tuổi'],
-                    'answer': 'Người dưới 20 tuổi cấm uống rượu',
-                    'explanation': '未満 (VỊ MÃN) nghĩa là chưa đạt tới mốc đó (tức dưới 20 tuổi).'
-                }
-            ]
-        }, 2)
-    ],
-    10: [
-        ('ORDERING', 'Minigame 1: Bảng phân công nhiệm vụ lớp học & Mượn sách', 'Sắp xếp quy trình mượn tài liệu học tập và bảo quản dụng cụ học đường.', '/assets/kanji/n3/illustrations/chap10_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Quy trình mượn sách thư viện đúng: [借りる / 探す / 返す]',
-                    'options': ['探す → 借りる → 返す', '借りる → 探す → 返す', '返す → 探す → 借りる', '探す → 返す → 借りる'],
-                    'answer': '探す → 借りる → 返す',
-                    'explanation': 'Tìm sách (探す) -> Đến quầy làm thủ tục mượn (借りる) -> Đọc xong đem trả đúng hạn (返す).'
-                }
-            ]
-        }, 1)
-    ],
-    11: [
-        ('PICTURE_MATCH', 'Minigame 1: Nội quy thư viện & Không gian học tập', 'Đọc bảng thông báo nội quy phòng tự học thư viện và chọn hành vi được phép.', '/assets/kanji/n3/quizzes/quiz_10_11_library_rules.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Biển báo “座席での飲食禁止” có nghĩa là gì?',
-                    'options': ['Cấm ăn uống tại chỗ ngồi', 'Cho phép ăn bánh kẹo thoải mái', 'Chỉ được phép uống rượu', 'Cấm ngồi vào ghế'],
-                    'answer': 'Cấm ăn uống tại chỗ ngồi',
-                    'explanation': '座席 (chỗ ngồi) + 飲食禁止 (cấm ăn uống).'
-                }
-            ]
-        }, 1),
-        ('PICTURE_MATCH', 'Minigame 2: Phỏng vấn xin việc làm thêm sinh viên (面接)', 'Xem kịch bản phỏng vấn Baitô sinh viên đại học và chọn câu trả lời lịch thiệp nhất.', '/assets/kanji/n3/quizzes/quiz_10_11_parttime_interview.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Khi người phỏng vấn hỏi lý do nộp đơn (志望動機), sinh viên nên trình bày gì?',
-                    'options': ['Nguyện vọng và ước mơ học hỏi kinh nghiệm', 'Chỉ vì muốn có thật nhiều tiền chơi game', 'Vì ở nhà rảnh rỗi không có việc gì làm', 'Vì bạn bè ép buộc nộp hồ sơ'],
-                    'answer': 'Nguyện vọng và ước mơ học hỏi kinh nghiệm',
-                    'explanation': 'Chữ 希 (HY) + 望 (VỌNG) thể hiện động lực và chí hướng chân thành.'
-                }
-            ]
-        }, 2)
-    ],
-    12: [
-        ('PICTURE_MATCH', 'Minigame 1: Lịch thi học kỳ & Bí quyết giải thích bài tập', 'Đọc lịch thi các môn học và cách viết báo cáo tóm tắt nội dung bài học.', '/assets/kanji/n3/illustrations/chap12_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Từ nào mang nghĩa giải thích rõ ràng kèm ví dụ minh họa?',
-                    'options': ['解説 (Giải thích chi tiết)', '欠席 (Vắng mặt)', '忘却 (Quên lãng)', '卒業 (Tốt nghiệp)'],
-                    'answer': '解説 (Giải thích chi tiết)',
-                    'explanation': '解 (GIẢI) + 説 (THUYẾT) đọc là かいせつ.'
-                }
-            ]
-        }, 1)
-    ],
-    13: [
-        ('PICTURE_MATCH', 'Minigame 1: Bảo tàng Khoa học Địa Cầu & Sông băng Bắc Cực', 'Khám phá sơ đồ địa tầng Trái Đất, dòng hải lưu ấm lạnh và sự đa dạng sinh học.', '/assets/kanji/n3/quizzes/quiz_12_13_science_museum.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Dòng hải lưu từ phương nam chảy lên mang nước ấm gọi là gì?',
-                    'options': ['暖流 (Dòng hải lưu ấm)', '寒流 (Dòng hải lưu lạnh)', '氷河 (Sông băng trôi)', '河口 (Cửa sông)'],
-                    'answer': '暖流 (Dòng hải lưu ấm)',
-                    'explanation': '暖 (NOÃN - ấm) + 流 (LƯU - dòng chảy) -> 暖流 (だんりゅう).'
-                },
-                {
-                    'id': 2,
-                    'prompt': 'Đại dương nơi có độ sâu thẳm nhất dưới đáy biển gọi là gì?',
-                    'options': ['深海 (Biển sâu thẳm)', '浅瀬 (Vùng nước nông)', '海岸 (Bờ biển)', '砂浜 (Bãi cát)'],
-                    'answer': '深海 (Biển sâu thẳm)',
-                    'explanation': '深 (THÂM - sâu) + 海 (HẢI - biển) -> 深海 (しんかい).'
-                }
-            ]
-        }, 1)
-    ],
-    14: [
-        ('ORDERING', 'Minigame 1: Chuẩn bị hành lý Tour du lịch nước ngoài', 'Sắp xếp danh mục đồ đạc trước chuyến bay và các thủ tục nhận phòng khách sạn Ryokan.', '/assets/kanji/n3/illustrations/chap14_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Trình tự du lịch nước ngoài: [搭乗する / 荷物を準備する / 観光する]',
-                    'options': ['荷物を準備する → 搭乗する → 観光する', '観光する → 荷物を準備する → 搭乗する', '搭乗する → 観光する → 荷物を準備する', '荷物を準備する → 観光する → 搭乗する'],
-                    'answer': '荷物を準備する → 搭乗する → 観光する',
-                    'explanation': 'Chuẩn bị hành lý (準備) -> Lên máy bay (搭乗) -> Tham quan ngắm cảnh (観光).'
-                }
-            ]
-        }, 1)
-    ],
-    15: [
-        ('PICTURE_MATCH', 'Minigame 1: Tour du lịch Châu Âu & Di sản văn hóa (ヨーロッパ旅行)', 'Đọc lịch trình tour ngắm cảnh các thành phố châu Âu và công trình kiến trúc cổ kính.', '/assets/kanji/n3/quizzes/quiz_14_15_europe_tour.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Chữ Hán 欧州 trong lịch trình du lịch chỉ châu lục nào?',
-                    'options': ['Châu Âu (Europe)', 'Châu Á (Asia)', 'Châu Mỹ (America)', 'Châu Phi (Africa)'],
-                    'answer': 'Châu Âu (Europe)',
-                    'explanation': '欧州 (おうしゅう) gồm 欧 (ÂU) + 州 (CHÂU) nghĩa là Châu Âu.'
-                }
-            ]
-        }, 1),
-        ('PICTURE_MATCH', 'Minigame 2: Sơ đồ chỉ đường & Biển báo giao thông đường bộ', 'Nhìn bản đồ ngã tư đường ray, đọc hướng dẫn rẽ khúc cua và vị trí cây cầu vượt.', '/assets/kanji/n3/quizzes/quiz_14_15_house_map.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Biển chỉ dẫn “直進” yêu cầu người lái xe thực hiện thao tác nào?',
-                    'options': ['Đi thẳng về phía trước', 'Rẽ phải ngay lập tức', 'Quay đầu ngược chiều', 'Dừng đỗ xe lại'],
-                    'answer': 'Đi thẳng về phía trước',
-                    'explanation': '直 (TRỰC - thẳng) + 進 (TIẾN - đi tới) -> 直進 (ちょくしん).'
-                }
-            ]
-        }, 2)
-    ],
-    16: [
-        ('PICTURE_MATCH', 'Minigame 1: Hướng nghiệp công sở & Đãi ngộ nhân sự', 'Đọc bảng quyền lợi nhân viên, mức lương cơ bản và chế độ trợ cấp nghỉ phép.', '/assets/kanji/n3/illustrations/chap16_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Khoản tiền công ty trả định kỳ hàng tháng cho người lao động gọi là gì?',
-                    'options': ['給料 (Tiền lương)', '失礼 (Thất lễ)', '退職 (Nghỉ việc)', '求職 (Tìm việc)'],
-                    'answer': '給料 (Tiền lương)',
-                    'explanation': '給 (CẤP) + 料 (LIỆU) đọc là きゅうりょう.'
-                }
-            ]
-        }, 1)
-    ],
-    17: [
-        ('PICTURE_MATCH', 'Minigame 1: Bảng tuyển dụng việc làm & Chế độ đãi ngộ (求人票)', 'Đọc tờ thông tin tuyển dụng việc làm và trả lời các tiêu chí yêu cầu trình độ.', '/assets/kanji/n3/quizzes/quiz_16_17_job_ad.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Mục “交通費全額支給” trong tờ tuyển dụng có ý nghĩa là gì?',
-                    'options': ['Công ty chi trả toàn bộ tiền vé xe đi lại', 'Người lao động phải tự trả tiền vé xe', 'Không hỗ trợ bất kỳ chi phí nào', 'Chỉ trả một nửa tiền xăng'],
-                    'answer': 'Công ty chi trả toàn bộ tiền vé xe đi lại',
-                    'explanation': '全額 (toàn bộ số tiền) + 支給 (chi trả, trợ cấp).'
-                }
-            ]
-        }, 1),
-        ('PICTURE_MATCH', 'Minigame 2: Tư vấn hướng nghiệp & Quy tắc Hou-Ren-So (報連相)', 'Thực hành kỹ năng giao tiếp công sở: Báo cáo (報告) - Liên lạc (連絡) - Bàn bạc (相談).', '/assets/kanji/n3/quizzes/quiz_16_17_student_career_advice.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Khi gặp sự cố bất ngờ trong công việc, bước đầu tiên cần làm ngay là gì?',
-                    'options': ['Báo cáo tình hình ngay cho cấp trên (報告)', 'Im lặng giấu kín không nói với ai', 'Tự ý quyết định bỏ về nhà', 'Đổ lỗi cho đồng nghiệp khác'],
-                    'answer': 'Báo cáo tình hình ngay cho cấp trên (報告)',
-                    'explanation': '報告 (ほうこく) là bước đầu tiên và cốt lõi nhất của văn hóa Hou-Ren-So Nhật Bản.'
-                }
-            ]
-        }, 2)
-    ],
-    18: [
-        ('PICTURE_MATCH', 'Minigame 1: Ngân sách tài khóa & Biểu đồ thuế tiêu thụ', 'Tính toán biểu đồ ngân sách hàng nghìn tỷ yên và mức thuế tiêu thụ của các mặt hàng.', '/assets/kanji/n3/illustrations/chap18_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': '1 兆 (Triệu) trong hệ đếm Nhật Bản tương đương với bao nhiêu?',
-                    'options': ['1.000.000.000.000 (Một nghìn tỷ)', '1.000.000 (Một triệu)', '100.000.000 (Một trăm triệu)', '10.000 (Mười nghìn)'],
-                    'answer': '1.000.000.000.000 (Một nghìn tỷ)',
-                    'explanation': 'Chữ 兆 (ちょう) bằng 10.000 lần 億 (ức = trăm triệu), tức là 1.000 tỷ.'
-                }
-            ]
-        }, 1)
-    ],
-    19: [
-        ('PICTURE_MATCH', 'Minigame 1: Dây chuyền sản xuất cơ khí & Nhà máy dệt sợi', 'Khám phá quy trình công nghệ chế tạo máy móc tự động và vải dệt cao cấp.', '/assets/kanji/n3/illustrations/chap19_intro.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Loại chất liệu dệt từ sợi bông tự nhiên gọi là gì?',
-                    'options': ['綿布 (Vải dệt từ sợi bông)', '鉄鋼 (Sắt thép xây dựng)', '木材 (Gỗ xẻ làm nhà)', '原油 (Dầu mỏ thô)'],
-                    'answer': '綿布 (Vải dệt từ sợi bông)',
-                    'explanation': '綿 (MIÊN - bông) + 布 (BỐ - vải) -> 綿布 (めんぷ).'
-                }
-            ]
-        }, 1)
-    ],
-    20: [
-        ('PICTURE_MATCH', 'Minigame 1: Bản tin thời sự Thủ tướng & Chính sách ngân sách nhà nước', 'Đọc bài phát biểu của Thủ tướng về phân bổ ngân sách và các điều luật kinh tế.', '/assets/kanji/n3/quizzes/quiz_18_20_pm_policy.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Mục tiêu chính sách tài khóa của chính phủ nhằm giảm bớt điều gì?',
-                    'options': ['貧富の差 (Chênh lệch giàu nghèo)', '国民の幸福 (Hạnh phúc nhân dân)', '農業の発展 (Phát triển nông nghiệp)', '技術の進歩 (Tiến bộ công nghệ)'],
-                    'answer': '貧富の差 (Chênh lệch giàu nghèo)',
-                    'explanation': '貧 (BẦN - nghèo) + 富 (PHÚ - giàu) -> 貧富 (ひんぷ), giảm khoảng cách bất bình đẳng xã hội.'
-                }
-            ]
-        }, 1),
-        ('PICTURE_MATCH', 'Minigame 2: Nhật ký tham quan nhà máy công nghiệp & Trị an pháp luật', 'Đọc nhật ký tham quan dây chuyền sản xuất và quy định đảm bảo trật tự pháp luật.', '/assets/kanji/n3/quizzes/quiz_18_20_industry_diary.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Trong khu vực vận hành máy móc công nghiệp nặng, biển báo nào là quan trọng nhất?',
-                    'options': ['危険・立ち入り禁止 (Nguy hiểm - Cấm vào)', '歓迎・ご自由にどうぞ (Chào mừng - Tự do vào)', '休憩室・飲食可能 (Phòng nghỉ - Được ăn uống)', '撮影スポット (Điểm chụp ảnh lưu niệm)'],
-                    'answer': '危険・立ち入り禁止 (Nguy hiểm - Cấm vào)',
-                    'explanation': '危険 (nguy hiểm) + 立ち入り禁止 (cấm bước chân vào).'
-                }
-            ]
-        }, 2),
-        ('PICTURE_MATCH', 'Minigame 3: Ước mơ nghề nghiệp & Công lý xã hội (夢の職業)', 'Khám phá các ngành nghề trong xã hội pháp quyền: Luật sư, Thẩm phán, Cảnh sát và Kỹ sư.', '/assets/kanji/n3/quizzes/quiz_18_20_dream_jobs.webp', {
-            'questions': [
-                {
-                    'id': 1,
-                    'prompt': 'Người bảo vệ công lý và áp dụng chuẩn xác các điều khoản pháp luật là ai?',
-                    'options': ['裁判官・弁護士 (Thẩm phán / Luật sư)', '容疑者 (Nghi can vụ án)', '犯人 (Thủ phạm vi phạm)', '兵士 (Binh lính chiến đấu)'],
-                    'answer': '裁判官・弁護士 (Thẩm phán / Luật sư)',
-                    'explanation': 'Chữ 判 (PHÁN) và 法 (PHÁP) thể hiện vai trò cầm cân nảy mực công lý.'
-                }
-            ]
-        }, 3)
-    ]
-}
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from n3_minigames_dataset import N3_AUTHENTIC_MINIGAMES as CHAPTER_MINIGAMES
 
 # ==============================================================================
 # 3. ĐỀ THI TỔNG HỢP CHẶNG N3 (ACHIEVEMENT TESTS - STAGES 7, 8, 9, 10)

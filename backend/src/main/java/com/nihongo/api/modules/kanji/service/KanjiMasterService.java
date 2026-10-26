@@ -86,13 +86,13 @@ public class KanjiMasterService {
             totalKanji += ch.getKanjiCount();
             UserKanjiProgress prog = progressMap.get(ch.getId());
 
-            // Chương mở khóa nếu:
-            // 1. Học viên có level cao hơn cấp độ đang xem (VD: Level N4 xem lộ trình N5)
-            // 2. Chương 1 luôn mở mặc định
-            // 3. Đã có tiến độ mở khóa lưu trong DB (đã qua bài test chương trước >= 85%)
+            // Tạm thời comment mở khóa tất cả các chương để kiểm tra dữ liệu theo yêu cầu
+            boolean isUnlocked = true;
+            /*
             boolean isUnlocked = isAllChaptersUnlocked
                     || (ch.getChapterNumber() == 1)
                     || (prog != null && Boolean.TRUE.equals(prog.getIsUnlocked()));
+            */
             int highestScore = prog != null ? prog.getHighestScore() : 0;
             boolean isPassed = prog != null && Boolean.TRUE.equals(prog.getIsPassed());
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Lock,
@@ -71,6 +71,7 @@ interface ChapterKanjiItem {
   hanViet?: string;
   meaning: string;
   strokeCount: number;
+  strokeGuide?: string;
   radical?: string;
   mnemonicHint?: string;
   mnemonicIcon?: string;
@@ -194,20 +195,89 @@ const N4_CH1_WRITING_THEMES: Record<number, { emoji: string; badge: string; scen
   10: { emoji: '🧳', badge: 'Gia đình', scene: 'Cả nhà sum vầy du lịch', meaningVi: 'Cả gia đình sum họp cùng nhau đi du lịch.' },
 };
 
+// Minh họa ngữ cảnh đặc thù N3 Chương 1 (Chương 1: 生活 - Đời sống hàng ngày)
+const N3_CH1_READING_THEMES: Record<number, { emoji: string; badge: string; scene: string; meaningVi: string }> = {
+  1: { emoji: '⏰', badge: 'Thức dậy', scene: 'Bắt đầu ngày mới', meaningVi: 'Mỗi sáng tôi thức dậy lúc 6 giờ tập thể dục.' },
+  2: { emoji: '🛌', badge: 'Giấc ngủ', scene: 'Nghỉ ngơi ban đêm', meaningVi: 'Tối qua do mệt nên tôi đã đi ngủ từ sớm lúc 11 giờ.' },
+  3: { emoji: '🚿', badge: 'Tắm gội', scene: 'Vòi sen sảng khoái', meaningVi: 'Tắm vòi sen xong thấy tinh thần thật sảng khoái.' },
+  4: { emoji: '♨️', badge: 'Nước nóng', scene: 'Đun nước pha trà', meaningVi: 'Đun nước sôi để chuẩn bị pha trà tiếp khách.' },
+  5: { emoji: '🧼', badge: 'Rửa tay', scene: 'Vệ sinh trước bữa ăn', meaningVi: 'Rửa tay bằng xà phòng sạch sẽ trước khi ăn cơm.' },
+  6: { emoji: '🧺', badge: 'Giặt giũ', scene: 'Quần áo thơm tho', meaningVi: 'Trời nắng ráo nên tôi đem đồ giặt ra phơi ngoài ban công.' },
+  7: { emoji: '☀️', badge: 'Phơi đồ', scene: 'Chăn đệm dưới nắng', meaningVi: 'Thời tiết ấm áp nên tôi đem phơi chăn đệm.' },
+  8: { emoji: '🏃', badge: 'Sinh hoạt', scene: 'Lối sống điều độ', meaningVi: 'Duy trì nhịp sống sinh hoạt điều độ, lành mạnh.' },
+  9: { emoji: '🤲', badge: 'Nhặt đồ', scene: 'Đồ thất lạc rơi', meaningVi: 'Tôi nhặt được chiếc ví rơi trên vỉa hè và nộp cho bốt cảnh sát.' },
+  10: { emoji: '🗑️', badge: 'Vứt rác', scene: 'Phân loại quy củ', meaningVi: 'Vứt rác vào đúng thùng rác theo quy định khu phố.' },
+};
+
+const N3_CH1_WRITING_THEMES: Record<number, { emoji: string; badge: string; scene: string; meaningVi: string }> = {
+  1: { emoji: '🔥', badge: 'Rác cháy', scene: 'Lịch thu gom thứ Hai', meaningVi: 'Khu vực này thu gom rác cháy được vào thứ Hai hàng tuần.' },
+  2: { emoji: '🛍️', badge: 'Túi rác', scene: 'Túi đựng chuyên dụng', meaningVi: 'Tôi mua túi nilon đựng rác chuyên dụng tại siêu thị.' },
+  3: { emoji: '📅', badge: 'Thứ trong tuần', scene: 'Lịch trình bận rộn', meaningVi: 'Hôm nay là thứ mấy trong tuần?' },
+  4: { emoji: '🔚', badge: 'Cuối tháng', scene: 'Kỳ thi sát hạch', meaningVi: 'Vào cuối tháng này sẽ có bài thi kiểm tra học kỳ.' },
+  5: { emoji: '⏮️', badge: 'Hôm qua', scene: 'Cơn mưa tầm tã', meaningVi: 'Hôm qua trời mưa suốt cả một ngày dài.' },
+  6: { emoji: '⏭️', badge: 'Ngày hôm sau', scene: 'Khởi hành từ sáng sớm', meaningVi: 'Sáng hôm sau tôi xuất phát từ sáng sớm đến nhà ga.' },
+  7: { emoji: '📝', badge: 'Kế hoạch', scene: 'Lập dự định tuần tới', meaningVi: 'Tôi lên kế hoạch cụ thể cho chuyến công tác tuần tới.' },
+  8: { emoji: '📌', badge: 'Cố định', scene: 'Ngày nghỉ định kỳ', meaningVi: 'Vì hôm nay là ngày nghỉ định kỳ nên cửa hàng đóng cửa.' },
+  9: { emoji: '📎', badge: 'Công chuyện', scene: 'Việc bận phải về sớm', meaningVi: 'Vì có việc bận công chuyện nên tôi xin phép về sớm.' },
+  10: { emoji: '📋', badge: 'Sự việc', scene: 'Việc quan trọng cần nhớ', meaningVi: 'Tôi đã ghi chép lại những sự việc quan trọng cần xử lý.' },
+};
+
+// Minh họa ngữ cảnh đặc thù N3 Chương 2 (Chương 2: 家 - Nhà ở & Không gian sống)
+const N3_CH2_READING_THEMES: Record<number, { emoji: string; badge: string; scene: string; meaningVi: string }> = {
+  1: { emoji: '🚪', badge: 'Ấn nút (押)', scene: 'Bấm chuông & Đẩy cửa', meaningVi: 'Xin vui lòng ấn nút bấm trên cánh cửa.' },
+  2: { emoji: '📥', badge: 'Kéo ra (引)', scene: 'Rút ngăn kéo bàn', meaningVi: 'Kéo ngăn kéo ra để lấy tài liệu cần thiết.' },
+  3: { emoji: '🤲', badge: 'Lấy đồ (取)', scene: 'Gia vị trên bàn ăn', meaningVi: 'Làm ơn lấy giúp tôi lọ muối trên bàn ăn.' },
+  4: { emoji: '💡', badge: 'Tắt điện (消)', scene: 'Tiết kiệm năng lượng', meaningVi: 'Trước khi rời khỏi phòng nhớ tắt đèn chiếu sáng.' },
+  5: { emoji: '🚪', badge: 'Cánh cửa (戸)', scene: 'Gió rung cánh cửa', meaningVi: 'Gió bão thổi mạnh làm cánh cửa rung lắc lọc cọc.' },
+  6: { emoji: '🪟', badge: 'Cửa sổ (窓)', scene: 'Mở cửa thông gió', meaningVi: 'Thời tiết mát mẻ nên tôi mở cửa sổ để thoáng khí.' },
+  7: { emoji: '🏢', badge: 'Tầng 3 (階)', scene: 'Căn hộ chung cư', meaningVi: 'Căn hộ của tôi nằm ở tầng 3 tòa chung cư.' },
+  8: { emoji: '🪜', badge: 'Cầu thang (段)', scene: 'Bậc thang nhà ga', meaningVi: 'Tôi vội vã bước từng bậc thang leo lên nhà ga.' },
+  9: { emoji: '🌱', badge: 'Trồng cây (植)', scene: 'Cây hoa ban công', meaningVi: 'Tôi trồng thêm một chậu hoa tươi ở ngoài ban công.' },
+  10: { emoji: '🍁', badge: 'Lá cây (葉)', scene: 'Lá phong mùa thu', meaningVi: 'Khi mùa thu tới, lá cây bắt đầu chuyển màu đỏ rực.' },
+};
+
+const N3_CH2_WRITING_THEMES: Record<number, { emoji: string; badge: string; scene: string; meaningVi: string }> = {
+  1: { emoji: '🍊', badge: 'Quả ngọt (実)', scene: 'Cây quýt sai trĩu', meaningVi: 'Cây quýt ngoài vườn năm nay đã kết trái chín mọng.' },
+  2: { emoji: '🪴', badge: 'Gốc rễ (根)', scene: 'Tưới nước rễ cây', meaningVi: 'Tưới nước đẫm vào phần gốc rễ của cây hoa.' },
+  3: { emoji: '🏗️', badge: 'Xây dựng (建)', scene: 'Tòa nhà mới mọc lên', meaningVi: 'Tại khu đất này sắp xây dựng một tòa nhà mới.' },
+  4: { emoji: '🏢', badge: 'Niên hạn (築)', scene: 'Chung cư xây 5 năm', meaningVi: 'Khu chung cư này mới xây được 5 năm nên còn rất mới.' },
+  5: { emoji: '🚉', badge: 'Khuôn viên (構)', scene: 'Quán cà phê trong ga', meaningVi: 'Bên trong khuôn viên nhà ga có một quán cà phê ấm cúng.' },
+  6: { emoji: '🪵', badge: 'Chế tạo (造)', scene: 'Đồ gỗ thủ công', meaningVi: 'Món đồ nội thất này được chế tác từ gỗ tự nhiên.' },
+  7: { emoji: '❄️', badge: 'Lắp đặt (設)', scene: 'Thiết bị điều hòa', meaningVi: 'Chúng tôi vừa lắp đặt máy điều hòa không khí trong phòng.' },
+  8: { emoji: '🏛️', badge: 'Cột nhà (柱)', scene: 'Trụ cột vững chắc', meaningVi: 'Trụ cột của ngôi nhà được gia cố vô cùng chắc chắn.' },
+  9: { emoji: '🏭', badge: 'Nhà kho (庫)', scene: 'Cất trữ đồ đạc', meaningVi: 'Cất gọn những đồ đạc ít dùng vào trong nhà kho.' },
+  10: { emoji: '🧭', badge: 'Hướng nam (向)', scene: 'Ban công đón nắng', meaningVi: 'Ban công căn phòng quay về hướng Nam đón ánh nắng chan hòa.' },
+};
+
+// Thuật toán xáo trộn deterministic Fisher-Yates để ngân hàng đáp án luôn ngẫu nhiên, không bao giờ theo đúng thứ tự câu hỏi
+function getShuffledBank(array: any[], seed: number): any[] {
+  if (!Array.isArray(array) || array.length <= 1) return array || [];
+  const result = [...array];
+  let s = Math.abs(seed) || 42;
+  for (let i = result.length - 1; i > 0; i--) {
+    s = (s * 9301 + 49297) % 233280;
+    const j = Math.floor((s / 233280) * (i + 1));
+    const temp = result[i];
+    result[i] = result[j];
+    result[j] = temp;
+  }
+  return result;
+}
+
 // ─── COMPONENT CHÍNH ────────────────────────────────────────────────────────
 export default function Kanji() {
   const { t, i18n } = useTranslation(['kanji', 'common']);
   const isEn = i18n.language === 'en';
   const { user } = useAuthStore();
 
-  // Cấp độ đang học (Mặc định theo level tài khoản của User hoặc N4)
+  // Cấp độ đang học (Mặc định theo level tài khoản của User: N3 / N4 / N5)
   const [selectedLevel, setSelectedLevel] = useState<string>(() => {
-    const userLvl = user?.jlptLevel ? user.jlptLevel.toUpperCase() : 'N4';
-    return ['N4', 'N5'].includes(userLvl) ? userLvl : 'N4';
+    const userLvl = user?.jlptLevel ? user.jlptLevel.toUpperCase() : 'N3';
+    return ['N3', 'N4', 'N5'].includes(userLvl) ? userLvl : 'N3';
   });
 
   // Xếp hạng cấp độ JLPT: STARTER < N5 < N4 < N3 < N2 < N1
-  // Nếu học viên có level cao hơn cấp độ đang xem (VD: User N4 xem N5), toàn bộ chương sẽ tự động mở khóa
+  // Nếu học viên có level cao hơn cấp độ đang xem (VD: User N3 xem N4/N5), toàn bộ chương sẽ tự động mở khóa
   const JLPT_RANK: Record<string, number> = { STARTER: 0, N5: 1, N4: 2, N3: 3, N2: 4, N1: 5 };
   const userRank = JLPT_RANK[user?.jlptLevel?.toUpperCase() || ''] || 0;
   const currentLevelRank = JLPT_RANK[selectedLevel?.toUpperCase() || ''] || 0;
@@ -357,6 +427,10 @@ export default function Kanji() {
 
   // Minigame states
   const [minigameInputs, setMinigameInputs] = useState<Record<string, string>>({});
+  const [activeBlankKey, setActiveBlankKey] = useState<string | null>(null);
+  const [checkedGames, setCheckedGames] = useState<Record<number, boolean>>({});
+  const [showSolutions, setShowSolutions] = useState<Record<number, boolean>>({});
+  const [shuffleSeeds, setShuffleSeeds] = useState<Record<number, number>>({});
 
   // Câu ngữ cảnh interactive states
   const [readingAnswers, setReadingAnswers] = useState<Record<number, string>>({});
@@ -411,9 +485,36 @@ export default function Kanji() {
     9: { page: 205, file: 'chap9_review.webp' },
   };
 
+  const N3_REVIEW_PAGES_CONFIG: Record<number, { page: number; file: string }> = {
+    1: { page: 12, file: 'chap1_review.webp' },
+    2: { page: 18, file: 'chap2_review.webp' },
+    3: { page: 28, file: 'chap3_review.webp' },
+    4: { page: 34, file: 'chap4_review.webp' },
+    5: { page: 44, file: 'chap5_review.webp' },
+    6: { page: 50, file: 'chap6_review.webp' },
+    7: { page: 60, file: 'chap7_review.webp' },
+    8: { page: 66, file: 'chap8_review.webp' },
+    9: { page: 69, file: 'chap8_review.webp' },
+    10: { page: 78, file: 'chap10_review.webp' },
+    11: { page: 84, file: 'chap11_review.webp' },
+    12: { page: 96, file: 'chap12_review.webp' },
+    13: { page: 102, file: 'chap13_review.webp' },
+    14: { page: 112, file: 'chap14_review.webp' },
+    15: { page: 118, file: 'chap15_review.webp' },
+    16: { page: 128, file: 'chap16_review.webp' },
+    17: { page: 134, file: 'chap17_review.webp' },
+    18: { page: 143, file: 'chap18_review.webp' },
+    19: { page: 150, file: 'chap19_review.webp' },
+    20: { page: 156, file: 'chap20_review.webp' },
+  };
+
   const handleOpenReviewPage = () => {
     const chNum = chapterDetail?.chapter.chapterNumber || 1;
-    if (selectedLevel === 'N4') {
+    if (selectedLevel === 'N3') {
+      const revConfig = N3_REVIEW_PAGES_CONFIG[chNum] || { page: 12, file: `chap${chNum}_review.webp` };
+      setModalImageUrl(`/assets/kanji/n3/reviews/${revConfig.file}`);
+      setModalImageTitle(`Chương ${chNum} N3: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang ${revConfig.page})`);
+    } else if (selectedLevel === 'N4') {
       const revConfig = N4_REVIEW_PAGES_CONFIG[chNum] || { page: 27, file: `chap${chNum}_review.webp` };
       setModalImageUrl(`/assets/kanji/n4/reviews/${revConfig.file}`);
       setModalImageTitle(`Chương ${chNum} N4: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang ${revConfig.page})`);
@@ -478,6 +579,10 @@ export default function Kanji() {
       setShowResultCard(false);
       setTestAnswers({});
       setMinigameInputs({});
+      setActiveBlankKey(null);
+      setCheckedGames({});
+      setShowSolutions({});
+      setShuffleSeeds({});
       setShowHistoryDropdown(false);
 
       // Tải lịch sử làm bài thi của chương này từ localStorage
@@ -636,14 +741,16 @@ export default function Kanji() {
               {t('master.title', { level: selectedLevel, defaultValue: `Kho Hán Tự — Kanji Master ${selectedLevel}` })}
             </h1>
             <p className="text-sm text-[#78716c] mt-1">
-              {selectedLevel === 'N4'
+              {selectedLevel === 'N3'
+                ? '20 Chương · 376 Chữ Hán · Sơ đồ chuyên sâu & Minigame tình huống · Đạt ≥ 85% mở khóa chương.'
+                : selectedLevel === 'N4'
                 ? '9 Chương · 199 Chữ Hán · Tranh tình huống & Minigame đời sống · Đạt ≥ 85% mở khóa chương.'
                 : '15 Chương · 118 Chữ Hán · Tranh tượng hình · Minigame · Đạt ≥ 85% mở khóa chương.'}
             </p>
 
-            {/* Level Selector Tabs: N5 & N4 */}
+            {/* Level Selector Tabs: N5, N4 & N3 */}
             <div className="flex items-center gap-2 mt-3">
-              {(['N5', 'N4'] as const).map((lvl) => {
+              {(['N5', 'N4', 'N3'] as const).map((lvl) => {
                 const isCur = selectedLevel === lvl;
                 const isUserLvl = user?.jlptLevel?.toUpperCase() === lvl;
                 return (
@@ -662,7 +769,11 @@ export default function Kanji() {
                     }`}
                   >
                     <span>JLPT {lvl}</span>
-                    {lvl === 'N4' ? (
+                    {lvl === 'N3' ? (
+                      <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
+                        (20 Chương)
+                      </span>
+                    ) : lvl === 'N4' ? (
                       <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
                         (9 Chương)
                       </span>
@@ -746,10 +857,10 @@ export default function Kanji() {
           <div className="lg:col-span-4 bg-white border border-[#e7e5e4] p-4 sticky top-6">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#e7e5e4]">
               <h2 className="text-sm font-bold uppercase tracking-wider font-mono text-[#1c1917]">
-                {t('master.chapterList', { total: roadmap?.totalChapters || (selectedLevel === 'N4' ? 9 : 15), level: selectedLevel, defaultValue: `Mục lục ${roadmap?.totalChapters || (selectedLevel === 'N4' ? 9 : 15)} chương ${selectedLevel}` })}
+                {t('master.chapterList', { total: roadmap?.totalChapters || (selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15), level: selectedLevel, defaultValue: `Mục lục ${roadmap?.totalChapters || (selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} chương ${selectedLevel}` })}
               </h2>
               <span className="text-xs text-[#78716c]">
-                {roadmap?.chapters.length || (selectedLevel === 'N4' ? 9 : 15)} Chương
+                {roadmap?.chapters.length || (selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} Chương
               </span>
             </div>
 
@@ -771,10 +882,11 @@ export default function Kanji() {
                 )}
                 {roadmap?.chapters.map((chap) => {
                   const isSelected = selectedChapterId === chap.id;
-                  const isUnlocked = chap.isUnlocked || isLowerLevel;
+                  // Tạm thời mở khóa tất cả các chương để người dùng kiểm tra nội dung
+                  const isUnlocked = true;
                   const isLocked = !isUnlocked;
                   const isPassed = chap.isPassed;
-                  const canAccess = !isLocked;
+                  const canAccess = isUnlocked;
 
                   return (
                     <div
@@ -888,7 +1000,7 @@ export default function Kanji() {
                           className="px-3.5 py-2 border border-[#e7e5e4] bg-[#fafaf9] hover:bg-white text-xs font-medium text-[#1c1917] flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5 text-[#b91c1c]" />
-                          <span>Xem tranh tượng hình</span>
+                          <span>{selectedLevel === 'N5' ? 'Xem tranh tượng hình' : 'Xem tranh minh họa chương'}</span>
                         </button>
                       )}
                     </div>
@@ -992,63 +1104,119 @@ export default function Kanji() {
                     {activeKanji && (() => {
                       const activeKanjiIndex = chapterDetail?.kanjis ? chapterDetail.kanjis.findIndex((k) => k.id === activeKanji.id) : 0;
                       const chapterNum = chapterDetail?.chapter.chapterNumber || selectedChapterId;
-                      const illustrationUrl =
-                        activeKanji.imageUrl ||
-                        `/assets/kanji/n5/illustrations/chap${chapterNum}_kanji_${activeKanjiIndex + 1}.webp`;
+                      const hasIndividualImage =
+                        Boolean(activeKanji.imageUrl) &&
+                        !activeKanji.imageUrl?.includes('intro') &&
+                        !activeKanji.imageUrl?.includes('review') &&
+                        !activeKanji.imageUrl?.includes('quizzes');
+                      const illustrationUrl = hasIndividualImage
+                        ? activeKanji.imageUrl
+                        : selectedLevel === 'N5'
+                        ? `/assets/kanji/n5/illustrations/chap${chapterNum}_kanji_${activeKanjiIndex + 1}.webp`
+                        : null;
 
                       return (
                         <div className="bg-white border border-[#e7e5e4] p-5 sm:p-6 shadow-xs">
-                          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-                            {/* CỘT TRÁI: DUAL KHUNG HOẠT ẢNH NÉT BÚT & ẢNH MINH HỌA NGÓN TAY/TƯỢNG HÌNH KẾ BÊN */}
-                            <div className="xl:col-span-6 flex flex-col bg-[#fafaf9] border border-[#e7e5e4] p-4">
+                          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                            {/* CỘT TRÁI: DUAL KHUNG HOẠT ẢNH NÉT BÚT & CẤU THÀNH BỘ THỦ PHÓNG TO */}
+                            <div className="xl:col-span-8 flex flex-col bg-[#fafaf9] border border-[#e7e5e4] p-4">
                               <div className="text-xs uppercase font-mono text-[#78716c] mb-3 flex items-center justify-between">
-                                <span className="font-bold text-[#1c1917]">NÉT BÚT CHUẨN & MINH HỌA TRỰC QUAN</span>
+                                <span className="font-bold text-[#1c1917]">
+                                  {illustrationUrl ? 'NÉT BÚT CHUẨN & MINH HỌA TRỰC QUAN' : 'HOẠT ẢNH NÉT BÚT & LƯỚI THƯ PHÁP CHUẨN'}
+                                </span>
                                 <span className="text-[10px] bg-white border border-[#e7e5e4] px-1.5 py-0.5 font-bold font-mono">
                                   {activeKanji.strokeCount} NÉT
                                 </span>
                               </div>
 
-                              {/* 2 khung hiển thị song song kế bên nhau */}
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+                              {/* 2 khung hiển thị song song kế bên nhau: Nét bút cố định 175px, Cấu thành chiếm toàn bộ phần còn lại */}
+                              <div className="flex flex-col sm:flex-row gap-3.5 items-stretch">
                                 {/* Khung 1: Hoạt ảnh nét bút động (Demo) */}
-                                <div className="bg-white border border-[#e7e5e4] p-2 flex flex-col items-center justify-between">
+                                <div className="w-full sm:w-[175px] flex-shrink-0 bg-white border border-[#e7e5e4] p-2 flex flex-col items-center justify-between">
                                   <div className="text-[10px] font-mono font-bold text-[#78716c] mb-1.5 uppercase w-full text-center pb-1 border-b border-[#f5f5f4]">
                                     Hoạt ảnh nét bút
                                   </div>
                                   <div className="w-full flex-1 flex items-center justify-center py-1">
                                     <KanjiStrokeWriter
                                       character={activeKanji.character}
-                                      size={165}
+                                      size={145}
                                       showNumbers={true}
                                     />
                                   </div>
                                 </div>
 
-                                {/* Khung 2: Ảnh minh họa nét ngón tay / tượng hình kế bên */}
-                                <div className="bg-white border border-[#e7e5e4] p-2 flex flex-col items-center justify-between">
-                                  <div className="text-[10px] font-mono font-bold text-[#78716c] mb-1.5 uppercase w-full text-center pb-1 border-b border-[#f5f5f4]">
-                                    Minh họa nét
+                                {/* Khung 2: Cấu thành bộ thủ mở rộng thoáng đãng */}
+                                <div className="flex-1 min-w-0 bg-white border border-[#e7e5e4] p-3.5 flex flex-col justify-between">
+                                  <div className="text-[10px] font-mono font-bold text-[#78716c] mb-2 uppercase w-full pb-1.5 border-b border-[#f5f5f4] flex items-center justify-between">
+                                    <span>{illustrationUrl ? 'Minh họa nét' : 'Cấu thành bộ thủ'}</span>
+                                    {!illustrationUrl && (
+                                      <span className="text-[9px] bg-[#f5f5f4] text-[#78716c] px-1.5 py-0.5 font-bold">
+                                        {activeKanji.strokeCount} NÉT
+                                      </span>
+                                    )}
                                   </div>
-                                  <div className="w-full flex-1 flex items-center justify-center p-3 bg-[#fafaf9] border border-[#f5f5f4] min-h-[175px]">
-                                    <img
-                                      src={illustrationUrl}
-                                      alt={`Minh họa nét chữ ${activeKanji.character}`}
-                                      className="max-h-[145px] max-w-full object-contain transition-transform hover:scale-105"
-                                      onError={(e) => {
-                                        // Ẩn ảnh nếu không tìm thấy file thay vì hiển thị nhầm ảnh chữ Hán chương 1
-                                        const target = e.target as HTMLImageElement;
-                                        target.style.display = 'none';
-                                        if (target.parentElement) {
-                                          const fallbackEl = target.parentElement.querySelector('.kanji-fallback-badge');
-                                          if (fallbackEl) (fallbackEl as HTMLElement).style.display = 'flex';
-                                        }
-                                      }}
-                                    />
-                                    <div className="kanji-fallback-badge hidden flex-col items-center justify-center text-center p-2 text-[#a8a29e]">
-                                      <span className="text-3xl font-serif text-[#d6d3d1] mb-1">{activeKanji.character}</span>
-                                      <span className="text-[10px] font-mono">Hình tượng hình</span>
+
+                                  {illustrationUrl ? (
+                                    <div className="w-full flex-1 flex items-center justify-center p-3 bg-[#fafaf9] border border-[#f5f5f4] min-h-[175px]">
+                                      <img
+                                        src={illustrationUrl}
+                                        alt={`Minh họa nét chữ ${activeKanji.character}`}
+                                        className="max-h-[145px] max-w-full object-contain transition-transform hover:scale-105"
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                          if (target.parentElement) {
+                                            const fallbackEl = target.parentElement.querySelector('.kanji-fallback-badge');
+                                            if (fallbackEl) (fallbackEl as HTMLElement).style.display = 'flex';
+                                          }
+                                        }}
+                                      />
+                                      <div className="kanji-fallback-badge hidden flex-col items-center justify-center text-center p-2 text-[#a8a29e]">
+                                        <span className="text-3xl font-serif text-[#d6d3d1] mb-1">{activeKanji.character}</span>
+                                        <span className="text-[10px] font-mono">Hình tượng hình</span>
+                                      </div>
                                     </div>
-                                  </div>
+                                  ) : (
+                                    <div className="w-full flex-1 flex flex-col items-center justify-center py-4 px-3 bg-[#fafaf9] border border-[#f5f5f4] min-h-[175px]">
+                                      {/* Cụm bộ thủ cấu thành phóng to, thẳng hàng ngang hoàn hảo */}
+                                      <div className="w-full flex flex-col items-center justify-center gap-2.5">
+                                        <div className="text-[11px] font-mono font-bold text-[#78716c] uppercase tracking-wider text-center">
+                                          Bộ phận ghép thành:
+                                        </div>
+                                        <div className="flex items-center justify-center gap-2.5 sm:gap-3 flex-nowrap w-full my-1.5">
+                                          {(() => {
+                                            const components = activeKanji.strokeGuide
+                                              ? activeKanji.strokeGuide.split(/->|\+/).map((p) => p.trim()).filter(Boolean)
+                                              : [activeKanji.character];
+                                            const isMulti = components.length > 2;
+
+                                            return components.map((comp, pIdx) => (
+                                              <Fragment key={pIdx}>
+                                                <div
+                                                  className={`${
+                                                    isMulti ? 'w-12 h-12 sm:w-13 sm:h-13' : 'w-14 h-14 sm:w-16 sm:h-16'
+                                                  } flex-shrink-0 flex items-center justify-center bg-white border-2 border-[#e7e5e4] shadow-xs hover:border-[#b91c1c] transition-colors`}
+                                                >
+                                                  <span
+                                                    className={`${
+                                                      isMulti ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl'
+                                                    } font-serif font-bold text-[#b91c1c] leading-none select-none`}
+                                                  >
+                                                    {comp}
+                                                  </span>
+                                                </div>
+                                                {pIdx < components.length - 1 && (
+                                                  <span className="text-xl sm:text-2xl font-mono font-bold text-[#a8a29e] flex-shrink-0 select-none px-0.5">
+                                                    +
+                                                  </span>
+                                                )}
+                                              </Fragment>
+                                            ));
+                                          })()}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
 
@@ -1064,10 +1232,10 @@ export default function Kanji() {
                               </div>
                             </div>
 
-                            {/* CỘT PHẢI: THÔNG TIN NGỮ ÂM, BỘ THỦ, MẸO NHỚ */}
-                            <div className="xl:col-span-6 space-y-4">
+                            {/* CỘT PHẢI: THÔNG TIN NGỮ ÂM, BỘ THỦ, MẸO NHỚ (THU GỌN VỪA VẶN) */}
+                            <div className="xl:col-span-4 space-y-4">
                               <div>
-                                {chapterDetail?.chapter.jlptLevel === 'N4' && (
+                                {(chapterDetail?.chapter.jlptLevel === 'N4' || chapterDetail?.chapter.jlptLevel === 'N3') && (
                                   <div className="flex items-center gap-2 mb-2">
                                     <span className="text-[10px] font-mono px-2 py-0.5 bg-[#fef2f2] text-[#b91c1c] border border-red-200 font-bold uppercase">
                                       Chương {chapterDetail.chapter.chapterNumber}: {chapterDetail.chapter.titleJa} ({chapterDetail.chapter.titleVi})
@@ -1162,12 +1330,16 @@ export default function Kanji() {
                         <span className="w-2.5 h-2.5 bg-[#b91c1c]" />
                         <div>
                           <h3 className="font-serif font-bold text-sm text-[#1c1917]">
-                            {chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1
+                            {chapterDetail.chapter.jlptLevel === 'N3' && chapterDetail.chapter.chapterNumber === 1
+                              ? 'Tình Huống Ngữ Cảnh Chuẩn Giáo Trình N3 (Chương 1: 生活)'
+                              : chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1
                               ? 'Tình Huống Ngữ Cảnh Chuẩn Giáo Trình N4 (Chương 1: 家族)'
                               : `Tình Huống Ngữ Cảnh Chuẩn Giáo Trình (Chương ${chapterDetail.chapter.chapterNumber})`}
                           </h3>
                           <p className="text-[11px] text-[#78716c]">
-                            {chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1
+                            {chapterDetail.chapter.jlptLevel === 'N3' && chapterDetail.chapter.chapterNumber === 1
+                              ? '20 câu luyện đọc & viết chữ Hán kèm từ vựng ứng dụng về đời sống hàng ngày'
+                              : chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1
                               ? '20 câu luyện đọc & viết chữ Hán kèm 12 từ vựng ứng dụng về đời sống gia đình'
                               : '20 câu luyện đọc & viết chữ Hán trong bối cảnh đời sống Nhật Bản thực tế'}
                           </p>
@@ -1178,7 +1350,13 @@ export default function Kanji() {
                         className="px-3.5 py-1.5 border border-[#b91c1c] bg-[#fef2f2] hover:bg-[#b91c1c] text-[#b91c1c] hover:text-white text-xs font-bold font-mono transition-all flex items-center gap-2 cursor-pointer shadow-2xs w-fit rounded-none"
                       >
                         <BookOpen className="w-3.5 h-3.5" />
-                        <span>{selectedLevel === 'N4' ? 'Xem trang bài tập trong sách N4' : 'Xem trang bài tập gốc trong sách (P.18)'}</span>
+                        <span>
+                          {selectedLevel === 'N3'
+                            ? `Xem trang bài tập trong sách N3 (Trang ${N3_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 12})`
+                            : selectedLevel === 'N4'
+                            ? 'Xem trang bài tập trong sách N4'
+                            : 'Xem trang bài tập gốc trong sách (P.18)'}
+                        </span>
                         <Maximize2 className="w-3 h-3 opacity-70" />
                       </button>
                     </div>
@@ -1202,8 +1380,24 @@ export default function Kanji() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {chapterDetail.readingExercises?.map((ex, idx) => {
+                          const isN3Ch1 = chapterDetail.chapter.jlptLevel === 'N3' && chapterDetail.chapter.chapterNumber === 1;
+                          const isN3Ch2 = chapterDetail.chapter.jlptLevel === 'N3' && chapterDetail.chapter.chapterNumber === 2;
                           const isN4Ch1 = chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1;
-                          const theme = isN4Ch1
+                          const theme = isN3Ch1
+                            ? (N3_CH1_READING_THEMES[idx + 1] || {
+                                emoji: '📖',
+                                badge: 'Chương 1: 生活',
+                                scene: 'Ngữ cảnh đời sống',
+                                meaningVi: ex.explanation || ''
+                              })
+                            : isN3Ch2
+                            ? (N3_CH2_READING_THEMES[idx + 1] || {
+                                emoji: '🏡',
+                                badge: 'Chương 2: 家',
+                                scene: 'Không gian sống',
+                                meaningVi: ex.explanation || ''
+                              })
+                            : isN4Ch1
                             ? (N4_CH1_READING_THEMES[idx + 1] || {
                                 emoji: '📖',
                                 badge: 'Chương 1: 家族',
@@ -1356,8 +1550,24 @@ export default function Kanji() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {chapterDetail.writingExercises?.map((ex, idx) => {
+                          const isN3Ch1 = chapterDetail.chapter.jlptLevel === 'N3' && chapterDetail.chapter.chapterNumber === 1;
+                          const isN3Ch2 = chapterDetail.chapter.jlptLevel === 'N3' && chapterDetail.chapter.chapterNumber === 2;
                           const isN4Ch1 = chapterDetail.chapter.jlptLevel === 'N4' && chapterDetail.chapter.chapterNumber === 1;
-                          const theme = isN4Ch1
+                          const theme = isN3Ch1
+                            ? (N3_CH1_WRITING_THEMES[idx + 1] || {
+                                emoji: '✍️',
+                                badge: 'Chương 1: 生活',
+                                scene: 'Thực hành chữ viết',
+                                meaningVi: ex.explanation || ''
+                              })
+                            : isN3Ch2
+                            ? (N3_CH2_WRITING_THEMES[idx + 1] || {
+                                emoji: '🏡',
+                                badge: 'Chương 2: 家',
+                                scene: 'Thực hành chữ viết',
+                                meaningVi: ex.explanation || ''
+                              })
+                            : isN4Ch1
                             ? (N4_CH1_WRITING_THEMES[idx + 1] || {
                                 emoji: '✍️',
                                 badge: 'Chương 1: 家族',
@@ -1600,6 +1810,666 @@ export default function Kanji() {
 
                           {/* Giao diện tương tác câu đố */}
                           <div className="space-y-4 bg-[#fafaf9] p-5 border border-[#e7e5e4]">
+                            {/* Dạng RADICAL_COMBINE: Ghép bộ thủ Ⓐ + Ⓑ tạo chữ Hán điền vào câu */}
+                            {(game.gameType === 'RADICAL_COMBINE' || Boolean(parsedData.colA)) && (
+                              <div className="space-y-6">
+                                {/* Bảng hiển thị 2 cột Ⓐ và Ⓑ */}
+                                <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs flex flex-col sm:flex-row items-center justify-center gap-6">
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
+                                      Ⓐ
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      {parsedData.colA?.map((r: string, idx: number) => (
+                                        <span key={idx} className="w-10 h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-xl font-serif font-bold text-[#b91c1c]">
+                                          {r}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  <span className="text-xl font-mono font-bold text-[#a8a29e]">+</span>
+
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
+                                      Ⓑ
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      {parsedData.colB?.map((r: string, idx: number) => (
+                                        <span key={idx} className="w-10 h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-xl font-serif font-bold text-[#1c1917]">
+                                          {r}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Danh sách 5 câu bài tập */}
+                                <div className="space-y-3.5">
+                                  {parsedData.questions?.map((q: any) => {
+                                    const key = `rad_${game.id}_${q.id}`;
+                                    const val = showSolutions[game.id] ? q.answer : (minigameInputs[key] || '');
+                                    const isChecked = checkedGames[game.id] || showSolutions[game.id];
+                                    const isCorrect = val.trim() === q.answer;
+                                    const isActive = activeBlankKey === key;
+
+                                    let boxStyle = 'border-[#78716c] bg-white text-[#1c1917] hover:border-[#b91c1c]';
+                                    if (isChecked) {
+                                      boxStyle = isCorrect ? 'border-[#15803d] bg-green-50 text-[#15803d] font-bold shadow-xs' : 'border-[#dc2626] bg-red-50 text-[#dc2626] font-bold shadow-xs';
+                                    } else if (isActive) {
+                                      boxStyle = 'border-[#b91c1c] ring-2 ring-[#fca5a5] bg-[#fff5f5] text-[#b91c1c]';
+                                    }
+
+                                    const parts = q.sentence ? q.sentence.split('[blank]') : ['', ''];
+                                    return (
+                                      <div key={q.id} className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
+                                        <div className="flex flex-wrap items-center gap-2 text-base font-serif text-[#1c1917] leading-loose">
+                                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#fafaf9] border border-[#e7e5e4] text-xs font-mono font-bold text-[#78716c]">
+                                            {q.id}
+                                          </span>
+                                          <span>{parts[0]}</span>
+                                          <input
+                                            type="text"
+                                            value={val}
+                                            maxLength={1}
+                                            readOnly={showSolutions[game.id]}
+                                            onFocus={() => setActiveBlankKey(key)}
+                                            onClick={() => setActiveBlankKey(key)}
+                                            onChange={(e) => {
+                                              const newVal = e.target.value;
+                                              setMinigameInputs(prev => ({ ...prev, [key]: newVal }));
+                                              if (newVal.length >= 1 && q.id < (parsedData.questions?.length || 0)) {
+                                                setActiveBlankKey(`rad_${game.id}_${q.id + 1}`);
+                                              }
+                                            }}
+                                            className={`w-11 h-11 text-center font-serif font-bold text-2xl border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
+                                          />
+                                          <span>{parts[1]}</span>
+                                        </div>
+
+                                        {isChecked && (
+                                          <div className="mt-3 pt-2 border-t border-[#f5f5f4] flex flex-wrap items-center justify-between text-xs gap-2">
+                                            <div className={`font-mono font-bold ${isCorrect ? 'text-[#15803d]' : 'text-[#dc2626]'}`}>
+                                              {isCorrect ? `✓ Ghép đúng: ${q.combine} =「${q.answer}」` : `✗ Chữ đúng: ${q.combine} =「${q.answer}」`}
+                                            </div>
+                                            <div className="text-[#44403c] font-serif font-bold">
+                                              {q.targetWord} ({q.hiragana}) — {q.meaning}
+                                            </div>
+                                            {q.explanation && (
+                                              <div className="w-full text-[11px] text-[#78716c] italic">
+                                                {q.explanation}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+
+                                {/* Ngân hàng chữ Hán kết quả */}
+                                {Array.isArray(parsedData.wordBank) && parsedData.wordBank.length > 0 && (
+                                  <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-xs font-mono font-bold text-[#78716c] uppercase">
+                                        Chữ Hán kết quả (Chọn ô trống rồi bấm chữ để điền nhanh):
+                                      </span>
+                                      {activeBlankKey && (
+                                        <span className="text-xs font-mono text-[#b91c1c] font-bold bg-[#fef2f2] px-2 py-0.5 border border-red-200">
+                                          Đang chọn câu {activeBlankKey.split('_')[2]}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      {getShuffledBank(parsedData.wordBank, (game.id * 7919 + 1013) + (shuffleSeeds[game.id] || 0) * 37).map((kanji: string) => (
+                                        <button
+                                          key={kanji}
+                                          onClick={() => {
+                                            let targetKey = activeBlankKey;
+                                            if (!targetKey) {
+                                              const firstEmpty = parsedData.questions?.find((q: any) => !minigameInputs[`rad_${game.id}_${q.id}`]);
+                                              if (firstEmpty) targetKey = `rad_${game.id}_${firstEmpty.id}`;
+                                              else if (parsedData.questions?.length > 0) targetKey = `rad_${game.id}_${parsedData.questions[0].id}`;
+                                            }
+                                            if (targetKey) {
+                                              setMinigameInputs(prev => ({ ...prev, [targetKey!]: kanji }));
+                                              const currentId = parseInt(targetKey.split('_')[2], 10);
+                                              if (currentId < (parsedData.questions?.length || 0)) {
+                                                setActiveBlankKey(`rad_${game.id}_${currentId + 1}`);
+                                              }
+                                            }
+                                          }}
+                                          className="w-11 h-11 flex items-center justify-center bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-2xl font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer"
+                                        >
+                                          {kanji}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Action buttons */}
+                                <div className="flex items-center gap-2 pt-3 border-t border-[#e7e5e4]">
+                                  <button
+                                    onClick={() => setCheckedGames(prev => ({ ...prev, [game.id]: true }))}
+                                    className="px-4 py-2.5 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer"
+                                  >
+                                    Kiểm tra đáp án
+                                  </button>
+                                  <button
+                                    onClick={() => setShowSolutions(prev => ({ ...prev, [game.id]: !prev[game.id] }))}
+                                    className="px-3.5 py-2.5 bg-white text-[#44403c] border border-[#e7e5e4] text-xs font-mono font-bold cursor-pointer"
+                                  >
+                                    {showSolutions[game.id] ? 'Ẩn đáp án' : 'Hiện đáp án'}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      const cleared = { ...minigameInputs };
+                                      parsedData.questions?.forEach((q: any) => {
+                                        delete cleared[`rad_${game.id}_${q.id}`];
+                                      });
+                                      setMinigameInputs(cleared);
+                                      setCheckedGames(prev => ({ ...prev, [game.id]: false }));
+                                      setShowSolutions(prev => ({ ...prev, [game.id]: false }));
+                                      setActiveBlankKey(null);
+                                      setShuffleSeeds(prev => ({ ...prev, [game.id]: (prev[game.id] || 0) + 1 }));
+                                    }}
+                                    className="px-3.5 py-2.5 text-xs font-mono text-[#78716c] hover:text-[#b91c1c] cursor-pointer"
+                                  >
+                                    Làm lại
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Dạng CLOZE_DIALOGUE: Đoạn văn đục lỗ hội thoại thực tế (Chương 1) */}
+                            {(game.gameType === 'CLOZE_DIALOGUE' || Boolean(parsedData.dialogue)) && (
+                              <div className="space-y-6">
+                                {/* Khung bài đọc hội thoại đục lỗ tương tác */}
+                                <div className="p-5 sm:p-6 bg-[#fffdfa] border border-[#e7e5e4] shadow-xs space-y-4">
+                                  <div className="pb-3 border-b border-[#e7e5e4] flex items-center justify-between">
+                                    <span className="text-xs font-mono font-bold text-[#b91c1c] uppercase tracking-wider flex items-center gap-1.5">
+                                      <span>📝</span>
+                                      <span>Hội thoại phỏng vấn (Điền chữ Hán vào các ô vuông bên dưới):</span>
+                                    </span>
+                                    <span className="text-[11px] font-mono text-[#78716c]">
+                                      {parsedData.blanks?.length || 0} ô trống cần điền
+                                    </span>
+                                  </div>
+
+                                  <div className="space-y-4">
+                                    {parsedData.dialogue?.map((utt: any, uIdx: number) => {
+                                      const isInterviewer = utt.speaker === 'I' || utt.speaker?.includes('インタビュアー');
+                                      return (
+                                        <div key={uIdx} className="flex items-start gap-3.5 pb-3 border-b border-[#f5f5f4] last:border-b-0 last:pb-0">
+                                          <div className="flex-shrink-0 mt-1">
+                                            <span className={`inline-flex items-center justify-center px-2.5 py-1 text-xs font-mono font-bold tracking-wider ${
+                                              isInterviewer ? 'bg-[#44403c] text-white' : 'bg-[#b91c1c] text-white shadow-2xs'
+                                            }`}>
+                                              {utt.speaker}
+                                            </span>
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="text-[11px] font-mono text-[#78716c] mb-1 font-semibold">
+                                              {utt.name}
+                                            </div>
+                                            <div className="leading-loose text-base font-serif text-[#1c1917]">
+                                              {utt.text.split('\n').map((paragraph: string, pIdx: number) => (
+                                                <div key={pIdx} className="my-1.5 leading-relaxed">
+                                                  {paragraph.split(/(\[blank:\d+\])/g).map((token: string, tIdx: number) => {
+                                                    const match = token.match(/\[blank:(\d+)\]/);
+                                                    if (!match) return <span key={tIdx}>{token}</span>;
+                                                    const blankId = parseInt(match[1], 10);
+                                                    const blank = parsedData.blanks?.find((b: any) => b.id === blankId);
+                                                    if (!blank) return null;
+                                                    const key = `cloze_${game.id}_${blank.id}`;
+                                                    const val = showSolutions[game.id] ? blank.answer : (minigameInputs[key] || '');
+                                                    const isChecked = checkedGames[game.id] || showSolutions[game.id];
+                                                    const isCorrect = blank.acceptedAnswers ? blank.acceptedAnswers.includes(val.trim()) : val.trim() === blank.answer;
+                                                    const isActive = activeBlankKey === key;
+
+                                                    let boxStyle = 'border-[#78716c] bg-white text-[#1c1917] hover:border-[#b91c1c]';
+                                                    if (isChecked) {
+                                                      boxStyle = isCorrect
+                                                        ? 'border-[#15803d] bg-green-50 text-[#15803d] font-bold shadow-xs'
+                                                        : 'border-[#dc2626] bg-red-50 text-[#dc2626] font-bold shadow-xs';
+                                                    } else if (isActive) {
+                                                      boxStyle = 'border-[#b91c1c] ring-2 ring-[#fca5a5] bg-[#fff5f5] text-[#b91c1c]';
+                                                    }
+
+                                                    return (
+                                                      <span key={tIdx} className="inline-flex flex-col items-center mx-1.5 align-middle select-none">
+                                                        <span className="text-[11px] font-mono font-bold text-[#b91c1c] -mb-1">
+                                                          {blank.num || `[${blankId}]`}
+                                                        </span>
+                                                        <input
+                                                          type="text"
+                                                          value={val}
+                                                          maxLength={2}
+                                                          readOnly={showSolutions[game.id]}
+                                                          onFocus={() => setActiveBlankKey(key)}
+                                                          onClick={() => setActiveBlankKey(key)}
+                                                          onChange={(e) => {
+                                                            const newVal = e.target.value;
+                                                            setMinigameInputs(prev => ({ ...prev, [key]: newVal }));
+                                                            if (newVal.length >= 1 && blankId < (parsedData.blanks?.length || 0)) {
+                                                              setActiveBlankKey(`cloze_${game.id}_${blankId + 1}`);
+                                                            }
+                                                          }}
+                                                          placeholder=""
+                                                          className={`w-11 h-11 text-center font-serif font-bold text-2xl border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
+                                                        />
+                                                        {isChecked && !isCorrect && (
+                                                          <span className="text-[11px] font-mono font-bold text-[#15803d] mt-0.5">
+                                                            {blank.answer}
+                                                          </span>
+                                                        )}
+                                                      </span>
+                                                    );
+                                                  })}
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+
+                                {/* Ngân hàng chữ Hán (Word Bank) */}
+                                {Array.isArray(parsedData.wordBank) && parsedData.wordBank.length > 0 && (
+                                  <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
+                                    <div className="flex flex-wrap items-center justify-between mb-2.5 gap-2">
+                                      <span className="text-xs font-mono font-bold text-[#78716c] uppercase tracking-wider flex items-center gap-1.5">
+                                        <span>🔤</span>
+                                        <span>Ngân hàng chữ Hán (Chọn ô trống ở trên rồi bấm chữ Hán để điền nhanh):</span>
+                                      </span>
+                                      {activeBlankKey && (
+                                        <span className="text-xs font-mono text-[#b91c1c] font-bold bg-[#fef2f2] px-2 py-0.5 border border-red-200">
+                                          Đang chọn ô {parsedData.blanks?.find((b: any) => `cloze_${game.id}_${b.id}` === activeBlankKey)?.num || ''}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      {getShuffledBank(parsedData.wordBank, (game.id * 7919 + 1013) + (shuffleSeeds[game.id] || 0) * 37).map((kanji: string) => (
+                                        <button
+                                          key={kanji}
+                                          onClick={() => {
+                                            let targetKey = activeBlankKey;
+                                            if (!targetKey) {
+                                              const firstEmpty = parsedData.blanks?.find((b: any) => !minigameInputs[`cloze_${game.id}_${b.id}`]);
+                                              if (firstEmpty) targetKey = `cloze_${game.id}_${firstEmpty.id}`;
+                                              else if (parsedData.blanks?.length > 0) targetKey = `cloze_${game.id}_${parsedData.blanks[0].id}`;
+                                            }
+                                            if (targetKey) {
+                                              setMinigameInputs(prev => ({ ...prev, [targetKey!]: kanji }));
+                                              const currentId = parseInt(targetKey.split('_')[2], 10);
+                                              const nextBlank = parsedData.blanks?.find((b: any) => b.id > currentId && !minigameInputs[`cloze_${game.id}_${b.id}`]);
+                                              if (nextBlank) setActiveBlankKey(`cloze_${game.id}_${nextBlank.id}`);
+                                              else if (currentId < (parsedData.blanks?.length || 0)) setActiveBlankKey(`cloze_${game.id}_${currentId + 1}`);
+                                            }
+                                          }}
+                                          className="w-11 h-11 flex items-center justify-center bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-2xl font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer active:scale-95"
+                                        >
+                                          {kanji}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Thanh nút bấm hành động */}
+                                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#e7e5e4]">
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => setCheckedGames(prev => ({ ...prev, [game.id]: true }))}
+                                      className="px-4 py-2.5 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-xs"
+                                    >
+                                      <span>✓</span>
+                                      <span>Kiểm tra đáp án</span>
+                                    </button>
+                                    <button
+                                      onClick={() => setShowSolutions(prev => ({ ...prev, [game.id]: !prev[game.id] }))}
+                                      className="px-3.5 py-2.5 bg-white hover:bg-[#fafaf9] text-[#44403c] border border-[#e7e5e4] text-xs font-mono font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                                    >
+                                      <span>💡</span>
+                                      <span>{showSolutions[game.id] ? 'Ẩn đáp án' : 'Hiện đáp án'}</span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const cleared = { ...minigameInputs };
+                                        parsedData.blanks?.forEach((b: any) => {
+                                          delete cleared[`cloze_${game.id}_${b.id}`];
+                                        });
+                                        setMinigameInputs(cleared);
+                                        setCheckedGames(prev => ({ ...prev, [game.id]: false }));
+                                        setShowSolutions(prev => ({ ...prev, [game.id]: false }));
+                                        setActiveBlankKey(null);
+                                        setShuffleSeeds(prev => ({ ...prev, [game.id]: (prev[game.id] || 0) + 1 }));
+                                      }}
+                                      className="px-3.5 py-2.5 text-xs font-mono text-[#78716c] hover:text-[#b91c1c] transition-colors cursor-pointer"
+                                    >
+                                      Làm lại
+                                    </button>
+                                  </div>
+
+                                  {checkedGames[game.id] && (
+                                    <div className="text-xs font-mono font-bold px-3 py-1.5 rounded-none border border-[#15803d] bg-green-50 text-[#15803d]">
+                                      Kết quả: {parsedData.blanks?.filter((b: any) => {
+                                        const v = minigameInputs[`cloze_${game.id}_${b.id}`] || '';
+                                        return b.acceptedAnswers ? b.acceptedAnswers.includes(v.trim()) : v.trim() === b.answer;
+                                      }).length} / {parsedData.blanks?.length} câu đúng
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Bảng tra cứu từ vựng chi tiết của các câu đục lỗ */}
+                                <div className="mt-4 pt-3 border-t border-[#e7e5e4]">
+                                  <div className="text-xs font-mono font-bold text-[#78716c] uppercase mb-2.5">
+                                    Bảng chi tiết {parsedData.blanks?.length} từ vựng trong bài tập:
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    {parsedData.blanks?.map((b: any) => {
+                                      return (
+                                        <div key={b.id} className="p-3 bg-white border border-[#e7e5e4] text-xs shadow-2xs">
+                                          <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-[#f5f5f4]">
+                                            <span className="font-mono font-bold text-base text-[#b91c1c]">{b.num}</span>
+                                            <span className="font-serif font-bold text-sm text-[#1c1917]">{b.targetWord} ({b.hiragana})</span>
+                                          </div>
+                                          <div className="text-[11px] text-[#44403c] font-medium">{b.meaning}</div>
+                                          {b.explanation && (
+                                            <div className="text-[10px] text-[#78716c] mt-1 italic">{b.explanation}</div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Dạng KANJI_CROSS: Ô chữ chữ thập 4 hướng (Chương 2) */}
+                            {(game.gameType === 'KANJI_CROSS' || Boolean(parsedData.puzzles)) && (
+                              <div className="space-y-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                  {parsedData.puzzles?.map((puz: any) => {
+                                    const key = `cross_${game.id}_${puz.id}`;
+                                    const val = showSolutions[game.id] ? puz.answer : (minigameInputs[key] || '');
+                                    const isChecked = checkedGames[game.id] || showSolutions[game.id];
+                                    const isCorrect = val.trim() === puz.answer;
+                                    const isActive = activeBlankKey === key;
+
+                                    let boxStyle = 'border-[#78716c] bg-white text-[#1c1917] hover:border-[#b91c1c]';
+                                    if (isChecked) {
+                                      boxStyle = isCorrect
+                                        ? 'border-[#15803d] bg-green-50 text-[#15803d] font-bold'
+                                        : 'border-[#dc2626] bg-red-50 text-[#dc2626] font-bold';
+                                    } else if (isActive) {
+                                      boxStyle = 'border-[#b91c1c] ring-2 ring-[#fca5a5] bg-[#fff5f5] text-[#b91c1c]';
+                                    }
+
+                                    return (
+                                      <div key={puz.id} className="p-5 bg-white border border-[#e7e5e4] shadow-xs flex flex-col items-center">
+                                        <div className="text-xs font-mono font-bold text-[#78716c] mb-3 self-start flex items-center justify-between w-full">
+                                          <span>CÂU {puz.id}: Tìm chữ Hán tâm điểm</span>
+                                          {isChecked && (
+                                            <span className={`text-[11px] font-bold ${isCorrect ? 'text-[#15803d]' : 'text-[#dc2626]'}`}>
+                                              {isCorrect ? '✓ Đúng' : `✗ Đáp án: ${puz.answer}`}
+                                            </span>
+                                          )}
+                                        </div>
+
+                                        {/* Khung ô chữ chữ thập */}
+                                        <div className="grid grid-cols-3 gap-2 my-2">
+                                          <div></div>
+                                          <div className="w-12 h-12 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-2xl font-serif font-bold text-[#1c1917]">
+                                            {puz.top || ''}
+                                          </div>
+                                          <div></div>
+
+                                          <div className="w-12 h-12 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-2xl font-serif font-bold text-[#1c1917]">
+                                            {puz.left || ''}
+                                          </div>
+                                          <input
+                                            type="text"
+                                            value={val}
+                                            maxLength={1}
+                                            readOnly={showSolutions[game.id]}
+                                            onFocus={() => setActiveBlankKey(key)}
+                                            onClick={() => setActiveBlankKey(key)}
+                                            onChange={(e) => {
+                                              const newVal = e.target.value;
+                                              setMinigameInputs(prev => ({ ...prev, [key]: newVal }));
+                                            }}
+                                            className={`w-12 h-12 text-center font-serif font-bold text-2xl border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
+                                          />
+                                          <div className="w-12 h-12 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-2xl font-serif font-bold text-[#1c1917]">
+                                            {puz.right || ''}
+                                          </div>
+
+                                          <div></div>
+                                          <div className="w-12 h-12 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-2xl font-serif font-bold text-[#1c1917]">
+                                            {puz.bottom || ''}
+                                          </div>
+                                          <div></div>
+                                        </div>
+
+                                        {isChecked && (
+                                          <div className="mt-3 w-full pt-2 border-t border-[#f5f5f4] text-center">
+                                            <div className="text-xs font-serif text-[#44403c]">
+                                              {puz.words?.join(' · ')}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+
+                                {/* Word Bank for Kanji Cross */}
+                                {Array.isArray(parsedData.wordBank) && parsedData.wordBank.length > 0 && (
+                                  <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-xs font-mono font-bold text-[#78716c] uppercase">
+                                        Ngân hàng chữ Hán (Chọn ô tâm điểm rồi bấm chữ):
+                                      </span>
+                                      {activeBlankKey && (
+                                        <span className="text-xs font-mono text-[#b91c1c] font-bold">
+                                          Đang chọn Câu {activeBlankKey.split('_')[2]}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      {getShuffledBank(parsedData.wordBank, (game.id * 7919 + 1013) + (shuffleSeeds[game.id] || 0) * 37).map((kanji: string) => (
+                                        <button
+                                          key={kanji}
+                                          onClick={() => {
+                                            let targetKey = activeBlankKey;
+                                            if (!targetKey) {
+                                              const firstEmpty = parsedData.puzzles?.find((p: any) => !minigameInputs[`cross_${game.id}_${p.id}`]);
+                                              if (firstEmpty) targetKey = `cross_${game.id}_${firstEmpty.id}`;
+                                              else if (parsedData.puzzles?.length > 0) targetKey = `cross_${game.id}_${parsedData.puzzles[0].id}`;
+                                            }
+                                            if (targetKey) {
+                                              setMinigameInputs(prev => ({ ...prev, [targetKey!]: kanji }));
+                                              const currentId = parseInt(targetKey.split('_')[2], 10);
+                                              if (currentId < (parsedData.puzzles?.length || 0)) {
+                                                setActiveBlankKey(`cross_${game.id}_${currentId + 1}`);
+                                              }
+                                            }
+                                          }}
+                                          className="w-11 h-11 flex items-center justify-center bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-2xl font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer"
+                                        >
+                                          {kanji}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Action buttons */}
+                                <div className="flex items-center gap-2 pt-3 border-t border-[#e7e5e4]">
+                                  <button
+                                    onClick={() => setCheckedGames(prev => ({ ...prev, [game.id]: true }))}
+                                    className="px-4 py-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer"
+                                  >
+                                    Kiểm tra đáp án
+                                  </button>
+                                  <button
+                                    onClick={() => setShowSolutions(prev => ({ ...prev, [game.id]: !prev[game.id] }))}
+                                    className="px-3.5 py-2 bg-white text-[#44403c] border border-[#e7e5e4] text-xs font-mono font-bold cursor-pointer"
+                                  >
+                                    {showSolutions[game.id] ? 'Ẩn đáp án' : 'Hiện đáp án'}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      const cleared = { ...minigameInputs };
+                                      parsedData.puzzles?.forEach((p: any) => {
+                                        delete cleared[`cross_${game.id}_${p.id}`];
+                                      });
+                                      setMinigameInputs(cleared);
+                                      setCheckedGames(prev => ({ ...prev, [game.id]: false }));
+                                      setShowSolutions(prev => ({ ...prev, [game.id]: false }));
+                                      setActiveBlankKey(null);
+                                      setShuffleSeeds(prev => ({ ...prev, [game.id]: (prev[game.id] || 0) + 1 }));
+                                    }}
+                                    className="px-3 py-2 text-xs font-mono text-[#78716c] hover:text-[#b91c1c] cursor-pointer"
+                                  >
+                                    Làm lại
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Dạng RECIPE_CLOZE: Điền từ công thức làm bánh (Chương 3) */}
+                            {(game.gameType === 'RECIPE_CLOZE' || (parsedData.blanks && !parsedData.dialogue && parsedData.wordBank)) && (
+                              <div className="space-y-6">
+                                <div className="p-5 sm:p-6 bg-white border border-[#e7e5e4] shadow-xs">
+                                  <div className="flex flex-wrap items-center justify-between mb-4 pb-2 border-b border-[#e7e5e4]">
+                                    <span className="text-xs font-mono font-bold text-[#b91c1c] uppercase tracking-wider">
+                                      🎂 Công thức làm bánh: Điền từ thích hợp vào các ô trống (① ~ ⑩)
+                                    </span>
+                                    <span className="text-[11px] font-mono text-[#78716c]">
+                                      {parsedData.blanks?.length || 0} ô cần điền
+                                    </span>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    {parsedData.blanks?.map((b: any) => {
+                                      const key = `rec_${game.id}_${b.id}`;
+                                      const val = showSolutions[game.id] ? b.answer : (minigameInputs[key] || '');
+                                      const isChecked = checkedGames[game.id] || showSolutions[game.id];
+                                      const isCorrect = val.trim() === b.answer;
+                                      const isActive = activeBlankKey === key;
+
+                                      let boxStyle = 'border-[#78716c] bg-white';
+                                      if (isChecked) {
+                                        boxStyle = isCorrect ? 'border-[#15803d] bg-green-50 text-[#15803d]' : 'border-[#dc2626] bg-red-50 text-[#dc2626]';
+                                      } else if (isActive) {
+                                        boxStyle = 'border-[#b91c1c] ring-2 ring-[#fca5a5] bg-[#fff5f5]';
+                                      }
+
+                                      return (
+                                        <div key={b.id} className="p-3 bg-[#fafaf9] border border-[#e7e5e4] flex items-center justify-between gap-3">
+                                          <div className="flex items-center gap-2.5">
+                                            <span className="font-mono font-bold text-sm text-[#b91c1c]">{b.num}</span>
+                                            <span className="text-xs text-[#44403c] font-medium">{b.meaning}</span>
+                                          </div>
+                                          <div className="flex items-center gap-1.5">
+                                            <input
+                                              type="text"
+                                              value={val}
+                                              readOnly={showSolutions[game.id]}
+                                              onFocus={() => setActiveBlankKey(key)}
+                                              onClick={() => setActiveBlankKey(key)}
+                                              onChange={(e) => {
+                                                const newVal = e.target.value;
+                                                setMinigameInputs(prev => ({ ...prev, [key]: newVal }));
+                                              }}
+                                              className={`w-24 px-2 py-1.5 text-center font-serif font-bold text-sm border-2 transition-all outline-none shadow-xs ${boxStyle}`}
+                                              placeholder="Điền từ"
+                                            />
+                                            {isChecked && !isCorrect && (
+                                              <span className="text-xs font-mono font-bold text-[#15803d]">
+                                                {b.answer}
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+
+                                {/* Word Bank */}
+                                {Array.isArray(parsedData.wordBank) && parsedData.wordBank.length > 0 && (
+                                  <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
+                                    <div className="text-xs font-mono font-bold text-[#78716c] uppercase mb-2">
+                                      Ngân hàng từ vựng nguyên liệu (Chọn ô rồi bấm từ để điền):
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      {getShuffledBank(parsedData.wordBank, (game.id * 7919 + 1013) + (shuffleSeeds[game.id] || 0) * 37).map((word: string) => (
+                                        <button
+                                          key={word}
+                                          onClick={() => {
+                                            let targetKey = activeBlankKey;
+                                            if (!targetKey) {
+                                              const firstEmpty = parsedData.blanks?.find((b: any) => !minigameInputs[`rec_${game.id}_${b.id}`]);
+                                              if (firstEmpty) targetKey = `rec_${game.id}_${firstEmpty.id}`;
+                                              else if (parsedData.blanks?.length > 0) targetKey = `rec_${game.id}_${parsedData.blanks[0].id}`;
+                                            }
+                                            if (targetKey) {
+                                              setMinigameInputs(prev => ({ ...prev, [targetKey!]: word }));
+                                              const currentId = parseInt(targetKey.split('_')[2], 10);
+                                              if (currentId < (parsedData.blanks?.length || 0)) {
+                                                setActiveBlankKey(`rec_${game.id}_${currentId + 1}`);
+                                              }
+                                            }
+                                          }}
+                                          className="px-3 py-1.5 bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-xs font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer"
+                                        >
+                                          {word}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Action buttons */}
+                                <div className="flex items-center gap-2 pt-3 border-t border-[#e7e5e4]">
+                                  <button
+                                    onClick={() => setCheckedGames(prev => ({ ...prev, [game.id]: true }))}
+                                    className="px-4 py-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer"
+                                  >
+                                    Kiểm tra đáp án
+                                  </button>
+                                  <button
+                                    onClick={() => setShowSolutions(prev => ({ ...prev, [game.id]: !prev[game.id] }))}
+                                    className="px-3.5 py-2 bg-white text-[#44403c] border border-[#e7e5e4] text-xs font-mono font-bold cursor-pointer"
+                                  >
+                                    {showSolutions[game.id] ? 'Ẩn đáp án' : 'Hiện đáp án'}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      const cleared = { ...minigameInputs };
+                                      parsedData.blanks?.forEach((b: any) => {
+                                        delete cleared[`rec_${game.id}_${b.id}`];
+                                      });
+                                      setMinigameInputs(cleared);
+                                      setCheckedGames(prev => ({ ...prev, [game.id]: false }));
+                                      setShowSolutions(prev => ({ ...prev, [game.id]: false }));
+                                      setActiveBlankKey(null);
+                                      setShuffleSeeds(prev => ({ ...prev, [game.id]: (prev[game.id] || 0) + 1 }));
+                                    }}
+                                    className="px-3 py-2 text-xs font-mono text-[#78716c] hover:text-[#b91c1c] cursor-pointer"
+                                  >
+                                    Làm lại
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
                             {/* Dạng 1: ORDERING (Sắp xếp từ bé đến lớn) */}
                             {game.gameType === 'ORDERING' && (
                               <div className="space-y-4">
@@ -1617,10 +2487,17 @@ export default function Kanji() {
                                 {parsedData.questions?.map((q: any) => {
                                   const key = `ord_${game.id}_${q.id}`;
                                   const selectedOpt = minigameInputs[key];
-                                  const correctFormula = q.formula;
-                                  const revFormula = [...q.items].reverse().join(' < ');
-                                  const mixFormula = [q.items[1], q.items[0], q.items[2]].join(' < ');
-                                  const options = [correctFormula, revFormula, mixFormula];
+                                  const correctFormula = q.formula || q.answer;
+                                  let options: string[] = [];
+                                  if (Array.isArray(q.options) && q.options.length > 0) {
+                                    options = q.options;
+                                  } else if (Array.isArray(q.items) && q.items.length >= 3) {
+                                    const revFormula = [...q.items].reverse().join(' < ');
+                                    const mixFormula = [q.items[1], q.items[0], q.items[2]].join(' < ');
+                                    options = [correctFormula, revFormula, mixFormula];
+                                  } else {
+                                    options = [correctFormula];
+                                  }
 
                                   return (
                                     <div key={q.id} className="bg-white p-4 border border-[#e7e5e4]">
@@ -1628,9 +2505,11 @@ export default function Kanji() {
                                         <div className="text-sm font-serif font-bold text-[#1c1917]">
                                           {q.prompt}
                                         </div>
-                                        <span className="text-xs font-mono text-[#78716c]">
-                                          Sắp xếp: [ {q.items?.join(', ')} ]
-                                        </span>
+                                        {Array.isArray(q.items) && q.items.length > 0 && (
+                                          <span className="text-xs font-mono text-[#78716c]">
+                                            Sắp xếp: [ {q.items.join(', ')} ]
+                                          </span>
+                                        )}
                                       </div>
                                       <div className="flex flex-wrap items-center gap-2 mt-2">
                                         {options.map((opt) => {
@@ -1660,8 +2539,15 @@ export default function Kanji() {
                                         })}
                                       </div>
                                       {selectedOpt && (
-                                        <div className="mt-2 text-xs font-mono text-[#15803d] font-bold">
-                                          ✓ Thứ tự đúng: {q.formula}
+                                        <div className="mt-2.5 pt-2 border-t border-[#f5f5f4] flex flex-col gap-1">
+                                          <div className="text-xs font-mono text-[#15803d] font-bold">
+                                            ✓ {q.formula ? 'Thứ tự đúng:' : 'Đáp án đúng:'} {correctFormula}
+                                          </div>
+                                          {q.explanation && (
+                                            <div className="text-xs text-[#78716c] font-sans">
+                                              {q.explanation}
+                                            </div>
+                                          )}
                                         </div>
                                       )}
                                     </div>
