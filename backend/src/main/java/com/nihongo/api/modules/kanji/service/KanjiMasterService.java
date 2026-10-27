@@ -86,13 +86,9 @@ public class KanjiMasterService {
             totalKanji += ch.getKanjiCount();
             UserKanjiProgress prog = progressMap.get(ch.getId());
 
-            // Tạm thời comment mở khóa tất cả các chương để kiểm tra dữ liệu theo yêu cầu
-            boolean isUnlocked = true;
-            /*
             boolean isUnlocked = isAllChaptersUnlocked
                     || (ch.getChapterNumber() == 1)
                     || (prog != null && Boolean.TRUE.equals(prog.getIsUnlocked()));
-            */
             int highestScore = prog != null ? prog.getHighestScore() : 0;
             boolean isPassed = prog != null && Boolean.TRUE.equals(prog.getIsPassed());
 
