@@ -115,7 +115,9 @@ public class KanjiMasterService {
         }
 
         List<KanjiAchievementTest> achievementTests;
-        if ("N3".equalsIgnoreCase(targetLevel)) {
+        if ("N2".equalsIgnoreCase(targetLevel)) {
+            achievementTests = achievementTestRepository.findByStageInOrderByStageAsc(List.of(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21));
+        } else if ("N3".equalsIgnoreCase(targetLevel)) {
             achievementTests = achievementTestRepository.findByStageInOrderByStageAsc(List.of(7, 8, 9, 10));
         } else if ("N4".equalsIgnoreCase(targetLevel)) {
             achievementTests = achievementTestRepository.findByStageInOrderByStageAsc(List.of(4, 5, 6));

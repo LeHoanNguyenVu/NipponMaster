@@ -290,11 +290,11 @@ export default function Kanji() {
   const userRank = user?.role === 'ADMIN' ? 5 : (JLPT_RANK[userLevel] || 2);
 
   // Danh sách cấp độ học viên được phép xem & truy cập (chỉ hiển thị và cho phép truy cập các level <= level tài khoản)
-  const availableLevels = (['N5', 'N4', 'N3'] as const).filter((lvl) => JLPT_RANK[lvl] <= userRank);
+  const availableLevels = (['N5', 'N4', 'N3', 'N2'] as const).filter((lvl) => JLPT_RANK[lvl] <= userRank);
 
   // Cấp độ đang học: Mặc định theo level tài khoản, và bị khóa nếu vượt quá quyền truy cập
   const [selectedLevel, setSelectedLevel] = useState<string>(() => {
-    const target = ['N5', 'N4', 'N3'].includes(userLevel) ? userLevel : 'N4';
+    const target = ['N5', 'N4', 'N3', 'N2'].includes(userLevel) ? userLevel : 'N4';
     return availableLevels.includes(target as any) ? target : (availableLevels[availableLevels.length - 1] || 'N4');
   });
 
@@ -597,9 +597,34 @@ export default function Kanji() {
     20: { page: 156, file: 'chap20_review.webp' },
   };
 
+  const N2_REVIEW_PAGES_CONFIG: Record<number, { page: number; file: string }> = {
+    1: { page: 15, file: 'chap1_review.webp' },
+    2: { page: 21, file: 'chap2_review.webp' },
+    3: { page: 31, file: 'chap3_review.webp' },
+    4: { page: 37, file: 'chap4_review.webp' },
+    5: { page: 47, file: 'chap5_review.webp' },
+    6: { page: 53, file: 'chap6_review.webp' },
+    7: { page: 62, file: 'chap7_review.webp' },
+    8: { page: 67, file: 'chap8_review.webp' },
+    9: { page: 76, file: 'chap9_review.webp' },
+    10: { page: 84, file: 'chap10_review.webp' },
+    11: { page: 99, file: 'chap11_review.webp' },
+    12: { page: 106, file: 'chap12_review.webp' },
+    13: { page: 116, file: 'chap13_review.webp' },
+    14: { page: 125, file: 'chap14_review.webp' },
+    15: { page: 137, file: 'chap15_review.webp' },
+    16: { page: 141, file: 'chap16_review.webp' },
+    17: { page: 152, file: 'chap17_review.webp' },
+    18: { page: 157, file: 'chap18_review.webp' },
+  };
+
   const handleOpenReviewPage = () => {
     const chNum = chapterDetail?.chapter.chapterNumber || 1;
-    if (selectedLevel === 'N3') {
+    if (selectedLevel === 'N2') {
+      const revConfig = N2_REVIEW_PAGES_CONFIG[chNum] || { page: 15, file: `chap${chNum}_review.webp` };
+      setModalImageUrl(resolveKanjiAssetUrl(`/assets/kanji/n2/reviews/${revConfig.file}`));
+      setModalImageTitle(`Chương ${chNum} N2: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang ${revConfig.page})`);
+    } else if (selectedLevel === 'N3') {
       const revConfig = N3_REVIEW_PAGES_CONFIG[chNum] || { page: 12, file: `chap${chNum}_review.webp` };
       setModalImageUrl(resolveKanjiAssetUrl(`/assets/kanji/n3/reviews/${revConfig.file}`));
       setModalImageTitle(`Chương ${chNum} N3: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang ${revConfig.page})`);
@@ -831,7 +856,9 @@ export default function Kanji() {
               {t('master.title', { level: selectedLevel, defaultValue: `Kho Hán Tự — Kanji Master ${selectedLevel}` })}
             </h1>
             <p className="text-sm text-[#78716c] mt-1">
-              {selectedLevel === 'N3'
+              {selectedLevel === 'N2'
+                ? '18 Chương · 505 Chữ Hán · Sơ đồ chuyên sâu & Minigame tình huống · Đạt ≥ 85% mở khóa chương.'
+                : selectedLevel === 'N3'
                 ? '20 Chương · 376 Chữ Hán · Sơ đồ chuyên sâu & Minigame tình huống · Đạt ≥ 85% mở khóa chương.'
                 : selectedLevel === 'N4'
                 ? '9 Chương · 199 Chữ Hán · Tranh tình huống & Minigame đời sống · Đạt ≥ 85% mở khóa chương.'
@@ -859,7 +886,11 @@ export default function Kanji() {
                     }`}
                   >
                     <span>JLPT {lvl}</span>
-                    {lvl === 'N3' ? (
+                    {lvl === 'N2' ? (
+                      <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
+                        (18 Chương)
+                      </span>
+                    ) : lvl === 'N3' ? (
                       <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
                         (20 Chương)
                       </span>
@@ -947,10 +978,10 @@ export default function Kanji() {
           <div className="lg:col-span-4 bg-white border border-[#e7e5e4] p-4 sticky top-6">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#e7e5e4]">
               <h2 className="text-sm font-bold uppercase tracking-wider font-mono text-[#1c1917]">
-                {t('master.chapterList', { total: roadmap?.totalChapters || (selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15), level: selectedLevel, defaultValue: `Mục lục ${roadmap?.totalChapters || (selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} chương ${selectedLevel}` })}
+                {t('master.chapterList', { total: roadmap?.totalChapters || (selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15), level: selectedLevel, defaultValue: `Mục lục ${roadmap?.totalChapters || (selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} chương ${selectedLevel}` })}
               </h2>
               <span className="text-xs text-[#78716c]">
-                {roadmap?.chapters.length || (selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} Chương
+                {roadmap?.chapters.length || (selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} Chương
               </span>
             </div>
 
@@ -1354,7 +1385,7 @@ export default function Kanji() {
                             {/* CỘT PHẢI: THÔNG TIN NGỮ ÂM, BỘ THỦ, MẸO NHỚ (THU GỌN VỪA VẶN) */}
                             <div className="xl:col-span-4 space-y-4">
                               <div>
-                                {(chapterDetail?.chapter.jlptLevel === 'N4' || chapterDetail?.chapter.jlptLevel === 'N3') && (
+                                {(chapterDetail?.chapter.jlptLevel === 'N4' || chapterDetail?.chapter.jlptLevel === 'N3' || chapterDetail?.chapter.jlptLevel === 'N2') && (
                                   <div className="flex items-center gap-2 mb-2">
                                     <span className="text-[10px] font-mono px-2 py-0.5 bg-[#fef2f2] text-[#b91c1c] border border-red-200 font-bold uppercase">
                                       Chương {chapterDetail.chapter.chapterNumber}: {chapterDetail.chapter.titleJa} ({chapterDetail.chapter.titleVi})
@@ -1470,7 +1501,9 @@ export default function Kanji() {
                       >
                         <BookOpen className="w-3.5 h-3.5" />
                         <span>
-                          {selectedLevel === 'N3'
+                          {selectedLevel === 'N2'
+                            ? `Xem trang bài tập trong sách N2 (Trang ${N2_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 15})`
+                            : selectedLevel === 'N3'
                             ? `Xem trang bài tập trong sách N3 (Trang ${N3_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 12})`
                             : selectedLevel === 'N4'
                             ? 'Xem trang bài tập trong sách N4'
