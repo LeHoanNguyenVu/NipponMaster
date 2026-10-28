@@ -71,5 +71,10 @@ scripts/data/
 scratch/
 
 
-### Design mockups ###
+### Design mockups & Scratch Dumps ###
 design-mockups/
+ans_crop_*.png
+tmp_*.png
+crop_*.png
+q_*.png
+

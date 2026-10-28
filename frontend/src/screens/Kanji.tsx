@@ -24,6 +24,8 @@ import SakuraCelebrationModal from '../components/kanji/SakuraCelebrationModal';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '../components/ui/Badge';
 import { useAuthStore } from '../store/useAuthStore';
+import { resolveKanjiAssetUrl } from '../utils/mediaUrl';
+
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 interface RoadmapChapter {
@@ -599,25 +601,26 @@ export default function Kanji() {
     const chNum = chapterDetail?.chapter.chapterNumber || 1;
     if (selectedLevel === 'N3') {
       const revConfig = N3_REVIEW_PAGES_CONFIG[chNum] || { page: 12, file: `chap${chNum}_review.webp` };
-      setModalImageUrl(`/assets/kanji/n3/reviews/${revConfig.file}`);
+      setModalImageUrl(resolveKanjiAssetUrl(`/assets/kanji/n3/reviews/${revConfig.file}`));
       setModalImageTitle(`Chương ${chNum} N3: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang ${revConfig.page})`);
     } else if (selectedLevel === 'N4') {
       const revConfig = N4_REVIEW_PAGES_CONFIG[chNum] || { page: 27, file: `chap${chNum}_review.webp` };
-      setModalImageUrl(`/assets/kanji/n4/reviews/${revConfig.file}`);
+      setModalImageUrl(resolveKanjiAssetUrl(`/assets/kanji/n4/reviews/${revConfig.file}`));
       setModalImageTitle(`Chương ${chNum} N4: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang ${revConfig.page})`);
     } else {
       const revConfig = REVIEW_PAGES_CONFIG[chNum] || { page: 18, file: `chap${chNum}_review_p18.webp` };
-      setModalImageUrl(`/assets/kanji/n5/reviews/${revConfig.file}`);
+      setModalImageUrl(resolveKanjiAssetUrl(`/assets/kanji/n5/reviews/${revConfig.file}`));
       setModalImageTitle(`Chương ${chNum}: Trang ${revConfig.page} (Câu ngữ cảnh & Viết chữ trong giáo trình)`);
     }
     setShowIllustrationModal(true);
   };
 
   const handleOpenMinigameImage = (url: string, title: string) => {
-    setModalImageUrl(url);
+    setModalImageUrl(resolveKanjiAssetUrl(url));
     setModalImageTitle(title);
     setShowIllustrationModal(true);
   };
+
 
   // Canvas Studio target
   const [canvasInitialKanji, setCanvasInitialKanji] = useState<string>('一');
@@ -1196,10 +1199,11 @@ export default function Kanji() {
                         !activeKanji.imageUrl?.includes('review') &&
                         !activeKanji.imageUrl?.includes('quizzes');
                       const illustrationUrl = hasIndividualImage
-                        ? activeKanji.imageUrl
+                        ? resolveKanjiAssetUrl(activeKanji.imageUrl)
                         : selectedLevel === 'N5'
-                        ? `/assets/kanji/n5/illustrations/chap${chapterNum}_kanji_${activeKanjiIndex + 1}.webp`
+                        ? resolveKanjiAssetUrl(`/assets/kanji/n5/illustrations/chap${chapterNum}_kanji_${activeKanjiIndex + 1}.webp`)
                         : null;
+
 
                       return (
                         <div className="bg-white border border-[#e7e5e4] p-5 sm:p-6 shadow-xs">
