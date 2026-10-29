@@ -1106,9 +1106,6 @@ export default function Kanji() {
                           ({isEn ? chapterDetail.chapter.titleEn : chapterDetail.chapter.titleVi})
                         </span>
                       </h2>
-                      <p className="text-sm text-[#78716c] mt-2 max-w-xl">
-                        {chapterDetail.chapter.description}
-                      </p>
                     </div>
 
                     {/* Cụm nút công cụ */}
@@ -1962,41 +1959,486 @@ export default function Kanji() {
 
                           {/* Giao diện tương tác câu đố */}
                           <div className="space-y-4 bg-[#fafaf9] p-5 border border-[#e7e5e4]">
-                            {/* Dạng RADICAL_COMBINE: Ghép bộ thủ Ⓐ + Ⓑ tạo chữ Hán điền vào câu */}
-                            {(game.gameType === 'RADICAL_COMBINE' || Boolean(parsedData.colA)) && (
-                              <div className="space-y-6">
-                                {/* Bảng hiển thị 2 cột Ⓐ và Ⓑ */}
-                                <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs flex flex-col sm:flex-row items-center justify-center gap-6">
-                                  <div className="flex items-center gap-3">
-                                    <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
-                                      Ⓐ
-                                    </span>
-                                    <div className="flex items-center gap-2">
-                                      {parsedData.colA?.map((r: string, idx: number) => (
-                                        <span key={idx} className="w-10 h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-xl font-serif font-bold text-[#b91c1c]">
-                                          {r}
-                                        </span>
-                                      ))}
+                            {/* DẠNG 0: KANJI_ELIMINATION (熟語消去パズル - Ô lưới 6×6 tìm từ ghép & tìm chữ Hán còn lại) */}
+                            {(game.gameType === 'KANJI_ELIMINATION' || Boolean(parsedData.grid)) && (() => {
+                              const key = `elim_${game.id}`;
+                              const val = showSolutions[game.id] ? parsedData.answer : (minigameInputs[key] || '');
+                              const isChecked = checkedGames[game.id] || showSolutions[game.id];
+                              const isCorrect = val.trim() === parsedData.answer;
+
+                              return (
+                                <div className="space-y-6">
+                                  {/* Bảng ô lưới 6x6 chữ Hán */}
+                                  <div className="p-5 bg-white border border-[#e7e5e4] shadow-xs flex flex-col items-center">
+                                    <div className="text-xs font-mono font-bold text-[#78716c] uppercase mb-4 text-center">
+                                      Bảng 36 Chữ Hán (Gạch bỏ 15 từ ghép quen thuộc để tìm chữ Hán duy nhất còn lại):
+                                    </div>
+
+                                    <div className="inline-grid grid-cols-6 gap-2 sm:gap-3 p-3 bg-[#fafaf9] border-2 border-[#e7e5e4] shadow-xs">
+                                      {parsedData.grid?.map((row: string[], rIdx: number) =>
+                                        row.map((kanji: string, cIdx: number) => {
+                                          const isRemaining = kanji === parsedData.answer;
+                                          const isTarget = isChecked && isRemaining;
+                                          const isEliminated = isChecked && !isRemaining;
+
+                                          return (
+                                            <div
+                                              key={`${rIdx}-${cIdx}`}
+                                              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center font-serif text-xl sm:text-2xl font-bold border transition-all ${
+                                                isTarget
+                                                  ? 'bg-[#b91c1c] text-white border-[#b91c1c] scale-110 shadow-md ring-4 ring-red-200 z-10'
+                                                  : isEliminated
+                                                  ? 'bg-[#f5f5f4] text-[#a8a29e] border-[#e7e5e4] line-through opacity-50'
+                                                  : 'bg-white text-[#1c1917] border-[#d6d3d1] hover:border-[#b91c1c] hover:bg-[#fff5f5]'
+                                              }`}
+                                            >
+                                              {kanji}
+                                            </div>
+                                          );
+                                        })
+                                      )}
+                                    </div>
+
+                                    {/* Khu vực trả lời chữ Hán còn lại */}
+                                    <div className="mt-6 w-full max-w-md p-4 bg-[#fef2f2] border border-red-200 text-center space-y-3">
+                                      <div className="text-sm font-serif font-bold text-[#1c1917]">
+                                        Chữ Hán cuối cùng còn lại duy nhất là:
+                                      </div>
+
+                                      <div className="flex items-center justify-center gap-3">
+                                        <input
+                                          type="text"
+                                          value={val}
+                                          maxLength={1}
+                                          readOnly={showSolutions[game.id]}
+                                          onChange={(e) => setMinigameInputs(prev => ({ ...prev, [key]: e.target.value }))}
+                                          placeholder="?"
+                                          className={`w-14 h-14 text-center font-serif font-bold text-3xl border-2 transition-all outline-none shadow-sm ${
+                                            isChecked
+                                              ? isCorrect
+                                                ? 'border-[#15803d] bg-green-50 text-[#15803d]'
+                                                : 'border-[#dc2626] bg-red-50 text-[#dc2626]'
+                                              : 'border-[#b91c1c] bg-white text-[#b91c1c]'
+                                          }`}
+                                        />
+
+                                        {/* Gợi ý bấm nhanh */}
+                                        {Array.isArray(parsedData.suggestedChoices) && (
+                                          <div className="flex items-center gap-1.5 flex-wrap">
+                                            {parsedData.suggestedChoices.map((c: string) => (
+                                              <button
+                                                key={c}
+                                                type="button"
+                                                onClick={() => setMinigameInputs(prev => ({ ...prev, [key]: c }))}
+                                                className="w-10 h-10 flex items-center justify-center bg-white hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] font-serif font-bold text-lg transition-all shadow-2xs hover:scale-105 cursor-pointer"
+                                              >
+                                                {c}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {isChecked && (
+                                        <div className={`mt-2 text-xs font-mono font-bold ${isCorrect ? 'text-[#15803d]' : 'text-[#dc2626]'}`}>
+                                          {isCorrect
+                                            ? `✓ Chính xác! Chữ duy nhất còn sót lại là「${parsedData.answer}」(Âm Hán: ${parsedData.hanViet || ''} - ${parsedData.meaning || ''})`
+                                            : `✗ Chưa chính xác. Đáp án đúng là chữ「${parsedData.answer}」`}
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
 
-                                  <span className="text-xl font-mono font-bold text-[#a8a29e]">+</span>
-
-                                  <div className="flex items-center gap-3">
-                                    <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
-                                      Ⓑ
-                                    </span>
-                                    <div className="flex items-center gap-2">
-                                      {parsedData.colB?.map((r: string, idx: number) => (
-                                        <span key={idx} className="w-10 h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-xl font-serif font-bold text-[#1c1917]">
-                                          {r}
-                                        </span>
-                                      ))}
+                                  {/* Danh sách 15 từ ghép tìm thấy trong bảng */}
+                                  {Array.isArray(parsedData.wordsFound) && (
+                                    <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
+                                      <div className="text-xs font-mono font-bold text-[#78716c] uppercase mb-3 flex items-center justify-between">
+                                        <span>🔍 Danh sách 15 từ ghép trong bảng ô chữ (Gạch bỏ 35 chữ):</span>
+                                        <span className="text-[11px] text-[#b91c1c] font-normal">15 từ ghép</span>
+                                      </div>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                        {parsedData.wordsFound.map((w: any, idx: number) => (
+                                          <div key={idx} className="p-2.5 bg-[#fafaf9] border border-[#e7e5e4] text-xs flex items-center justify-between">
+                                            <span className="font-serif font-bold text-sm text-[#1c1917]">{w.word} ({w.hiragana})</span>
+                                            <span className="text-[11px] text-[#78716c]">{w.meaning}</span>
+                                          </div>
+                                        ))}
+                                      </div>
                                     </div>
+                                  )}
+
+                                  {/* Action buttons */}
+                                  <div className="flex items-center gap-2 pt-3 border-t border-[#e7e5e4]">
+                                    <button
+                                      onClick={() => setCheckedGames(prev => ({ ...prev, [game.id]: true }))}
+                                      className="px-4 py-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer"
+                                    >
+                                      Kiểm tra đáp án
+                                    </button>
+                                    <button
+                                      onClick={() => setShowSolutions(prev => ({ ...prev, [game.id]: !prev[game.id] }))}
+                                      className="px-3.5 py-2 bg-white text-[#44403c] border border-[#e7e5e4] text-xs font-mono font-bold cursor-pointer"
+                                    >
+                                      {showSolutions[game.id] ? 'Ẩn đáp án' : 'Hiện đáp án'}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setMinigameInputs(prev => ({ ...prev, [key]: '' }));
+                                        setCheckedGames(prev => ({ ...prev, [game.id]: false }));
+                                        setShowSolutions(prev => ({ ...prev, [game.id]: false }));
+                                      }}
+                                      className="px-3 py-2 text-xs font-mono text-[#78716c] hover:text-[#b91c1c] cursor-pointer"
+                                    >
+                                      Làm lại
+                                    </button>
                                   </div>
                                 </div>
+                              );
+                            })()}
 
-                                {/* Danh sách 5 câu bài tập */}
+                            {/* DẠNG: KATAKANA_HOMOPHONE (同音異字 - Phân biệt chữ Hán theo Katakana) */}
+                            {(game.gameType === 'KATAKANA_HOMOPHONE' || Boolean(parsedData.groups)) && (
+                              <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {parsedData.groups?.map((grp: any, gIdx: number) => (
+                                    <div key={gIdx} className="p-4 bg-white border border-[#e7e5e4] shadow-xs space-y-3">
+                                      <div className="flex items-center justify-between pb-2 border-b border-[#f5f5f4]">
+                                        <span className="inline-flex items-center px-3 py-1 bg-[#1c1917] text-white text-xs font-mono font-bold tracking-wider">
+                                          {grp.kana}
+                                        </span>
+                                        <span className="text-[11px] font-mono text-[#78716c]">
+                                          {grp.questions?.length} câu hỏi
+                                        </span>
+                                      </div>
+
+                                      <div className="space-y-3">
+                                        {grp.questions?.map((q: any) => {
+                                          const key = `homo_${game.id}_${q.id}`;
+                                          const val = showSolutions[game.id] ? q.answer : (minigameInputs[key] || '');
+                                          const isChecked = checkedGames[game.id] || showSolutions[game.id];
+                                          const isCorrect = val.trim() === q.answer;
+                                          const isActive = activeBlankKey === key;
+
+                                          let boxStyle = 'border-[#78716c] bg-white text-[#1c1917] hover:border-[#b91c1c]';
+                                          if (isChecked) {
+                                            boxStyle = isCorrect
+                                              ? 'border-[#15803d] bg-green-50 text-[#15803d] font-bold shadow-xs'
+                                              : 'border-[#dc2626] bg-red-50 text-[#dc2626] font-bold shadow-xs';
+                                          } else if (isActive) {
+                                            boxStyle = 'border-[#b91c1c] ring-2 ring-[#fca5a5] bg-[#fff5f5] text-[#b91c1c]';
+                                          }
+
+                                          const parts = q.sentence ? q.sentence.split('[blank]') : ['', ''];
+
+                                          return (
+                                            <div key={q.id} className="p-2.5 bg-[#fafaf9] border border-[#f5f5f4]">
+                                              <div className="flex flex-wrap items-center gap-1.5 text-sm sm:text-base font-serif text-[#1c1917] leading-relaxed">
+                                                <span>{parts[0]}</span>
+                                                <input
+                                                  type="text"
+                                                  value={val}
+                                                  maxLength={1}
+                                                  readOnly={showSolutions[game.id]}
+                                                  onFocus={() => setActiveBlankKey(key)}
+                                                  onClick={() => setActiveBlankKey(key)}
+                                                  onChange={(e) => {
+                                                    const newVal = e.target.value;
+                                                    setMinigameInputs(prev => ({ ...prev, [key]: newVal }));
+                                                  }}
+                                                  className={`w-10 h-10 text-center font-serif font-bold text-xl border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
+                                                />
+                                                <span>{parts[1]}</span>
+                                              </div>
+
+                                              {isChecked && (
+                                                <div className="mt-2 pt-1.5 border-t border-[#e7e5e4] flex flex-wrap items-center justify-between text-xs gap-1">
+                                                  <span className={`font-mono font-bold ${isCorrect ? 'text-[#15803d]' : 'text-[#dc2626]'}`}>
+                                                    {isCorrect ? `✓「${q.answer}」` : `✗ Đúng:「${q.answer}」`}
+                                                  </span>
+                                                  <span className="text-[#44403c] font-serif font-bold text-[11px]">
+                                                    {q.targetWord} ({q.hiragana}) — {q.meaning}
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {/* Ngân hàng chữ Hán */}
+                                {Array.isArray(parsedData.wordBank) && parsedData.wordBank.length > 0 && (
+                                  <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-xs font-mono font-bold text-[#78716c] uppercase">
+                                        Ngân hàng chữ Hán (Chọn ô trống rồi bấm chữ để điền nhanh):
+                                      </span>
+                                      {activeBlankKey && (
+                                        <span className="text-xs font-mono text-[#b91c1c] font-bold bg-[#fef2f2] px-2 py-0.5 border border-red-200">
+                                          Đang chọn ô {activeBlankKey.split('_').slice(2).join('.')}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      {getShuffledBank(parsedData.wordBank, (game.id * 7919 + 1013) + (shuffleSeeds[game.id] || 0) * 37).map((kanji: string) => (
+                                        <button
+                                          key={kanji}
+                                          onClick={() => {
+                                            let targetKey = activeBlankKey;
+                                            if (!targetKey) {
+                                              for (const grp of parsedData.groups || []) {
+                                                for (const q of grp.questions || []) {
+                                                  const k = `homo_${game.id}_${q.id}`;
+                                                  if (!minigameInputs[k]) {
+                                                    targetKey = k;
+                                                    break;
+                                                  }
+                                                }
+                                                if (targetKey) break;
+                                              }
+                                            }
+                                            if (targetKey) {
+                                              setMinigameInputs(prev => ({ ...prev, [targetKey!]: kanji }));
+                                            }
+                                          }}
+                                          className="w-11 h-11 flex items-center justify-center bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-2xl font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer"
+                                        >
+                                          {kanji}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Action buttons */}
+                                <div className="flex items-center gap-2 pt-3 border-t border-[#e7e5e4]">
+                                  <button
+                                    onClick={() => setCheckedGames(prev => ({ ...prev, [game.id]: true }))}
+                                    className="px-4 py-2.5 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer"
+                                  >
+                                    Kiểm tra đáp án
+                                  </button>
+                                  <button
+                                    onClick={() => setShowSolutions(prev => ({ ...prev, [game.id]: !prev[game.id] }))}
+                                    className="px-3.5 py-2.5 bg-white text-[#44403c] border border-[#e7e5e4] text-xs font-mono font-bold cursor-pointer"
+                                  >
+                                    {showSolutions[game.id] ? 'Ẩn đáp án' : 'Hiện đáp án'}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      const cleared = { ...minigameInputs };
+                                      parsedData.groups?.forEach((g: any) => {
+                                        g.questions?.forEach((q: any) => {
+                                          delete cleared[`homo_${game.id}_${q.id}`];
+                                        });
+                                      });
+                                      setMinigameInputs(cleared);
+                                      setCheckedGames(prev => ({ ...prev, [game.id]: false }));
+                                      setShowSolutions(prev => ({ ...prev, [game.id]: false }));
+                                      setActiveBlankKey(null);
+                                      setShuffleSeeds(prev => ({ ...prev, [game.id]: (prev[game.id] || 0) + 1 }));
+                                    }}
+                                    className="px-3.5 py-2.5 text-xs font-mono text-[#78716c] hover:text-[#b91c1c] cursor-pointer"
+                                  >
+                                    Làm lại
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* DẠNG: KANJI_CORRECTION (誤字訂正 - Sửa lỗi sai chính tả chữ Hán) */}
+                            {game.gameType === 'KANJI_CORRECTION' && (
+                              <div className="space-y-6">
+                                <div className="space-y-3.5">
+                                  {parsedData.questions?.map((q: any) => {
+                                    const key = `corr_${game.id}_${q.id}`;
+                                    const val = showSolutions[game.id] ? q.correctKanji : (minigameInputs[key] || '');
+                                    const isChecked = checkedGames[game.id] || showSolutions[game.id];
+                                    const isCorrect = val.trim() === q.correctKanji;
+                                    const isActive = activeBlankKey === key;
+
+                                    let boxStyle = 'border-[#78716c] bg-white text-[#1c1917] hover:border-[#b91c1c]';
+                                    if (isChecked) {
+                                      boxStyle = isCorrect
+                                        ? 'border-[#15803d] bg-green-50 text-[#15803d] font-bold shadow-xs'
+                                        : 'border-[#dc2626] bg-red-50 text-[#dc2626] font-bold shadow-xs';
+                                    } else if (isActive) {
+                                      boxStyle = 'border-[#b91c1c] ring-2 ring-[#fca5a5] bg-[#fff5f5] text-[#b91c1c]';
+                                    }
+
+                                    const sentParts = q.sentence ? q.sentence.split(q.wrongKanji) : ['', ''];
+
+                                    return (
+                                      <div key={q.id} className="p-4 bg-white border border-[#e7e5e4] shadow-xs space-y-2">
+                                        <div className="flex flex-wrap items-center justify-between gap-3 text-base font-serif text-[#1c1917]">
+                                          <div className="flex items-center gap-2 flex-1">
+                                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#1c1917] text-white text-xs font-mono font-bold flex-shrink-0">
+                                              {q.id}
+                                            </span>
+                                            <span className="leading-relaxed">
+                                              {sentParts[0]}
+                                              <span className="font-bold text-[#dc2626] underline decoration-wavy decoration-[#dc2626] underline-offset-4 px-1 bg-red-50 border border-red-200">
+                                                {q.wrongKanji}
+                                              </span>
+                                              {sentParts.slice(1).join(q.wrongKanji)}
+                                            </span>
+                                          </div>
+
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-xs font-mono font-bold text-[#78716c]">Chữ đúng:</span>
+                                            <input
+                                              type="text"
+                                              value={val}
+                                              maxLength={1}
+                                              readOnly={showSolutions[game.id]}
+                                              onFocus={() => setActiveBlankKey(key)}
+                                              onClick={() => setActiveBlankKey(key)}
+                                              onChange={(e) => {
+                                                const newVal = e.target.value;
+                                                setMinigameInputs(prev => ({ ...prev, [key]: newVal }));
+                                                if (newVal.length >= 1 && q.id < (parsedData.questions?.length || 0)) {
+                                                  setActiveBlankKey(`corr_${game.id}_${q.id + 1}`);
+                                                }
+                                              }}
+                                              className={`w-11 h-11 text-center font-serif font-bold text-2xl border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
+                                            />
+                                          </div>
+                                        </div>
+
+                                        {isChecked && (
+                                          <div className="mt-2 pt-2 border-t border-[#f5f5f4] flex flex-wrap items-center justify-between text-xs gap-2">
+                                            <span className={`font-mono font-bold ${isCorrect ? 'text-[#15803d]' : 'text-[#dc2626]'}`}>
+                                              {isCorrect ? `✓ Đúng:「${q.correctKanji}」` : `✗ Chữ sai「${q.wrongKanji}」-> Đúng là「${q.correctKanji}」`}
+                                            </span>
+                                            <span className="text-[#44403c] font-serif font-bold">
+                                              {q.targetWord} ({q.hiragana}) — {q.meaning}
+                                            </span>
+                                            {q.explanation && (
+                                              <div className="w-full text-[11px] text-[#78716c] italic mt-0.5">
+                                                {q.explanation}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+
+                                {/* Ngân hàng chữ Hán */}
+                                {Array.isArray(parsedData.wordBank) && parsedData.wordBank.length > 0 && (
+                                  <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-xs font-mono font-bold text-[#78716c] uppercase">
+                                        Ngân hàng chữ Hán sửa lỗi (Chọn ô trống rồi bấm chữ để điền):
+                                      </span>
+                                      {activeBlankKey && (
+                                        <span className="text-xs font-mono text-[#b91c1c] font-bold bg-[#fef2f2] px-2 py-0.5 border border-red-200">
+                                          Đang chọn câu {activeBlankKey.split('_')[2]}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      {getShuffledBank(parsedData.wordBank, (game.id * 7919 + 1013) + (shuffleSeeds[game.id] || 0) * 37).map((kanji: string) => (
+                                        <button
+                                          key={kanji}
+                                          onClick={() => {
+                                            let targetKey = activeBlankKey;
+                                            if (!targetKey) {
+                                              const firstEmpty = parsedData.questions?.find((q: any) => !minigameInputs[`corr_${game.id}_${q.id}`]);
+                                              if (firstEmpty) targetKey = `corr_${game.id}_${firstEmpty.id}`;
+                                              else if (parsedData.questions?.length > 0) targetKey = `corr_${game.id}_${parsedData.questions[0].id}`;
+                                            }
+                                            if (targetKey) {
+                                              setMinigameInputs(prev => ({ ...prev, [targetKey!]: kanji }));
+                                              const currentId = parseInt(targetKey.split('_')[2], 10);
+                                              if (currentId < (parsedData.questions?.length || 0)) {
+                                                setActiveBlankKey(`corr_${game.id}_${currentId + 1}`);
+                                              }
+                                            }
+                                          }}
+                                          className="w-11 h-11 flex items-center justify-center bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-2xl font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer"
+                                        >
+                                          {kanji}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Action buttons */}
+                                <div className="flex items-center gap-2 pt-3 border-t border-[#e7e5e4]">
+                                  <button
+                                    onClick={() => setCheckedGames(prev => ({ ...prev, [game.id]: true }))}
+                                    className="px-4 py-2.5 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer"
+                                  >
+                                    Kiểm tra đáp án
+                                  </button>
+                                  <button
+                                    onClick={() => setShowSolutions(prev => ({ ...prev, [game.id]: !prev[game.id] }))}
+                                    className="px-3.5 py-2.5 bg-white text-[#44403c] border border-[#e7e5e4] text-xs font-mono font-bold cursor-pointer"
+                                  >
+                                    {showSolutions[game.id] ? 'Ẩn đáp án' : 'Hiện đáp án'}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      const cleared = { ...minigameInputs };
+                                      parsedData.questions?.forEach((q: any) => {
+                                        delete cleared[`corr_${game.id}_${q.id}`];
+                                      });
+                                      setMinigameInputs(cleared);
+                                      setCheckedGames(prev => ({ ...prev, [game.id]: false }));
+                                      setShowSolutions(prev => ({ ...prev, [game.id]: false }));
+                                      setActiveBlankKey(null);
+                                      setShuffleSeeds(prev => ({ ...prev, [game.id]: (prev[game.id] || 0) + 1 }));
+                                    }}
+                                    className="px-3.5 py-2.5 text-xs font-mono text-[#78716c] hover:text-[#b91c1c] cursor-pointer"
+                                  >
+                                    Làm lại
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Dạng 1: RADICAL_COMBINE / SENTENCE_CLOZE */}
+                            {((game.gameType === 'RADICAL_COMBINE' || game.gameType === 'SENTENCE_CLOZE') || (Boolean(parsedData.questions) && Boolean(parsedData.wordBank) && !parsedData.puzzles && !parsedData.grid && game.gameType !== 'KANJI_CORRECTION')) && (
+                              <div className="space-y-6">
+                                {/* Bảng hiển thị 2 cột Ⓐ và Ⓑ (Chỉ hiện khi có colA & colB) */}
+                                {parsedData.colA && parsedData.colB && (
+                                  <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs flex flex-col sm:flex-row items-center justify-center gap-6">
+                                    <div className="flex items-center gap-3">
+                                      <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
+                                        Ⓐ
+                                      </span>
+                                      <div className="flex items-center gap-2">
+                                        {parsedData.colA?.map((r: string, idx: number) => (
+                                          <span key={idx} className="w-10 h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-xl font-serif font-bold text-[#b91c1c]">
+                                            {r}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    <span className="text-xl font-mono font-bold text-[#a8a29e]">+</span>
+
+                                    <div className="flex items-center gap-3">
+                                      <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
+                                        Ⓑ
+                                      </span>
+                                      <div className="flex items-center gap-2">
+                                        {parsedData.colB?.map((r: string, idx: number) => (
+                                          <span key={idx} className="w-10 h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-xl font-serif font-bold text-[#1c1917]">
+                                            {r}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Danh sách các câu bài tập */}
                                 <div className="space-y-3.5">
                                   {parsedData.questions?.map((q: any) => {
                                     const key = `rad_${game.id}_${q.id}`;
@@ -2012,7 +2454,10 @@ export default function Kanji() {
                                       boxStyle = 'border-[#b91c1c] ring-2 ring-[#fca5a5] bg-[#fff5f5] text-[#b91c1c]';
                                     }
 
-                                    const parts = q.sentence ? q.sentence.split('[blank]') : ['', ''];
+                                    const sentenceText = q.sentence || q.prompt || '';
+                                    const parts = sentenceText.includes('[blank]') ? sentenceText.split('[blank]') : [sentenceText, ''];
+                                    const isMultiChar = (q.answer?.length || 1) > 1;
+
                                     return (
                                       <div key={q.id} className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
                                         <div className="flex flex-wrap items-center gap-2 text-base font-serif text-[#1c1917] leading-loose">
@@ -2023,18 +2468,18 @@ export default function Kanji() {
                                           <input
                                             type="text"
                                             value={val}
-                                            maxLength={1}
+                                            maxLength={q.answer?.length || 4}
                                             readOnly={showSolutions[game.id]}
                                             onFocus={() => setActiveBlankKey(key)}
                                             onClick={() => setActiveBlankKey(key)}
                                             onChange={(e) => {
                                               const newVal = e.target.value;
                                               setMinigameInputs(prev => ({ ...prev, [key]: newVal }));
-                                              if (newVal.length >= 1 && q.id < (parsedData.questions?.length || 0)) {
+                                              if (newVal.length >= (q.answer?.length || 1) && q.id < (parsedData.questions?.length || 0)) {
                                                 setActiveBlankKey(`rad_${game.id}_${q.id + 1}`);
                                               }
                                             }}
-                                            className={`w-11 h-11 text-center font-serif font-bold text-2xl border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
+                                            className={`${isMultiChar ? 'min-w-[120px] px-3' : 'w-11'} h-11 text-center font-serif font-bold ${isMultiChar ? 'text-lg' : 'text-2xl'} border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
                                           />
                                           <span>{parts[1]}</span>
                                         </div>
@@ -2042,10 +2487,16 @@ export default function Kanji() {
                                         {isChecked && (
                                           <div className="mt-3 pt-2 border-t border-[#f5f5f4] flex flex-wrap items-center justify-between text-xs gap-2">
                                             <div className={`font-mono font-bold ${isCorrect ? 'text-[#15803d]' : 'text-[#dc2626]'}`}>
-                                              {isCorrect ? `✓ Ghép đúng: ${q.combine} =「${q.answer}」` : `✗ Chữ đúng: ${q.combine} =「${q.answer}」`}
+                                              {isCorrect ? `✓ Đáp án:「${q.answer}」` : `✗ Chữ đúng:「${q.answer}」`}
+                                              {q.combine && <span className="ml-1 text-[#78716c]">({q.combine})</span>}
+                                              {q.blankReading && (
+                                                <span className="ml-2 font-serif text-[#166534] bg-green-50 px-2 py-0.5 border border-green-200">
+                                                  〔読み方: {q.blankReading}〕
+                                                </span>
+                                              )}
                                             </div>
                                             <div className="text-[#44403c] font-serif font-bold">
-                                              {q.targetWord} ({q.hiragana}) — {q.meaning}
+                                              {q.targetWord} {q.hiragana && `(${q.hiragana})`} {q.meaning && `— ${q.meaning}`}
                                             </div>
                                             {q.explanation && (
                                               <div className="w-full text-[11px] text-[#78716c] italic">
@@ -2091,7 +2542,7 @@ export default function Kanji() {
                                               }
                                             }
                                           }}
-                                          className="w-11 h-11 flex items-center justify-center bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-2xl font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer"
+                                          className="min-w-[44px] h-11 px-3 flex items-center justify-center bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-base sm:text-lg font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer"
                                         >
                                           {kanji}
                                         </button>
