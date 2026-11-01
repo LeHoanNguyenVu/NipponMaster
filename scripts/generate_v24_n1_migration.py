@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Generator script for Flyway Migration V24: Seed Kanji Master N1 Full Dataset
+(Chuẩn giáo trình gốc `40. Kanji Master N1 New ver.pdf`: 30 Chương, 943 Chữ Hán,
+3.798 Từ vựng & Yojijukugo, 750 Bài tập, 30 Minigame クイズ & 12 Đề thi Stages 22~33).
 Đọc dữ liệu chuẩn hóa từ `scripts/data/kanji_n1_seed.json`, sinh file
 `backend/src/main/resources/db/migration/V24__seed_kanji_n1_data.sql`
 và thực thi trực tiếp lên cơ sở dữ liệu PostgreSQL (Supabase).
@@ -31,13 +33,14 @@ def generate_sql(seed):
     sql = []
     sql.append("-- =============================================================================")
     sql.append("-- Flyway Migration: V24 - Seed 100% Authentic Kanji Master N1 Full Dataset")
-    sql.append("-- 20 Chuyên đề, 917 Chữ Hán N1, 3.522 Từ vựng & Yojijukugo, 500 Bài tập,")
-    sql.append("-- 20 Minigame tình huống & 11 Đề thi Achievement Test + Kỳ thi Tốt nghiệp N1")
+    sql.append("-- Chuẩn giáo trình `40. Kanji Master N1 New ver.pdf` (Sanshusha):")
+    sql.append("-- 30 Chương (必修編 1~14, 熟達編 15~29, 難読編 30), 943 Chữ Hán N1,")
+    sql.append("-- 3.798 Từ vựng & Yojijukugo, 750 Bài tập, 30 Minigame クイズ & 12 Đề thi (Stages 22~33)")
     sql.append("-- =============================================================================")
     sql.append("")
 
     # Đảm bảo constraint UNIQUE theo (jlpt_level, character) để không ghi đè Kanji các cấp dưới
-    sql.append("-- 0. CẬP NHẬT RÀNG BUỘC DUY NHẤT THEO (jlpt_level, character) & ĐỘ RỘNG CỘT")
+    sql.append("-- 0. CẬP NHẬT RÀNG BUỘC DUY NHẤT THEO (jlpt_level, character) & LÀM SẠCH DỮ LIỆU N1 CŨ")
     sql.append("ALTER TABLE kanjis DROP CONSTRAINT IF EXISTS uq_kanjis_character;")
     sql.append("DO $$")
     sql.append("BEGIN")
@@ -49,10 +52,11 @@ def generate_sql(seed):
     sql.append("END $$;")
     sql.append("ALTER TABLE kanji_chapter_vocab ALTER COLUMN meaning_vi TYPE TEXT;")
     sql.append("ALTER TABLE kanji_chapter_vocab ALTER COLUMN meaning_en TYPE TEXT;")
+    sql.append("DELETE FROM kanjis WHERE jlpt_level = 'N1';")
     sql.append("")
 
-    # 1. Seed 20 Chapters
-    sql.append("-- 1. SEED 20 CHUYÊN ĐỀ KANJI MASTER N1")
+    # 1. Seed 30 Chapters
+    sql.append("-- 1. SEED 30 CHƯƠNG KANJI MASTER N1 (必修編 · 熟達編 · 難読編)")
     sql.append("INSERT INTO kanji_chapters (chapter_number, jlpt_level, title_ja, title_vi, title_en, kanji_count, display_order, illustration_url, description) VALUES")
     ch_rows = []
     for ch in seed["chapters"]:
@@ -74,14 +78,14 @@ def generate_sql(seed):
     sql.append("    illustration_url = EXCLUDED.illustration_url,")
     sql.append("    description = EXCLUDED.description;\n")
 
-    # 2. Seed 917 Kanjis
-    sql.append("-- 2. SEED 917 KANJIS LEVEL N1 (KÈM MẸO NHỚ CHIẾT TỰ HÁN VIỆT & TỪ GHÉP)")
+    # 2. Seed 943 Kanjis
+    sql.append("-- 2. SEED 943 KANJIS LEVEL N1 (CHUẨN THỨ TỰ MỤC LỤC 30 CHƯƠNG & MẸO NHỚ CHIẾT TỰ)")
     sql.append("DO $$")
     sql.append("DECLARE")
-    declarations = [f"v_ch{i}_id BIGINT;" for i in range(1, 21)]
+    declarations = [f"v_ch{i}_id BIGINT;" for i in range(1, 31)]
     sql.append("    " + " ".join(declarations))
     sql.append("BEGIN")
-    for i in range(1, 21):
+    for i in range(1, 31):
         sql.append(f"    SELECT id INTO v_ch{i}_id FROM kanji_chapters WHERE jlpt_level = 'N1' AND chapter_number = {i};")
     sql.append("")
 
@@ -123,15 +127,15 @@ def generate_sql(seed):
 
     sql.append("END $$;\n")
 
-    # 3. Seed Chapter Vocabularies (3,522 items)
-    sql.append("-- 3. SEED HƠN 3.500 TỪ VỰNG HỌC THUẬT, BÁO CHÍ & THÀNH NGỮ 4 CHỮ (YOJIJUKUGO)")
-    vocabs_by_ch = {i: [] for i in range(1, 21)}
+    # 3. Seed Chapter Vocabularies (3,798 items)
+    sql.append("-- 3. SEED 3.798 TỪ VỰNG HỌC THUẬT, BÁO CHÍ & THÀNH NGỮ 4 CHỮ (YOJIJUKUGO)")
+    vocabs_by_ch = {i: [] for i in range(1, 31)}
     for v in seed["vocabularies"]:
         vocabs_by_ch[v["chapter_number"]].append(v)
 
     sql.append("DO $$")
     sql.append("DECLARE v_ch_id BIGINT; BEGIN")
-    for ch_num in range(1, 21):
+    for ch_num in range(1, 31):
         vocabs = vocabs_by_ch[ch_num]
         if not vocabs:
             continue
@@ -154,15 +158,15 @@ def generate_sql(seed):
         sql.append("    END IF;")
     sql.append("END $$;\n")
 
-    # 4. Seed Exercises (500 items)
-    sql.append("-- 4. SEED 500 CÂU TRẮC NGHIỆM NGỮ CẢNH & ĐIỀN CHỮ (25 CÂU / CHUYÊN ĐỀ)")
-    ex_by_ch = {i: [] for i in range(1, 21)}
+    # 4. Seed Exercises (750 items: 25 x 30 chapters)
+    sql.append("-- 4. SEED 750 CÂU TRẮC NGHIỆM NGỮ CẢNH & ĐIỀN CHỮ (25 CÂU / CHƯƠNG)")
+    ex_by_ch = {i: [] for i in range(1, 31)}
     for ex in seed["exercises"]:
         ex_by_ch[ex["chapter_number"]].append(ex)
 
     sql.append("DO $$")
     sql.append("DECLARE v_ch_id BIGINT; BEGIN")
-    for ch_num in range(1, 21):
+    for ch_num in range(1, 31):
         exs = ex_by_ch[ch_num]
         if not exs:
             continue
@@ -186,15 +190,15 @@ def generate_sql(seed):
         sql.append("    END IF;")
     sql.append("END $$;\n")
 
-    # 5. Seed Minigames (20 items)
-    sql.append("-- 5. SEED 20 MINIGAME TÌNH HUỐNG CHUYÊN ĐỀ N1")
-    mg_by_ch = {i: [] for i in range(1, 21)}
+    # 5. Seed Minigames (30 items)
+    sql.append("-- 5. SEED 30 MINIGAME クイズ GẮN ẢNH TRANG BÀI TẬP CHUẨN SÁCH GỐC")
+    mg_by_ch = {i: [] for i in range(1, 31)}
     for mg in seed["minigames"]:
         mg_by_ch[mg["chapter_number"]].append(mg)
 
     sql.append("DO $$")
     sql.append("DECLARE v_ch_id BIGINT; BEGIN")
-    for ch_num in range(1, 21):
+    for ch_num in range(1, 31):
         mgs = mg_by_ch[ch_num]
         if not mgs:
             continue
@@ -213,9 +217,9 @@ def generate_sql(seed):
         sql.append("    END IF;")
     sql.append("END $$;\n")
 
-    # 6. Seed Achievement Tests (Stages 22..32)
-    sql.append("-- 6. SEED 10 BÀI ACHIEVEMENT TEST ĐỊNH KỲ & KỲ THI TỐT NGHIỆP KANJI N1 (STAGES 22 TO 32)")
-    sql.append("DELETE FROM kanji_achievement_tests WHERE stage BETWEEN 22 AND 32;")
+    # 6. Seed Achievement Tests (Stages 22..33)
+    sql.append("-- 6. SEED 12 ĐỀ THI ACHIEVEMENT TEST & まとめテスト KANJI N1 (STAGES 22 TO 33)")
+    sql.append("DELETE FROM kanji_achievement_tests WHERE stage BETWEEN 22 AND 33;")
     for t in seed["achievement_tests"]:
         st = int(t["stage"])
         title_e = esc(t["title"], 200)
@@ -230,9 +234,9 @@ def generate_sql(seed):
 
 
 def main():
-    print("=" * 68)
-    print("   GENERATING V24 MIGRATION: KANJI MASTER N1 FULL DATASET")
-    print("=" * 68)
+    print("=" * 72)
+    print("   GENERATING V24 MIGRATION: KANJI MASTER N1 (30 CHƯƠNG SÁCH GỐC)")
+    print("=" * 72)
 
     with open(INPUT_JSON, "r", encoding="utf-8") as f:
         seed = json.load(f)
@@ -268,29 +272,28 @@ def main():
 
     print("\nVerifying Database Counts for N1:")
     cur.execute("SELECT count(*) FROM kanji_chapters WHERE jlpt_level = 'N1';")
-    print(f"  - kanji_chapters (N1):           {cur.fetchone()[0]} / 20 chapters")
+    print(f"  - kanji_chapters (N1):           {cur.fetchone()[0]} / 30 chapters")
 
     cur.execute("SELECT count(*) FROM kanjis WHERE jlpt_level = 'N1';")
-    print(f"  - kanjis (N1):                   {cur.fetchone()[0]} / 917 kanjis")
+    print(f"  - kanjis (N1):                   {cur.fetchone()[0]} / 943 kanjis")
 
     cur.execute("SELECT count(*) FROM kanji_chapter_vocab WHERE chapter_id IN (SELECT id FROM kanji_chapters WHERE jlpt_level = 'N1');")
     print(f"  - kanji_chapter_vocab (N1):      {cur.fetchone()[0]} vocab entries (> 3,500)")
 
     cur.execute("SELECT count(*) FROM kanji_exercises WHERE chapter_id IN (SELECT id FROM kanji_chapters WHERE jlpt_level = 'N1');")
-    print(f"  - kanji_exercises (N1):          {cur.fetchone()[0]} exercises (25 x 20)")
+    print(f"  - kanji_exercises (N1):          {cur.fetchone()[0]} exercises (25 x 30)")
 
     cur.execute("SELECT count(*) FROM kanji_minigames WHERE chapter_id IN (SELECT id FROM kanji_chapters WHERE jlpt_level = 'N1');")
     print(f"  - kanji_minigames (N1):          {cur.fetchone()[0]} minigames")
 
-    cur.execute("SELECT count(*) FROM kanji_achievement_tests WHERE stage BETWEEN 22 AND 32;")
-    print(f"  - kanji_achievement_tests (N1):  {cur.fetchone()[0]} tests (Stages 22-32)")
+    cur.execute("SELECT count(*) FROM kanji_achievement_tests WHERE stage BETWEEN 22 AND 33;")
+    print(f"  - kanji_achievement_tests (N1):  {cur.fetchone()[0]} tests (Stages 22-33)")
 
     conn.close()
-    print("\n" + "=" * 68)
+    print("\n" + "=" * 72)
     print("   ALL PHASE 1.2 DATABASE MIGRATION REQUIREMENTS COMPLETED!")
-    print("=" * 68)
+    print("=" * 72)
 
 
 if __name__ == "__main__":
     main()
-

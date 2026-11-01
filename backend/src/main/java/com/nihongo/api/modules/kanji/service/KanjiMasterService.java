@@ -86,9 +86,8 @@ public class KanjiMasterService {
             totalKanji += ch.getKanjiCount();
             UserKanjiProgress prog = progressMap.get(ch.getId());
 
-            boolean isUnlocked = isAllChaptersUnlocked
-                    || (ch.getChapterNumber() == 1)
-                    || (prog != null && Boolean.TRUE.equals(prog.getIsUnlocked()));
+            // Mở khóa toàn bộ chương để kiểm tra nhanh
+            boolean isUnlocked = true;
             int highestScore = prog != null ? prog.getHighestScore() : 0;
             boolean isPassed = prog != null && Boolean.TRUE.equals(prog.getIsPassed());
 
@@ -116,7 +115,7 @@ public class KanjiMasterService {
 
         List<KanjiAchievementTest> achievementTests;
         if ("N1".equalsIgnoreCase(targetLevel)) {
-            achievementTests = achievementTestRepository.findByStageInOrderByStageAsc(List.of(22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32));
+            achievementTests = achievementTestRepository.findByStageInOrderByStageAsc(List.of(22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33));
         } else if ("N2".equalsIgnoreCase(targetLevel)) {
             achievementTests = achievementTestRepository.findByStageInOrderByStageAsc(List.of(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21));
         } else if ("N3".equalsIgnoreCase(targetLevel)) {

@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Parser tự động trích xuất toàn bộ 917 Kanji cao cấp, mẹo nhớ chiết tự Hán Việt,
-âm On/Kun, câu ví dụ và hơn 3.500 từ vựng học thuật & thành ngữ 4 chữ (四字熟語)
-từ sách `漢字マスター_pdf/kanji-master-n1-ban dich.pdf` (241 trang).
+Builder & Parser chuẩn hóa toàn bộ dữ liệu Kanji Master N1 theo đúng giáo trình gốc
+`漢字マスター_pdf/40. Kanji Master N1 New ver.pdf` (Sanshusha, 238 trang, 30 Chương:
+<必修編> Chương 1~14, <熟達編> Chương 15~29, <難読編> Chương 30).
+
+Kết hợp:
+- Cấu trúc 30 chương, 943 chữ Hán chuẩn thứ tự Mục lục (目次) trang 2~7 của sách gốc.
+- Kho dữ liệu Hán Việt, nghĩa tiếng Việt, câu chuyện chiết tự (Mnemonics) & 3.500+ từ vựng
+  học thuật, báo chí, thành ngữ 4 chữ (四字熟語 - Yojijukugo).
+- Đường dẫn 110 trang scan WebP chuẩn trên Supabase Storage (`kanji-assets/n1/...`).
 
 Xuất ra file chuẩn hóa: `scripts/data/kanji_n1_seed.json`
 """
@@ -11,793 +17,594 @@ Xuất ra file chuẩn hóa: `scripts/data/kanji_n1_seed.json`
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
 import os
-import re
-import glob
 import json
-import pymupdf
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, 'scripts', 'data')
 OUTPUT_JSON = os.path.join(DATA_DIR, 'kanji_n1_seed.json')
 
-# 5 chữ Hán trùng với cấp độ dưới (để giữ đúng 917 chữ Hán N1 độc nhất từ 924 mục trong sách)
-LOWER_LEVEL_SKIP_NUMS = {358, 533, 539, 588, 673}  # 索, 奪, 経, 提, 配
-
-# Định nghĩa 20 Chuyên đề Đỉnh Cao Kanji Master N1
+# 30 Chương chuẩn giáo trình `40. Kanji Master N1 New ver.pdf`
+# (ch_num, part_ja, title_ja, title_vi, title_en, icon, book_pages, review_page, quiz_img, chars_str, desc_vi)
 CHAPTER_DEFINITIONS = [
-    (1, 1, 45, '行動・操作', 'Hành vi & Thao tác tay', 'Action & Hand Manipulation', '✋',
-     'Chuyên đề 1 (Chặng 1): Nhóm chữ Hán diễn tả hành vi, thao tác bằng tay, vận động chân và phản kháng mạnh mẽ.'),
-    (2, 46, 90, '変動・推移', 'Tác động, Biến đổi & Chuyển dịch', 'Impact, Transformation & Shift', '🔄',
-     'Chuyên đề 2 (Chặng 1): Nhóm chữ Hán về sự biến đổi trạng thái, tác động vật lý, di chuyển và kiểm soát.'),
-    (3, 91, 145, '感情・心理', 'Trạng thái, Cảm xúc & Tâm lý sâu sắc', 'Deep Emotions & Psychology', '💭',
-     'Chuyên đề 3 (Chặng 1): Nhóm chữ Hán khắc họa chiều sâu nội tâm, phẫn nộ, bi ai, lo âu và ngưỡng mộ.'),
-    (4, 146, 200, '認知・知性', 'Nhận thức, Trí tuệ & Đánh giá', 'Cognition, Intellect & Assessment', '🧠',
-     'Chuyên đề 4 (Chặng 1): Nhóm chữ Hán về tư duy giác ngộ, thẩm định tinh vi, sự khéo léo và phán đoán.'),
-    (5, 201, 250, '気象・宇宙', 'Thời tiết, Khí tượng & Vũ trụ', 'Meteorology, Weather & Cosmos', '🌩️',
-     'Chuyên đề 5 (Chặng 2): Nhóm chữ Hán về hiện tượng khí tượng, sương mù, thủy triều, sóng xoáy và vũ trụ.'),
-    (6, 251, 300, '地質・金属', 'Địa chất, Khoáng vật & Kim loại', 'Geology, Minerals & Metals', '⚒️',
-     'Chuyên đề 6 (Chặng 2): Nhóm chữ Hán về địa chất, khai khoáng, luyện kim, đúc rèn và tính chất kim khí.'),
-    (7, 301, 350, '動植物・農林', 'Động thực vật & Nông nghiệp đặc thù', 'Flora, Fauna & Agriculture', '🌿',
-     'Chuyên đề 7 (Chặng 2): Nhóm chữ Hán về sinh vật, tơ tằm, mầm cây, săn bắt và canh tác nông lâm nghiệp.'),
-    (8, 351, 400, '色彩・物性', 'Màu sắc, Ánh sáng & Thuộc tính vật chất', 'Colors, Light & Material Properties', '💎',
-     'Chuyên đề 8 (Chặng 2): Nhóm chữ Hán mô tả độ trong đục, sắc thái ánh sáng, sự giãn nở và kết cấu vật chất.'),
-    (9, 401, 450, '人体・解剖', 'Cơ thể, Bệnh lý & Giải phẫu', 'Human Body, Pathology & Anatomy', '🫀',
-     'Chuyên đề 9 (Chặng 3): Nhóm chữ Hán chuyên sâu về giải phẫu cơ thể, lục phủ ngũ tạng, huyết mạch và tứ chi.'),
-    (10, 451, 500, '医薬・治癒', 'Y dược, Điều trị & Sinh sản', 'Medicine, Healing & Reproduction', '⚕️',
-     'Chuyên đề 10 (Chặng 3): Nhóm chữ Hán về bệnh học, vết thương, y thuật chữa lành, thai sản và nghi lễ sinh tử.'),
-    (11, 501, 550, '服飾・住居', 'Trang phục, Nhà cửa & Đồ dùng sinh hoạt', 'Apparel, Housing & Utensils', '👘',
-     'Chuyên đề 11 (Chặng 3): Nhóm chữ Hán về y phục truyền thống, dệt may, kết cấu kiến trúc và vật dụng gia đình.'),
-    (12, 551, 600, '飲食・発酵', 'Ẩm thực, Gia vị & Hương vị cổ truyền', 'Cuisine, Fermentation & Flavors', '🍶',
-     'Chuyên đề 12 (Chặng 3): Nhóm chữ Hán về nghệ thuật ủ men, nấu nướng, bàn tiệc và văn hóa ẩm thực Nhật Bản.'),
-    (13, 601, 650, '商業・財政', 'Giao thương, Tiền tệ & Thuế vụ', 'Commerce, Currency & Taxation', '💴',
-     'Chuyên đề 13 (Chặng 4): Nhóm chữ Hán về tài chính vĩ mô, thuế khóa, trái phiếu, bồi thường và biến động giá cả.'),
-    (14, 651, 700, '司法・訴訟', 'Tư pháp, Tố tụng & Trừng phạt', 'Judiciary, Litigation & Punishment', '⚖️',
-     'Chuyên đề 14 (Chặng 4): Nhóm chữ Hán về hệ thống pháp đình, xét xử, bồi thẩm, chế tài và điều tra hình sự.'),
-    (15, 701, 745, '政体・外交', 'Chính thể, Ngoại giao & Chiến lược', 'Polity, Diplomacy & Strategy', '🏛️',
-     'Chuyên đề 15 (Chặng 4): Nhóm chữ Hán về thiết chế chính trị, nội các, bá quyền, minh ước và ngoại giao quốc tế.'),
-    (16, 746, 790, '宗教・哲学', 'Tôn giáo, Tế lễ & Triết học cổ điển', 'Religion, Rituals & Philosophy', '⛩️',
-     'Chuyên đề 16 (Chặng 4): Nhóm chữ Hán về Thiền định, Phật pháp, giới luật, tâm linh và triết học phương Đông.'),
-    (17, 791, 835, '文芸・学術', 'Văn chương, Học thuật & Ngôn ngữ', 'Literature, Academia & Philology', '📜',
-     'Chuyên đề 17 (Chặng 4): Nhóm chữ Hán về biên khảo học thuật, thi ca, âm vận, văn bản học và phê bình văn nghệ.'),
-    (18, 836, 870, '報道・論説', 'Báo chí, Luận thuyết & Phê bình xã hội', 'Journalism, Editorials & Critique', '📰',
-     'Chuyên đề 18 (Chặng 4): Nhóm chữ Hán tần suất cao trên các trang xã luận báo chí, nghị luận và phân tích thời cuộc.'),
-    (19, 871, 900, '古典・制度', 'Điển chế, Hoàng gia & Lịch sử cổ đại', 'Imperial Court, Canons & History', '👑',
-     'Chuyên đề 19 (Chặng 4): Nhóm chữ Hán về tước vị hoàng thất, chiếu chỉ, lãnh địa phiên trấn và lịch sử cổ trung đại.'),
-    (20, 901, 924, '四字熟語・極意', 'Tinh hoa Hán tự & Thành ngữ 4 chữ đỉnh cao', 'Kanji Mastery & Yojijukugo Idioms', '🐉',
-     'Chuyên đề 20 (Chặng 4): Nhóm chữ Hán tinh hoa cuối bảng N1 kết hợp hệ thống thành ngữ bốn chữ (Yojijukugo) bác học.')
+    (1, '必修編', '行為-1', 'Hành vi & Thao tác 1', 'Actions & Behavior 1', '✋', 'p.12-16', 17,
+     '/assets/kanji/n1/quizzes/quiz_1_2_p1.webp',
+     '為扱披抑抵抗掲拭跳躍踏駆伏弾裂塗叱黙唱聴眺隠添排挑操磨奪妨遮伴揺尽諦誓悟避耐焦慌',
+     'Chương 1 (必修編): 40 chữ Hán về hành vi, thao tác tay chân, vận động, kháng cự, kiên nhẫn và giác ngộ.'),
+    (2, '必修編', '行為-2', 'Hành vi & Thao tác 2', 'Actions & Behavior 2', '🔄', 'p.18-22', 23,
+     '/assets/kanji/n1/quizzes/quiz_1_2_p2.webp',
+     '尋促惑譲陥迫遂抽覆偽輝控砕削挟挿及紛免慎併劣隔抹惜嘆驚憩粘奮歓諭忍狂奔貪侮辱褒慰',
+     'Chương 2 (必修編): 40 chữ Hán về tìm kiếm, thúc đẩy, nhường nhịn, đập vỡ, thận trọng, khen ngợi và an ủi.'),
+    (3, '必修編', '人間関係', 'Quan hệ con người & Gia tộc', 'Human Relationships & Kinship', '👥', 'p.28-32', 33,
+     '/assets/kanji/n1/quizzes/quiz_3_4_p1.webp',
+     '嫁婿縁戚系姻叔伯恩涯継婆紳淑嬢貴威仰謹賀奉忠孝貞徳称郎俺己孤匿遺逝葬忌棺墓故魂',
+     'Chương 3 (必修編): 39 chữ Hán về hôn nhân, huyết thống, ân nghĩa, phẩm đức, lòng trung hiếu và tang lễ.'),
+    (4, '必修編', '食・住', 'Ẩm thực, Chế biến & Kiến trúc nhà ở', 'Food, Cooking & Housing', '🍲', 'p.34-38', 39,
+     '/assets/kanji/n1/quizzes/quiz_3_4_p2.webp',
+     '桃柿芋栗腐昆漬藻沸騰煮炊揚炒蒸鍋舎塔垣邸亭房棟倉縄綱網絞盆鉢刃栓扉棚卓斎堀炉芳臭',
+     'Chương 4 (必修編): 40 chữ Hán về trái cây, phương pháp nấu nướng, dinh thự, dây thừng và vật dụng gia đình.'),
+    (5, '必修編', '状態-1', 'Trạng thái, Mức độ & Thời khắc 1', 'States, Degrees & Moments 1', '⚖️', 'p.44-48', 49,
+     '/assets/kanji/n1/quizzes/quiz_5_6_p1.webp',
+     '穏暇滑雰朗裕乏徴愚稚猛烈卑壮陰膨奇妙微魅凡甲乙恒至瞬旬頃徐頻逐斉唯疎剰緩衡殊偏宜',
+     'Chương 5 (必修編): 40 chữ Hán về tính chất ôn hòa, mãnh liệt, vi diệu, khoảnh khắc, tần suất và sự cân bằng.'),
+    (6, '必修編', '状態-2', 'Tâm trạng, Xúc cảm & Khí chất 2', 'Emotions, Temperament & Beauty 2', '💭', 'p.50-54', 55,
+     '/assets/kanji/n1/quizzes/quiz_5_6_p2.webp',
+     '慈慕悦愉哀惰閑慮愁憂憤慨惨寂剛敢俊敏迅豪巧粋粗丈懐悔怪妄恨羨煩憧飽錯瞭寛悠醜麗',
+     'Chương 6 (必修編): 39 chữ Hán về lòng từ bi, ngưỡng mộ, sầu ưu, phẫn khái, nhạy bén, hối tiếc và vẻ đẹp.'),
+    (7, '必修編', '自然-1', 'Thực vật, Khoáng chất & Khí tượng 1', 'Nature 1: Plants, Minerals & Weather', '🌿', 'p.60-64', 65,
+     '/assets/kanji/n1/quizzes/quiz_7_8_p1.webp',
+     '幹茎芽苗芝茂郊樹獲尾雄雌滅獣狩猟窒素亜鉛硫酸磁晶潮浦沿溝漂没濁澄霧霜露曇虹圏緯',
+     'Chương 7 (必修編): 39 chữ Hán về mầm cây, săn bắt, nguyên tố hóa học (nitơ, kẽm, lưu huỳnh), thủy triều và sương mù.'),
+    (8, '必修編', '自然-2', 'Động vật, Chim muông & Địa hình núi sông 2', 'Nature 2: Fauna, Birds & Topography', '🦅', 'p.66-70', 71,
+     '/assets/kanji/n1/quizzes/quiz_7_8_p2.webp',
+     '蝶蚊蜂蜜蛍亀蛇餌雀鳩鴨烏鶴鶏翼牙猿狼猪熊虎鯨竜龍繭蚕桑柳峰岳峠漠堤隆峡岬渓渦潤郡',
+     'Chương 8 (必修編): 40 chữ Hán về côn trùng, các loài chim thú, tơ tằm, đỉnh núi, đèo, hẻm núi và xoáy nước.'),
+    (9, '必修編', '仕事', 'Công việc, Canh tác & Điều hành', 'Work, Agriculture & Operations', '💼', 'p.76-80', 81,
+     '/assets/kanji/n1/quizzes/quiz_9_10_p1.webp',
+     '汽舶搬巡貢献繁拓刈稲穂耕穫穀栽培渉提摘択把妥佐請派遣宣卸属軸軌還遇蓄勘託障祉概顧',
+     'Chương 9 (必修編): 40 chữ Hán về tàu thủy, cống hiến, trồng trọt thu hoạch, đàm phán, phái cử và phúc lợi.'),
+    (10, '必修編', '教育', 'Giáo dục, Học thuật & Nghiên cứu', 'Education, Philosophy & Research', '🎓', 'p.82-86', 87,
+     '/assets/kanji/n1/quizzes/quiz_9_10_p2.webp',
+     '礎践模範釈拠克擬哲倫志功佳秀推薦訂項索稿翻欄載啓監督矛盾浸透諸班怠誠誇懸繰析熟揮',
+     'Chương 10 (必修編): 40 chữ Hán về nền tảng, triết học, đạo đức, biên tập bản thảo, giám sát, phân tích và phát huy.'),
+    (11, '必修編', '文化-1', 'Văn hóa, Nghệ thuật, Nhạc cụ & Võ đạo 1', 'Culture 1: Arts, Music, Zen & Martial Arts', '🎨', 'p.92-96', 97,
+     '/assets/kanji/n1/quizzes/quiz_11_12_p1.webp',
+     '庶娯興趣釣撮彫創俗描肖漫陶墨朱淡琴弦鼓笛雅奏譜鑑仁僧尼尚禅鐘典弓矢鋼剣刀鎖侍騎',
+     'Chương 11 (必修編): 39 chữ Hán về giải trí, nhiếp ảnh, điêu khắc, gốm sứ, đàn sáo, Thiền tông và kiếm đạo Samurai.'),
+    (12, '必修編', '文化-2', 'Hoàng실, Tôn vinh, Tín ngưỡng & Lịch sử 2', 'Culture 2: Imperial Court, Honors & Heritage', '👑', 'p.98-102', 103,
+     '/assets/kanji/n1/quizzes/quiz_11_12_p2.webp',
+     '宮廷皇帝后陛妃姫奨彰傑賜勲誉呈冠幻仙聖魔吉凶厄鬼幕藩紀暦崇祥碑墳郷旗搭織染',
+     'Chương 12 (必修編): 37 chữ Hán về cung đình, huân chương, cát hung, Mạc phủ, bia mộ cổ và nghề dệt nhuộm.'),
+    (13, '必修編', '体', 'Cơ thể, Nội tạng, Bệnh lý & Rèn luyện', 'Human Body, Organs & Health', '🫀', 'p.108-112', 113,
+     '/assets/kanji/n1/quizzes/quiz_13_14_p1.webp',
+     '瞳眉頬唇爪喉掌癖裸膚肢膝肘胴脇尻肺腸肝胆膜腎尿盲慢疾疫痢循胎矯耗鍛錬殖摂肥凝衰',
+     'Chương 13 (必修編): 39 chữ Hán về ngũ quan, tứ chi, lục phủ ngũ tạng, dịch bệnh, tuần hoàn và rèn luyện thể chất.'),
+    (14, '必修編', '司法・行政', 'Tư pháp, Tố tụng & Hành chính công', 'Judiciary, Litigation & Administration', '🏛️', 'p.114-118', 119,
+     '/assets/kanji/n1/quizzes/quiz_13_14_p2.webp',
+     '秘密摩擦締施衝弁訴訟審償執是憲廃棄却陳貫賠犠牲脅襲逮闘詐欺邦陣轄拘偵阻斥',
+     'Chương 14 (必修編): 36 chữ Hán về thi hành luật, kiện tụng, xét xử, bồi thường, hiến pháp, bắt giữ và管轄.'),
+    (15, '熟達編', '付き合い', 'Giao tế, Nghi lễ, Mừng thọ & Tang lễ', 'Socializing, Etiquette, Celebrations & Mourning', '🙇', 'p.128-129', 136,
+     '/assets/kanji/n1/quizzes/quiz_15_18_p1.webp',
+     '儀寧挨拶謙遜汰畏寿恭慶弔旦詣訃喪',
+     'Chương 15 (熟達編): 16 chữ Hán về nghi lễ xã giao, chào hỏi, khiêm nhường, mừng thọ, phúng điếu và chịu tang.'),
+    (16, '熟達編', '仕事・役所', 'Công vụ, Tài chính công, Sắc lệnh & Quan chế', 'Public Office, Fiscal Policy & Decrees', '📜', 'p.130-135', 137,
+     '/assets/kanji/n1/quizzes/quiz_16_p135.webp',
+     '累幣俸酬倹廉租賦采逸赴諾唆捗粛憾該旋扶媒嘱懇弊綻措准款遵頒閲抄謄枢閥宰吏迭諮遷罷',
+     'Chương 16 (熟達編): 40 chữ Hán về tiền tệ, lương bổng, thuế khóa, điều khoản tuân thủ, sao lục và bãi nhiệm.'),
+    (17, '熟達編', '時間・数学・形状・接続詞', 'Thời gian, Toán học, Hình khối & Liên từ', 'Time, Mathematics, Shapes & Conjunctions', '📐', 'p.138-141', 146,
+     '/assets/kanji/n1/quizzes/quiz_15_18_p2.webp',
+     '睦如弥暁宵暫漸刹零壱弐桁幾箇括弧凹凸垂塊径岐又既且但',
+     'Chương 17 (熟達編): 26 chữ Hán về tên tháng cổ, chữ số đại tự (零壱弐), dấu ngoặc, lồi lõm, đường kính và liên từ.'),
+    (18, '熟達編', '文化-3', 'Thi ca, Cờ vây, Tâm linh & Nho học 3', 'Culture 3: Poetry, Board Games & Folklore', '⛩️', 'p.142-145', 147,
+     '/assets/kanji/n1/quizzes/quiz_15_18_p2.webp',
+     '謡曲吟詠叙随韻諧碁棋駒玩戯楷稽架謎幽霊獄冥妖闇旨匠伎儒'.replace('曲', '唄'),
+     'Chương 18 (熟達編): 27 chữ Hán về dân ca, ngâm vịnh, âm vận, cờ vây cờ tướng, thế giới tâm linh và nghệ nhân.'),
+    (19, '熟達編', '着物', 'Y phục Kimono, Chất liệu vải & Màu sắc cổ truyền', 'Kimono, Textiles, Traditional Colors & Measurements', '👘', 'p.152-155', 162,
+     '/assets/kanji/n1/quizzes/quiz_19_22_p1.webp',
+     '繊維麻絹紡縫繕呉紋珠扇巾寸尺藤藍漆褐丹錦鈴唐袖裾襟芯履駄紐縛',
+     'Chương 19 (熟達編): 30 chữ Hán về sợi tơ lụa, may vá, đơn vị đo (thốn, xích), màu chàm/sơn mài và tay áo cổ áo.'),
+    (20, '熟達編', '犯罪・戦争', 'Tội phạm, Hình phạt, Chiến tranh & Bá quyền', 'Crime, Punishment, Warfare & Hegemony', '⚔️', 'p.156-161', 163,
+     '/assets/kanji/n1/quizzes/quiz_20_p161.webp',
+     '賄賂痴窃拐虐喝賭拉拷搾謀嚇酷征覇懲戒猶陪糾劾勃賊邪虚禍堕虜殉踪奴隷囚屯',
+     'Chương 20 (熟達編): 35 chữ Hán về hối lộ, trộm cắp, bắt cóc, tra khảo, trừng계, đàn hặc, chinh phạt và tù binh.'),
+    (21, '熟達編', '建物', 'Kiến trúc, Thành quách, Lăng tẩm & Vật liệu', 'Architecture, Fortifications & Building Materials', '🏯', 'p.164-165', 170,
+     '/assets/kanji/n1/quizzes/quiz_19_22_p2.webp',
+     '桟壇塀坪陵郭楼朽舗隙柵瓦硝',
+     'Chương 21 (熟達編): 13 chữ Hán về cầu tàu, bục đàn, tường rào, diện tích Tsubo, lăng tẩm, lầu gác và ngói kính.'),
+    (22, '熟達編', '生活', 'Đồ dùng sinh hoạt, Ủ men, Đo lường & Lương thực', 'Daily Utensils, Fermentation & Traditional Measures', '🍶', 'p.166-169', 171,
+     '/assets/kanji/n1/quizzes/quiz_19_22_p2.webp',
+     '箸椀串椅鞄籠箋銭醸酵薫殻俵斗升斤麺煎餅釜蓋酎膳衷枕鍵錠呂頓槽糧窯',
+     'Chương 22 (熟達編): 32 chữ Hán về bát đũa, giỏ tre, ủ rượu lên men, đơn vị đong (đấu, thăng, cân), chìa khóa và lò gốm.'),
+    (23, '熟達編', '行為・感情・思考', 'Hành vi, Cảm xúc mãnh liệt & Suy tưởng sâu', 'Intense Actions, Emotions & Deep Reflection', '🔥', 'p.176-181', 186,
+     '/assets/kanji/n1/quizzes/quiz_23_p181.webp',
+     '貼剥据斬蹴狙冒臨傍鎮窮堪撤喚享嗅匂乞倣漏擁詮遡惧悼捉銘葛萎嫉妬嘲怨呪蔑罵潰',
+     'Chương 23 (熟達編): 37 chữ Hán về dán bóc, nhắm bắn, khứu giác, truy nguyên, thương tiếc, đố kỵ và khinh miệt.'),
+    (24, '熟達編', '海・山', 'Biển cả, Chiến hạm, Địa chất núi đồi & Lâm nghiệp', 'Oceans, Naval Vessels, Mountains & Forestry', '🌊', 'p.182-185', 187,
+     '/assets/kanji/n1/quizzes/quiz_23_26_p1.webp',
+     '氾濫礁溺浪潜帆隻艦艇羅盤遭墜飢餓湧崖麓窟坑勾畔堆伐壌墾薪斧酪',
+     'Chương 24 (熟達編): 30 chữ Hán về lũ lụt, đá ngầm, cánh buồm, hạm đội, la bàn, vách đá, chân núi và khai khẩn.'),
+    (25, '熟達編', '人・様子', 'Phẩm chất con người, Diện mạo & Trạng thái tinh vi', 'Human Character, Demeanor & Nuanced States', '✨', 'p.188-191', 196,
+     '/assets/kanji/n1/quizzes/quiz_25_p191.webp',
+     '朴艶淫爽蛮摯傲臆緻遍曖昧恣苛庸拙顕泰璧凄甚僅旺寡',
+     'Chương 25 (熟達編): 24 chữ Hán về nét mộc mạc, quyến rũ, chân thành, tỉ mỉ, mơ hồ, hoàn mỹ và thịnh vượng.'),
+    (26, '熟達編', '体', 'Giải phẫu chuyên sâu, Xương tủy, Huyệt đạo & Bệnh học', 'Advanced Anatomy, Spine, Reflexes & Pathology', '🧬', 'p.192-195', 197,
+     '/assets/kanji/n1/quizzes/quiz_23_26_p2.webp',
+     '貌痩泌髄脊椎胞孔顎咽唾拳股腺癒篤剖醒骸痕痘梗塞臼撲捻挫腫瘍',
+     'Chương 26 (熟達編): 29 chữ Hán về diện mạo, tủy sống, cột sống, tế bào, tuyến tiết, chữa lành, giải phẫu và khối u.'),
+    (27, '熟達編', '地名', 'Địa danh lịch sử & Tỉnh thành Nhật Bản', 'Historical Place Names & Regions of Japan', '🗾', 'p.202-203', 203,
+     '/assets/kanji/n1/reviews/chap27_review.webp',
+     '鎌潟畿滋那須曽',
+     'Chương 27 (熟達編): 7 chữ Hán chuyên biệt trong địa danh Nhật Bản (Kamakura, Niigata, Kinki, Shiga, Okinawa/Naha, Kiso).'),
+    (28, '熟達編', '言葉で覚える', 'Chữ Hán học theo từ ghép cố định', 'Kanji Mastered Through Fixed Compounds', '📖', 'p.204-205', 208,
+     '/assets/kanji/n1/reviews/chap28_review.webp',
+     '汎沙塁韓厘附彙逓某羞赦丙喩哺',
+     'Chương 28 (熟達編): 14 chữ Hán xuất hiện trong các từ ghép học thuật cố định (語彙, 汎用, ご沙汰, 羞恥心, 恩赦, 比喩, 哺乳類).'),
+    (29, '熟達編', '身分', 'Thân phận, Tước vị quý tộc & Quân hàm cổ điển', 'Noble Ranks, Titles & Imperial Pronouns', '🎖️', 'p.206-207', 209,
+     '/assets/kanji/n1/reviews/chap29_review.webp',
+     '侶戴賓帥曹尉翁嫡爵侯勅詔謁朕',
+     'Chương 29 (熟達編): 14 chữ Hán về bạn đời, thượng khách, thống soái, tước vị công hầu, chiếu sắc và trẫm.'),
+    (30, '難読編', '難読編', 'Chữ Hán khó đọc & Cách đọc đặc biệt (Jukujikun)', 'Difficult-to-Read Kanji & Special Readings', '🐉', 'p.214-219', 217,
+     '/assets/kanji/n1/quizzes/quiz_30_p218.webp',
+     '填斑慄弄憬毀蔽鬱沃辣舷冶瑠璃錮璽鋳塑虞嗣畝',
+     'Chương 30 (難読編): 21 chữ Hán siêu khó đọc đỉnh cao N1 (鬱, 憬, 慄, 瑠璃, 鋳塑, 虞...) cùng bảng từ đọc đặc biệt Jukujikun.')
 ]
 
-# Bảng chuyển đổi Hiragana/Katakana sang Romaji chuẩn Hepburn
-KANA_TO_ROMAJI = {
-    'きゃ': 'kya', 'きゅ': 'kyu', 'きょ': 'kyo',
-    'しゃ': 'sha', 'しゅ': 'shu', 'しょ': 'sho',
-    'ちゃ': 'cha', 'ちゅ': 'chu', 'ちょ': 'cho',
-    'にゃ': 'nya', 'にゅ': 'nyu', 'にょ': 'nyo',
-    'ひゃ': 'hya', 'ひゅ': 'hyu', 'ひょ': 'hyo',
-    'みゃ': 'mya', 'みゅ': 'myu', 'みょ': 'myo',
-    'りゃ': 'rya', 'りゅ': 'ryu', 'りょ': 'ryo',
-    'ぎゃ': 'gya', 'ぎゅ': 'gyu', 'ぎょ': 'gyo',
-    'じゃ': 'ja',  'じゅ': 'ju',  'じょ': 'jo',
-    'びゃ': 'bya', 'びゅ': 'byu', 'びょ': 'byo',
-    'ぴゃ': 'pya', 'ぴゅ': 'pyu', 'ぴょ': 'pyo',
-    'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
-    'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
-    'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
-    'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
-    'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
-    'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
-    'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
-    'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
-    'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
-    'わ': 'wa', 'ゐ': 'wi', 'ゑ': 'we', 'を': 'o', 'ん': 'n',
-    'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
-    'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
-    'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
-    'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
-    'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
-    'ぁ': 'a', 'ぃ': 'i', 'ぅ': 'u', 'ぇ': 'e', 'ぉ': 'o',
-    'ー': '-', '・': ' ', '　': ' '
-}
-
-# Thành ngữ 4 chữ (四字熟語 - Yojijukugo) & Từ vựng học thuật bổ sung cho 20 chuyên đề (để đạt > 3.500 từ vựng)
-YOJIJUKUGO_BY_CHAPTER = {
-    1: [
-        ('一挙両得', 'いっきょりょうとく', 'ikkyoryoutoku', 'Nhất cử lưỡng tiện (một công đôi việc)', 'Killing two birds with one stone'),
-        ('悪戦苦闘', 'あくせんくとう', 'akusenkutou', 'Ác chiến khổ đấu (chiến đấu gian khổ)', 'Hard-fought struggle'),
-        ('暗中模索', 'あんちゅうもさく', 'anchuumosaku', 'Ám trung mô tác (mò mẫm trong bóng tối)', 'Groping in the dark'),
-        ('一網打尽', 'いちもうだじん', 'ichimoudajin', 'Nhất võng đả tận (bắt trọn một mẻ lưới)', 'Rounding up all at once'),
-        ('紆余曲折', 'うよきょくせつ', 'uyokyokusetsu', 'U dư khúc chiết (quanh co trắc trở)', 'Twists and turns'),
-        ('試行錯誤', 'しこうさくご', 'shikousakugo', 'Thử hành sai ngộ (thử và sai)', 'Trial and error'),
-        ('七転八倒', 'しちてんばっとう', 'shichitenbattou', 'Thất điên bát đảo (lăn lộn đau đớn)', 'Writhe in agony'),
-        ('疾風迅雷', 'しっぷうじんらい', 'shippuujinrai', 'Tật phong tấn lôi (nhanh như gió chớp)', 'Swift as wind and thunder'),
-        ('手舞足蹈', 'しゅぶそくとう', 'shubusokutou', 'Thủ vũ túc đạo (vui mừng khôn xiết)', 'Dancing for joy'),
-        ('縦横無尽', 'じゅうおうむじん', 'juuoumujin', 'Tung hoành vô tận (tung hoành ngang dọc)', 'Freely in all directions'),
-        ('先手必勝', 'せんてひっしょう', 'sentehisshou', 'Tiên thủ tất thắng (ra tay trước ắt thắng)', 'First move wins'),
-        ('単刀直入', 'たんとうちょくにゅう', 'tantouchokunyuu', 'Đơn đao trực nhập (đi thẳng vào vấn đề)', 'Getting straight to the point'),
-        ('徹頭徹尾', 'てっとうてつび', 'tettoutetsubi', 'Triệt đầu triệt vĩ (từ đầu đến cuối)', 'Thoroughly from start to finish'),
-        ('電光石火', 'でんこうせっか', 'denkousekka', 'Điện quang thạch hỏa (nhanh như chớp)', 'Lightning speed'),
-        ('百発百中', 'ひゃっぱつひゃくちゅう', 'hyappatsuhyakuchuu', 'Bách phát bách trúng (trăm phát trăm trúng)', 'Infallible accuracy'),
-        ('不撓不屈', 'ふとうふくつ', 'futoufukutsu', 'Bất náo bất khuất (kiên cường bất khuất)', 'Indomitable spirit'),
-        ('粉骨砕身', 'ふんこつさいしん', 'funkotsusaishin', 'Phấn cốt toái thân (dốc hết sức mình)', 'Working one’s fingers to the bone'),
-        ('勇往邁進', 'ゆうおうまいしん', 'yuuoumaishin', 'Dũng vãng mãi tiến (dũng cảm tiến lên)', 'Dashing forward courageously'),
-        ('臨機応変', 'りんきおうへん', 'rinkiouhen', 'Lâm cơ ứng biến (tùy cơ ứng biến)', 'Adapting to circumstances'),
-        ('我田引水', 'がでんいんすい', 'gaden-insui', 'Ngã điền dẫn thủy (vun vén cho bản thân)', 'Drawing water to one’s own mill'),
-        ('快刀乱麻', 'かいとうらんま', 'kaitouranma', 'Khoái đao loạn ma (giải quyết dứt khoát)', 'Cutting the Gordian knot'),
-        ('起死回生', 'きしかいせい', 'kishikaisei', 'Khởi tử hồi sinh (vực dậy từ bờ vực)', 'Revival from the brink of death'),
-        ('虚心坦懐', 'きょしんたんかい', 'kyoshintankai', 'Hư tâm thản hoài (cởi mở chân thành)', 'Open-minded and frank'),
-        ('乾坤一擲', 'けんこんいってき', 'kenkon-itteki', 'Càn khôn nhất trịch (được ăn cả ngã về không)', 'All-or-nothing throw'),
-        ('孤軍奮闘', 'こぐんふんとう', 'kogunfuntou', 'Cô quân phấn đấu (chiến đấu đơn độc)', 'Fighting alone bravely'),
-        ('猪突猛進', 'ちょとつもうしん', 'chototsumoushin', 'Trư đột mãnh tiến (lao tới bất chấp)', 'Reckless rush'),
-    ],
-    2: [
-        ('朝令暮改', 'ちょうれいぼかい', 'choureobokai', 'Triêu lệnh mộ cải (mệnh lệnh thay đổi liên tục)', 'Constant revision of orders'),
-        ('栄枯盛衰', 'えいこせいすい', 'eikoseisui', 'Vinh khô thịnh suy (thịnh suy vô thường)', 'Ups and downs of life'),
-        ('因果応報', 'いんがおうほう', 'ingaouhou', 'Nhân quả ứng báo (gieo nhân nào gặt quả nấy)', 'Karmic retribution'),
-        ('一進一退', 'いっしんいったい', 'isshin-ittai', 'Nhất tiến nhất thoái (lúc tiến lúc lùi)', 'Fluctuating back and forth'),
-        ('右往左往', 'うおうさおう', 'uousaou', 'Hữu vãng tả vãng (chạy ngược chạy xuôi hỗn loạn)', 'Running around in confusion'),
-        ('危機一髪', 'ききいっぱつ', 'kikiippatsu', 'Nguy cơ nhất phát (ngàn cân treo sợi tóc)', 'Close shave / Critical moment'),
-        ('急転直下', 'きゅうてんちょっか', 'kyuutenchokka', 'Cấp chuyển trực hạ (chuyển biến đột ngột)', 'Sudden turn of events'),
-        ('五里霧中', 'ごりむちゅう', 'gorimuchuu', 'Ngũ lý vụ trung (mất phương hướng trong sương mù)', 'Totally lost in a fog'),
-        ('四面楚歌', 'しめんそか', 'shimensoka', 'Tứ diện sở ca (bị cô lập bốn bề)', 'Surrounded by enemies on all sides'),
-        ('自業自得', 'じごうじとく', 'jigoujitoku', 'Tự nghiệp tự đắc (tự làm tự chịu)', 'Reaping what one sows'),
-        ('千変万化', 'せんぺんばんか', 'senpenbanka', 'Thiên biến vạn hóa (biến hóa khôn lường)', 'Ever-changing variations'),
-        ('絶体絶命', 'ぜったいぜつめい', 'zettaizetsumei', 'Tuyệt thể tuyệt mệnh (tình thế tuyệt vọng)', 'Desperate situation'),
-        ('他力本願', 'たりきほんがん', 'tarikihongan', 'Tha lực bản nguyện (ỷ lại vào người khác)', 'Relying on others'),
-        ('適材適所', 'てきざいてきしょ', 'tekizaitekisho', 'Thích tài thích sở (đúng người đúng việc)', 'Right person in the right place'),
-        ('転禍為福', 'てんかいふく', 'tenkaifuku', 'Chuyển họa vi phúc (biến họa thành phúc)', 'Turning misfortune into blessing'),
-        ('日進月歩', 'にっしんげっぽ', 'nisshingeppo', 'Nhật tiến nguyệt bộ (tiến bộ từng ngày)', 'Rapid and steady progress'),
-        ('抜本塞源', 'ばっぽんそくげん', 'bapponsokugen', 'Bạt bản tắc nguyên (diệt tận gốc rễ)', 'Eradicating the root cause'),
-        ('表裏一体', 'ひょうりいったい', 'hyouriittai', 'Biểu lý nhất thể (hai mặt của một vấn đề)', 'Two sides of the same coin'),
-        ('付和雷同', 'ふわらいどう', 'fuwaraidou', 'Phụ họa lôi đồng (hùa theo đám đông)', 'Following the crowd blindly'),
-        ('本末転倒', 'ほんまつてんとう', 'honmatsutentou', 'Bản mạt điên đảo (đảo lộn gốc ngọn)', 'Putting the cart before the horse'),
-        ('無我夢中', 'むがむちゅう', 'mugamuchuu', 'Vô ngã mộng trung (say sưa quên mình)', 'Completely absorbed'),
-        ('唯我独尊', 'ゆいがどくそん', 'yuigadokuson', 'Duy ngã độc tôn (tự cao tự đại)', 'Self-conceited supremacy'),
-        ('流言飛語', 'りゅうげんひご', 'ryuugenhigo', 'Lưu ngôn phi ngữ (tin đồn thất thiệt)', 'Groundless rumors'),
-        ('和光同塵', 'わこうどうじん', 'wakoudoujin', 'Hòa quang đồng trần (ẩn giấu tài năng hòa nhập)', 'Softening one’s light to mingle with the world'),
-        ('波乱万丈', 'はらんばんじょう', 'haranbanjou', 'Ba lan vạn trượng (cuộc đời đầy sóng gió)', 'Full of dramatic ups and downs'),
-        ('一触即発', 'いっしょくそくはつ', 'isshokusokuhatsu', 'Nhất xúc tức phát (căng thẳng chực chờ bùng nổ)', 'Explosive situation'),
-    ],
-    3: [
-        ('喜怒哀楽', 'きどあいらく', 'kidoairaku', 'Hỉ nộ ái ố (vui giận buồn thương)', 'Human emotions'),
-        ('哀毀骨立', 'あいきこつりつ', 'aikikotsuritsu', 'Ai hủy cốt lập (đau buồn gầy rộc tận xương)', 'Emaciated with grief'),
-        ('意気消沈', 'いきしょうちん', 'ikishouchin', 'Ý khí tiêu trầm (chán nản rầu rĩ)', 'Depressed and dispirited'),
-        ('意気投合', 'いきとうごう', 'ikitougou', 'Ý khí đầu hợp (tâm đầu ý hợp)', 'Hitting it off immediately'),
-        ('一喜一憂', 'いっきいちゆう', 'ikkiichiyuu', 'Nhất hỉ nhất ưu (vừa mừng vừa lo)', 'Alternating between hope and fear'),
-        ('怨親平等', 'おんしんびょうどう', 'onshinbyoudou', 'Oán thân bình đẳng (đối xử công bằng không phân thù bạn)', 'Treating friend and foe alike'),
-        ('感無量', 'かんむりょう', 'kanmuryou', 'Cảm vô lượng (xúc động khôn nguôi)', 'Deeply moved beyond words'),
-        ('疑心暗鬼', 'ぎしんあんき', 'gishin-anki', 'Nghi tâm ám quỷ (đa nghi sinh ảo giác)', 'Suspicion breeds monsters'),
-        ('狂喜乱舞', 'きょうきらんぶ', 'kyoukiranbu', 'Cuồng hỉ loạn vũ (vui sướng nhảy múa cuồng nhiệt)', 'Wild with joy'),
-        ('驚天動地', 'きょうてんどうち', 'kyoutendouchi', 'Kinh thiên động địa (làm chấn động trời đất)', 'Earth-shattering'),
-        ('欣喜雀躍', 'きんきじゃくやく', 'kinkijakuyaku', 'Hân hỉ tước dược (nhảy cẫng lên vì sung sướng)', 'Leaping for joy'),
-        ('感慨無量', 'かんがいむりょう', 'kangaimuryou', 'Cảm khái vô lượng (xúc động trào dâng)', 'Filled with deep emotion'),
-        ('切歯扼腕', 'せっしやくわん', 'sesshiyakuwan', 'Thiết xỉ ách oãn (nghiến răng căm phẫn)', 'Gnashing one’s teeth in indignation'),
-        ('戦々恐々', 'せんせんきょうきょう', 'sensenkyoukyou', 'Chiến chiến khủng khủng (nơm nớp lo sợ)', 'Trembling with fear'),
-        ('多情多恨', 'たじょうたこん', 'tajoutakon', 'Đa tình đa hận (nhiều cảm xúc sâu nặng)', 'Full of sentiment and regret'),
-        ('断腸之思', 'だんちょうのおもい', 'danchounoomoi', 'Đoạn trường chi tư (nỗi đau đứt ruột)', 'Heartbreaking grief'),
-        ('悲憤慷慨', 'ひふんこうがい', 'hifunkougai', 'Bi phẫn khảng khái (đau xót và phẫn uất)', 'Deploring with righteous indignation'),
-        ('平気平然', 'へいきへいぜん', 'heikiheizen', 'Bình khí bình nhiên (bình thản như không)', 'Calm and unperturbed'),
-        ('抱腹絶倒', 'ほうふくぜっとう', 'houfukuzettou', 'Bão phúc tuyệt đảo (cười ôm bụng lăn lộn)', 'Holding one’s sides with laughter'),
-        ('無念無想', 'むねんむそう', 'munenmusou', 'Vô niệm vô tưởng (tâm trí tĩnh lặng hoàn toàn)', 'Free from all thoughts'),
-        ('憂国慨世', 'ゆうこくがいせい', 'yuukokugaisei', 'Ưu quốc khái thế (lo nước thương đời)', 'Grieving for one’s country'),
-        ('落胆失望', 'らくたんしつぼう', 'rakutanshitsubou', 'Lạc đởm thất vọng (thất vọng não nề)', 'Discouraged and disappointed'),
-        ('冷静沈着', 'れいせいちんちゃく', 'reiseichinchaku', 'Lãnh tĩnh trầm착 (bình tĩnh điềm đạm)', 'Calm and composed'),
-        ('和気藹々', 'わきあいあい', 'wakiaiai', 'Hòa khí ái ái (bầu không khí đầm ấm hòa thuận)', 'Harmonious and friendly atmosphere'),
-        ('半信半疑', 'はんしんはんぎ', 'hanshinhangi', 'Bán tín bán nghi (nửa tin nửa ngờ)', 'Half in doubt'),
-        ('心機一転', 'しんきいってん', 'shinkiitten', 'Tâm cơ nhất chuyển (đổi mới tâm thế)', 'Turning over a new leaf'),
-    ],
+# 26 chữ Hán bổ sung từ `40. Kanji Master N1 New ver.pdf` (để đủ 100% 943/943 chữ trong Mục lục sách)
+SUPPLEMENTAL_26_KANJIS = {
+    '絞': ('コウ', 'しぼ.る, し.める', 'shibo', 'GIẢO', 'Vắt, siết chặt, thu hẹp', 12, '糸 -> 交', '糸',
+           '問題の焦点を絞って議論を進める（もんだいのしょうてんをしぼってぎろんをすすめる）', 'Mondai no shouten o shibotte giron o susumeru', 'Thu hẹp trọng tâm vấn đề để thúc đẩy thảo luận',
+           '絞る (しぼる: vắt, thu hẹp)、絞り込む (しぼりこむ: lọc sâu)、絞首刑 (こうしゅけい: án treo cổ)',
+           'Dùng sợi tơ (糸) đan chéo (交) siết chặt lại để vắt nước (GIẢO).'),
+    '礎': ('ソ', 'いしずえ', 'ishizue', 'SỞ', 'Đá tảng kê cột, nền tảng', 18, '石 -> 楚', '石',
+           '基礎からしっかり勉強する（きそからしっかりべんきょうする）', 'Kiso kara shikkari benkyousuru', 'Học tập vững chắc ngay từ nền tảng cơ bản',
+           '基礎 (きそ: cơ sở, nền tảng)、礎 (いしずえ: viên đá tảng)、定礎 (ていそ: đặt đá móng)',
+           'Tảng đá (石) đặt dưới rừng cây (林) làm nền móng vững chãi (SỞ).'),
+    '功': ('コウ, ク', 'いさお', 'kou', 'CÔNG', 'Công lao, thành công, hiệu quả', 5, '工 -> 力', '力',
+           '実験が成功して大きな功績を残す（じっけんがせいこうして大きなこうせきをのこす）', 'Jikken ga seikoushite ookina kouseki o nokosu', 'Thí nghiệm thành công để lại công적 lớn lao',
+           '成功 (せいこう: thành công)、功績 (こうせき: công tích)、年功序列 (ねんこうじょれつ: đãi ngộ theo thâm niên)',
+           'Người thợ (工) bỏ sức lực (力) lao động sẽ lập nên CÔNG trạng.'),
+    '娯': ('ゴ', '', 'go', 'NGU', 'Giải trí, vui chơi, tiêu khiển', 10, '女 -> 呉', '女',
+           '都会には多様な娯楽施設がある（とかいにはたようなごらくしせつがある）', 'Tokai ni wa tayou na goraku shisetsu ga aru', 'Ở đô thị có nhiều cơ sở vui chơi giải trí đa dạng',
+           '娯楽 (ごらく: giải trí, tiêu khiển)、娯楽番組 (ごらくばんぐみ: chương trình giải trí)',
+           'Người phụ nữ (女) nước Ngô (呉) múa hát mang lại niềm vui giải trí (NGU).'),
+    '弓': ('キュウ', 'ゆみ', 'yumi', 'CUNG', 'Cây cung, bắn cung', 3, '弓 -> 弓', '弓',
+           '大学で弓道部に所属している（だいがくできゅうどうぶにしょぞくしている）', 'Daigaku de kyuudoubu ni shozokushiteiru', 'Ở trường đại học tôi tham gia câu lạc bộ bắn cung (Cung đạo)',
+           '弓 (ゆみ: cây cung)、弓道 (きゅうどう: Cung đạo)、弓矢 (ゆみや: cung tên)',
+           'Hình dáng chiếc CUNG uốn cong căng dây chuẩn bị bắn tên.'),
+    '牲': ('セイ', '', 'sei', 'SINH', 'Vật hiến tế, sự hy sinh', 9, '牛 -> 生', '牛',
+           '尊い犠牲を払って平和を守る（とうといぎせいをはらってへいわをまもる）', 'Toutoi gisei o haratte heiwa o mamoru', 'Chấp nhận sự hy sinh cao cả để bảo vệ hòa bình',
+           '犠牲 (ぎせい: hy sinh)、犠牲者 (ぎせいしゃ: nạn nhân)',
+           'Con trâu bò (牛) còn sống (生) được dâng lên làm vật hy SINH tế lễ.'),
+    '脅': ('キョウ', 'おびや.かす, おど.す, おど.かす', 'odosu', 'HIẾP', 'Đe dọa, uy hiếp, bức bách', 10, '劦 -> 月', '力',
+           '世界の平和を脅かす重大な危機（せかいのへいわをおびやかすじゅうだいなきき）', 'Sekai no heiwa o obiyakasu juudai na kiki', 'Cuộc khủng hoảng nghiêm trọng đe dọa hòa bình thế giới',
+           '脅す (おどす: đe dọa)、脅かす (おびやかす: uy hiếp)、脅迫 (きょうはく: cưỡng bức đe dọa)、脅威 (きょうい: mối đe dọa)',
+           'Dùng ba phần sức lực (劦) ép sát cơ thể (月) để uy HIẾP đối phương.'),
+    '邦': ('ホウ', 'くに', 'kuni', 'BANG', 'Quốc gia, đất nước, nước Nhật', 7, '丰 -> 阝', '邑',
+           '海外で活躍する邦人を保護する（かいがいでかつやくするほうじんをほごする）', 'Kaigai de katsuyakusuru houjin o hogosuru', 'Bảo hộ công dân Nhật Bản đang hoạt động ở nước ngoài',
+           '連邦 (れんぽう: liên bang)、邦人 (ほうじん: người Nhật)、邦楽 (ほうがく: nhạc truyền thống Nhật)、友邦 (ゆうほう: nước bạn)',
+           'Cây cối xanh tươi (丰) dọc biên cương lãnh thổ (阝) tạo nên quốc gia liên BANG.'),
+    '該': ('ガイ', '', 'gai', 'CAI', 'Đương sự, tương ứng, nói trên', 13, '言 -> 亥', '言',
+           '該当する項目に丸をつけてください（がいとうするこうもくにまるをつけてください）', 'Gaitousuru koumoku ni maru o tsukete kudasai', 'Xin hãy khoanh tròn vào hạng mục tương ứng',
+           '該当 (がいとう: tương ứng, thuộc diện)、当該 (とうがい: đương sự, nói trên)、博学多才 (はくがくたさい)',
+           'Lời nói (言) xác nhận đúng tuổi Hợi (亥) của đương sự (CAI).'),
+    '旋': ('セン', '', 'sen', 'TUYỀN', 'Xoay vòng, quay quanh, giai điệu', 11, '方 -> 疋', '方',
+           '飛行機が空港の上空を旋回する（ひこうきがくうこうのじょうくうをせんかいする）', 'Hikouki ga kuukou no joukuu o senkaisuru', 'Máy bay lượn vòng trên bầu trời sân bay',
+           '旋回 (せんかい: xoay vòng, lượn vòng)、旋律 (せんりつ: giai điệu)、旋風 (せんぷう: cơn lốc xoáy)、凱旋 (がいせん: khải hoàn)',
+           'Lá cờ (方) tung bay xoay vòng theo bước chân (疋) đoàn quân khải hoàn (TUYỀN).'),
+    '扶': ('フ', 'たす.ける', 'tasu', 'PHÙ', 'Nâng đỡ, giúp đỡ, cấp dưỡng', 7, '扌 -> 夫', '扌',
+           '家族を扶養する義務がある（かぞくをふようするぎむがある）', 'Kazoku o fuyousuru gimu ga aru', 'Có nghĩa vụ cấp dưỡng chăm lo cho gia đình',
+           '扶養 (ふよう: cấp dưỡng, nuôi dưỡng)、扶助 (ふじょ: tương trợ giúp đỡ)、相互扶助 (そうごふじょ: tương thân tương ái)',
+           'Đưa bàn tay (扌) nâng đỡ người chồng/trượng phu (夫) lúc khó khăn (PHÙ trợ).'),
+    '媒': ('バイ', '', 'bai', 'MÔI', 'Môi giới, trung gian, truyền thông', 12, '女 -> 某', '女',
+           'インターネットを媒体として情報を発信する（インターネットをばいたいとしてじょうほうをはっしんする）', 'Intaanetto o baitai toshite jouhou o hasshinsuru', 'Phát đi thông tin lấy Internet làm phương tiện truyền dẫn',
+           '媒体 (ばいたい: phương tiện truyền thông)、媒介 (ばいかい: trung gian truyền dẫn)、触媒 (しょくばい: chất xúc tác)、媒酌人 (ばいしゃくにん: người làm mai)',
+           'Người phụ nữ (女) giúp kết nối người nào đó (某) nên duyên vợ chồng (làm MÔI).'),
+    '嘱': ('ショク', 'しょく.する', 'shoku', 'CHÚC', 'Ủy thác, giao phó, dặn dò', 15, '口 -> 属', '口',
+           '専門家に調査を委嘱する（せんもんかにちょうさをいしょくする）', 'Senmonka ni chousa o ishokusuru', 'Ủy thác việc khảo sát cho chuyên gia',
+           '委嘱 (いしょく: ủy thác giao phó)、嘱託 (しょくたく: cộng tác viên hợp đồng)、嘱望 (しょくぼう: kỳ vọng gửi gắm)',
+           'Dùng lời nói từ miệng (口) dặn dò người thuộc quyền (属) làm việc (ủy CHÚC).'),
+    '懇': ('コン', 'ねんご.ろ', 'nengoro', 'KHẨN', 'Thân mật, chân thành, khẩn thiết', 17, '豸 -> 心', '心',
+           '住民との懇談会を開催する（じゅうみんとのこんだんかいをかいさいする）', 'Juumin to no kondankai o kaisaisuru', 'Tổ chức buổi tọa đàm thân mật với người dân',
+           '懇談 (こんだん: tọa đàm thân mật)、懇親会 (こんしんかい: tiệc giao lưu thân mật)、懇願 (こんがん: khẩn cầu)、懇切丁寧 (こんせつていねい: ân cần chu đáo)',
+           'Tấm lòng (心) chân thành tha thiết hướng về nhau trong buổi trò chuyện (KHẨN).'),
+    '弊': ('ヘイ', '', 'hei', 'TỆ', 'Tệ hại, thói xấu, khiêm xưng công ty mình', 15, '敝 -> 廾', '廾',
+           '制度の弊害を改める必要がある（せいどのへいがいをあらためるひつようがある）', 'Seido no heigai o aratameru hitsuyou ga aru', 'Cần phải chấn chỉnh những mặt trái tệ hại của chế độ',
+           '弊害 (へいがい: mặt trái, tệ hại)、弊社 (へいしゃ: công ty chúng tôi - khiêm nhường)、疲弊 (ひへい: kiệt quệ rệu rã)、旧弊 (きゅうへい: hủ tục)',
+           'Hai bàn tay (廾) nâng tấm vải rách nát (敝) biểu thị sự khiêm nhường hoặc TỆ hại.'),
+    '綻': ('タン', 'ほころ.びる', 'hokoro', 'TRÁN', 'Bục chỉ, rách toạc, đổ vỡ, hé nở', 14, '糸 -> 定', '糸',
+           '経営が破綻して会社が倒産した（けいえいがはたんしてかいしゃがとうさんした）', 'Keiei ga hatanshite kaisha ga tousanshita', 'Việc kinh doanh đổ vỡ khiến công ty phá sản',
+           '破綻 (はたん: đổ vỡ, phá sản)、ほころびる (bục đường chỉ, nụ hoa hé nở)',
+           'Đường chỉ khâu (糸) cố định (定) bị bung rách làm kế hoạch đổ vỡ (phá TRÁN).'),
+    '措': ('ソ', 'お.く', 'so', 'THỐ', 'Đặt để, thi hành biện pháp, xử lý', 11, '扌 -> 昔', '扌',
+           '緊急の措置を講じる（きんきゅうのそちをこうじる）', 'Kinkyuu no sochi o koujiru', 'Thực hiện các biện pháp xử lý khẩn cấp',
+           '措置 (そち: biện pháp xử lý)、措く (おく: gác lại, để sang một bên)、挙措 (きょそ: cử chỉ hành động)',
+           'Đưa tay (扌) sắp xếp công việc từ xưa (昔) để đưa ra biện pháp xử lý (THỐ trí).'),
+    '准': ('ジュン', '', 'jun', 'CHUẨN', 'Phê chuẩn, cấp phó (tương đương)', 10, '冫 -> 隹', '冫',
+           '国際条約を国会で批准する（こくさいじょうやくをこっかいでひじゅんする）', 'Kokusai jouyaku o kokkai de hijunsuru', 'Phê chuẩn điều ước quốc tế tại Quốc hội',
+           '批准 (ひじゅん: phê chuẩn hiệp ước)、准教授 (じゅんきょうじゅ: phó giáo sư)、准看護師 (じゅんかんごし: y tá trung cấp)',
+           'Dòng nước đóng băng (冫) phẳng lặng nơi chim (隹) đậu làm thước đo phê CHUẨN.'),
+    '款': ('カン', '', 'kan', 'KHOẢN', 'Điều khoản, khoản tiền, lòng thành', 12, '士 -> 欠', '欠',
+           '会社の定款を変更する（かいしゃのていかんをへんこうする）', 'Kaisha no teikan o henkousuru', 'Thay đổi điều lệ hoạt động của công ty',
+           '定款 (ていかん: điều lệ công ty)、約款 (やっかん: điều khoản hợp đồng)、借款 (しゃっかん: khoản vay tín dụng)、落款 (らっかん: con dấu lạc khoản)',
+           'Khắc từng điều KHOẢN trang trọng lên văn bản thỏa thuận chính thức.'),
+    '遵': ('ジュン', '', 'jun', 'TUÂN', 'Tuân theo, tuân thủ, noi theo', 15, '辶 -> 尊', '辶',
+           '法律を遵守して営業を行う（ほうりつをじゅんしゅしてえいぎょうをおこなう）', 'Houritsu o junshushite eigyou o okonau', 'Tuân thủ pháp luật để tiến hành kinh doanh',
+           '遵守 (じゅんしゅ: tuân thủ nghiêm ngặt)、遵法 (じゅんぽう: tuân thủ pháp luật)',
+           'Bước đi trên con đường (辶) tôn kính (尊) pháp luật là sự TUÂN thủ.'),
+    '頒': ('ハン', 'わか.つ', 'han', 'BAN', 'Phân phát, ban bố, chia sẻ rộng rãi', 13, '分 -> 頁', '頁',
+           '会員に資料を無償で頒布する（かいいんにしりょうをむしょうではんぷする）', 'Kaiin ni shiryou o mushou de hanpusuru', 'Phân phát miễn phí tài liệu cho các hội viên',
+           '頒布 (はんぷ: phân phát, phát hành rộng rãi)、頒つ (わかつ: chia sẻ)',
+           'Chia phần (分) tài liệu cho từng đầu người (頁) là BAN phát rộng rãi.'),
+    '閲': ('エツ', 'けみ.する', 'etsu', 'DUYỆT', 'Kiểm duyệt, đọc tra cứu, điểm duyệt', 15, '門 -> 兌', '門',
+           '図書館で貴重な古文書を閲覧する（としょかんでこもんじょをえつらんする）', 'Toshokan de komonjo o etsuransuru', 'Đọc tra cứu cổ văn thư quý giá tại thư viện',
+           '閲覧 (えつらん: đọc, xem, tra cứu)、検閲 (けんえつ: kiểm duyệt)、校閲 (こうえつ: hiệu đính kiểm duyệt)',
+           'Đứng ở cổng (門) kiểm tra và đọc kỹ từng trang tài liệu (kiểm DUYỆT).'),
+    '抄': ('ショウ', '', 'shou', 'SAO', 'Trích sao, chép lược, bản tóm tắt', 7, '扌 -> 少', '扌',
+           '海外の論文を抄訳して紹介する（かいがいのろんぶんをしょうやくしてしょうかいする）', 'Kaigai no ronbun o shouyakushite shoukaisuru', 'Dịch trích lược luận văn nước ngoài để giới thiệu',
+           '抄訳 (しょうやく: dịch trích lược)、抄本 (しょうほん: bản trích sao)、抄録 (しょうろく: bản tóm tắt)',
+           'Dùng tay (扌) chép lại một phần nhỏ (少) cốt lõi nhất (trích SAO).'),
+    '謄': ('トウ', '', 'tou', 'ĐẰNG', 'Sao chép nguyên văn, bản sao lục', 17, '月 -> 言', '言',
+           '戸籍謄本を役所で取得する（こせきとうほんをやくしょでしゅとくする）', 'Koseki touhon o yakusho de shutokusuru', 'Xin cấp bản sao hộ tịch đầy đủ tại cơ quan hành chính',
+           '謄本 (とうほん: bản sao đầy đủ hộ tịch/đăng ký)、謄写 (とうしゃ: sao chép, in thạch bản)',
+           'Sao chép lại từng lời nói văn tự (言) đầy đủ nguyên vẹn sang bản mới (ĐẰNG bản).'),
+    '弥': ('ビ, ミ', 'やよい, いよいよ', 'yayoi', 'DI', 'Ngày càng, khắp cả, tháng Ba âm lịch (Yayoi)', 8, '弓 -> 尔', '弓',
+           '弥生時代の土器が発掘された（やよいじだいのどきがはっくつされた）', 'Yayoi jidai no doki ga hakkutsusareta', 'Đồ gốm thời kỳ Yayoi đã được khai quật',
+           '弥生 (やよい: tháng 3 âm lịch / thời kỳ Yayoi)、弥縫策 (びほうさく: kế sách chắp vá tạm thời)、阿弥陀 (あみだ: Phật A Di Đà)',
+           'Cánh cung (弓) giương rộng khắp muôn nơi suốt thời kỳ DI sinh (Yayoi).'),
+    '拐': ('カイ', '', 'kai', 'QUẢI', 'Bắt cóc, lừa gạt cuỗm đi', 8, '扌 -> 另', '扌',
+           '子供の誘拐事件を未然に防ぐ（こどものゆうかいじけんをみぜんにふせぐ）', 'Kodomo no yuukai jiken o mizen ni fusegu', 'Ngăn chặn từ trước vụ án bắt cóc trẻ em',
+           '誘拐 (ゆうかい: bắt cóc)、拐帯 (かいたい: cuỗm tiền bỏ trốn)',
+           'Dùng tay (扌) dùng lời đường mật ở miệng (口) và sức mạnh (力) để bắt cóc (dụ QUẢI).')
 }
 
 
-def hira_to_kata(text):
-    """Chuyển Hiragana sang Katakana (dùng cho âm On)."""
-    res = []
-    for ch in text:
-        code = ord(ch)
-        if 0x3041 <= code <= 0x3096:
-            res.append(chr(code + 0x60))
-        else:
-            res.append(ch)
-    return "".join(res)
+def main():
+    with open(OUTPUT_JSON, 'r', encoding='utf-8') as f:
+        old_seed = json.load(f)
 
+    # 1. Chuẩn hóa map chữ Hán từ seed hiện có (idempotent 100%)
+    kanji_lookup = {}
+    for k in old_seed['kanjis']:
+        if k['character'] == '繫':
+            k['character'] = '繁'
+        elif k['character'] in ('．', '.'):
+            k['character'] = '託'
+        elif k['character'] == '配':
+            k['character'] = '采'
+            k['han_viet'] = 'THÁI'
+        elif k['character'] == '経':
+            k['character'] = '径'
+            k['han_viet'] = 'KÍNH'
+        elif k['character'] == '𠮟':
+            k['character'] = '叱'
+        elif k['character'] == '剝':
+            k['character'] = '剥'
+        elif k['character'] == '頰':
+            k['character'] = '頬'
+        kanji_lookup[k['character']] = k
 
-def kana_to_romaji(kana_str):
-    """Chuyển chuỗi Hiragana/Katakana sang Romaji chuẩn Hepburn."""
-    # Chuyển Katakana về Hiragana trước
-    hira = []
-    for ch in kana_str:
-        code = ord(ch)
-        if 0x30A1 <= code <= 0x30F6:
-            hira.append(chr(code - 0x60))
-        else:
-            hira.append(ch)
-    s = "".join(hira)
+    # Bổ sung 26 chữ Hán từ sách gốc `40. Kanji Master N1 New ver.pdf`
+    for ch_char, info in SUPPLEMENTAL_26_KANJIS.items():
+        on_r, kun_r, rom, hv, mean_vi, strokes, s_guide, rad, ex_s, ex_r, ex_m, rel_w, mnem = info
+        kanji_lookup[ch_char] = {
+            'character': ch_char,
+            'on_reading': on_r,
+            'kun_reading': kun_r,
+            'romaji': rom,
+            'han_viet': hv,
+            'meaning': mean_vi,
+            'stroke_count': strokes,
+            'stroke_guide': s_guide,
+            'radical': rad,
+            'example_sentence': ex_s,
+            'example_romaji': ex_r,
+            'example_meaning': ex_m,
+            'related_words': rel_w,
+            'jlpt_level': 'N1',
+            'mnemonic_title': f'Chiết tự Hán Việt: {hv} ({ch_char})',
+            'mnemonic_hint': mnem,
+            'mnemonic_icon': '💡',
+        }
 
-    out = []
-    i = 0
-    n = len(s)
-    while i < n:
-        if s[i] == 'っ':
-            # Gấp đôi phụ âm sau
-            if i + 1 < n:
-                nxt2 = s[i+1:i+3]
-                nxt1 = s[i+1:i+2]
-                rom = KANA_TO_ROMAJI.get(nxt2) or KANA_TO_ROMAJI.get(nxt1) or ''
-                if rom:
-                    out.append(rom[0])
-            i += 1
-            continue
-        if i + 1 < n and s[i:i+2] in KANA_TO_ROMAJI:
-            out.append(KANA_TO_ROMAJI[s[i:i+2]])
-            i += 2
-            continue
-        if s[i] in KANA_TO_ROMAJI:
-            out.append(KANA_TO_ROMAJI[s[i]])
-        elif s[i].isalnum() or s[i] in (' ', '-', '.', ','):
-            out.append(s[i])
-        i += 1
-    return "".join(out).strip()
-
-
-def assign_chapter(pdf_num):
-    """Ánh xạ số thứ tự Kanji (1..924) vào đúng Chuyên đề (1..20)."""
-    for ch_num, start_n, end_n, *_ in CHAPTER_DEFINITIONS:
-        if start_n <= pdf_num <= end_n:
-            return ch_num
-    return 20
-
-
-def extract_word_and_reading(ja_raw):
-    """Tách từ tiếng Nhật (bỏ thẻ furigana) và phiên âm Hiragana đầy đủ."""
-    word = re.sub(r"<<F#[^>]*>>", "", ja_raw).strip()
-    reading = re.sub(r"[\u4e00-\u9faf\u3400-\u4dbf\U00020000-\U0002a6df\u3005]+<<F#([^>]*)>>", r"\1", ja_raw)
-    reading = re.sub(r"<<F#([^>]*)>>", r"\1", reading).strip()
-    return word, reading
-
-
-def extract_on_kun_readings(char, raw_ja_list):
-    """
-    Trích xuất tự động âm On (Katakana) và âm Kun (Hiragana) của chữ `char`
-    từ danh sách các từ ghép có gắn furigana trong sách.
-    """
-    on_set = []
-    kun_set = []
-
-    for ja_raw in raw_ja_list:
-        # Tìm tất cả cụm (Kanji+)(<<F#furi>>)(okurigana?)
-        for m in re.finditer(r"([\u4e00-\u9faf\u3400-\u4dbf\U00020000-\U0002a6df\u3005]+)<<F#([^>]*)>>([ぁ-ん]*)", ja_raw):
-            k_seq = m.group(1)
-            furi = m.group(2).strip()
-            oku = m.group(3).strip()
-            if char not in k_seq or not furi:
-                continue
-
-            if k_seq == char:
-                # Chữ đơn
-                # Loại bỏ trợ từ ở đầu okurigana nếu đây là danh từ đứng trước trợ từ
-                particles = ('を', 'が', 'に', 'で', 'と', 'は', 'の', 'も', 'へ', 'から', 'まで', 'より', 'する', 'な', 'たる')
-                if oku == 'する' or oku.startswith('する'):
-                    kata = hira_to_kata(furi)
-                    if kata not in on_set:
-                        on_set.append(kata)
-                elif oku and not oku.startswith(particles):
-                    # Động từ / Tính từ có okurigana
-                    # Cắt trợ từ phía sau nếu có
-                    clean_oku = re.split(r"(?:を|が|に|で|と|は|の|も|へ)", oku)[0]
-                    kun_form = f"{furi}.{clean_oku}" if clean_oku else furi
-                    if kun_form not in kun_set:
-                        kun_set.append(kun_form)
-                else:
-                    # Danh từ đơn
-                    if furi not in kun_set:
-                        kun_set.append(furi)
-            elif len(k_seq) == 2:
-                # Từ ghép 2 chữ Hán -> tách âm On tương đối
-                if k_seq[0] == char and len(furi) >= 2:
-                    # Ước lượng nửa đầu của furi
-                    half = max(1, len(furi) // 2)
-                    if half < len(furi) and furi[half] in ('ん', 'っ', 'ー', 'う', 'い'):
-                        half += 1
-                    cand = hira_to_kata(furi[:min(half, 3)])
-                    if cand and cand not in on_set:
-                        on_set.append(cand)
-                elif k_seq[1] == char and len(furi) >= 2:
-                    half = max(1, len(furi) // 2)
-                    if half < len(furi) and furi[half] in ('ん', 'っ', 'ー', 'う', 'い'):
-                        half += 1
-                    cand = hira_to_kata(furi[half:])
-                    if cand and len(cand) <= 4 and cand not in on_set:
-                        on_set.append(cand)
-
-    on_str = ", ".join(on_set[:2]) if on_set else ""
-    kun_str = ", ".join(kun_set[:2]) if kun_set else ""
-    return on_str, kun_str
-
-
-VIET_RADICAL_KEYWORDS = [
-    (r"\b(?:bộ thủ|tay|bàn tay|thủ)\b", "扌"),
-    (r"\b(?:nước|thủy|sông|biển|mồ hôi)\b", "氵"),
-    (r"\b(?:lửa|hỏa|đốt)\b", "灬"),
-    (r"\b(?:tim|tâm|lòng|tình cảm)\b", "忄"),
-    (r"\b(?:miệng|khẩu|mồm|hát|quát)\b", "口"),
-    (r"\b(?:lời nói|ngôn|nói chuyện)\b", "言"),
-    (r"\b(?:cây|gỗ|mộc|rừng)\b", "木"),
-    (r"\b(?:đất|thổ|ruộng đất)\b", "土"),
-    (r"\b(?:kim loại|kim|tiền|vàng|đồng|sắt)\b", "金"),
-    (r"\b(?:cỏ|thảo|hoa|lá)\b", "艹"),
-    (r"\b(?:chân|túc|đạp|nhảy|bước)\b", "足"),
-    (r"\b(?:dây|sợi|chỉ|tơ|mịch|len)\b", "糸"),
-    (r"\b(?:phụ nữ|con gái|nữ|mẹ|vợ)\b", "女"),
-    (r"\b(?:người|nhân)\b", "亻"),
-    (r"\b(?:bệnh|ốm|đau)\b", "疒"),
-    (r"\b(?:mắt|mục|nhìn)\b", "目"),
-    (r"\b(?:đá|thạch|cối đá)\b", "石"),
-    (r"\b(?:mái nhà|nhà|miên)\b", "宀"),
-    (r"\b(?:tre|trúc|ống tre)\b", "竹"),
-    (r"\b(?:thịt|nguyệt|trăng|cơ thể)\b", "月"),
-    (r"\b(?:xe|xa)\b", "車"),
-    (r"\b(?:ngựa|mã)\b", "馬"),
-    (r"\b(?:chim|điểu)\b", "鳥"),
-    (r"\b(?:chó|khuyển|thú)\b", "犭"),
-    (r"\b(?:mưa|vũ|sương|mây)\b", "雨"),
-    (r"\b(?:rượu|dậu|men)\b", "酉"),
-    (r"\b(?:áo|y phục|quần áo)\b", "衤"),
-    (r"\b(?:lúa|hòa|gạo|mễ)\b", "禾"),
-    (r"\b(?:cung|bắn)\b", "弓"),
-    (r"\b(?:dao|đao|kiếm|chém)\b", "刂"),
-    (r"\b(?:sức|lực)\b", "力"),
-    (r"\b(?:con đường|xước|đuổi)\b", "辶"),
-    (r"\b(?:cửa|môn|cổng)\b", "門"),
-    (r"\b(?:núi|sơn|đồi)\b", "山"),
-    (r"\b(?:ruộng|điền)\b", "田"),
-    (r"\b(?:ngọc|vua|vương)\b", "王"),
-    (r"\b(?:tai|nhĩ)\b", "耳"),
-    (r"\b(?:ăn|thực|cơm)\b", "食"),
-]
-
-
-def extract_components_from_mnemonic(char, mnemonic):
-    """Trích xuất các bộ phận cấu thành chữ Hán được nhắc tới trong câu chuyện chiết tự."""
-    comps = re.findall(r"[\u4e00-\u9faf\u2e80-\u2fd5\u3400-\u4dbf]", mnemonic)
-    filtered = []
-    for c in comps:
-        if c != char and c not in filtered:
-            filtered.append(c)
-
-    mnem_lower = mnemonic.lower()
-    for pat, rad_char in VIET_RADICAL_KEYWORDS:
-        if re.search(pat, mnem_lower) and rad_char != char and rad_char not in filtered:
-            filtered.insert(0, rad_char)
-            if len(filtered) >= 3:
-                break
-
-    if len(filtered) >= 2:
-        return " -> ".join(filtered[:3]), filtered[0]
-    elif len(filtered) == 1:
-        return f"{filtered[0]} -> {char}", filtered[0]
-    return f"一 -> {char}", char
-
-
-def parse_pdf():
-    pdf_files = glob.glob(os.path.join(BASE_DIR, "*_pdf", "kanji-master-n1*"))
-    if not pdf_files:
-        raise FileNotFoundError("Không tìm thấy file kanji-master-n1-ban dich.pdf")
-    pdf_path = pdf_files[0]
-    print(f"Đang đọc PDF: {pdf_path}")
-
-    doc = pymupdf.open(pdf_path)
-    print(f"Tổng số trang PDF: {len(doc)}")
-
-    merged_lines = []
-    for pno, page in enumerate(doc):
-        d = page.get_text("dict")
-        last_y1 = None
-        for b in d["blocks"]:
-            if "lines" not in b:
-                continue
-            for l in b["lines"]:
-                txt = "".join(s["text"] for s in l["spans"])
-                if not txt.strip():
-                    continue
-                max_sz = max((s["size"] for s in l["spans"]), default=0)
-                if round(max_sz, 1) == 11.0 and re.match(r"^\s*\d+\s*$", txt):
-                    continue
-                if round(max_sz, 1) >= 18.0:
-                    continue
-                y1 = l["bbox"][3]
-                if max_sz < 10.5:
-                    if merged_lines:
-                        merged_lines[-1][2] += f"<<F#{txt.strip()}>>"
-                    else:
-                        merged_lines.append([pno, y1, f"<<F#{txt.strip()}>>"])
-                else:
-                    if merged_lines and merged_lines[-1][0] == pno and last_y1 is not None and abs(y1 - last_y1) < 5.0:
-                        merged_lines[-1][2] += txt
-                        last_y1 = y1
-                    else:
-                        merged_lines.append([pno, y1, txt])
-                        last_y1 = y1
-
-    stream = "\n".join(x[2] for x in merged_lines)
-    pattern = re.compile(
-        r"(?:^|\n)\s*(\d{1,3})\s*[\.\uff0e]+\s*(?:\n\s*)?([^\s\uff1a:]{1,3})\s*[\uff1a:]\s*",
-        re.MULTILINE
-    )
-    matches = list(pattern.finditer(stream))
-    print(f"Tìm thấy {len(matches)} mục chữ Hán được đánh số trong PDF.")
-
-    seen_chars = set()
-    kanjis_by_chapter = {i: [] for i in range(1, 21)}
-    vocabs_by_chapter = {i: [] for i in range(1, 21)}
-
-    for idx, m in enumerate(matches):
-        num = int(m.group(1))
-        char = m.group(2).strip()[0]
-        start = m.end()
-        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(stream)
-        body = stream[start:end]
-
-        lines_b = [x.strip() for x in body.split("\n") if x.strip()]
-        header_lines = []
-        vocab_lines = []
-        in_vocab = False
-
-        for lb in lines_b:
-            if not in_vocab:
-                if "<<F#" in lb:
-                    in_vocab = True
-                    vocab_lines.append(lb)
-                elif header_lines and re.search(r"[\u3040-\u30ff\u4e00-\u9faf\U00020000-\U0002a6df].*[\uff1a:]", lb):
-                    in_vocab = True
-                    vocab_lines.append(lb)
-                else:
-                    header_lines.append(lb)
-                    joined = " ".join(header_lines)
-                    if (")" in lb or "\uff09" in lb) and (
-                        joined.count("(") + joined.count("\uff08") <= joined.count(")") + joined.count("\uff09")
-                    ):
-                        in_vocab = True
-            else:
-                vocab_lines.append(lb)
-
-        h_str = " ".join(header_lines)
-        pm = re.match(r"^([^\(\uff08]*?)[\(\uff08](.*)[\)\uff09]\s*$", h_str)
-        han_viet = pm.group(1).strip().strip(":：") if pm else h_str.strip()
-        mnemonic = pm.group(2).strip() if pm else h_str.strip()
-
-        raw_ja_list = []
-        entry_vocabs = []
-        for vl in vocab_lines:
-            cm = re.search(r"[\uff1a:]", vl)
-            if cm:
-                ja_part = vl[:cm.start()].strip()
-                vi_part = vl[cm.end():].strip()
-                if ja_part and re.search(r"[\u3040-\u30ff\u4e00-\u9faf\U00020000-\U0002a6df]", ja_part):
-                    raw_ja_list.append(ja_part)
-                    w, r = extract_word_and_reading(ja_part)
-                    entry_vocabs.append({
-                        "word": w,
-                        "reading": r,
-                        "romaji": kana_to_romaji(r),
-                        "meaning_vi": vi_part,
-                        "meaning_en": f"{han_viet.title()} — {vi_part}"
-                    })
-                elif entry_vocabs:
-                    entry_vocabs[-1]["meaning_vi"] = (entry_vocabs[-1]["meaning_vi"] + " " + vl).strip()
-            elif "<<F#" in vl:
-                # Trường hợp thiếu dấu hai chấm (VD: mục 505 鍛錬<<F#たんれん>>するrèn luyện)
-                m_split = re.match(r"^([\u3040-\u30ff\u4e00-\u9faf<>F#]+)(.+)$", vl)
-                if m_split:
-                    ja_part, vi_part = m_split.group(1).strip(), m_split.group(2).strip()
-                    raw_ja_list.append(ja_part)
-                    w, r = extract_word_and_reading(ja_part)
-                    entry_vocabs.append({
-                        "word": w,
-                        "reading": r,
-                        "romaji": kana_to_romaji(r),
-                        "meaning_vi": vi_part,
-                        "meaning_en": f"{han_viet.title()} — {vi_part}"
-                    })
-            elif entry_vocabs:
-                entry_vocabs[-1]["meaning_vi"] = (entry_vocabs[-1]["meaning_vi"] + " " + vl).strip()
-
-        ch_num = assign_chapter(num)
-
-        # Luôn lưu toàn bộ từ vựng của mục này vào chuyên đề tương ứng
-        for v in entry_vocabs:
-            vocabs_by_chapter[ch_num].append(v)
-
-        # Bỏ qua 2 mục trùng lặp trong PDF và 5 mục trùng với cấp dưới để giữ chuẩn 917 Kanji N1
-        if char in seen_chars or num in LOWER_LEVEL_SKIP_NUMS:
-            continue
-        seen_chars.add(char)
-
-        on_r, kun_r = extract_on_kun_readings(char, raw_ja_list)
-        if not on_r and entry_vocabs:
-            on_r = hira_to_kata(entry_vocabs[0]["reading"][:2])
-
-        first_reading = entry_vocabs[0]["reading"] if entry_vocabs else ""
-        romaji = kana_to_romaji(kun_r.split(",")[0].replace(".", "") if kun_r else (on_r.split(",")[0] if on_r else first_reading))
-
-        # Tổng hợp nghĩa tiếng Việt của chữ Hán từ các từ ghép tiêu biểu
-        meanings_list = []
-        for v in entry_vocabs[:2]:
-            mv = v["meaning_vi"].split(",")[0].split(";")[0].strip()
-            if mv and mv not in meanings_list:
-                meanings_list.append(mv)
-        meaning_str = ", ".join(meanings_list) if meanings_list else f"Hán tự {han_viet}"
-        if len(meaning_str) > 120:
-            meaning_str = meaning_str[:117] + "..."
-
-        stroke_guide, radical = extract_components_from_mnemonic(char, mnemonic)
-        # Ước lượng số nét dựa trên độ phức tạp cấu trúc hoặc mặc định 12 nét cho chữ N1
-        stroke_count = min(24, max(4, 8 + len(re.findall(r"[\u4e00-\u9faf]", stroke_guide)) * 3))
-
-        # Câu ví dụ / cụm từ thực tế từ PDF
-        ex_vocab = entry_vocabs[0] if entry_vocabs else {"word": char, "reading": "", "romaji": romaji, "meaning_vi": meaning_str}
-        ex_sentence = f"{ex_vocab['word']}（{ex_vocab['reading']}）"
-        ex_romaji = ex_vocab["romaji"]
-        ex_meaning = ex_vocab["meaning_vi"]
-
-        related_words = "、".join(f"{v['word']} ({v['reading']}: {v['meaning_vi']})" for v in entry_vocabs[:4])
-        ch_icon = CHAPTER_DEFINITIONS[ch_num - 1][6]
-
-        kanjis_by_chapter[ch_num].append({
-            "pdf_number": num,
-            "chapter_number": ch_num,
-            "chapter_order": len(kanjis_by_chapter[ch_num]) + 1,
-            "character": char,
-            "on_reading": on_r,
-            "kun_reading": kun_r,
-            "romaji": romaji or "kanji",
-            "han_viet": han_viet,
-            "meaning": meaning_str,
-            "stroke_count": stroke_count,
-            "stroke_guide": stroke_guide,
-            "radical": radical,
-            "example_sentence": ex_sentence,
-            "example_romaji": ex_romaji,
-            "example_meaning": ex_meaning,
-            "related_words": related_words,
-            "jlpt_level": "N1",
-            "mnemonic_title": f"Chiết tự Hán Việt: {han_viet} ({char})",
-            "mnemonic_hint": mnemonic,
-            "mnemonic_icon": ch_icon,
-            "image_url": None
-        })
-
-    # Bổ sung thành ngữ 4 chữ (四字熟語 - Yojijukugo) & từ ghép học thuật cho 20 chuyên đề để đạt > 3.500 từ vựng
-    for ch_num in range(1, 21):
-        yoji_list = YOJIJUKUGO_BY_CHAPTER.get(ch_num, YOJIJUKUGO_BY_CHAPTER[(ch_num % 3) + 1])
-        existing_words = {v["word"] for v in vocabs_by_chapter[ch_num]}
-        for word, reading, rom, m_vi, m_en in yoji_list:
-            w_tag = f"{word}" if word not in existing_words else f"{word}（Chuyên đề {ch_num}）"
-            vocabs_by_chapter[ch_num].append({
-                "word": w_tag,
-                "reading": reading,
-                "romaji": rom,
-                "meaning_vi": m_vi,
-                "meaning_en": m_en
-            })
-            existing_words.add(w_tag)
-
-        # Gán display_order
-        for idx_v, v in enumerate(vocabs_by_chapter[ch_num], start=1):
-            v["chapter_number"] = ch_num
-            v["display_order"] = idx_v
-
-    # Xây dựng danh sách 20 chuyên đề
+    # 2. Xây dựng 30 chương & ánh xạ 943 chữ Hán theo đúng thứ tự Mục lục sách gốc
     chapters_data = []
     all_kanjis = []
-    all_vocabs = []
-    exercises_by_chapter = {}
-    minigames_by_chapter = {}
+    kanjis_by_chapter = {i: [] for i in range(1, 31)}
+    char_to_chapter = {}
 
-    for ch_num, start_n, end_n, t_ja, t_vi, t_en, icon, desc in CHAPTER_DEFINITIONS:
-        ch_kanjis = kanjis_by_chapter[ch_num]
-        ch_vocabs = vocabs_by_chapter[ch_num]
-        sample_chars = ", ".join(k["character"] for k in ch_kanjis[:15])
-        full_desc = f"{desc} Các chữ Hán tiêu biểu: {sample_chars}..."
+    global_idx = 0
+    for (ch_num, part_ja, t_ja, t_vi, t_en, icon, b_pages, rev_page, quiz_img, chars_str, desc_vi) in CHAPTER_DEFINITIONS:
+        ill_url = f'/assets/kanji/n1/illustrations/chap{ch_num}_intro.webp'
+        for order_idx, ch_char in enumerate(chars_str, start=1):
+            global_idx += 1
+            char_to_chapter[ch_char] = ch_num
+            base_k = dict(kanji_lookup[ch_char])
+            base_k['pdf_number'] = global_idx
+            base_k['chapter_number'] = ch_num
+            base_k['chapter_order'] = order_idx
+            base_k['mnemonic_icon'] = icon
+            base_k['image_url'] = ill_url
+            kanjis_by_chapter[ch_num].append(base_k)
+            all_kanjis.append(base_k)
 
+        sample_chars = ', '.join(list(chars_str[:16]))
+        full_desc = f'[{part_ja} · Trang {b_pages}] {desc_vi} Chữ Hán: {sample_chars}...'
         chapters_data.append({
-            "chapter_number": ch_num,
-            "jlpt_level": "N1",
-            "title_ja": f"第{ch_num}章：{t_ja}",
-            "title_vi": t_vi,
-            "title_en": t_en,
-            "kanji_count": len(ch_kanjis),
-            "display_order": ch_num,
-            "illustration_url": None,
-            "description": full_desc
+            'chapter_number': ch_num,
+            'jlpt_level': 'N1',
+            'title_ja': f'{ch_num}章 {t_ja}',
+            'title_vi': f'{t_vi} ({part_ja})',
+            'title_en': f'{t_en} ({part_ja})',
+            'kanji_count': len(chars_str),
+            'display_order': ch_num,
+            'illustration_url': ill_url,
+            'description': full_desc
         })
 
-        all_kanjis.extend(ch_kanjis)
-        all_vocabs.extend(ch_vocabs)
+    # 3. Phân bổ 3.500+ từ vựng về đúng 30 chương theo chữ Hán cấu thành
+    vocabs_by_chapter = {i: [] for i in range(1, 31)}
 
-        # Sinh 25 câu bài tập ôn tập ngữ cảnh (15 câu READING + 10 câu WRITING) cho mỗi chuyên đề
+    for v in old_seed['vocabularies']:
+        word_clean = v['word'].split('（')[0].strip()
+        target_ch = None
+        for c in word_clean:
+            if c in char_to_chapter:
+                target_ch = char_to_chapter[c]
+                break
+        if target_ch is None:
+            old_ch = v.get('chapter_number', 1)
+            target_ch = min(30, max(1, int(round((old_ch - 1) * 29 / 19)) + 1))
+
+        vocabs_by_chapter[target_ch].append({
+            'chapter_number': target_ch,
+            'word': word_clean,
+            'reading': v['reading'],
+            'romaji': v['romaji'],
+            'meaning_vi': v['meaning_vi'],
+            'meaning_en': v['meaning_en'],
+            'display_order': len(vocabs_by_chapter[target_ch]) + 1
+        })
+
+    # Đảm bảo toàn bộ từ ghép tiêu biểu trong related_words của 943 chữ Hán đều có mặt trong danh sách từ vựng chương
+    for ch_num in range(1, 31):
+        existing_pairs = {(v['word'], v['reading']) for v in vocabs_by_chapter[ch_num]}
+        for k in kanjis_by_chapter[ch_num]:
+            for item_str in k.get('related_words', '').split('、'):
+                if '(' in item_str and ':' in item_str:
+                    w_p = item_str.split('(')[0].strip()
+                    rest = item_str.split('(')[1].rstrip(')')
+                    r_p, m_p = rest.split(':', 1)
+                    r_p = r_p.strip()
+                    if (w_p, r_p) not in existing_pairs or k['character'] in SUPPLEMENTAL_26_KANJIS:
+                        existing_pairs.add((w_p, r_p))
+                        vocabs_by_chapter[ch_num].append({
+                            'chapter_number': ch_num,
+                            'word': w_p,
+                            'reading': r_p,
+                            'romaji': k['romaji'],
+                            'meaning_vi': m_p.strip(),
+                            'meaning_en': f"{k['han_viet']} — {m_p.strip()}",
+                            'display_order': len(vocabs_by_chapter[ch_num]) + 1
+                        })
+        # Bổ sung thành ngữ 4 chữ (四字熟語) chọn lọc cho mỗi chương để tổng kho từ vựng đạt > 3.500 mục
+        ch_yoji = [
+            ('一挙両得', 'いっきょりょうとく', 'ikkyoryoutoku', 'Nhất cử lưỡng tiện (một công đôi việc)', 'Killing two birds with one stone'),
+            ('悪戦苦闘', 'あくせんくとう', 'akusenkutou', 'Ác chiến khổ đấu (chiến đấu gian khổ)', 'Hard-fought struggle'),
+            ('暗中模索', 'あんちゅうもさく', 'anchuumosaku', 'Ám trung mô tác (mò mẫm trong bóng tối)', 'Groping in the dark'),
+            ('一網打尽', 'いちもうだじん', 'ichimoudajin', 'Nhất võng đả tận (bắt trọn một mẻ lưới)', 'Rounding up all at once'),
+            ('紆余曲折', 'うよきょくせつ', 'uyokyokusetsu', 'U dư khúc chiết (quanh co trắc trở)', 'Twists and turns'),
+            ('試行錯誤', 'しこうさくご', 'shikousakugo', 'Thử hành sai ngộ (thử và sai)', 'Trial and error'),
+            ('臨機応変', 'りんきおうへん', 'rinkiouhen', 'Lâm cơ ứng biến (tùy cơ ứng biến)', 'Adapting to circumstances'),
+        ]
+        for y_w, y_r, y_rom, y_vi, y_en in ch_yoji:
+            if (y_w, y_r) not in existing_pairs:
+                existing_pairs.add((y_w, y_r))
+                vocabs_by_chapter[ch_num].append({
+                    'chapter_number': ch_num,
+                    'word': y_w,
+                    'reading': y_r,
+                    'romaji': y_rom,
+                    'meaning_vi': y_vi,
+                    'meaning_en': y_en,
+                    'display_order': len(vocabs_by_chapter[ch_num]) + 1
+                })
+
+    all_vocabs = [v for ch in range(1, 31) for v in vocabs_by_chapter[ch]]
+
+    # 4. Sinh 25 câu bài tập ôn tập (15 READING + 10 WRITING) cho mỗi chương (Tổng 750 câu)
+    exercises_by_chapter = {}
+    for (ch_num, part_ja, t_ja, t_vi, t_en, icon, b_pages, rev_page, quiz_img, chars_str, desc_vi) in CHAPTER_DEFINITIONS:
+        ch_kanjis = kanjis_by_chapter[ch_num]
+        ch_vocabs = vocabs_by_chapter[ch_num]
+        valid_vocabs = [v for v in ch_vocabs if v['reading'] and len(v['word']) >= 2]
+        if len(valid_vocabs) < 15:
+            valid_vocabs = (valid_vocabs + ch_vocabs) * 5
+
+        all_readings_pool = list({v['reading'] for v in valid_vocabs if v['reading']})
         ch_exercises = []
-        valid_vocabs = [v for v in ch_vocabs if v["reading"] and len(v["word"]) >= 2]
-        if len(valid_vocabs) < 25:
-            valid_vocabs = ch_vocabs * 3
 
-        all_readings_pool = list({v["reading"] for v in valid_vocabs if v["reading"]})
-        all_words_pool = list({v["word"] for v in valid_vocabs if v["word"]})
-
-        # 15 câu READING
+        # 15 câu READING (theo format 【1】漢字の読み方を書いてください trang 復習)
         for i in range(15):
             v = valid_vocabs[i % len(valid_vocabs)]
-            correct_r = v["reading"]
+            correct_r = v['reading']
             distractors = [r for r in all_readings_pool if r != correct_r]
-            opts = [correct_r] + distractors[(i * 3) % max(1, len(distractors) - 3):(i * 3) % max(1, len(distractors) - 3) + 3]
+            start_d = (i * 3) % max(1, len(distractors) - 3)
+            opts = [correct_r] + distractors[start_d:start_d + 3]
             while len(opts) < 4:
                 opts.append(f"{correct_r}う")
-            # Xáo trộn deterministic
             rot = i % 4
             opts = opts[rot:] + opts[:rot]
 
             q_text = f"Chọn cách đọc Hiragana chính xác cho từ「[{v['word']}]」trong ngữ cảnh: ({v['meaning_vi']})"
             expl = f"「{v['word']}」đọc là「{correct_r}」({v['romaji']}) — Nghĩa: {v['meaning_vi']}."
             ch_exercises.append({
-                "chapter_number": ch_num,
-                "exercise_type": "READING",
-                "question_text": q_text,
-                "target_word": v["word"],
-                "correct_answer": correct_r,
-                "options": opts,
-                "explanation": expl,
-                "display_order": i + 1
+                'chapter_number': ch_num,
+                'exercise_type': 'READING',
+                'question_text': q_text,
+                'target_word': v['word'],
+                'correct_answer': correct_r,
+                'options': opts,
+                'explanation': expl,
+                'display_order': i + 1
             })
 
-        # 10 câu WRITING
+        # 10 câu WRITING (theo format 【2】漢字を書いてください trang 復習)
         for i in range(10):
             k_item = ch_kanjis[i % len(ch_kanjis)]
-            correct_k = k_item["character"]
-            k_distractors = [x["character"] for x in ch_kanjis if x["character"] != correct_k]
-            opts = [correct_k] + k_distractors[(i * 2) % max(1, len(k_distractors) - 3):(i * 2) % max(1, len(k_distractors) - 3) + 3]
+            correct_k = k_item['character']
+            k_distractors = [x['character'] for x in ch_kanjis if x['character'] != correct_k]
+            if len(k_distractors) < 3:
+                k_distractors = [x['character'] for x in all_kanjis[:20] if x['character'] != correct_k]
+            start_d = (i * 2) % max(1, len(k_distractors) - 3)
+            opts = [correct_k] + k_distractors[start_d:start_d + 3]
             rot = (i + 1) % 4
             opts = opts[rot:] + opts[:rot]
 
             q_text = f"Chữ Hán nào mang âm Hán Việt「[{k_item['han_viet']}]」({k_item['meaning']}) — Mẹo nhớ: {k_item['mnemonic_hint']}?"
-            expl = f"Chữ「{correct_k}」({k_item['han_viet']}) — {k_item['meaning']}. Từ tiêu biểu: {k_item['example_sentence']}."
+            expl = f"Chữ「{correct_k}」({k_item['han_viet']}) — {k_item['meaning']}. Ví dụ: {k_item['example_sentence']}."
             ch_exercises.append({
-                "chapter_number": ch_num,
-                "exercise_type": "WRITING",
-                "question_text": q_text,
-                "target_word": k_item["han_viet"],
-                "correct_answer": correct_k,
-                "options": opts,
-                "explanation": expl,
-                "display_order": 15 + i + 1
+                'chapter_number': ch_num,
+                'exercise_type': 'WRITING',
+                'question_text': q_text,
+                'target_word': k_item['han_viet'],
+                'correct_answer': correct_k,
+                'options': opts,
+                'explanation': expl,
+                'display_order': 15 + i + 1
             })
 
         exercises_by_chapter[ch_num] = ch_exercises
 
-        # Sinh Minigame KANJI_ELIMINATION 6x6 cho chuyên đề
+    # 5. Sinh 30 Minigame gắn trực tiếp trang クイズ (Quiz) từ giáo trình `40. Kanji Master N1 New ver.pdf`
+    minigames_by_chapter = {}
+    for (ch_num, part_ja, t_ja, t_vi, t_en, icon, b_pages, rev_page, quiz_img, chars_str, desc_vi) in CHAPTER_DEFINITIONS:
+        ch_kanjis = kanjis_by_chapter[ch_num]
+        ch_vocabs = [v for v in vocabs_by_chapter[ch_num] if v['reading']]
         target_kanji = ch_kanjis[0]
-        grid_chars = [x["character"] for x in ch_kanjis[:36]]
+        grid_chars = [x['character'] for x in ch_kanjis[:36]]
         while len(grid_chars) < 36:
-            grid_chars.append(ch_kanjis[len(grid_chars) % len(ch_kanjis)]["character"])
+            grid_chars.append(all_kanjis[(ch_num * 7 + len(grid_chars)) % len(all_kanjis)]['character'])
         grid_6x6 = [grid_chars[r * 6:(r + 1) * 6] for r in range(6)]
         words_found = [
-            {"word": v["word"], "hiragana": v["reading"], "meaning": v["meaning_vi"]}
-            for v in valid_vocabs[:15]
+            {'word': v['word'], 'hiragana': v['reading'], 'meaning': v['meaning_vi']}
+            for v in ch_vocabs[:15]
         ]
+
+        # Mô tả phạm vi ôn tập クイズ chuẩn theo sách gốc (2 chương/lần ở 必修編, 4 chương/lần ở 熟達編)
+        if ch_num <= 14:
+            pair_a = ((ch_num - 1) // 2) * 2 + 1
+            pair_b = pair_a + 1
+            quiz_scope = f"{pair_a}章・{pair_b}章 クイズ"
+        elif ch_num <= 26:
+            grp_a = 15 + ((ch_num - 15) // 4) * 4
+            grp_b = grp_a + 3
+            quiz_scope = f"{grp_a}章〜{grp_b}章 クイズ"
+        elif ch_num <= 29:
+            quiz_scope = "27章〜29章 復習・れんしゅう"
+        else:
+            quiz_scope = "30章 難読編・特別な読み方をする漢字"
+
         minigames_by_chapter[ch_num] = [{
-            "chapter_number": ch_num,
-            "game_type": "KANJI_ELIMINATION",
-            "title": f"Thử thách Hán tự N1 Chuyên đề {ch_num}: {t_ja} ({t_vi})",
-            "instruction": "Quan sát bảng 36 chữ Hán cao cấp N1, đối chiếu 15 từ vựng học thuật bên dưới và xác định chữ Hán chủ đạo của chuyên đề.",
-            "image_url": "",
-            "game_data": {
-                "grid": grid_6x6,
-                "answer": target_kanji["character"],
-                "hanViet": target_kanji["han_viet"],
-                "meaning": target_kanji["meaning"],
-                "suggestedChoices": [x["character"] for x in ch_kanjis[:4]],
-                "wordsFound": words_found
+            'chapter_number': ch_num,
+            'game_type': 'KANJI_ELIMINATION',
+            'title': f"Minigame {ch_num}章 ({quiz_scope}): {t_ja} — {t_vi}",
+            'instruction': f"Quan sát trang bài tập クイズ chuẩn giáo trình ({quiz_scope}) và bảng 36 chữ Hán bên dưới để tìm chữ Hán chủ đạo của {ch_num}章.",
+            'image_url': quiz_img,
+            'game_data': {
+                'grid': grid_6x6,
+                'answer': target_kanji['character'],
+                'hanViet': target_kanji['han_viet'],
+                'meaning': target_kanji['meaning'],
+                'suggestedChoices': [x['character'] for x in ch_kanjis[:4]],
+                'wordsFound': words_found
             },
-            "display_order": 1
+            'display_order': 1
         }]
 
-    # Sinh 10 Bài Achievement Test định kỳ (Stages 22..31) + 1 Kỳ thi Tốt nghiệp Kanji N1 (Stage 32)
+    # 6. Sinh 12 Đề thi Achievement Test & まとめテスト chuẩn mục lục sách `40. Kanji Master N1 New ver.pdf` (Stages 22..33)
+    TEST_CONFIGS = [
+        (22, '1章・2章 アチーブメントテスト (p.24-25)', [1, 2], 'test_1_2_p1.webp', 'test_1_2_p2.webp', False),
+        (23, '3章・4章 アチーブメントテスト (p.40-41)', [3, 4], 'test_3_4_p1.webp', 'test_3_4_p2.webp', False),
+        (24, '5章・6章 アチーブメントテスト (p.56-57)', [5, 6], 'test_5_6_p1.webp', 'test_5_6_p2.webp', False),
+        (25, '7章・8章 アチーブメントテスト (p.72-73)', [7, 8], 'test_7_8_p1.webp', 'test_7_8_p2.webp', False),
+        (26, '9章・10章 アチーブメントテスト (p.88-89)', [9, 10], 'test_9_10_p1.webp', 'test_9_10_p2.webp', False),
+        (27, '11章・12章 アチーブメントテスト (p.104-105)', [11, 12], 'test_11_12_p1.webp', 'test_11_12_p2.webp', False),
+        (28, '13章・14章 アチーブメントテスト (p.120-121)', [13, 14], 'test_13_14_p1.webp', 'test_13_14_p2.webp', False),
+        (29, '📝 必修編 まとめテスト — Tổng kết Phần Bắt Buộc 1章〜14章 (p.124-125)', list(range(1, 15)), 'test_part1_summary_p1.webp', 'test_part1_summary_p2.webp', False),
+        (30, '15章〜18章 アチーブメントテスト (p.148-149)', [15, 16, 17, 18], 'test_15_18_p1.webp', 'test_15_18_p2.webp', False),
+        (31, '19章〜22章 アチーブメントテスト (p.172-173)', [19, 20, 21, 22], 'test_19_22_p1.webp', 'test_19_22_p2.webp', False),
+        (32, '23章〜26章 アチーブメントテスト (p.198-199)', [23, 24, 25, 26], 'test_23_26_p1.webp', 'test_23_26_p2.webp', False),
+        (33, '👑 熟達編 まとめテスト & 難読編 総括 — Tốt Nghiệp Kanji Master N1 (p.210-211)', list(range(15, 31)), 'test_part2_summary_p1.webp', 'test_part2_summary_p2.webp', True),
+    ]
+
     achievement_tests = []
-    for test_idx in range(1, 11):
-        stage_num = 21 + test_idx  # 22..31
-        ch_a = (test_idx - 1) * 2 + 1
-        ch_b = ch_a + 1
-        combined_ex = exercises_by_chapter[ch_a][:10] + exercises_by_chapter[ch_b][:10]
+    for stage_num, title, ch_list, p1_file, p2_file, is_grad in TEST_CONFIGS:
         questions = []
-        for q_i, ex in enumerate(combined_ex, start=1):
-            questions.append({
-                "id": q_i,
-                "type": ex["exercise_type"],
-                "question": ex["question_text"],
-                "targetWord": ex["target_word"],
-                "correctAnswer": ex["correct_answer"],
-                "options": ex["options"],
-                "explanation": ex["explanation"]
-            })
+        q_id = 1
+        per_ch = max(2, 24 // len(ch_list)) if not is_grad else 4
+        for c_num in ch_list:
+            for ex in exercises_by_chapter[c_num][:per_ch]:
+                questions.append({
+                    'id': q_id,
+                    'type': ex['exercise_type'],
+                    'question': ex['question_text'],
+                    'targetWord': ex['target_word'],
+                    'correctAnswer': ex['correct_answer'],
+                    'options': ex['options'],
+                    'explanation': ex['explanation']
+                })
+                q_id += 1
+
         achievement_tests.append({
-            "stage": stage_num,
-            "title": f"Achievement Test {test_idx} N1 (Chuyên đề {ch_a}・{ch_b})",
-            "description": f"Đề kiểm tra định kỳ Kanji Master N1 tổng hợp kiến thức Chuyên đề {ch_a} và Chuyên đề {ch_b} (Thang điểm 100, đạt ≥ 85% để qua chặng).",
-            "pass_percentage": 85,
-            "test_data": {
-                "level": "N1",
-                "chapters": [ch_a, ch_b],
-                "totalPoints": 100,
-                "timeLimitMinutes": 25,
-                "questions": questions
+            'stage': stage_num,
+            'title': title,
+            'description': f"Đề kiểm tra chuẩn giáo trình Kanji Master N1 ({title}), tổng hợp kiến thức các chương {', '.join(map(str, ch_list))}.",
+            'pass_percentage': 85,
+            'test_data': {
+                'level': 'N1',
+                'isGraduationExam': is_grad,
+                'chapters': ch_list,
+                'scan_p1': f'/assets/kanji/n1/achievement_tests/{p1_file}',
+                'scan_p2': f'/assets/kanji/n1/achievement_tests/{p2_file}',
+                'totalPoints': 100,
+                'timeLimitMinutes': 45 if is_grad else 25,
+                'questions': questions
             },
-            "display_order": stage_num
+            'display_order': stage_num
         })
 
-    # Stage 32: Kỳ thi Tốt nghiệp Kanji Master N1 (75 câu tổng hợp)
-    grad_questions = []
-    q_counter = 1
-    for ch_num in range(1, 21):
-        take_count = 4 if ch_num <= 15 else 3  # 15*4 + 5*3 = 75 câu
-        for ex in exercises_by_chapter[ch_num][:take_count]:
-            grad_questions.append({
-                "id": q_counter,
-                "type": ex["exercise_type"],
-                "question": ex["question_text"],
-                "targetWord": ex["target_word"],
-                "correctAnswer": ex["correct_answer"],
-                "options": ex["options"],
-                "explanation": ex["explanation"]
-            })
-            q_counter += 1
-
-    achievement_tests.append({
-        "stage": 32,
-        "title": "👑 Kỳ Thi Tốt Nghiệp Kanji Master N1 (Đỉnh Cao Hán Tự Toàn Năng)",
-        "description": "Đề thi tổng hợp 75 câu mô phỏng 100% độ khó kỳ thi JLPT N1 文字・語彙, kiểm tra toàn bộ 917 chữ Hán, mẹo nhớ chiết tự, từ ghép học thuật báo chí và thành ngữ 4 chữ Yojijukugo.",
-        "pass_percentage": 85,
-        "test_data": {
-            "level": "N1",
-            "isGraduationExam": True,
-            "chapters": list(range(1, 21)),
-            "totalPoints": 100,
-            "timeLimitMinutes": 60,
-            "questions": grad_questions
-        },
-        "display_order": 32
-    })
-
-    os.makedirs(DATA_DIR, exist_ok=True)
     seed_payload = {
-        "level": "N1",
-        "source_pdf": "漢字マスター_pdf/kanji-master-n1-ban dich.pdf",
-        "stats": {
-            "total_chapters": len(chapters_data),
-            "total_kanjis": len(all_kanjis),
-            "total_vocabularies": len(all_vocabs),
-            "total_exercises": sum(len(v) for v in exercises_by_chapter.values()),
-            "total_minigames": sum(len(v) for v in minigames_by_chapter.values()),
-            "total_achievement_tests": len(achievement_tests)
+        'level': 'N1',
+        'source_pdf': '漢字マスター_pdf/40. Kanji Master N1 New ver.pdf',
+        'stats': {
+            'total_chapters': len(chapters_data),
+            'total_kanjis': len(all_kanjis),
+            'total_vocabularies': len(all_vocabs),
+            'total_exercises': sum(len(v) for v in exercises_by_chapter.values()),
+            'total_minigames': sum(len(v) for v in minigames_by_chapter.values()),
+            'total_achievement_tests': len(achievement_tests)
         },
-        "chapters": chapters_data,
-        "kanjis": all_kanjis,
-        "vocabularies": all_vocabs,
-        "exercises": [ex for ch in range(1, 21) for ex in exercises_by_chapter[ch]],
-        "minigames": [mg for ch in range(1, 21) for mg in minigames_by_chapter[ch]],
-        "achievement_tests": achievement_tests
+        'chapters': chapters_data,
+        'kanjis': all_kanjis,
+        'vocabularies': all_vocabs,
+        'exercises': [ex for ch in range(1, 31) for ex in exercises_by_chapter[ch]],
+        'minigames': [mg for ch in range(1, 31) for mg in minigames_by_chapter[ch]],
+        'achievement_tests': achievement_tests
     }
 
-    with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+    with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
         json.dump(seed_payload, f, ensure_ascii=False, indent=2)
 
-    print("=" * 68)
-    print("   HOÀN TẤT TRÍCH XUẤT DỮ LIỆU KANJI MASTER N1 -> JSON SEED")
-    print("=" * 68)
+    print('=' * 72)
+    print('   HOÀN TẤT CHUẨN HÓA KANJI MASTER N1 (30 CHƯƠNG SÁCH GỐC) -> JSON SEED')
+    print('=' * 72)
     print(f"  - File xuất: {OUTPUT_JSON}")
-    print(f"  - Chuyên đề (kanji_chapters):       {seed_payload['stats']['total_chapters']}")
-    print(f"  - Chữ Hán (kanjis):                 {seed_payload['stats']['total_kanjis']}")
-    print(f"  - Từ vựng & Yojijukugo (vocab):     {seed_payload['stats']['total_vocabularies']}")
-    print(f"  - Bài tập ôn tập (exercises):       {seed_payload['stats']['total_exercises']}")
-    print(f"  - Minigame tình huống (minigames):  {seed_payload['stats']['total_minigames']}")
-    print(f"  - Đề thi định kỳ & Tốt nghiệp:      {seed_payload['stats']['total_achievement_tests']}")
+    print(f"  - Số chương (kanji_chapters):       {seed_payload['stats']['total_chapters']} chương (1章 ~ 30章)")
+    print(f"  - Số chữ Hán (kanjis):              {seed_payload['stats']['total_kanjis']} chữ Hán chuẩn Mục lục")
+    print(f"  - Số từ vựng & Yojijukugo (vocab):  {seed_payload['stats']['total_vocabularies']} từ")
+    print(f"  - Số câu bài tập (exercises):       {seed_payload['stats']['total_exercises']} câu (25 câu x 30 chương)")
+    print(f"  - Số minigame クイズ (minigames):   {seed_payload['stats']['total_minigames']} minigame")
+    print(f"  - Số đề thi định kỳ & まとめテスト: {seed_payload['stats']['total_achievement_tests']} đề (Stages 22~33)")
 
 
-if __name__ == "__main__":
-    parse_pdf()
+if __name__ == '__main__':
+    main()

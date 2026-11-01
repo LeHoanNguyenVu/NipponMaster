@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   ChevronRight,
   PenTool,
-  Eye,
   X,
   AlertCircle,
   Loader2,
@@ -537,13 +536,6 @@ export default function Kanji() {
     window.speechSynthesis.speak(utterance);
   };
 
-  const handleOpenIllustration = () => {
-    if (!chapterDetail?.chapter.illustrationUrl) return;
-    setModalImageUrl(chapterDetail.chapter.illustrationUrl);
-    setModalImageTitle(`Chương ${chapterDetail.chapter.chapterNumber}: ${chapterDetail.chapter.titleJa} (${chapterDetail.chapter.titleVi}) — Tranh Tượng Hình`);
-    setShowIllustrationModal(true);
-  };
-
   const REVIEW_PAGES_CONFIG: Record<number, { page: number; file: string }> = {
     1: { page: 18, file: 'chap1_review_p18.webp' },
     2: { page: 27, file: 'chap2_review_p27.webp' },
@@ -618,9 +610,46 @@ export default function Kanji() {
     18: { page: 157, file: 'chap18_review.webp' },
   };
 
+  const N1_REVIEW_PAGES_CONFIG: Record<number, { page: number; file: string }> = {
+    1: { page: 17, file: 'chap1_review.webp' },
+    2: { page: 23, file: 'chap2_review.webp' },
+    3: { page: 33, file: 'chap3_review.webp' },
+    4: { page: 39, file: 'chap4_review.webp' },
+    5: { page: 49, file: 'chap5_review.webp' },
+    6: { page: 55, file: 'chap6_review.webp' },
+    7: { page: 65, file: 'chap7_review.webp' },
+    8: { page: 71, file: 'chap8_review.webp' },
+    9: { page: 81, file: 'chap9_review.webp' },
+    10: { page: 87, file: 'chap10_review.webp' },
+    11: { page: 97, file: 'chap11_review.webp' },
+    12: { page: 103, file: 'chap12_review.webp' },
+    13: { page: 113, file: 'chap13_review.webp' },
+    14: { page: 119, file: 'chap14_review.webp' },
+    15: { page: 136, file: 'chap15_review.webp' },
+    16: { page: 137, file: 'chap16_review.webp' },
+    17: { page: 146, file: 'chap17_review.webp' },
+    18: { page: 147, file: 'chap18_review.webp' },
+    19: { page: 162, file: 'chap19_review.webp' },
+    20: { page: 163, file: 'chap20_review.webp' },
+    21: { page: 170, file: 'chap21_review.webp' },
+    22: { page: 171, file: 'chap22_review.webp' },
+    23: { page: 186, file: 'chap23_review.webp' },
+    24: { page: 187, file: 'chap24_review.webp' },
+    25: { page: 196, file: 'chap25_review.webp' },
+    26: { page: 197, file: 'chap26_review.webp' },
+    27: { page: 203, file: 'chap27_review.webp' },
+    28: { page: 208, file: 'chap28_review.webp' },
+    29: { page: 209, file: 'chap29_review.webp' },
+    30: { page: 217, file: 'chap30_review.webp' },
+  };
+
   const handleOpenReviewPage = () => {
     const chNum = chapterDetail?.chapter.chapterNumber || 1;
-    if (selectedLevel === 'N2') {
+    if (selectedLevel === 'N1') {
+      const revConfig = N1_REVIEW_PAGES_CONFIG[chNum] || { page: 17, file: `chap${chNum}_review.webp` };
+      setModalImageUrl(resolveKanjiAssetUrl(`/assets/kanji/n1/reviews/${revConfig.file}`));
+      setModalImageTitle(`Chương ${chNum} N1: Trang ôn tập 復習 trong giáo trình 漢字マスターN1 (Trang ${revConfig.page})`);
+    } else if (selectedLevel === 'N2') {
       const revConfig = N2_REVIEW_PAGES_CONFIG[chNum] || { page: 15, file: `chap${chNum}_review.webp` };
       setModalImageUrl(resolveKanjiAssetUrl(`/assets/kanji/n2/reviews/${revConfig.file}`));
       setModalImageTitle(`Chương ${chNum} N2: Trang ôn tập ngữ cảnh & Viết chữ trong giáo trình (Trang ${revConfig.page})`);
@@ -857,7 +886,7 @@ export default function Kanji() {
             </h1>
             <p className="text-sm text-[#78716c] mt-1">
               {selectedLevel === 'N1'
-                ? '20 Chuyên đề · 917 Chữ Hán · Siêu trí nhớ (Mnemonics) & Thành ngữ 4 chữ · Đạt ≥ 85% mở khóa chương.'
+                ? '30 Chương (必修編 · 熟達編 · 難読編) · 943 Chữ Hán · Sách chuẩn 漢字マスターN1 & Mẹo nhớ chiết tự.'
                 : selectedLevel === 'N2'
                 ? '18 Chương · 505 Chữ Hán · Sơ đồ chuyên sâu & Minigame tình huống · Đạt ≥ 85% mở khóa chương.'
                 : selectedLevel === 'N3'
@@ -890,7 +919,7 @@ export default function Kanji() {
                     <span>JLPT {lvl}</span>
                     {lvl === 'N1' ? (
                       <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
-                        (20 Chuyên đề)
+                        (30 Chương)
                       </span>
                     ) : lvl === 'N2' ? (
                       <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
@@ -984,10 +1013,10 @@ export default function Kanji() {
           <div className="lg:col-span-4 bg-white border border-[#e7e5e4] p-4 sticky top-6">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#e7e5e4]">
               <h2 className="text-sm font-bold uppercase tracking-wider font-mono text-[#1c1917]">
-                {t('master.chapterList', { total: roadmap?.totalChapters || (selectedLevel === 'N1' ? 20 : selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15), level: selectedLevel, defaultValue: `Mục lục ${roadmap?.totalChapters || (selectedLevel === 'N1' ? 20 : selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} chương ${selectedLevel}` })}
+                {t('master.chapterList', { total: roadmap?.totalChapters || (selectedLevel === 'N1' ? 30 : selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15), level: selectedLevel, defaultValue: `Mục lục ${roadmap?.totalChapters || (selectedLevel === 'N1' ? 30 : selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} chương ${selectedLevel}` })}
               </h2>
               <span className="text-xs text-[#78716c]">
-                {roadmap?.chapters.length || (selectedLevel === 'N1' ? 20 : selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} Chương
+                {roadmap?.chapters.length || (selectedLevel === 'N1' ? 30 : selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} Chương
               </span>
             </div>
 
@@ -1009,7 +1038,7 @@ export default function Kanji() {
                 )}
                 {roadmap?.chapters.map((chap) => {
                   const isSelected = selectedChapterId === chap.id;
-                  const isUnlocked = chap.isUnlocked || isLowerLevel;
+                  const isUnlocked = true; // Tạm tắt khóa chương (>85%) để kiểm tra nhanh các chương
                   const isLocked = !isUnlocked;
                   const isPassed = chap.isPassed;
                   const canAccess = isUnlocked;
@@ -1030,7 +1059,7 @@ export default function Kanji() {
                           : 'border-[#e7e5e4] bg-white hover:border-[#d6d3d1] cursor-pointer'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
                         {/* Biểu tượng số chương */}
                         <div
                           className={`w-7 h-7 flex items-center justify-center font-mono text-xs font-bold border ${
@@ -1047,12 +1076,12 @@ export default function Kanji() {
                         </div>
 
                         {/* Tên chương */}
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-serif font-bold text-sm text-[#1c1917]">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-serif font-bold text-sm text-[#1c1917] break-words">
                               {chap.titleJa}
                             </span>
-                            <span className="text-xs text-[#78716c]">
+                            <span className="text-xs text-[#78716c] break-words">
                               ({isEn ? chap.titleEn : chap.titleVi})
                             </span>
                           </div>
@@ -1089,7 +1118,7 @@ export default function Kanji() {
           </div>
 
           {/* ════════ CỘT PHẢI: KHUNG HỌC TẬP 4 THẺ CHUYÊN SÂU ════════ */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-6 min-w-0">
             {loadingDetail ? (
               <div className="bg-white border border-[#e7e5e4] p-16 flex flex-col items-center justify-center text-[#78716c]">
                 <Loader2 className="w-8 h-8 animate-spin mb-3 text-[#b91c1c]" />
@@ -1114,19 +1143,6 @@ export default function Kanji() {
                       </h2>
                     </div>
 
-                    {/* Cụm nút công cụ */}
-                    <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
-                      {/* Nút xem tranh tượng hình mở đầu */}
-                      {chapterDetail.chapter.illustrationUrl && (
-                        <button
-                          onClick={handleOpenIllustration}
-                          className="px-3.5 py-2 border border-[#e7e5e4] bg-[#fafaf9] hover:bg-white text-xs font-medium text-[#1c1917] flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-[#b91c1c]" />
-                          <span>{selectedLevel === 'N5' ? 'Xem tranh tượng hình' : 'Xem tranh minh họa chương'}</span>
-                        </button>
-                      )}
-                    </div>
                   </div>
 
                   {/* 4 THẺ ĐIỀU HƯỚNG CHUYÊN SÂU */}
@@ -1224,251 +1240,189 @@ export default function Kanji() {
                     </div>
 
                     {/* Khung chi tiết chữ Hán đang chọn */}
-                    {activeKanji && (() => {
-                      const activeKanjiIndex = chapterDetail?.kanjis ? chapterDetail.kanjis.findIndex((k) => k.id === activeKanji.id) : 0;
-                      const chapterNum = chapterDetail?.chapter.chapterNumber || selectedChapterId;
-                      const hasIndividualImage =
-                        Boolean(activeKanji.imageUrl) &&
-                        !activeKanji.imageUrl?.includes('intro') &&
-                        !activeKanji.imageUrl?.includes('review') &&
-                        !activeKanji.imageUrl?.includes('quizzes');
-                      const illustrationUrl = hasIndividualImage
-                        ? resolveKanjiAssetUrl(activeKanji.imageUrl)
-                        : selectedLevel === 'N5'
-                        ? resolveKanjiAssetUrl(`/assets/kanji/n5/illustrations/chap${chapterNum}_kanji_${activeKanjiIndex + 1}.webp`)
-                        : null;
+                    {activeKanji && (
+                      <div className="bg-white border border-[#e7e5e4] p-5 sm:p-6 shadow-xs">
+                        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                          {/* CỘT TRÁI: DUAL KHUNG HOẠT ẢNH NÉT BÚT & CẤU THÀNH BỘ THỦ PHÓNG TO */}
+                          <div className="xl:col-span-8 flex flex-col bg-[#fafaf9] border border-[#e7e5e4] p-4">
+                            <div className="text-xs uppercase font-mono text-[#78716c] mb-3 flex items-center justify-between">
+                              <span className="font-bold text-[#1c1917]">
+                                HOẠT ẢNH NÉT BÚT & LƯỚI THƯ PHÁP CHUẨN
+                              </span>
+                              <span className="text-[10px] bg-white border border-[#e7e5e4] px-1.5 py-0.5 font-bold font-mono">
+                                {activeKanji.strokeCount} NÉT
+                              </span>
+                            </div>
 
-
-                      return (
-                        <div className="bg-white border border-[#e7e5e4] p-5 sm:p-6 shadow-xs">
-                          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-                            {/* CỘT TRÁI: DUAL KHUNG HOẠT ẢNH NÉT BÚT & CẤU THÀNH BỘ THỦ PHÓNG TO */}
-                            <div className="xl:col-span-8 flex flex-col bg-[#fafaf9] border border-[#e7e5e4] p-4">
-                              <div className="text-xs uppercase font-mono text-[#78716c] mb-3 flex items-center justify-between">
-                                <span className="font-bold text-[#1c1917]">
-                                  {illustrationUrl ? 'NÉT BÚT CHUẨN & MINH HỌA TRỰC QUAN' : 'HOẠT ẢNH NÉT BÚT & LƯỚI THƯ PHÁP CHUẨN'}
-                                </span>
-                                <span className="text-[10px] bg-white border border-[#e7e5e4] px-1.5 py-0.5 font-bold font-mono">
-                                  {activeKanji.strokeCount} NÉT
-                                </span>
+                            {/* 2 khung hiển thị song song kế bên nhau: Nét bút cố định 175px, Cấu thành chiếm toàn bộ phần còn lại */}
+                            <div className="flex flex-col sm:flex-row gap-3.5 items-stretch">
+                              {/* Khung 1: Hoạt ảnh nét bút động (Demo) */}
+                              <div className="w-full sm:w-[175px] flex-shrink-0 bg-white border border-[#e7e5e4] p-2 flex flex-col items-center justify-between">
+                                <div className="text-[10px] font-mono font-bold text-[#78716c] mb-1.5 uppercase w-full text-center pb-1 border-b border-[#f5f5f4]">
+                                  Hoạt ảnh nét bút
+                                </div>
+                                <div className="w-full flex-1 flex items-center justify-center py-1">
+                                  <KanjiStrokeWriter
+                                    character={activeKanji.character}
+                                    size={145}
+                                    showNumbers={true}
+                                  />
+                                </div>
                               </div>
 
-                              {/* 2 khung hiển thị song song kế bên nhau: Nét bút cố định 175px, Cấu thành chiếm toàn bộ phần còn lại */}
-                              <div className="flex flex-col sm:flex-row gap-3.5 items-stretch">
-                                {/* Khung 1: Hoạt ảnh nét bút động (Demo) */}
-                                <div className="w-full sm:w-[175px] flex-shrink-0 bg-white border border-[#e7e5e4] p-2 flex flex-col items-center justify-between">
-                                  <div className="text-[10px] font-mono font-bold text-[#78716c] mb-1.5 uppercase w-full text-center pb-1 border-b border-[#f5f5f4]">
-                                    Hoạt ảnh nét bút
-                                  </div>
-                                  <div className="w-full flex-1 flex items-center justify-center py-1">
-                                    <KanjiStrokeWriter
-                                      character={activeKanji.character}
-                                      size={145}
-                                      showNumbers={true}
-                                    />
-                                  </div>
+                              {/* Khung 2: Cấu thành bộ thủ mở rộng thoáng đãng */}
+                              <div className="flex-1 min-w-0 bg-white border border-[#e7e5e4] p-3.5 flex flex-col justify-between">
+                                <div className="text-[10px] font-mono font-bold text-[#78716c] mb-2 uppercase w-full pb-1.5 border-b border-[#f5f5f4] flex items-center justify-between">
+                                  <span>Cấu thành bộ thủ</span>
+                                  <span className="text-[9px] bg-[#f5f5f4] text-[#78716c] px-1.5 py-0.5 font-bold">
+                                    {activeKanji.strokeCount} NÉT
+                                  </span>
                                 </div>
 
-                                {/* Khung 2: Cấu thành bộ thủ mở rộng thoáng đãng */}
-                                <div className="flex-1 min-w-0 bg-white border border-[#e7e5e4] p-3.5 flex flex-col justify-between">
-                                  <div className="text-[10px] font-mono font-bold text-[#78716c] mb-2 uppercase w-full pb-1.5 border-b border-[#f5f5f4] flex items-center justify-between">
-                                    <span>{illustrationUrl ? 'Minh họa nét' : 'Cấu thành bộ thủ'}</span>
-                                    {!illustrationUrl && (
-                                      <span className="text-[9px] bg-[#f5f5f4] text-[#78716c] px-1.5 py-0.5 font-bold">
-                                        {activeKanji.strokeCount} NÉT
-                                      </span>
-                                    )}
-                                  </div>
+                                <div className="w-full flex-1 flex flex-col items-center justify-center py-4 px-3 bg-[#fafaf9] border border-[#f5f5f4] min-h-[175px]">
+                                  {/* Cụm bộ thủ cấu thành phóng to, thẳng hàng ngang hoàn hảo */}
+                                  <div className="w-full flex flex-col items-center justify-center gap-2.5">
+                                    <div className="text-[11px] font-mono font-bold text-[#78716c] uppercase tracking-wider text-center">
+                                      Bộ phận ghép thành:
+                                    </div>
+                                    <div className="w-full flex items-center justify-center my-1.5">
+                                      {(() => {
+                                        const rawComponents = activeKanji.strokeGuide
+                                          ? activeKanji.strokeGuide.split(/->|\+/).map((p) => p.trim()).filter(Boolean)
+                                          : [activeKanji.character];
 
-                                  {illustrationUrl ? (
-                                    <div className="w-full flex-1 flex items-center justify-center p-3 bg-[#fafaf9] border border-[#f5f5f4] min-h-[175px]">
-                                      <img
-                                        src={illustrationUrl}
-                                        alt={`Minh họa nét chữ ${activeKanji.character}`}
-                                        className="max-h-[145px] max-w-full object-contain transition-transform hover:scale-105"
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          target.style.display = 'none';
-                                          if (target.parentElement) {
-                                            const fallbackEl = target.parentElement.querySelector('.kanji-fallback-badge');
-                                            if (fallbackEl) (fallbackEl as HTMLElement).style.display = 'flex';
+                                        // Expand multipliers e.g. "口 x 4" -> ["口", "口", "口", "口"]
+                                        const components: string[] = [];
+                                        for (const raw of rawComponents) {
+                                          const match = raw.match(/^(.+?)\s*[xX*×]\s*(\d+)$/);
+                                          if (match) {
+                                            const char = match[1].trim();
+                                            const count = Math.min(Math.max(parseInt(match[2], 10), 1), 6);
+                                            for (let i = 0; i < count; i++) {
+                                              components.push(char);
+                                            }
+                                          } else {
+                                            components.push(raw);
                                           }
-                                        }}
-                                      />
-                                      <div className="kanji-fallback-badge hidden flex-col items-center justify-center text-center p-2 text-[#a8a29e]">
-                                        <span className="text-3xl font-serif text-[#d6d3d1] mb-1">{activeKanji.character}</span>
-                                        <span className="text-[10px] font-mono">Hình tượng hình</span>
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div className="w-full flex-1 flex flex-col items-center justify-center py-4 px-3 bg-[#fafaf9] border border-[#f5f5f4] min-h-[175px]">
-                                      {/* Cụm bộ thủ cấu thành phóng to, thẳng hàng ngang hoàn hảo */}
-                                      <div className="w-full flex flex-col items-center justify-center gap-2.5">
-                                        <div className="text-[11px] font-mono font-bold text-[#78716c] uppercase tracking-wider text-center">
-                                          Bộ phận ghép thành:
-                                        </div>
-                                        <div className="w-full flex items-center justify-center my-1.5">
-                                          {(() => {
-                                            const rawComponents = activeKanji.strokeGuide
-                                              ? activeKanji.strokeGuide.split(/->|\+/).map((p) => p.trim()).filter(Boolean)
-                                              : [activeKanji.character];
+                                        }
 
-                                            // Expand multipliers e.g. "口 x 4" -> ["口", "口", "口", "口"]
-                                            const components: string[] = [];
-                                            for (const raw of rawComponents) {
-                                              const match = raw.match(/^(.+?)\s*[xX*×]\s*(\d+)$/);
-                                              if (match) {
-                                                const char = match[1].trim();
-                                                const count = Math.min(Math.max(parseInt(match[2], 10), 1), 6);
-                                                for (let i = 0; i < count; i++) {
-                                                  components.push(char);
-                                                }
-                                              } else {
-                                                components.push(raw);
-                                              }
-                                            }
+                                        const isGrid = components.length > 2;
 
-                                            const isGrid = components.length > 2;
-
-                                            if (isGrid) {
-                                              return (
-                                                <div className="grid grid-cols-3 gap-2.5 max-w-[240px] justify-items-center mx-auto">
-                                                  {components.map((comp, pIdx) => (
-                                                    <div
-                                                      key={pIdx}
-                                                      className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-white border-2 border-[#e7e5e4] shadow-xs hover:border-[#b91c1c] transition-colors"
-                                                    >
-                                                      <span className="text-2xl sm:text-3xl font-serif font-bold text-[#b91c1c] leading-none select-none">
-                                                        {comp}
-                                                      </span>
-                                                    </div>
-                                                  ))}
+                                        if (isGrid) {
+                                          return (
+                                            <div className="grid grid-cols-3 gap-2.5 max-w-[240px] justify-items-center mx-auto">
+                                              {components.map((comp, pIdx) => (
+                                                <div
+                                                  key={pIdx}
+                                                  className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-white border-2 border-[#e7e5e4] shadow-xs hover:border-[#b91c1c] transition-colors"
+                                                >
+                                                  <span className="text-2xl sm:text-3xl font-serif font-bold text-[#b91c1c] leading-none select-none">
+                                                    {comp}
+                                                  </span>
                                                 </div>
-                                              );
-                                            }
+                                              ))}
+                                            </div>
+                                          );
+                                        }
 
-                                            return (
-                                              <div className="flex items-center justify-center gap-2.5 sm:gap-3 flex-nowrap">
-                                                {components.map((comp, pIdx) => (
-                                                  <Fragment key={pIdx}>
-                                                    <div className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 flex items-center justify-center bg-white border-2 border-[#e7e5e4] shadow-xs hover:border-[#b91c1c] transition-colors">
-                                                      <span className="text-3xl sm:text-4xl font-serif font-bold text-[#b91c1c] leading-none select-none">
-                                                        {comp}
-                                                      </span>
-                                                    </div>
-                                                    {pIdx < components.length - 1 && (
-                                                      <span className="text-xl sm:text-2xl font-mono font-bold text-[#a8a29e] flex-shrink-0 select-none px-0.5">
-                                                        +
-                                                      </span>
-                                                    )}
-                                                  </Fragment>
-                                                ))}
-                                              </div>
-                                            );
-                                          })()}
-                                        </div>
-                                      </div>
+                                        return (
+                                          <div className="flex items-center justify-center gap-2.5 sm:gap-3 flex-wrap">
+                                            {components.map((comp, pIdx) => (
+                                              <Fragment key={pIdx}>
+                                                <div className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 flex items-center justify-center bg-white border-2 border-[#e7e5e4] shadow-xs hover:border-[#b91c1c] transition-colors">
+                                                  <span className="text-3xl sm:text-4xl font-serif font-bold text-[#b91c1c] leading-none select-none">
+                                                    {comp}
+                                                  </span>
+                                                </div>
+                                                {pIdx < components.length - 1 && (
+                                                  <span className="text-xl sm:text-2xl font-mono font-bold text-[#a8a29e] flex-shrink-0 select-none px-0.5">
+                                                    +
+                                                  </span>
+                                                )}
+                                              </Fragment>
+                                            ))}
+                                          </div>
+                                        );
+                                      })()}
                                     </div>
-                                  )}
+                                  </div>
                                 </div>
-                              </div>
-
-                              {/* Nút thực hành tự vẽ chữ */}
-                              <div className="mt-4 pt-3 border-t border-[#e7e5e4]">
-                                <button
-                                  onClick={() => handlePracticeInStudio(activeKanji.character)}
-                                  className="w-full py-2.5 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs hover:shadow-sm"
-                                >
-                                  <PenTool className="w-3.5 h-3.5" />
-                                  <span>Thực hành tự vẽ nét này</span>
-                                </button>
                               </div>
                             </div>
 
-                            {/* CỘT PHẢI: THÔNG TIN NGỮ ÂM, BỘ THỦ, MẸO NHỚ (THU GỌN VỪA VẶN) */}
-                            <div className="xl:col-span-4 space-y-4">
-                              <div>
-                                {(chapterDetail?.chapter.jlptLevel === 'N4' || chapterDetail?.chapter.jlptLevel === 'N3' || chapterDetail?.chapter.jlptLevel === 'N2' || chapterDetail?.chapter.jlptLevel === 'N1') && (
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-[10px] font-mono px-2 py-0.5 bg-[#fef2f2] text-[#b91c1c] border border-red-200 font-bold uppercase">
-                                      Chương {chapterDetail.chapter.chapterNumber}: {chapterDetail.chapter.titleJa} ({chapterDetail.chapter.titleVi})
-                                    </span>
-                                    <span className="text-[10px] font-mono text-[#78716c]">
-                                      Chữ {activeKanjiIndex + 1} / {chapterDetail.kanjis.length}
-                                    </span>
-                                  </div>
-                                )}
-                                <div className="flex items-baseline gap-3">
-                                  <h3 className="text-4xl font-serif font-bold text-[#1c1917]">
-                                    {activeKanji.character}
-                                  </h3>
-                                  <span className="text-lg font-serif font-bold text-[#b91c1c]">
-                                    {activeKanji.hanViet}
-                                  </span>
-                                  <span className="text-sm text-[#78716c]">
-                                    {activeKanji.meaning}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-4 py-3 border-y border-[#e7e5e4]">
-                                <div>
-                                  <div className="text-[11px] font-mono uppercase text-[#a8a29e]">ÂM ON (Hán-Nhật)</div>
-                                  <div className="text-base font-serif font-bold text-[#1c1917] mt-0.5">
-                                    {activeKanji.onReading || '—'}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-[11px] font-mono uppercase text-[#a8a29e]">ÂM KUN (Thuần Nhật)</div>
-                                  <div className="text-base font-serif font-bold text-[#1c1917] mt-0.5">
-                                    {activeKanji.kunReading || '—'}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-[11px] font-mono uppercase text-[#a8a29e]">SỐ NÉT VIẾT</div>
-                                  <div className="text-sm font-medium text-[#44403c] mt-0.5">
-                                    {activeKanji.strokeCount} nét
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-[11px] font-mono uppercase text-[#a8a29e]">BỘ THỦ (RADICAL)</div>
-                                  <div className="text-sm font-medium text-[#44403c] mt-0.5">
-                                    {activeKanji.radical || '—'}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Mẹo nhớ siêu trí nhớ */}
-                              {activeKanji.mnemonicHint && (
-                                <div className="p-3 bg-[#fefce8] border border-[#fef08a] flex items-start gap-3">
-                                  <span className="text-xl">{activeKanji.mnemonicIcon || '💡'}</span>
-                                  <div>
-                                    <div className="text-xs font-bold text-[#854d0e] uppercase font-mono">
-                                      MẸO LIÊN TƯỞNG NHỚ CHỮ:
-                                    </div>
-                                    <p className="text-xs text-[#713f12] mt-0.5 leading-relaxed">
-                                      {activeKanji.mnemonicHint}
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Từ vựng liên quan */}
-                              {activeKanji.relatedWords && (
-                                <div>
-                                  <div className="text-xs uppercase font-mono text-[#78716c] mb-1.5">
-                                    TỪ VỰNG TIÊU BIỂU:
-                                  </div>
-                                  <div className="text-xs font-medium text-[#44403c] bg-[#fafaf9] p-2.5 border border-[#e7e5e4]">
-                                    {activeKanji.relatedWords}
-                                  </div>
-                                </div>
-                              )}
+                            {/* Nút thực hành tự vẽ chữ */}
+                            <div className="mt-4 pt-3 border-t border-[#e7e5e4]">
+                              <button
+                                onClick={() => handlePracticeInStudio(activeKanji.character)}
+                                className="w-full py-2.5 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs hover:shadow-sm"
+                              >
+                                <PenTool className="w-3.5 h-3.5" />
+                                <span>Thực hành tự vẽ nét này</span>
+                              </button>
                             </div>
                           </div>
+
+                          {/* CỘT PHẢI: THÔNG TIN NGỮ ÂM, BỘ THỦ, MẸO NHỚ (THU GỌN VỪA VẶN) */}
+                          <div className="xl:col-span-4 space-y-4">
+                            <div>
+                              <div className="flex items-baseline gap-3">
+                                <h3 className="text-4xl font-serif font-bold text-[#1c1917]">
+                                  {activeKanji.character}
+                                </h3>
+                                <span className="text-lg font-serif font-bold text-[#b91c1c]">
+                                  {activeKanji.hanViet}
+                                </span>
+                                <span className="text-sm text-[#78716c]">
+                                  {activeKanji.meaning}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 py-3 border-y border-[#e7e5e4]">
+                              <div>
+                                <div className="text-[11px] font-mono uppercase text-[#a8a29e]">ÂM ON (Hán-Nhật)</div>
+                                <div className="text-base font-serif font-bold text-[#1c1917] mt-0.5">
+                                  {activeKanji.onReading || '—'}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[11px] font-mono uppercase text-[#a8a29e]">ÂM KUN (Thuần Nhật)</div>
+                                <div className="text-base font-serif font-bold text-[#1c1917] mt-0.5">
+                                  {activeKanji.kunReading || '—'}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[11px] font-mono uppercase text-[#a8a29e]">SỐ NÉT VIẾT</div>
+                                <div className="text-sm font-medium text-[#44403c] mt-0.5">
+                                  {activeKanji.strokeCount} nét
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[11px] font-mono uppercase text-[#a8a29e]">BỘ THỦ (RADICAL)</div>
+                                <div className="text-sm font-medium text-[#44403c] mt-0.5">
+                                  {activeKanji.radical || '—'}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Mẹo nhớ siêu trí nhớ */}
+                            {activeKanji.mnemonicHint && (
+                              <div className="p-3 bg-[#fefce8] border border-[#fef08a] flex items-start gap-3">
+                                <span className="text-xl">{activeKanji.mnemonicIcon || '💡'}</span>
+                                <div>
+                                  <div className="text-xs font-bold text-[#854d0e] uppercase font-mono">
+                                    MẸO LIÊN TƯỞNG NHỚ CHỮ:
+                                  </div>
+                                  <p className="text-xs text-[#713f12] mt-0.5 leading-relaxed">
+                                    {activeKanji.mnemonicHint}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      );
-                    })()}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1498,24 +1452,24 @@ export default function Kanji() {
                           </p>
                         </div>
                       </div>
-                      {selectedLevel !== 'N1' && (
-                        <button
-                          onClick={handleOpenReviewPage}
-                          className="px-3.5 py-1.5 border border-[#b91c1c] bg-[#fef2f2] hover:bg-[#b91c1c] text-[#b91c1c] hover:text-white text-xs font-bold font-mono transition-all flex items-center gap-2 cursor-pointer shadow-2xs w-fit rounded-none"
-                        >
-                          <BookOpen className="w-3.5 h-3.5" />
-                          <span>
-                            {selectedLevel === 'N2'
-                              ? `Xem trang bài tập trong sách N2 (Trang ${N2_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 15})`
-                              : selectedLevel === 'N3'
-                              ? `Xem trang bài tập trong sách N3 (Trang ${N3_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 12})`
-                              : selectedLevel === 'N4'
-                              ? 'Xem trang bài tập trong sách N4'
-                              : 'Xem trang bài tập gốc trong sách (P.18)'}
-                          </span>
-                          <Maximize2 className="w-3 h-3 opacity-70" />
-                        </button>
-                      )}
+                      <button
+                        onClick={handleOpenReviewPage}
+                        className="px-3.5 py-1.5 border border-[#b91c1c] bg-[#fef2f2] hover:bg-[#b91c1c] text-[#b91c1c] hover:text-white text-xs font-bold font-mono transition-all flex items-center gap-2 cursor-pointer shadow-2xs w-fit rounded-none"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>
+                          {selectedLevel === 'N1'
+                            ? `Xem trang bài tập trong sách N1 (Trang ${N1_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 17})`
+                            : selectedLevel === 'N2'
+                            ? `Xem trang bài tập trong sách N2 (Trang ${N2_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 15})`
+                            : selectedLevel === 'N3'
+                            ? `Xem trang bài tập trong sách N3 (Trang ${N3_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 12})`
+                            : selectedLevel === 'N4'
+                            ? 'Xem trang bài tập trong sách N4'
+                            : 'Xem trang bài tập gốc trong sách (P.18)'}
+                        </span>
+                        <Maximize2 className="w-3 h-3 opacity-70" />
+                      </button>
                     </div>
 
                     {/* Phần 1: よみましょう (Đọc câu ngữ cảnh - Thẻ trực quan) */}
@@ -2211,7 +2165,7 @@ export default function Kanji() {
                                               setMinigameInputs(prev => ({ ...prev, [targetKey!]: kanji }));
                                             }
                                           }}
-                                          className="w-11 h-11 flex items-center justify-center bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-2xl font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer"
+                                          className="min-w-[44px] h-11 px-2.5 flex items-center justify-center bg-[#fafaf9] hover:bg-[#b91c1c] text-[#1c1917] hover:text-white border border-[#e7e5e4] text-xl sm:text-2xl font-serif font-bold transition-all shadow-2xs hover:scale-105 cursor-pointer"
                                         >
                                           {kanji}
                                         </button>
@@ -2294,23 +2248,23 @@ export default function Kanji() {
                                             </span>
                                           </div>
 
-                                          <div className="flex items-center gap-2">
+                                          <div className="flex items-center gap-2 flex-shrink-0">
                                             <span className="text-xs font-mono font-bold text-[#78716c]">Chữ đúng:</span>
                                             <input
                                               type="text"
                                               value={val}
-                                              maxLength={1}
+                                              maxLength={Math.max(q.correctKanji?.length || 1, 4)}
                                               readOnly={showSolutions[game.id]}
                                               onFocus={() => setActiveBlankKey(key)}
                                               onClick={() => setActiveBlankKey(key)}
                                               onChange={(e) => {
                                                 const newVal = e.target.value;
                                                 setMinigameInputs(prev => ({ ...prev, [key]: newVal }));
-                                                if (newVal.length >= 1 && q.id < (parsedData.questions?.length || 0)) {
+                                                if (newVal.length >= (q.correctKanji?.length || 1) && q.id < (parsedData.questions?.length || 0)) {
                                                   setActiveBlankKey(`corr_${game.id}_${q.id + 1}`);
                                                 }
                                               }}
-                                              className={`w-11 h-11 text-center font-serif font-bold text-2xl border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
+                                              className={`${(q.correctKanji?.length || 1) > 1 ? 'min-w-[88px] px-2.5 text-lg' : 'w-11 text-2xl'} h-11 text-center font-serif font-bold border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
                                             />
                                           </div>
                                         </div>
@@ -2415,29 +2369,29 @@ export default function Kanji() {
                               <div className="space-y-6">
                                 {/* Bảng hiển thị 2 cột Ⓐ và Ⓑ (Chỉ hiện khi có colA & colB) */}
                                 {parsedData.colA && parsedData.colB && (
-                                  <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs flex flex-col sm:flex-row items-center justify-center gap-6">
-                                    <div className="flex items-center gap-3">
-                                      <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
+                                  <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs flex flex-col gap-3 w-full min-w-0 overflow-hidden">
+                                    <div className="flex flex-wrap items-start gap-2.5 min-w-0">
+                                      <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold flex-shrink-0">
                                         Ⓐ
                                       </span>
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
                                         {parsedData.colA?.map((r: string, idx: number) => (
-                                          <span key={idx} className="w-10 h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-xl font-serif font-bold text-[#b91c1c]">
+                                          <span key={idx} className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-lg sm:text-xl font-serif font-bold text-[#b91c1c] flex-shrink-0">
                                             {r}
                                           </span>
                                         ))}
                                       </div>
                                     </div>
 
-                                    <span className="text-xl font-mono font-bold text-[#a8a29e]">+</span>
+                                    <div className="text-center text-xl font-mono font-bold text-[#a8a29e] leading-none">+</div>
 
-                                    <div className="flex items-center gap-3">
-                                      <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
+                                    <div className="flex flex-wrap items-start gap-2.5 min-w-0">
+                                      <span className="w-7 h-7 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold flex-shrink-0">
                                         Ⓑ
                                       </span>
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
                                         {parsedData.colB?.map((r: string, idx: number) => (
-                                          <span key={idx} className="w-10 h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-xl font-serif font-bold text-[#1c1917]">
+                                          <span key={idx} className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-lg sm:text-xl font-serif font-bold text-[#1c1917] flex-shrink-0">
                                             {r}
                                           </span>
                                         ))}
@@ -3807,7 +3761,9 @@ export default function Kanji() {
                               }`}
                             >
                               <div className="flex items-center justify-between text-xs text-[#78716c] font-mono mb-2">
-                                <span className="font-bold">CÂU {index + 1} / 20</span>
+                                <span className="font-bold">
+                                  CÂU {index + 1} / {(chapterDetail.readingExercises?.length || 0) + (chapterDetail.writingExercises?.length || 0)}
+                                </span>
                                 <div className="flex items-center gap-2">
                                   <span>{ex.exerciseType === 'READING' ? 'よみましょう (Đọc câu)' : 'かきましょう (Viết chữ)'}</span>
                                   {showResultCard && (
@@ -3826,8 +3782,21 @@ export default function Kanji() {
                                 </div>
                               </div>
 
-                              <div className="font-serif text-base font-medium text-[#1c1917] mb-3">
-                                {ex.questionText}
+                              <div className="font-serif text-base font-medium text-[#1c1917] mb-3 leading-relaxed">
+                                {ex.questionText.split(/(\[[^\]]+\])/).map((part, pIdx) => {
+                                  if (part.startsWith('[') && part.endsWith(']')) {
+                                    const word = part.slice(1, -1);
+                                    return (
+                                      <span
+                                        key={pIdx}
+                                        className="text-[#b91c1c] bg-[#fef2f2] px-1.5 py-0.5 border border-[#fecaca] mx-1 rounded-none inline-block font-extrabold shadow-2xs"
+                                      >
+                                        {word}
+                                      </span>
+                                    );
+                                  }
+                                  return <span key={pIdx}>{part}</span>;
+                                })}
                               </div>
 
                               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -3917,7 +3886,7 @@ export default function Kanji() {
                         <span className="text-xs text-[#78716c] font-mono">
                           {showResultCard && submitResult
                             ? `Hoàn thành chấm điểm: ${submitResult.score}% • Kiểm tra chi tiết đúng/sai bên trên`
-                            : `Đã trả lời: ${Object.keys(testAnswers).length} / 20 câu`}
+                            : `Đã trả lời: ${Object.keys(testAnswers).length} / ${(chapterDetail.readingExercises?.length || 0) + (chapterDetail.writingExercises?.length || 0)} câu`}
                         </span>
 
                         <div className="flex items-center gap-3">
@@ -3958,8 +3927,8 @@ export default function Kanji() {
         </div>
       )}
 
-      {/* ─── MODAL PHÓNG TO TRANH TƯỢNG HÌNH & BÀI TẬP N5 (PORTAL FULL SCREEN VIEWER) ─── */}
-      {showIllustrationModal && (modalImageUrl || chapterDetail?.chapter.illustrationUrl) && createPortal(
+      {/* ─── MODAL PHÓNG TO TRANH BÀI TẬP (PORTAL FULL SCREEN VIEWER) ─── */}
+      {showIllustrationModal && modalImageUrl && createPortal(
         <div
           className="fixed inset-0 z-[999999] w-screen h-screen bg-[#09090b]/98 backdrop-blur-md flex flex-col select-none overflow-hidden"
           onWheel={handleModalWheel}
@@ -4049,8 +4018,8 @@ export default function Kanji() {
               className="max-h-full max-w-full flex items-center justify-center pointer-events-none"
             >
               <img
-                src={modalImageUrl || chapterDetail?.chapter.illustrationUrl || ''}
-                alt={modalImageTitle || "Tranh minh họa"}
+                src={modalImageUrl || ''}
+                alt={modalImageTitle || "Tranh bài tập"}
                 draggable={false}
                 className="max-h-[84vh] max-w-[94vw] object-contain shadow-2xl border border-[#27272a] bg-white pointer-events-none select-none"
               />

@@ -23,19 +23,12 @@ export default function KanjiCanvasStudio({ initialKanji, onBackToLearning }: Ka
   const [result, setResult] = useState<KanjiRecognizeResponse | null>(null);
   const [guideSvg, setGuideSvg] = useState<string>('');
 
-  // Sample quick select Kanjis for Practice Mode
-  const SAMPLE_KANJIS = [
-    { char: '日', level: 'N5', meaning: 'Nhật, Mặt trời' },
-    { char: '月', level: 'N5', meaning: 'Nguyệt, Mặt trăng' },
-    { char: '水', level: 'N5', meaning: 'Thủy, Nước' },
-    { char: '木', level: 'N5', meaning: 'Mộc, Cây' },
-    { char: '金', level: 'N5', meaning: 'Kim, Vàng' },
-    { char: '人', level: 'N5', meaning: 'Nhân, Người' },
-    { char: '山', level: 'N5', meaning: 'Sơn, Núi' },
-    { char: '川', level: 'N5', meaning: 'Xuyên, Sông' },
-    { char: '生', level: 'N4', meaning: 'Sinh, Sống' },
-    { char: '学', level: 'N5', meaning: 'Học' },
-  ];
+  useEffect(() => {
+    if (initialKanji) {
+      setTargetKanji(initialKanji);
+      setResult(null);
+    }
+  }, [initialKanji]);
 
   // Fetch target Kanji details from DB
   useEffect(() => {
@@ -144,39 +137,6 @@ export default function KanjiCanvasStudio({ initialKanji, onBackToLearning }: Ka
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Canvas & Controls (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Target Kanji Quick Selector */}
-          <Card className="p-4 border border-outline-variant/30">
-            <div className="flex items-center justify-between mb-3 font-serif">
-              <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
-                {t('kanji:canvasStudio.chooseKanji', 'Chọn chữ Kanji muốn luyện:')}
-              </span>
-              {targetDetail && (
-                <Badge variant="outline" className="text-xs">
-                  {targetDetail.jlptLevel || 'N5'} • {t('kanji:card.strokes', { count: targetDetail.strokeCount, defaultValue: `${targetDetail.strokeCount} nét` })}
-                </Badge>
-              )}
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-              {SAMPLE_KANJIS.map((item) => (
-                <button
-                  key={item.char}
-                  onClick={() => {
-                    setTargetKanji(item.char);
-                    setResult(null);
-                  }}
-                  className={`flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center font-jp text-lg font-bold transition-all cursor-pointer ${
-                    targetKanji === item.char
-                      ? 'bg-primary text-on-primary shadow-md scale-105'
-                      : 'bg-surface-container hover:bg-surface-container-high text-on-surface'
-                  }`}
-                  title={`${item.char} (${item.meaning})`}
-                >
-                  {item.char}
-                </button>
-              ))}
-            </div>
-          </Card>
-
           {/* Interactive Canvas Board */}
           <Card className="p-6 flex flex-col items-center justify-center border border-outline-variant/30 shadow-sm relative font-serif">
             <div className="mb-4 text-center">
@@ -299,19 +259,6 @@ export default function KanjiCanvasStudio({ initialKanji, onBackToLearning }: Ka
                       ))}
                     </div>
                   )}
-
-                  {onBackToLearning && (
-                    <div className="mt-5 pt-3 border-t border-outline-variant/30">
-                      <button
-                        type="button"
-                        onClick={onBackToLearning}
-                        className="w-full py-2.5 px-4 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs font-bold flex flex-row items-center justify-center gap-2 whitespace-nowrap transition-all cursor-pointer shadow-sm"
-                      >
-                        <ArrowLeft className="w-4 h-4 shrink-0" />
-                        <span className="whitespace-nowrap">Quay lại chữ đang học [{targetKanji}]</span>
-                      </button>
-                    </div>
-                  )}
                 </Card>
               </motion.div>
             ) : (
@@ -341,19 +288,6 @@ export default function KanjiCanvasStudio({ initialKanji, onBackToLearning }: Ka
                     </ul>
                   </div>
                 </div>
-
-                {onBackToLearning && (
-                  <div className="pt-2">
-                    <button
-                      type="button"
-                      onClick={onBackToLearning}
-                      className="w-full py-2.5 px-4 bg-[#1c1917] hover:bg-[#292524] text-white text-xs font-bold flex flex-row items-center justify-center gap-2 whitespace-nowrap transition-colors shadow-xs cursor-pointer"
-                    >
-                      <ArrowLeft className="w-4 h-4 shrink-0" />
-                      <span className="whitespace-nowrap">Quay lại chữ đang học [{targetKanji}]</span>
-                    </button>
-                  </div>
-                )}
               </Card>
             )}
           </AnimatePresence>
