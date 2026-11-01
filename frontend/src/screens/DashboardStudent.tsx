@@ -5,7 +5,7 @@ import type { ScreenType } from '../App';
 import HeroCockpit from '../components/dashboard/HeroCockpit';
 import ModuleProgressOverview from '../components/dashboard/ModuleProgressOverview';
 import QuickFlashcardWidget from '../components/dashboard/QuickFlashcardWidget';
-import { INITIAL_FALLBACK_CARDS, N4_FALLBACK_CARDS, type FlashcardItem } from '../data/flashcardMnemonics';
+import { type FlashcardItem } from '../data/flashcardMnemonics';
 import { loadStreakState, recordFlashcardReviewed, type StreakState } from '../utils/streakManager';
 import { loadAllModulesProgress } from '../utils/moduleProgressManager';
 import { getDaily10CardsDeck, clearDailyDeckCache, getCumulativeFallbackCards } from '../utils/srsCardManager';
@@ -100,7 +100,7 @@ export default function DashboardStudent({
     const scope = getUserScope();
     const currentLvl = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
     try {
-      const cached = localStorage.getItem(`${scope}nippon_quick_cards_cache_${currentLvl}`);
+      const cached = localStorage.getItem(`${scope}nippon_quick_cards_cache_v2_${currentLvl}`);
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -121,23 +121,21 @@ export default function DashboardStudent({
     const fetchQuickPracticeCards = async () => {
       try {
         const res = await axiosClient.get('/flashcards/quick-practice', {
-          params: { level: normalizedLevelKey, limit: 150 },
+          params: { level: normalizedLevelKey, limit: 200 },
         });
         const raw = res as any;
         const data = Array.isArray(raw) ? raw : (Array.isArray(raw?.data) ? raw.data : (raw?.data?.data ?? []));
         if (active && Array.isArray(data) && data.length > 0) {
-          // Bổ sung thêm thẻ fallback cumulative nếu danh sách chưa đủ rộng
-          let finalCards = data;
-          if (data.length < 30) {
-            const existingKeys = new Set(data.map((c: any) => c.kanji || c.kana));
-            const cumulative = getCumulativeFallbackCards(normalizedLevelKey);
-            const extra = cumulative.filter(c => !existingKeys.has(c.kanji || c.kana));
-            finalCards = [...data, ...extra];
-          }
+          // Hợp nhất với thẻ fallback theo cấp độ để đảm bảo mọi cấp độ trong tỉ lệ đều đủ thẻ
+          const existingKeys = new Set(data.map((c: any) => `${(c.jlptLevel || normalizedLevelKey).toUpperCase()}:${c.kanji || c.kana}`));
+          const cumulative = getCumulativeFallbackCards(normalizedLevelKey);
+          const extra = cumulative.filter(c => !existingKeys.has(`${(c.jlptLevel || normalizedLevelKey).toUpperCase()}:${c.kanji || c.kana}`));
+          const finalCards = [...data, ...extra];
+
           setCards(finalCards);
           try {
             const scope = getUserScope();
-            localStorage.setItem(`${scope}nippon_quick_cards_cache_${normalizedLevelKey}`, JSON.stringify(finalCards));
+            localStorage.setItem(`${scope}nippon_quick_cards_cache_v2_${normalizedLevelKey}`, JSON.stringify(finalCards));
           } catch {}
         }
       } catch (err) {
@@ -209,24 +207,14 @@ export default function DashboardStudent({
 
   const levelDisplay = isStarter ? t('dashboard:level.starter', 'Starter Course') : `${rawLevel} Level`;
 
-  // 10 Cards Daily Deck - Bốc theo thuật toán Spaced Repetition (SRS)
+  // 10 Cards Daily Deck - Bốc theo thuật toán Spaced Repetition (SRS) & Trọng số cấp độ JLPT:
+  // - N5: 100% N5
+  // - N4: 80% N4, 20% N5
+  // - N3: 80% N3, 15% N4, 5% N5
+  // - N2: 80% N2, 12% N3, 5% N4, 3% N5
+  // - N1: 80% N1, 10% N2, 5% N3, 3% N4, 2% N5
   const daily10Cards = useMemo(() => {
-    let candidateCards = cards;
-    if (isStarter) {
-      candidateCards = cards.filter(c => !c.jlptLevel || c.jlptLevel.toUpperCase() === 'STARTER');
-      if (candidateCards.length < 10) {
-        candidateCards = INITIAL_FALLBACK_CARDS.filter(c => !c.jlptLevel || c.jlptLevel.toUpperCase() === 'STARTER');
-      }
-    } else if (rawLevel === 'N4') {
-      const n4Cards = cards.filter(c => c.jlptLevel && c.jlptLevel.toUpperCase() === 'N4');
-      candidateCards = n4Cards.length >= 10 ? n4Cards : [...n4Cards, ...N4_FALLBACK_CARDS];
-    } else {
-      candidateCards = cards.filter(c => c.jlptLevel && c.jlptLevel.toUpperCase() === rawLevel);
-      if (candidateCards.length < 10) {
-        candidateCards = cards.length > 0 ? cards : INITIAL_FALLBACK_CARDS;
-      }
-    }
-    return getDaily10CardsDeck(candidateCards, undefined, isStarter ? 'STARTER' : rawLevel, deckVersion > 0);
+    return getDaily10CardsDeck(cards, undefined, isStarter ? 'STARTER' : rawLevel, deckVersion > 0);
   }, [cards, rawLevel, isStarter, deckVersion]);
 
   // Tiến độ tích lũy thực tế của 4 Module Cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện nghe)

@@ -13,7 +13,8 @@ import java.util.Optional;
 
 public interface KanjiRepository extends JpaRepository<Kanji, Long> {
 
-    Optional<Kanji> findByCharacter(String character);
+    @Query("SELECT k FROM Kanji k WHERE k.character = :character ORDER BY k.id ASC LIMIT 1")
+    Optional<Kanji> findByCharacter(@Param("character") String character);
 
     Page<Kanji> findByJlptLevel(User.JlptLevel level, Pageable pageable);
 

@@ -22,73 +22,118 @@ public class FlashcardService {
 
     private final KanjiRepository kanjiRepository;
 
+    private record LevelWeight(User.JlptLevel level, double weight) {}
+
     /**
-     * Lấy danh sách thẻ flashcard luyện tập nhanh theo cấp độ JLPT.
-     * Quy tắc bao hàm cấp độ (Cumulative Leveling):
-     * - N5: Kanji N5
-     * - N4: Kanji N4 + Kanji N5
-     * - N3: Kanji N3 + Kanji N4 + Kanji N5
-     * - N2: Kanji N2 + Kanji N3 + Kanji N4 + Kanji N5
-     * - N1: Toàn bộ Kanji từ N1 đến N5
+     * Lấy danh sách thẻ flashcard luyện tập nhanh theo cấp độ JLPT với tỉ lệ trọng số chuẩn:
+     * - STARTER: 100% STARTER (hoặc N5)
+     * - N5: 100% N5
+     * - N4: 80% N4, 20% N5
+     * - N3: 80% N3, 15% N4, 5% N5
+     * - N2: 80% N2, 12% N3, 5% N4, 3% N5
+     * - N1: 80% N1, 10% N2, 5% N3, 3% N4, 2% N5
      */
     @Transactional(readOnly = true)
     public List<FlashcardItemDto> getQuickPracticeCards(String rawLevel, int limit) {
         int safeLimit = Math.min(Math.max(limit, 10), 250);
         User.JlptLevel targetLevel = parseLevel(rawLevel);
 
-        List<User.JlptLevel> cumulativeLevels = getCumulativeLevels(targetLevel);
+        List<LevelWeight> distribution = getLevelWeightDistribution(targetLevel);
+        List<Kanji> selectedKanjis = new ArrayList<>();
 
-        // 1. Lấy Kanji của targetLevel trước
-        Page<Kanji> targetPage = kanjiRepository.findByJlptLevel(
-                targetLevel,
-                PageRequest.of(0, safeLimit, Sort.by("id").ascending())
-        );
-        List<Kanji> kanjis = new ArrayList<>(targetPage.getContent());
+        int allocatedTotal = 0;
+        int[] quotas = new int[distribution.size()];
+        for (int i = 0; i < distribution.size(); i++) {
+            quotas[i] = (int) Math.round(safeLimit * distribution.get(i).weight());
+            allocatedTotal += quotas[i];
+        }
+        // Điều chỉnh phần lệch làm tròn vào chính cấp độ mục tiêu (index 0)
+        if (quotas.length > 0 && allocatedTotal != safeLimit) {
+            quotas[0] = Math.max(1, quotas[0] + (safeLimit - allocatedTotal));
+        }
 
-        // 2. Lấy bổ sung các cấp độ thấp hơn (cumulative) để mở rộng kho thẻ
-        List<User.JlptLevel> lowerLevels = cumulativeLevels.stream()
-                .filter(l -> l != targetLevel)
-                .toList();
+        for (int i = 0; i < distribution.size(); i++) {
+            User.JlptLevel lvl = distribution.get(i).level();
+            int quota = quotas[i];
+            if (quota <= 0) continue;
 
-        if (!lowerLevels.isEmpty()) {
-            int maxTarget = Math.max(10, (int) (safeLimit * 0.65));
-            if (kanjis.size() > maxTarget) {
-                kanjis = new ArrayList<>(kanjis.subList(0, maxTarget));
+            Page<Kanji> page = kanjiRepository.findByJlptLevel(
+                    lvl,
+                    PageRequest.of(0, 1000, Sort.by("id").ascending())
+            );
+            List<Kanji> pool = new ArrayList<>(page.getContent());
+            java.util.Collections.shuffle(pool);
+            selectedKanjis.addAll(pool.subList(0, Math.min(quota, pool.size())));
+        }
+
+        // Nếu tổng số lượng vẫn thiếu so với safeLimit, bù thêm bằng thẻ của chính targetLevel
+        if (selectedKanjis.size() < safeLimit) {
+            Page<Kanji> targetPage = kanjiRepository.findByJlptLevel(
+                    targetLevel,
+                    PageRequest.of(0, 1000, Sort.by("id").ascending())
+            );
+            List<Kanji> targetPool = new ArrayList<>(targetPage.getContent());
+            java.util.Collections.shuffle(targetPool);
+            java.util.Set<Long> existingIds = new java.util.HashSet<>();
+            for (Kanji k : selectedKanjis) {
+                if (k.getId() != null) existingIds.add(k.getId());
             }
-            int remaining = safeLimit - kanjis.size();
-            if (remaining > 0) {
-                Page<Kanji> lowerPage = kanjiRepository.findByJlptLevelIn(
-                        lowerLevels,
-                        PageRequest.of(0, remaining, Sort.by("id").ascending())
-                );
-                kanjis.addAll(lowerPage.getContent());
+            for (Kanji k : targetPool) {
+                if (selectedKanjis.size() >= safeLimit) break;
+                if (k.getId() == null || !existingIds.contains(k.getId())) {
+                    selectedKanjis.add(k);
+                    if (k.getId() != null) existingIds.add(k.getId());
+                }
             }
         }
 
-        // 3. Nếu level bất kỳ vẫn rỗng, lấy tất cả kanji có sẵn trong DB
-        if (kanjis.isEmpty()) {
+        // Fallback cuối cùng nếu DB chưa có dữ liệu ở targetLevel
+        if (selectedKanjis.isEmpty()) {
             Page<Kanji> anyPage = kanjiRepository.findAll(
                     PageRequest.of(0, safeLimit, Sort.by("id").ascending())
             );
-            kanjis.addAll(anyPage.getContent());
+            selectedKanjis.addAll(anyPage.getContent());
         }
 
-        return kanjis.stream()
+        return selectedKanjis.stream()
                 .map(this::mapToFlashcardItemDto)
                 .toList();
     }
 
-    private List<User.JlptLevel> getCumulativeLevels(User.JlptLevel level) {
+    private List<LevelWeight> getLevelWeightDistribution(User.JlptLevel level) {
         if (level == null) {
-            return List.of(User.JlptLevel.N5);
+            return List.of(new LevelWeight(User.JlptLevel.N5, 1.00));
         }
         return switch (level) {
-            case STARTER -> List.of(User.JlptLevel.STARTER, User.JlptLevel.N5);
-            case N5 -> List.of(User.JlptLevel.N5);
-            case N4 -> List.of(User.JlptLevel.N4, User.JlptLevel.N5);
-            case N3 -> List.of(User.JlptLevel.N3, User.JlptLevel.N4, User.JlptLevel.N5);
-            case N2 -> List.of(User.JlptLevel.N2, User.JlptLevel.N3, User.JlptLevel.N4, User.JlptLevel.N5);
-            case N1 -> List.of(User.JlptLevel.N1, User.JlptLevel.N2, User.JlptLevel.N3, User.JlptLevel.N4, User.JlptLevel.N5);
+            case STARTER -> List.of(
+                    new LevelWeight(User.JlptLevel.STARTER, 1.00),
+                    new LevelWeight(User.JlptLevel.N5, 1.00)
+            );
+            case N5 -> List.of(
+                    new LevelWeight(User.JlptLevel.N5, 1.00)
+            );
+            case N4 -> List.of(
+                    new LevelWeight(User.JlptLevel.N4, 0.80),
+                    new LevelWeight(User.JlptLevel.N5, 0.20)
+            );
+            case N3 -> List.of(
+                    new LevelWeight(User.JlptLevel.N3, 0.80),
+                    new LevelWeight(User.JlptLevel.N4, 0.15),
+                    new LevelWeight(User.JlptLevel.N5, 0.05)
+            );
+            case N2 -> List.of(
+                    new LevelWeight(User.JlptLevel.N2, 0.80),
+                    new LevelWeight(User.JlptLevel.N3, 0.12),
+                    new LevelWeight(User.JlptLevel.N4, 0.05),
+                    new LevelWeight(User.JlptLevel.N5, 0.03)
+            );
+            case N1 -> List.of(
+                    new LevelWeight(User.JlptLevel.N1, 0.80),
+                    new LevelWeight(User.JlptLevel.N2, 0.10),
+                    new LevelWeight(User.JlptLevel.N3, 0.05),
+                    new LevelWeight(User.JlptLevel.N4, 0.03),
+                    new LevelWeight(User.JlptLevel.N5, 0.02)
+            );
         };
     }
 
@@ -125,7 +170,7 @@ public class FlashcardService {
         String exampleVi = k.getExampleMeaning();
 
         if (exampleJp == null || exampleJp.isBlank()) {
-            ExampleTriplet triplet = resolveFallbackExample(k.getCharacter(), k.getMeaning(), kana);
+            ExampleTriplet triplet = resolveFallbackExample(k.getCharacter(), k.getMeaning(), kana, k.getRelatedWords());
             exampleJp = triplet.jp;
             exampleRomaji = triplet.romaji;
             exampleVi = triplet.vi;
@@ -309,9 +354,23 @@ public class FlashcardService {
         reg("気", "今日は天気がいいです。", "Kyou wa tenki ga ii desu.", "Hôm nay thời tiết thật đẹp.");
     }
 
-    private ExampleTriplet resolveFallbackExample(String character, String meaning, String kana) {
+    private ExampleTriplet resolveFallbackExample(String character, String meaning, String kana, String relatedWords) {
         if (character != null && EXAMPLE_REGISTRY.containsKey(character)) {
             return EXAMPLE_REGISTRY.get(character);
+        }
+        if (relatedWords != null && !relatedWords.isBlank()) {
+            String[] items = relatedWords.split("•|\\n");
+            String firstItem = items[0].trim();
+            int colonIdx = firstItem.indexOf(':');
+            if (colonIdx > 0) {
+                String wordAndReading = firstItem.substring(0, colonIdx).trim();
+                String wordMeaning = firstItem.substring(colonIdx + 1).trim();
+                return new ExampleTriplet(
+                        wordAndReading + " — 重要な表現として使われます。",
+                        relatedWords,
+                        "Từ ghép ứng dụng: " + wordAndReading + " (" + wordMeaning + ")."
+                );
+            }
         }
         String cleanMeaning = (meaning != null && !meaning.isBlank()) ? meaning.split("[,;]")[0].trim() : "từ vựng";
         String cleanKana = (kana != null && !kana.isBlank()) ? kana.split("[,/、]")[0].trim() : character;

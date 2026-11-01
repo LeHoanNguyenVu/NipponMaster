@@ -290,11 +290,11 @@ export default function Kanji() {
   const userRank = user?.role === 'ADMIN' ? 5 : (JLPT_RANK[userLevel] || 2);
 
   // Danh sách cấp độ học viên được phép xem & truy cập (chỉ hiển thị và cho phép truy cập các level <= level tài khoản)
-  const availableLevels = (['N5', 'N4', 'N3', 'N2'] as const).filter((lvl) => JLPT_RANK[lvl] <= userRank);
+  const availableLevels = (['N5', 'N4', 'N3', 'N2', 'N1'] as const).filter((lvl) => JLPT_RANK[lvl] <= userRank);
 
   // Cấp độ đang học: Mặc định theo level tài khoản, và bị khóa nếu vượt quá quyền truy cập
   const [selectedLevel, setSelectedLevel] = useState<string>(() => {
-    const target = ['N5', 'N4', 'N3', 'N2'].includes(userLevel) ? userLevel : 'N4';
+    const target = ['N5', 'N4', 'N3', 'N2', 'N1'].includes(userLevel) ? userLevel : 'N4';
     return availableLevels.includes(target as any) ? target : (availableLevels[availableLevels.length - 1] || 'N4');
   });
 
@@ -856,7 +856,9 @@ export default function Kanji() {
               {t('master.title', { level: selectedLevel, defaultValue: `Kho Hán Tự — Kanji Master ${selectedLevel}` })}
             </h1>
             <p className="text-sm text-[#78716c] mt-1">
-              {selectedLevel === 'N2'
+              {selectedLevel === 'N1'
+                ? '20 Chuyên đề · 917 Chữ Hán · Siêu trí nhớ (Mnemonics) & Thành ngữ 4 chữ · Đạt ≥ 85% mở khóa chương.'
+                : selectedLevel === 'N2'
                 ? '18 Chương · 505 Chữ Hán · Sơ đồ chuyên sâu & Minigame tình huống · Đạt ≥ 85% mở khóa chương.'
                 : selectedLevel === 'N3'
                 ? '20 Chương · 376 Chữ Hán · Sơ đồ chuyên sâu & Minigame tình huống · Đạt ≥ 85% mở khóa chương.'
@@ -886,7 +888,11 @@ export default function Kanji() {
                     }`}
                   >
                     <span>JLPT {lvl}</span>
-                    {lvl === 'N2' ? (
+                    {lvl === 'N1' ? (
+                      <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
+                        (20 Chuyên đề)
+                      </span>
+                    ) : lvl === 'N2' ? (
                       <span className={`text-[10px] ${isCur ? 'text-red-100' : 'text-[#78716c]'}`}>
                         (18 Chương)
                       </span>
@@ -978,10 +984,10 @@ export default function Kanji() {
           <div className="lg:col-span-4 bg-white border border-[#e7e5e4] p-4 sticky top-6">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#e7e5e4]">
               <h2 className="text-sm font-bold uppercase tracking-wider font-mono text-[#1c1917]">
-                {t('master.chapterList', { total: roadmap?.totalChapters || (selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15), level: selectedLevel, defaultValue: `Mục lục ${roadmap?.totalChapters || (selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} chương ${selectedLevel}` })}
+                {t('master.chapterList', { total: roadmap?.totalChapters || (selectedLevel === 'N1' ? 20 : selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15), level: selectedLevel, defaultValue: `Mục lục ${roadmap?.totalChapters || (selectedLevel === 'N1' ? 20 : selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} chương ${selectedLevel}` })}
               </h2>
               <span className="text-xs text-[#78716c]">
-                {roadmap?.chapters.length || (selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} Chương
+                {roadmap?.chapters.length || (selectedLevel === 'N1' ? 20 : selectedLevel === 'N2' ? 18 : selectedLevel === 'N3' ? 20 : selectedLevel === 'N4' ? 9 : 15)} Chương
               </span>
             </div>
 
@@ -1382,7 +1388,7 @@ export default function Kanji() {
                             {/* CỘT PHẢI: THÔNG TIN NGỮ ÂM, BỘ THỦ, MẸO NHỚ (THU GỌN VỪA VẶN) */}
                             <div className="xl:col-span-4 space-y-4">
                               <div>
-                                {(chapterDetail?.chapter.jlptLevel === 'N4' || chapterDetail?.chapter.jlptLevel === 'N3' || chapterDetail?.chapter.jlptLevel === 'N2') && (
+                                {(chapterDetail?.chapter.jlptLevel === 'N4' || chapterDetail?.chapter.jlptLevel === 'N3' || chapterDetail?.chapter.jlptLevel === 'N2' || chapterDetail?.chapter.jlptLevel === 'N1') && (
                                   <div className="flex items-center gap-2 mb-2">
                                     <span className="text-[10px] font-mono px-2 py-0.5 bg-[#fef2f2] text-[#b91c1c] border border-red-200 font-bold uppercase">
                                       Chương {chapterDetail.chapter.chapterNumber}: {chapterDetail.chapter.titleJa} ({chapterDetail.chapter.titleVi})
@@ -1492,22 +1498,24 @@ export default function Kanji() {
                           </p>
                         </div>
                       </div>
-                      <button
-                        onClick={handleOpenReviewPage}
-                        className="px-3.5 py-1.5 border border-[#b91c1c] bg-[#fef2f2] hover:bg-[#b91c1c] text-[#b91c1c] hover:text-white text-xs font-bold font-mono transition-all flex items-center gap-2 cursor-pointer shadow-2xs w-fit rounded-none"
-                      >
-                        <BookOpen className="w-3.5 h-3.5" />
-                        <span>
-                          {selectedLevel === 'N2'
-                            ? `Xem trang bài tập trong sách N2 (Trang ${N2_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 15})`
-                            : selectedLevel === 'N3'
-                            ? `Xem trang bài tập trong sách N3 (Trang ${N3_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 12})`
-                            : selectedLevel === 'N4'
-                            ? 'Xem trang bài tập trong sách N4'
-                            : 'Xem trang bài tập gốc trong sách (P.18)'}
-                        </span>
-                        <Maximize2 className="w-3 h-3 opacity-70" />
-                      </button>
+                      {selectedLevel !== 'N1' && (
+                        <button
+                          onClick={handleOpenReviewPage}
+                          className="px-3.5 py-1.5 border border-[#b91c1c] bg-[#fef2f2] hover:bg-[#b91c1c] text-[#b91c1c] hover:text-white text-xs font-bold font-mono transition-all flex items-center gap-2 cursor-pointer shadow-2xs w-fit rounded-none"
+                        >
+                          <BookOpen className="w-3.5 h-3.5" />
+                          <span>
+                            {selectedLevel === 'N2'
+                              ? `Xem trang bài tập trong sách N2 (Trang ${N2_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 15})`
+                              : selectedLevel === 'N3'
+                              ? `Xem trang bài tập trong sách N3 (Trang ${N3_REVIEW_PAGES_CONFIG[chapterDetail?.chapter.chapterNumber || 1]?.page || 12})`
+                              : selectedLevel === 'N4'
+                              ? 'Xem trang bài tập trong sách N4'
+                              : 'Xem trang bài tập gốc trong sách (P.18)'}
+                          </span>
+                          <Maximize2 className="w-3 h-3 opacity-70" />
+                        </button>
+                      )}
                     </div>
 
                     {/* Phần 1: よみましょう (Đọc câu ngữ cảnh - Thẻ trực quan) */}
