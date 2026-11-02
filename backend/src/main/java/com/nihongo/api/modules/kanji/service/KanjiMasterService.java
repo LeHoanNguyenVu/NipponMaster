@@ -151,8 +151,47 @@ public class KanjiMasterService {
      * Lấy chi tiết nội dung chương (Chữ Hán, từ vựng, câu đọc/viết, minigame) phục vụ 4 thẻ giao diện.
      * Có hỗ trợ tham số level để đảm bảo luôn tải đúng chương của cấp độ JLPT tương ứng (tránh race condition).
      */
+    /** Nội dung tĩnh của một chương (đọc từ DB, giữ trong bộ nhớ ngắn hạn để tránh gọi Supabase lặp lại). */
+    private record ChapterContent(long loadedAt, KanjiChapter chapter, List<Kanji> kanjis,
+                                  List<KanjiChapterVocab> vocabularies,
+                                  List<KanjiExercise> readingExercises,
+                                  List<KanjiExercise> writingExercises,
+                                  List<KanjiMinigame> minigames) {}
+
+    private static final long CONTENT_TTL_MS = 10 * 60 * 1000L;
+    private final java.util.concurrent.ConcurrentHashMap<String, ChapterContent> contentCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Xóa cache nội dung (gọi khi dữ liệu chương được cập nhật). */
+    public void evictContentCache() {
+        contentCache.clear();
+    }
+
     @Transactional(readOnly = true)
     public KanjiChapterDetailResponseDto getChapterDetail(Long userId, Long chapterId, String level) {
+        String cacheKey = (level == null ? "" : level.trim().toUpperCase()) + ":" + chapterId;
+        ChapterContent content = contentCache.get(cacheKey);
+        if (content == null || System.currentTimeMillis() - content.loadedAt() > CONTENT_TTL_MS) {
+            content = loadChapterContent(chapterId, level);
+            contentCache.put(cacheKey, content);
+        }
+
+        UserKanjiProgress userProgress = null;
+        if (userId != null) {
+            userProgress = progressRepository.findByUserIdAndChapterId(userId, content.chapter().getId()).orElse(null);
+        }
+
+        return KanjiChapterDetailResponseDto.builder()
+                .chapter(content.chapter())
+                .kanjis(content.kanjis())
+                .vocabularies(content.vocabularies())
+                .readingExercises(content.readingExercises())
+                .writingExercises(content.writingExercises())
+                .minigames(content.minigames())
+                .userProgress(userProgress)
+                .build();
+    }
+
+    private ChapterContent loadChapterContent(Long chapterId, String level) {
         KanjiChapter chapter = null;
         if (level != null && !level.isBlank()) {
             String normLevel = level.trim().toUpperCase();
@@ -176,20 +215,8 @@ public class KanjiMasterService {
         List<KanjiExercise> writingExercises = exerciseRepository.findByChapterIdAndExerciseTypeOrderByDisplayOrderAsc(realChapterId, "WRITING");
         List<KanjiMinigame> minigames = minigameRepository.findByChapterIdOrderByDisplayOrderAsc(realChapterId);
 
-        UserKanjiProgress userProgress = null;
-        if (userId != null) {
-            userProgress = progressRepository.findByUserIdAndChapterId(userId, realChapterId).orElse(null);
-        }
-
-        return KanjiChapterDetailResponseDto.builder()
-                .chapter(chapter)
-                .kanjis(kanjis)
-                .vocabularies(vocabularies)
-                .readingExercises(readingExercises)
-                .writingExercises(writingExercises)
-                .minigames(minigames)
-                .userProgress(userProgress)
-                .build();
+        return new ChapterContent(System.currentTimeMillis(), chapter, kanjis, vocabularies,
+                readingExercises, writingExercises, minigames);
     }
 
     /**

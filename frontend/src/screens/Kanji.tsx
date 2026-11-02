@@ -25,6 +25,70 @@ import { Badge } from '../components/ui/Badge';
 import { useAuthStore } from '../store/useAuthStore';
 import { resolveKanjiAssetUrl } from '../utils/mediaUrl';
 
+// ───────────── Cache phía client (stale-while-revalidate) ─────────────
+// Dữ liệu vẫn luôn đến từ database; cache chỉ giữ bản đã tải trong phiên để hiển thị tức thì
+// rồi tự đồng bộ lại với server ở nền.
+const chapterDetailCache = new Map<string, any>();
+const chapterPrefetchInflight = new Set<string>();
+
+const prefetchChapterDetail = (chapterId: number, level: string) => {
+  const key = `${level}:${chapterId}`;
+  if (!chapterId || chapterDetailCache.has(key) || chapterPrefetchInflight.has(key)) return;
+  chapterPrefetchInflight.add(key);
+  axiosClient
+    .get(`/kanji/${level.toLowerCase()}/chapters/${chapterId}`)
+    .then((res: any) => {
+      const data = res?.data ?? res;
+      if (data && data.chapter) chapterDetailCache.set(key, data);
+    })
+    .catch(() => {})
+    .finally(() => chapterPrefetchInflight.delete(key));
+};
+
+/** Thanh tiến trình giả lập (tiệm cận 92%) hiển thị khi đang tải dữ liệu. */
+const LoadingBar = ({ label, compact = false }: { label: string; compact?: boolean }) => {
+  const [progress, setProgress] = useState(6);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress((p) => p + (92 - p) * 0.07);
+    }, 120);
+    return () => clearInterval(timer);
+  }, []);
+  return (
+    <div className={`w-full flex flex-col items-center justify-center text-[#78716c] ${compact ? 'py-8' : 'py-16 px-8'}`}>
+      <div className="w-full max-w-sm">
+        <div className="flex items-center justify-between text-xs font-mono mb-1.5">
+          <span className="font-medium">{label}</span>
+          <span className="font-bold text-[#b91c1c]">{Math.round(progress)}%</span>
+        </div>
+        <div className="h-2 w-full bg-[#f5f5f4] border border-[#e7e5e4] overflow-hidden">
+          <div
+            className="h-full bg-[#b91c1c] transition-[width] duration-200 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/** Ảnh trang sách có thanh tiến trình trong lúc chờ tải ảnh. */
+const BookImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="w-full flex flex-col items-center">
+      {!loaded && <LoadingBar label="Đang tải hình ảnh bài tập..." compact />}
+      <img
+        src={src}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+        className={`${loaded ? '' : 'hidden'} max-h-[420px] max-w-full object-contain rounded-none border border-[#e7e5e4] bg-white shadow-xs`}
+      />
+    </div>
+  );
+};
+
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 interface RoadmapChapter {
@@ -717,8 +781,17 @@ export default function Kanji() {
   const fetchChapterDetail = async (chapterId: number, level: string = selectedLevel) => {
     if (!chapterId || chapterId <= 0) return;
     const reqId = ++detailRequestIdRef.current;
+    const cacheKey = `${level}:${chapterId}`;
+    const cached: ChapterDetailResponse | undefined = chapterDetailCache.get(cacheKey);
     try {
-      setLoadingDetail(true);
+      if (cached) {
+        // Hiển thị ngay bản đã có trong phiên, đồng bộ lại với server ở nền
+        setChapterDetail(cached);
+        if (cached.kanjis && cached.kanjis.length > 0) setActiveKanji(cached.kanjis[0]);
+        setLoadingDetail(false);
+      } else {
+        setLoadingDetail(true);
+      }
       setSubmitResult(null);
       setShowResultCard(false);
       setTestAnswers({});
@@ -753,9 +826,20 @@ export default function Kanji() {
           console.warn(`[Kanji] Ignored mismatched chapter level: got ${data.chapter.jlptLevel}, expected ${level}`);
           return;
         }
-        setChapterDetail(data);
-        if (data.kanjis && data.kanjis.length > 0) {
-          setActiveKanji(data.kanjis[0]);
+        chapterDetailCache.set(cacheKey, data);
+        if (cached) {
+          if (JSON.stringify(cached) !== JSON.stringify(data)) setChapterDetail(data);
+        } else {
+          setChapterDetail(data);
+          if (data.kanjis && data.kanjis.length > 0) {
+            setActiveKanji(data.kanjis[0]);
+          }
+        }
+        // Tải trước 2 chương kế tiếp để chuyển chương gần như tức thì
+        const chapters = roadmap?.chapters || [];
+        const idx = chapters.findIndex((c: any) => c.id === chapterId);
+        if (idx >= 0) {
+          chapters.slice(idx + 1, idx + 3).forEach((c: any) => prefetchChapterDetail(c.id, level));
         }
       }
     } catch (err) {
@@ -777,6 +861,7 @@ export default function Kanji() {
 
   // 3. Xử lý nộp bài test ôn tập
   const handleSubmitReviewTest = async () => {
+    chapterDetailCache.clear();
     if (!chapterDetail) return;
     const allExercises = [
       ...(chapterDetail.readingExercises || []),
@@ -1051,6 +1136,9 @@ export default function Kanji() {
                           setSelectedChapterId(chap.id);
                         }
                       }}
+                      onMouseEnter={() => {
+                        if (canAccess) prefetchChapterDetail(chap.id, selectedLevel);
+                      }}
                       className={`w-full text-left p-3 border transition-all flex items-center justify-between group ${
                         isSelected
                           ? 'border-[#b91c1c] bg-[#fef2f2] shadow-sm'
@@ -1120,9 +1208,8 @@ export default function Kanji() {
           {/* ════════ CỘT PHẢI: KHUNG HỌC TẬP 4 THẺ CHUYÊN SÂU ════════ */}
           <div className="lg:col-span-8 space-y-6 min-w-0">
             {loadingDetail ? (
-              <div className="bg-white border border-[#e7e5e4] p-16 flex flex-col items-center justify-center text-[#78716c]">
-                <Loader2 className="w-8 h-8 animate-spin mb-3 text-[#b91c1c]" />
-                <span className="text-sm font-medium">Đang tải nội dung chương học...</span>
+              <div className="bg-white border border-[#e7e5e4]">
+                <LoadingBar label="Đang tải nội dung chương học..." />
               </div>
             ) : chapterDetail ? (
               <>
@@ -1904,11 +1991,7 @@ export default function Kanji() {
                           {/* Tranh minh họa riêng của từng bài tập (Cropped từ sách) */}
                           {game.imageUrl && (
                             <div className="mb-6 border border-[#e7e5e4] bg-[#fafaf9] p-3 flex flex-col items-center group relative">
-                              <img
-                                src={game.imageUrl}
-                                alt={game.title}
-                                className="max-h-[420px] max-w-full object-contain rounded-none border border-[#e7e5e4] bg-white shadow-xs"
-                              />
+                              <BookImage src={game.imageUrl} alt={game.title} />
                               <button
                                 onClick={() => handleOpenMinigameImage(game.imageUrl!, game.title)}
                                 className="mt-2.5 px-3 py-1 bg-white hover:bg-[#b91c1c] text-[#44403c] hover:text-white border border-[#e7e5e4] text-xs font-mono font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
@@ -2239,16 +2322,43 @@ export default function Kanji() {
                                             <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#1c1917] text-white text-xs font-mono font-bold flex-shrink-0">
                                               {q.id}
                                             </span>
-                                            <span className="leading-relaxed">
-                                              {sentParts[0]}
-                                              <span className="font-bold text-[#dc2626] underline decoration-wavy decoration-[#dc2626] underline-offset-4 px-1 bg-red-50 border border-red-200">
-                                                {q.wrongKanji}
+                                            {Array.isArray(q.options) && q.options.length >= 2 ? (
+                                              <span className="leading-loose">
+                                                {q.before}
+                                                <span className="inline-flex items-center gap-1 mx-1 align-middle">
+                                                  {q.options.map((opt: string) => {
+                                                    const picked = val === opt;
+                                                    let optStyle = 'border-[#d6d3d1] bg-white text-[#1c1917] hover:border-[#b91c1c]';
+                                                    if (isChecked && opt === q.correctKanji) optStyle = 'border-[#15803d] bg-green-50 text-[#15803d] font-bold';
+                                                    else if (isChecked && picked) optStyle = 'border-[#dc2626] bg-red-50 text-[#dc2626] font-bold line-through';
+                                                    else if (picked) optStyle = 'border-[#b91c1c] bg-[#fff5f5] text-[#b91c1c] font-bold ring-2 ring-[#fca5a5]';
+                                                    return (
+                                                      <button
+                                                        key={opt}
+                                                        type="button"
+                                                        disabled={isChecked}
+                                                        onClick={() => setMinigameInputs(prev => ({ ...prev, [key]: opt }))}
+                                                        className={`px-2.5 py-1 border-2 text-lg font-serif whitespace-nowrap transition-all cursor-pointer ${optStyle}`}
+                                                      >
+                                                        {opt}
+                                                      </button>
+                                                    );
+                                                  })}
+                                                </span>
+                                                {q.after}
                                               </span>
-                                              {sentParts.slice(1).join(q.wrongKanji)}
-                                            </span>
+                                            ) : (
+                                              <span className="leading-relaxed">
+                                                {sentParts[0]}
+                                                <span className="font-bold text-[#dc2626] underline decoration-wavy decoration-[#dc2626] underline-offset-4 px-1 bg-red-50 border border-red-200">
+                                                  {q.wrongKanji}
+                                                </span>
+                                                {sentParts.slice(1).join(q.wrongKanji)}
+                                              </span>
+                                            )}
                                           </div>
 
-                                          <div className="flex items-center gap-2 flex-shrink-0">
+                                          <div className={`${Array.isArray(q.options) && q.options.length >= 2 ? 'hidden' : 'flex'} items-center gap-2 flex-shrink-0`}>
                                             <span className="text-xs font-mono font-bold text-[#78716c]">Chữ đúng:</span>
                                             <input
                                               type="text"
@@ -2272,7 +2382,7 @@ export default function Kanji() {
                                         {isChecked && (
                                           <div className="mt-2 pt-2 border-t border-[#f5f5f4] flex flex-wrap items-center justify-between text-xs gap-2">
                                             <span className={`font-mono font-bold ${isCorrect ? 'text-[#15803d]' : 'text-[#dc2626]'}`}>
-                                              {isCorrect ? `✓ Đúng:「${q.correctKanji}」` : `✗ Chữ sai「${q.wrongKanji}」-> Đúng là「${q.correctKanji}」`}
+                                              {isCorrect ? `✓ Đúng:「${q.correctKanji}」` : `✗ Chữ sai「${val || q.wrongKanji}」-> Đúng là「${q.correctKanji}」`}
                                             </span>
                                             <span className="text-[#44403c] font-serif font-bold">
                                               {q.targetWord} ({q.hiragana}) — {q.meaning}
@@ -2290,7 +2400,7 @@ export default function Kanji() {
                                 </div>
 
                                 {/* Ngân hàng chữ Hán */}
-                                {Array.isArray(parsedData.wordBank) && parsedData.wordBank.length > 0 && (
+                                {Array.isArray(parsedData.wordBank) && parsedData.wordBank.length > 0 && !parsedData.questions?.some((q: any) => Array.isArray(q.options)) && (
                                   <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
                                     <div className="flex items-center justify-between mb-2">
                                       <span className="text-xs font-mono font-bold text-[#78716c] uppercase">
@@ -2800,13 +2910,17 @@ export default function Kanji() {
 
                                         {/* Khung ô chữ chữ thập */}
                                         <div className="grid grid-cols-3 gap-2 my-2">
-                                          <div></div>
-                                          <div className="w-12 h-12 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-2xl font-serif font-bold text-[#1c1917]">
-                                            {puz.top || ''}
-                                          </div>
-                                          <div></div>
+                                          {Boolean(puz.top) && (
+                                            <>
+                                              <div></div>
+                                              <div className="w-12 h-12 flex items-center justify-center text-2xl font-serif font-bold text-[#1c1917] bg-[#fafaf9] border border-[#e7e5e4]">
+                                                {puz.top}
+                                              </div>
+                                              <div></div>
+                                            </>
+                                          )}
 
-                                          <div className="w-12 h-12 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-2xl font-serif font-bold text-[#1c1917]">
+                                          <div className={`w-12 h-12 flex items-center justify-center text-2xl font-serif font-bold text-[#1c1917] ${puz.left ? 'bg-[#fafaf9] border border-[#e7e5e4]' : ''}`}>
                                             {puz.left || ''}
                                           </div>
                                           <input
@@ -2822,15 +2936,19 @@ export default function Kanji() {
                                             }}
                                             className={`w-12 h-12 text-center font-serif font-bold text-2xl border-2 transition-all outline-none rounded-none shadow-xs cursor-pointer ${boxStyle}`}
                                           />
-                                          <div className="w-12 h-12 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-2xl font-serif font-bold text-[#1c1917]">
+                                          <div className={`w-12 h-12 flex items-center justify-center text-2xl font-serif font-bold text-[#1c1917] ${puz.right ? 'bg-[#fafaf9] border border-[#e7e5e4]' : ''}`}>
                                             {puz.right || ''}
                                           </div>
 
-                                          <div></div>
-                                          <div className="w-12 h-12 flex items-center justify-center bg-[#fafaf9] border border-[#e7e5e4] text-2xl font-serif font-bold text-[#1c1917]">
-                                            {puz.bottom || ''}
-                                          </div>
-                                          <div></div>
+                                          {Boolean(puz.bottom) && (
+                                            <>
+                                              <div></div>
+                                              <div className="w-12 h-12 flex items-center justify-center text-2xl font-serif font-bold text-[#1c1917] bg-[#fafaf9] border border-[#e7e5e4]">
+                                                {puz.bottom}
+                                              </div>
+                                              <div></div>
+                                            </>
+                                          )}
                                         </div>
 
                                         {isChecked && (
