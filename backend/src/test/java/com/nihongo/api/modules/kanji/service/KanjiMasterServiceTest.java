@@ -1,6 +1,7 @@
 package com.nihongo.api.modules.kanji.service;
 
 import com.nihongo.api.modules.auth.entity.User;
+import com.nihongo.api.modules.auth.repository.UserRepository;
 import com.nihongo.api.modules.kanji.dto.KanjiChapterDetailResponseDto;
 import com.nihongo.api.modules.kanji.dto.KanjiRoadmapResponseDto;
 import com.nihongo.api.modules.kanji.dto.KanjiSubmitRequestDto;
@@ -27,6 +28,8 @@ class KanjiMasterServiceTest {
 
     @Mock
     private KanjiChapterRepository chapterRepository;
+    @Mock
+    private UserRepository userRepository;
     @Mock
     private KanjiRepository kanjiRepository;
     @Mock

@@ -971,7 +971,7 @@ export default function Kanji() {
             </h1>
             <p className="text-sm text-[#78716c] mt-1">
               {selectedLevel === 'N1'
-                ? '30 Chương (必修編 · 熟達編 · 難読編) · 943 Chữ Hán · Sách chuẩn 漢字マスターN1 & Mẹo nhớ chiết tự.'
+                ? '30 Chương (必修編 · 熟達編 · 難読編) · 943 Chữ Hán · Sách chuẩn 漢字マスターN1 & Mẹo nhớ chiết tự · Đạt ≥ 85% mở khóa chương.'
                 : selectedLevel === 'N2'
                 ? '18 Chương · 505 Chữ Hán · Sơ đồ chuyên sâu & Minigame tình huống · Đạt ≥ 85% mở khóa chương.'
                 : selectedLevel === 'N3'
@@ -1123,7 +1123,7 @@ export default function Kanji() {
                 )}
                 {roadmap?.chapters.map((chap) => {
                   const isSelected = selectedChapterId === chap.id;
-                  const isUnlocked = true; // Tạm tắt khóa chương (>85%) để kiểm tra nhanh các chương
+                  const isUnlocked = chap.isUnlocked || isLowerLevel;
                   const isLocked = !isUnlocked;
                   const isPassed = chap.isPassed;
                   const canAccess = isUnlocked;
