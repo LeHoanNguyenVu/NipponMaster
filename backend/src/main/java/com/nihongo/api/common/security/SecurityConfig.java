@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/kanji/**").permitAll()
                         .requestMatchers("/api/v1/flashcards/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/grammars/**").permitAll()
+                        .requestMatchers("/api/v1/grammar-lessons/**").permitAll()
                         .requestMatchers("/api/v1/tts/**").permitAll()
 
                         // Cho phép xem cấu trúc đề thi (không cần login, submit thì cần)

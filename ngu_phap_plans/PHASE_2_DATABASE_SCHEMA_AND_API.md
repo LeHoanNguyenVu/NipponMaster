@@ -114,33 +114,46 @@ CREATE INDEX idx_user_grammar_progress ON user_grammar_progress(user_id, lesson_
 
 ## ☕ BACKEND ARCHITECTURE & REST APIS (SPRING BOOT)
 
-### Package: `com.nihongo.api.modules.grammar`
+### Package: `com.nihongo.api.modules.grammar` [HOÀN TẤT 100%]
 
-1. **Entities**:
-   - `GrammarLesson.java`
-   - `GrammarTimestamp.java`
-   - `GrammarCheatsheet.java`
-   - `GrammarQuiz.java`
-   - `GrammarDiscussion.java`
-   - `UserGrammarProgress.java`
+1. **Entities [x]**:
+   - `GrammarLevel.java`: Bảng 5 cấp độ ngữ pháp.
+   - `GrammarLesson.java`: Hỗ trợ `lessonNumber`, `partNumber`, `sortOrder`, `durationStr`, `durationSec`.
+   - `GrammarTimestamp.java`: Mốc tua thời gian video thông minh.
+   - `GrammarCheatsheet.java`: Công thức & câu ví dụ JSONB.
+   - `GrammarQuiz.java`: Câu hỏi trắc nghiệm & xếp sao JLPT.
+   - `GrammarDiscussion.java`: Thảo luận & phản hồi Giảng viên / Học viên.
+   - `UserGrammarProgress.java`: Lưu tiến độ, điểm số, mở khóa bài học.
 
-2. **DTOs**:
-   - `GrammarLessonDetailDto.java`: Chứa toàn bộ mốc thời gian, cheatsheet, quiz, tiến độ học viên.
-   - `QuizSubmissionRequest.java`: Mảng câu trả lời trắc nghiệm & vị trí ghép câu ngôi sao.
-   - `QuizSubmissionResponse.java`: Điểm số %, kết quả chi tiết từng câu, cờ `isPassed` ($\ge 85\%$) và cờ `nextLessonUnlocked`.
-   - `CreateDiscussionRequest.java`: Nội dung, `imageUrl`, `videoUrl`, `replyToId`.
+2. **Repositories [x]**:
+   - `GrammarLevelRepository.java`
+   - `GrammarLessonRepository.java`
+   - `GrammarTimestampRepository.java`
+   - `GrammarCheatsheetRepository.java`
+   - `GrammarQuizRepository.java`
+   - `GrammarDiscussionRepository.java`
+   - `UserGrammarProgressRepository.java`
 
-3. **Service Logic (`GrammarService.java`)**:
-   - `getLessonsByLevel(levelCode, userId)`: Trả về danh sách bài học kèm trạng thái khóa / điểm số của người dùng. Bài 1 luôn luôn mở khóa. Bài kế tiếp mở khóa khi bài liền trước đạt điểm $\ge 85\%$.
+3. **DTOs [x]**:
+   - `GrammarLevelDto.java`
+   - `GrammarLessonSummaryDto.java`
+   - `GrammarLessonDetailDto.java`
+   - `GrammarQuizSubmitDto.java`
+   - `GrammarDiscussionDto.java`
+
+4. **Service Logic (`GrammarLessonService.java` & `GrammarLessonServiceImpl.java`) [x]**:
+   - `getLevels(userId)`: Trả về danh sách cấp độ & số bài đã mở/đã đạt.
+   - `getLessonsByLevel(levelCode, userId)`: Bài 1 luôn mở mặc định.
    - `getLessonDetail(lessonId, userId)`: Lấy chi tiết bài giảng, mốc thời gian, bảng tóm tắt, đề kiểm tra.
-   - `submitLessonQuiz(lessonId, userId, submission)`: Tự động chấm điểm khách quan trên server, ghi nhận điểm cao nhất vào `user_grammar_progress`. Nếu $\ge 85\%$, mở khóa bài học tiếp theo trong cùng level!
-   - `getDiscussions(lessonId)` & `postDiscussion(...)`: Xử lý hỏi đáp giữa học viên và phản hồi chính thức của giáo viên.
+   - `submitQuiz(lessonId, userId, request)`: Tự động chấm điểm, nếu $\ge 85\%$ thì tự động mở khóa bài học kế tiếp.
+   - `getDiscussions(lessonId)` & `createDiscussion(...)`: Xử lý hỏi đáp đa chiều và toggle hữu ích.
 
-4. **REST Controllers (`GrammarController.java`)**:
-   - `GET /api/v1/grammar/levels/{level}/lessons`
-   - `GET /api/v1/grammar/lessons/{lessonId}`
-   - `POST /api/v1/grammar/lessons/{lessonId}/quiz/submit`
-   - `GET /api/v1/grammar/lessons/{lessonId}/discussions`
-   - `POST /api/v1/grammar/lessons/{lessonId}/discussions`
-   - `POST /api/v1/grammar/upload`: Tiếp nhận upload ảnh/video đính kèm câu hỏi lên Cloud/Supabase Storage.
+5. **REST Controllers (`GrammarLessonController.java`) [x]**:
+   - `GET /api/v1/grammar-lessons/levels`
+   - `GET /api/v1/grammar-lessons/levels/{levelCode}`
+   - `GET /api/v1/grammar-lessons/{lessonId}`
+   - `POST /api/v1/grammar-lessons/{lessonId}/submit-quiz`
+   - `GET /api/v1/grammar-lessons/{lessonId}/discussions`
+   - `POST /api/v1/grammar-lessons/{lessonId}/discussions`
+   - `POST /api/v1/grammar-lessons/discussions/{discussionId}/helpful`
 

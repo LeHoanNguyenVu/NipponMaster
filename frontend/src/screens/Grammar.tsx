@@ -1,16 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Clock,
   CheckCircle2,
-  Lock,
   ChevronRight,
+  Lock,
   Star,
   FileText,
   MessageSquare,
-  Award,
-  GraduationCap,
-  Lightbulb,
   Bookmark,
   Send,
   Smile,
@@ -19,105 +15,27 @@ import {
   FolderOpen,
   Link,
   CornerDownRight,
-  Play
+  Play,
+  Loader2,
+  AlertCircle,
+  History,
+  RotateCcw,
+  Trash2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuthStore } from '../store/useAuthStore';
+import { grammarApi } from '../api/grammarApi';
+import type {
+  GrammarLessonSummaryDto,
+  GrammarLessonDetailDto,
+  GrammarDiscussionDto,
+  GrammarQuizItem
+} from '../api/grammarApi';
+import grammarChaptersData from '../data/grammarChapters.json';
+import grammarLessonsCatalog from '../data/grammarLessonsCatalog.json';
+import { getQuizForLesson } from '../data/grammarQuizBank';
 
-// Định nghĩa cấp độ & giáo trình
 type JlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-
-interface TimestampItem {
-  id: string;
-  timeSec: number;
-  timeStr: string;
-  title: string;
-  pattern: string;
-  summary: string;
-}
-
-interface GrammarCheatsheet {
-  id: string;
-  pattern: string;
-  badge: string;
-  meaning: string;
-  structure: string;
-  nuance: string;
-  examples: {
-    ja: string;
-    furigana: string;
-    vi: string;
-  }[];
-}
-
-interface StarQuestion {
-  id: number;
-  prompt: string;
-  leftSentence: string;
-  rightSentence: string;
-  starIndex: number;
-  fragments: { id: string; text: string; correctIndex: number }[];
-  explanation: string;
-}
-
-interface MultipleChoiceQuestion {
-  id: number;
-  question: string;
-  options: string[];
-  correctAnswer: string;
-  explanation: string;
-}
-
-interface LessonItem {
-  id: number;
-  lessonNumber: number;
-  titleVi: string;
-  titleJa: string;
-  duration: string;
-  durationSec: number;
-  videoId: string;
-  curriculum: string;
-  isUnlocked: boolean;
-  isPassed: boolean;
-  score?: number;
-  timestamps: TimestampItem[];
-  cheatsheet: GrammarCheatsheet[];
-  quiz: {
-    mcq: MultipleChoiceQuestion[];
-    starQuestion: StarQuestion;
-  };
-}
-
-interface CommentReplyItem {
-  id: string;
-  authorName: string;
-  avatarLetter: string;
-  avatarBg: string;
-  role: 'teacher' | 'student';
-  timeAgo: string;
-  content: string;
-  imageUrl?: string;
-  imageName?: string;
-  videoUrl?: string;
-  videoName?: string;
-  likes: number;
-}
-
-interface DiscussionItem {
-  id: string;
-  authorName: string;
-  avatarLetter: string;
-  avatarBg: string;
-  role: 'teacher' | 'student';
-  timeAgo: string;
-  content: string;
-  imageUrl?: string;
-  imageName?: string;
-  videoUrl?: string;
-  videoName?: string;
-  likes: number;
-  replies: CommentReplyItem[];
-}
 
 interface LightboxMedia {
   type: 'image' | 'video';
@@ -125,314 +43,295 @@ interface LightboxMedia {
   title?: string;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// DỮ LIỆU BÀI HỌC MẪU
-// ═══════════════════════════════════════════════════════════════════════════
-const LESSON_PLAYLIST_N5: LessonItem[] = [
-  {
-    id: 1,
-    lessonNumber: 1,
-    titleVi: 'Khẳng định, Phủ định, Nghi vấn & Trợ từ chủ đề [は・も・の]',
-    titleJa: '第1課：～は～です・～じゃありません・～ですか・～も・～の',
-    duration: '18:35',
-    durationSec: 1115,
-    videoId: 'dQw4w9WgXcQ',
-    curriculum: 'Minna no Nihongo I (Bài 1 ~ 25)',
-    isUnlocked: true,
-    isPassed: true,
-    score: 95,
-    timestamps: [
-      { id: 'ts1', timeSec: 15, timeStr: '00:15', title: 'Tổng quan bài 1 & Đại từ xưng hô', pattern: 'わたし・あなた・あの人', summary: 'Giới thiệu bản thân và cách gọi người khác lịch sự' },
-      { id: 'ts2', timeSec: 90, timeStr: '01:30', title: 'Mẫu 1: Câu khẳng định danh từ', pattern: 'N1 は N2 です', summary: 'N1 là N2 (Trợ từ は phát âm là WA)' },
-      { id: 'ts3', timeSec: 320, timeStr: '05:20', title: 'Mẫu 2: Câu phủ định danh từ', pattern: 'N1 は N2 じゃ / ではありません', summary: 'N1 không phải là N2 (じゃありません thân mật hơn ではありません)' },
-      { id: 'ts4', timeSec: 580, timeStr: '09:40', title: 'Mẫu 3: Câu hỏi nghi vấn Có/Không', pattern: 'Câu + か', summary: 'Hỏi xác nhận thông tin, trả lời はい hoặc いいえ' },
-      { id: 'ts5', timeSec: 810, timeStr: '13:30', title: 'Mẫu 4: Trợ từ đồng nhất "Cũng"', pattern: 'N も N です', summary: 'Thay thế trợ từ は khi đối tượng có cùng đặc điểm' },
-      { id: 'ts6', timeSec: 990, timeStr: '16:30', title: 'Mẫu 5: Trợ từ sở hữu & Thuộc về', pattern: 'N1 の N2', summary: 'N2 thuộc về N1 hoặc giải thích bổ nghĩa cho N1' },
-    ],
-    cheatsheet: [
-      {
-        id: 'cs1',
-        pattern: 'N1 は N2 です',
-        badge: 'Khẳng định căn bản',
-        meaning: 'N1 là N2',
-        structure: 'Danh từ 1 + は + Danh từ 2 + です',
-        nuance: 'Trợ từ「は」đóng vai trò chỉ định chủ đề chính của câu văn. Trong văn viết ký tự là「は」(ha) nhưng luôn đọc chuẩn âm là「わ」(wa).「です」thể hiện thái độ lịch sự, trang trọng.',
-        examples: [
-          { ja: 'わたしは マイク・ミラーです。', furigana: 'わたしは マイク・ミラーです。', vi: 'Tôi là Mike Miller.' },
-          { ja: 'サントスさんは ブラジル人です。', furigana: 'サントスさんは ブラジルじんです。', vi: 'Anh Santos là người Brazil.' }
-        ]
-      },
-      {
-        id: 'cs2',
-        pattern: 'N1 は N2 じゃ / ではありません',
-        badge: 'Phủ định hiện tại',
-        meaning: 'N1 không phải là N2',
-        structure: 'Danh từ 1 + は + Danh từ 2 + じゃありません / ではありません',
-        nuance: '「じゃありません」thường dùng trong đàm thoại giao tiếp hàng ngày thân mật. Trong văn viết trang trọng, diễn văn hoặc báo chí trang trọng ưu tiên dùng「ではありません」.',
-        examples: [
-          { ja: 'サントスさんは 学生じゃありません。', furigana: 'サントスさんは がくせいじゃありません。', vi: 'Anh Santos không phải là học sinh.' },
-          { ja: 'わたしは 医者ではありません。', furigana: 'わたしは いしゃではありません。', vi: 'Tôi không phải là bác sĩ.' }
-        ]
-      },
-      {
-        id: 'cs4',
-        pattern: 'N1 も N2 です',
-        badge: 'Trợ từ đồng nhất',
-        meaning: 'N1 cũng là N2',
-        structure: 'Danh từ 1 + も + Danh từ 2 + です',
-        nuance: 'Dùng「も」thay thế hoàn toàn cho「は」khi danh từ chủ ngữ mang cùng đặc tính, nghề nghiệp hoặc quốc tịch với chủ ngữ đã nhắc trước đó.',
-        examples: [
-          { ja: 'ミラーさんは 会社員です。グプタさんも 会社員です。', furigana: 'ミラーさんは かいしゃいんです。グプタさんも かいしゃいんです。', vi: 'Anh Miller là nhân viên công ty. Anh Gupta cũng là nhân viên công ty.' }
-        ]
-      },
-      {
-        id: 'cs5',
-        pattern: 'N1 の N2',
-        badge: 'Trợ từ sở hữu',
-        meaning: 'N2 của N1 / N2 thuộc N1',
-        structure: 'Danh từ 1 + の + Danh từ 2',
-        nuance: 'N1 bổ nghĩa cho N2. N1 có thể là tổ chức, công ty sở tại (IMCの社員: nhân viên công ty IMC) hoặc chủ sở hữu tài sản (わたしの本: sách của tôi).',
-        examples: [
-          { ja: 'ミラーさんは IMCの 社員です。', furigana: 'ミラーさんは IMCの しゃいんです。', vi: 'Anh Miller là nhân viên của công ty IMC.' }
-        ]
-      }
-    ],
-    quiz: {
-      mcq: [
-        {
-          id: 1,
-          question: 'Chọn trợ từ thích hợp điền vào chỗ trống:「わたし [ ? ] ベトナム人です。」',
-          options: ['① は', '② を', '③ に', '④ が'],
-          correctAnswer: '① は',
-          explanation: 'Chủ đề của câu chỉ người nói (わたし) cần điền trợ từ は (đọc là wa).'
-        },
-        {
-          id: 2,
-          question: 'Chọn câu phủ định đúng:「サントスさんは 先生 [ ? ]。」',
-          options: ['① です', '② じゃありません', '③ でした', '④ ます'],
-          correctAnswer: '② じゃありません',
-          explanation: 'Dạng phủ định danh từ lịch sự ở thì hiện tại là じゃありません (hoặc ではありません).'
-        }
+// Fallback dữ liệu N5 Bài 1 khi backend chưa khởi động
+const FALLBACK_N5_LESSON_1: GrammarLessonDetailDto = {
+  id: 1,
+  levelCode: 'N5',
+  lessonNumber: 1,
+  partNumber: 1,
+  sortOrder: 1,
+  titleVi: 'Khẳng định, Phủ định, Nghi vấn & Trợ từ chủ đề [は・も・の]',
+  titleJa: '第1課：～は～です・～じゃありません・～ですか・～も・～の',
+  videoId: 'YBI4nM5HC4c',
+  durationStr: '1:54:38',
+  durationSec: 6878,
+  isUnlocked: true,
+  isPassed: false,
+  highestScore: 0,
+  starsEarned: 0,
+  timestamps: [
+    { id: 1, timeSec: 15, timeStr: '00:15', title: 'Tổng quan bài 1 & Đại từ xưng hô', pattern: 'わたし・あなた・あの人', summary: 'Giới thiệu bản thân và cách gọi người khác lịch sự', sortOrder: 1 },
+    { id: 2, timeSec: 90, timeStr: '01:30', title: 'Mẫu 1: Câu khẳng định danh từ', pattern: 'N1 は N2 です', summary: 'N1 là N2 (Trợ từ は phát âm là WA)', sortOrder: 2 },
+    { id: 3, timeSec: 320, timeStr: '05:20', title: 'Mẫu 2: Câu phủ định danh từ', pattern: 'N1 は N2 じゃ / ではありません', summary: 'N1 không phải là N2 (じゃありません thân mật hơn ではありません)', sortOrder: 3 },
+    { id: 4, timeSec: 580, timeStr: '09:40', title: 'Mẫu 3: Câu hỏi nghi vấn Có/Không', pattern: 'Câu + か', summary: 'Hỏi xác nhận thông tin, trả lời はい hoặc いいえ', sortOrder: 4 },
+    { id: 5, timeSec: 810, timeStr: '13:30', title: 'Mẫu 4: Trợ từ đồng nhất "Cũng"', pattern: 'N も N です', summary: 'Thay thế trợ từ は khi đối tượng có cùng đặc điểm', sortOrder: 5 },
+    { id: 6, timeSec: 990, timeStr: '16:30', title: 'Mẫu 5: Trợ từ sở hữu & Thuộc về', pattern: 'N1 の N2', summary: 'N2 thuộc về N1 hoặc giải thích bổ nghĩa cho N1', sortOrder: 6 }
+  ],
+  cheatsheets: [
+    {
+      id: 1,
+      pattern: 'N1 は N2 です',
+      badge: 'Căn bản ★',
+      meaning: 'N1 là N2',
+      structure: 'Danh từ 1 + は + Danh từ 2 + です',
+      nuance: 'Trợ từ [は] luôn phát âm là [wa] khi đóng vai trò trợ từ chủ ngữ, không đọc là [ha].',
+      examples: [
+        { ja: 'わたしは マイケル です。', furigana: 'わたしは マイケル です。', vi: 'Tôi là Michael.' },
+        { ja: 'サントスさんは ブラジル人 です。', furigana: 'サントスさんは ブラジルじん です。', vi: 'Anh Santos là người Brazil.' }
       ],
-      starQuestion: {
-        id: 3,
-        prompt: 'Sắp xếp 4 cụm từ để tạo thành câu hoàn chỉnh và tìm cụm từ ở vị trí ngôi sao [ ★ ]:',
-        leftSentence: 'ミラーさんは',
-        rightSentence: 'です。',
-        starIndex: 2,
-        fragments: [
-          { id: 'f1', text: '会社員', correctIndex: 3 },
-          { id: 'f2', text: 'の', correctIndex: 2 },
-          { id: 'f3', text: 'IMC', correctIndex: 1 },
-          { id: 'f4', text: 'アメリカ人', correctIndex: 0 },
-        ],
-        explanation: 'Câu hoàn chỉnh:「ミラーさんは アメリカ人 IMC の ★ 会社員 です。」— Thứ tự: ④ アメリカ人 → ③ IMC → ② の (vị trí ngôi sao ★) → ① 会社員.'
-      }
-    }
-  },
-  {
-    id: 2,
-    lessonNumber: 2,
-    titleVi: 'Chỉ thị từ đồ vật [これ・それ・あれ・この・その・あの]',
-    titleJa: '第2課：これ・それ・あれ・この・その・あの・そうです',
-    duration: '21:10',
-    durationSec: 1270,
-    videoId: 'dQw4w9WgXcQ',
-    curriculum: 'Minna no Nihongo I (Bài 1 ~ 25)',
-    isUnlocked: true,
-    isPassed: false,
-    timestamps: [
-      { id: 'ts2_1', timeSec: 0, timeStr: '00:00', title: 'Phân biệt hệ thống Ko-So-A-Do', pattern: 'これ・それ・あれ', summary: 'Khoảng cách giữa người nói và người nghe' },
-      { id: 'ts2_2', timeSec: 300, timeStr: '05:00', title: 'Mẫu 1: これ / それ / あれ は N です', pattern: 'これ・それ・あれ は N です', summary: 'Cái này / cái đó / cái kia là vật gì' },
-      { id: 'ts2_3', timeSec: 720, timeStr: '12:00', title: 'Mẫu 2: この / その / あの N は...', pattern: 'この・その・あの + Danh từ', summary: 'Định từ đi kèm danh từ chỉ định' },
-    ],
-    cheatsheet: [
-      {
-        id: 'cs2_1',
-        pattern: 'これ / それ / あれ は N です',
-        badge: 'Đại từ chỉ vật',
-        meaning: 'Cái này / Cái đó / Cái kia là N',
-        structure: 'これ (gần người nói) / それ (gần người nghe) / あれ (xa cả hai) + は + N + です',
-        nuance: 'Đây là các đại từ độc lập, không được ghép trực tiếp danh từ ngay sau chúng.',
-        examples: [
-          { ja: 'これは 辞書です。', furigana: 'これは じしょです。', vi: 'Đây là cuốn từ điển.' }
-        ]
-      }
-    ],
-    quiz: {
-      mcq: [
-        {
-          id: 1,
-          question: 'Vật ở gần người nghe, người nói muốn hỏi thì dùng từ nào?',
-          options: ['① これ', '② それ', '③ あれ', '④ どれ'],
-          correctAnswer: '② それ',
-          explanation: 'Gần người nghe dùng それ, gần người nói dùng これ, xa cả hai dùng あれ.'
-        }
+      sortOrder: 1
+    },
+    {
+      id: 2,
+      pattern: 'N1 は N2 じゃ／ではありません',
+      badge: 'Phủ định',
+      meaning: 'N1 không phải là N2',
+      structure: 'Danh từ 1 + は + Danh từ 2 + じゃ／ではありません',
+      nuance: '[じゃありません] thường dùng trong hội thoại hàng ngày. [ではありません] trang trọng hơn, dùng trong bài thi JLPT hoặc văn bản viết.',
+      examples: [
+        { ja: 'サントスさんは 学生じゃ ありません。', furigana: 'サントスさんは がくせいじゃ ありません。', vi: 'Anh Santos không phải là sinh viên.' }
       ],
-      starQuestion: {
-        id: 2,
-        prompt: 'Sắp xếp các từ để hoàn thiện câu và tìm từ ở vị trí ngôi sao [ ★ ]:',
-        leftSentence: 'これは',
-        rightSentence: '本です。',
-        starIndex: 1,
-        fragments: [
-          { id: 'f2_1', text: '日本語', correctIndex: 1 },
-          { id: 'f2_2', text: 'の', correctIndex: 2 },
-          { id: 'f2_3', text: 'わたし', correctIndex: 0 },
-          { id: 'f2_4', text: 'の', correctIndex: 3 }
-        ],
-        explanation: 'Câu hoàn chỉnh:「これは わたし の 日本語 ★ の 本です。」(Đây là cuốn sách tiếng Nhật của tôi).'
-      }
+      sortOrder: 2
+    },
+    {
+      id: 3,
+      pattern: 'Câu + か',
+      badge: 'Nghi vấn',
+      meaning: '... phải không? / ... có phải không?',
+      structure: 'Câu khẳng định + か？',
+      nuance: 'Cuối câu nghi vấn lên giọng nhẹ ở từ [か]. Trả lời câu hỏi nghi vấn Có/Không luôn bắt đầu bằng [はい] hoặc [いいえ].',
+      examples: [
+        { ja: 'ミラーさんは アメリカ人ですか。…はい、アメリカ人です。', furigana: 'ミラーさんは アメリカじんですか。…はい、アメリカじんです。', vi: 'Anh Miller có phải người Mỹ không? ... Vâng, là người Mỹ.' }
+      ],
+      sortOrder: 3
     }
-  },
-  {
-    id: 3,
-    lessonNumber: 3,
-    titleVi: 'Chỉ thị từ địa điểm & Phương hướng [ここ・そこ・あそこ・どこ]',
-    titleJa: '第3課：ここ・そこ・あそこ・こちら・そちら・あちら',
-    duration: '19:40',
-    durationSec: 1180,
-    videoId: 'dQw4w9WgXcQ',
-    curriculum: 'Minna no Nihongo I (Bài 1 ~ 25)',
-    isUnlocked: false,
-    isPassed: false,
-    timestamps: [],
-    cheatsheet: [],
-    quiz: { mcq: [], starQuestion: {} as any }
-  },
-  {
-    id: 4,
-    lessonNumber: 4,
-    titleVi: 'Thời gian, Giờ giấc, Thứ ngày & Động từ chia thì [ます・ません・ました]',
-    titleJa: '第4課：今～時～分・～から～まで・動詞ます形',
-    duration: '24:15',
-    durationSec: 1455,
-    videoId: 'dQw4w9WgXcQ',
-    curriculum: 'Minna no Nihongo I (Bài 1 ~ 25)',
-    isUnlocked: false,
-    isPassed: false,
-    timestamps: [],
-    cheatsheet: [],
-    quiz: { mcq: [], starQuestion: {} as any }
-  },
-  {
-    id: 5,
-    lessonNumber: 5,
-    titleVi: 'Phương tiện di chuyển & Điểm đến với trợ từ [へ・で・と]',
-    titleJa: '第5課：～へ行きます・～で帰ります・～と来ます',
-    duration: '22:50',
-    durationSec: 1370,
-    videoId: 'dQw4w9WgXcQ',
-    curriculum: 'Minna no Nihongo I (Bài 1 ~ 25)',
-    isUnlocked: false,
-    isPassed: false,
-    timestamps: [],
-    cheatsheet: [],
-    quiz: { mcq: [], starQuestion: {} as any }
-  }
-];
+  ],
+  quizzes: [
+    {
+      id: 1,
+      quizType: 'STAR',
+      prompt: 'Sắp xếp các từ để hoàn thiện câu và chọn từ nằm ở vị trí ngôi sao [★]:',
+      leftSentence: 'わたし',
+      rightSentence: 'マイク・ミラーです。',
+      starIndex: 0,
+      fragments: [
+        { id: 'f1', text: 'は' },
+        { id: 'f2', text: 'アメリカ' },
+        { id: 'f3', text: 'から' },
+        { id: 'f4', text: '来ました' }
+      ],
+      correctAnswer: 'は',
+      explanation: 'Thứ tự đúng: わたし [は] [アメリカ] [から] [来ました] マイク・ミラーです。(Vị trí sao số 1 là は).',
+      sortOrder: 1
+    },
+    {
+      id: 2,
+      quizType: 'MCQ',
+      prompt: 'Chọn trợ từ thích hợp điền vào chỗ trống: サントスさん _____ ブラジル人です。',
+      options: ['は', 'が', 'を', 'に'],
+      correctAnswer: 'は',
+      explanation: 'Trợ từ [は] biểu thị chủ đề của câu: Anh Santos là người Brazil.',
+      sortOrder: 2
+    },
+    {
+      id: 3,
+      quizType: 'MCQ',
+      prompt: 'Dạng phủ định trang trọng của「です」dùng trong bài thi JLPT là gì?',
+      options: ['ではありません', 'じゃありません', 'でした', 'くありません'],
+      correctAnswer: 'ではありません',
+      explanation: '[ではありません] là cách phủ định trang trọng tiêu chuẩn trong văn viết và bài thi.',
+      sortOrder: 3
+    }
+  ]
+};
 
-const EMOJI_LIST = ['🎌', '🌸', '💡', '❓', '✍️', '👏', '💯', '📚', '✨', '🇯🇵', '🗾', '🍙', '🍵', '👍', '🔥', '🎯', '⭐', '🎉', '🙏', '😊'];
+const EMOJI_LIST = ['🎌', '🌸', '💡', '❓', '✍️', '👏', '💯', '📚', '✨', 'JP', '🗾', '🍙', '🍵', '👍', '🔥', '🎯', '⭐', '🎉', '🙏', '😊'];
+
+// Bảng xếp hạng thứ bậc cấp độ JLPT
+const LEVEL_RANK: Record<string, number> = {
+  'STARTER': 1,
+  'N5': 1,
+  'N4': 2,
+  'N3': 3,
+  'N2': 4,
+  'N1': 5,
+};
 
 export default function Grammar() {
   const { user } = useAuthStore();
-  const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
-  const currentAuthorName = user?.fullName || user?.username || 'Bạn (Học viên)';
+  const isTeacher = user?.role?.toUpperCase() === 'TEACHER' || user?.role?.toUpperCase() === 'ADMIN';
+  const currentAuthorName = user?.fullName || 'Học viên';
   const currentUserRole: 'teacher' | 'student' = isTeacher ? 'teacher' : 'student';
 
-  const [selectedLevel, setSelectedLevel] = useState<JlptLevel>('N5');
-  const [selectedLessonId, setSelectedLessonId] = useState<number>(1);
-  const [activeTimestamp, setActiveTimestamp] = useState<number>(0);
-  const [activeTab, setActiveTab] = useState<'cheatsheet' | 'quiz' | 'discussion'>('cheatsheet');
+  // Cấp độ thực tế của tài khoản đang đăng nhập
+  const currentUserLevel = (
+    user?.jlptLevel ||
+    user?.targetLevel ||
+    localStorage.getItem('nippon_user_level') ||
+    'N5'
+  ).toUpperCase();
 
-  // Trạng thái bài test
-  const [mcqAnswers, setMcqAnswers] = useState<{ [qId: number]: string }>({});
-  const [selectedSlots, setSelectedSlots] = useState<(string | null)[]>([null, null, null, null]);
-  const [starSubmitted, setStarSubmitted] = useState<boolean>(false);
-  const [isStarCorrect, setIsStarCorrect] = useState<boolean | null>(null);
-  const [quizScore, setQuizScore] = useState<number | null>(null);
+  // Kiểm tra quyền hạn theo cấp bậc tài khoản: N1 xem full N5-N1, N2 xem N5-N2, N5 xem N5
+  const canAccessLevel = (lvl: JlptLevel): boolean => {
+    if (isTeacher) return true;
+    const userRank = LEVEL_RANK[currentUserLevel] || 1;
+    const targetRank = LEVEL_RANK[lvl] || 1;
+    return userRank >= targetRank;
+  };
+
+  const [lockedNotice, setLockedNotice] = useState<string | null>(null);
+
+  // Khôi phục bài học & cấp độ gần nhất người dùng đã xem (khi thoát trang rồi vào lại)
+  const getLastActiveState = (): { level: JlptLevel; lessonId: number } => {
+    try {
+      const saved = localStorage.getItem('grammar_last_active_lesson');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.lessonId) {
+          const validLesson = (grammarLessonsCatalog as any[]).find(l => l.id === parsed.lessonId);
+          if (validLesson) {
+            const lvl = (validLesson.levelCode || parsed.levelCode || 'N5') as JlptLevel;
+            return {
+              level: lvl,
+              lessonId: validLesson.id
+            };
+          }
+        }
+      }
+    } catch (e) { }
+    return { level: 'N5', lessonId: 1 };
+  };
+
+  const initialActive = getLastActiveState();
+
+  // Helper lấy danh sách bài học mặc định từ catalog 131 bài
+  const getInitialLessons = (lvl: JlptLevel): GrammarLessonSummaryDto[] => {
+    return (grammarLessonsCatalog as any[]).filter(l => l.levelCode === lvl);
+  };
+
+  // Nếu cấp độ đã lưu vượt quá quyền của tài khoản hiện tại, ép về cấp độ cao nhất tài khoản được phép
+  const safeInitialLevel: JlptLevel = canAccessLevel(initialActive.level)
+    ? initialActive.level
+    : (canAccessLevel(currentUserLevel as JlptLevel) ? (currentUserLevel as JlptLevel) : 'N5');
+  const safeInitialLessons = getInitialLessons(safeInitialLevel);
+  const safeInitialLessonId = safeInitialLessons.some(l => l.id === initialActive.lessonId)
+    ? initialActive.lessonId
+    : (safeInitialLessons[0]?.id || 1);
+
+  // Cấp độ đang chọn: khôi phục từ bài học gần nhất đã xem (có kiểm tra quyền)
+  const [selectedLevel, setSelectedLevel] = useState<JlptLevel>(safeInitialLevel);
+
+  // Danh sách bài học của level hiện tại (khởi tạo ngay lập tức từ catalog 131 bài)
+  const [lessons, setLessons] = useState<GrammarLessonSummaryDto[]>(() => safeInitialLessons);
+  const [selectedLessonId, setSelectedLessonId] = useState<number>(safeInitialLessonId);
+  const [lessonDetail, setLessonDetail] = useState<GrammarLessonDetailDto | null>(null);
+
+  // Trạng thái tải
+  const [loadingLessons, setLoadingLessons] = useState<boolean>(false);
+  const [loadingDetail, setLoadingDetail] = useState<boolean>(false);
+
+  // Bộ nhớ đệm Memory Cache (SWR) giúp phản hồi tức thì 0ms khi chuyển bài hoặc mở lại thảo luận
+  const detailCacheRef = useRef<Map<number, GrammarLessonDetailDto>>(new Map());
+  const discussionCacheRef = useRef<Map<number, GrammarDiscussionDto[]>>(new Map());
+
+  // Tab học tập: 'cheatsheet' | 'quiz' | 'discussion'
+  const [activeTab, setActiveTab] = useState<'cheatsheet' | 'quiz' | 'discussion'>('cheatsheet');
+  const [activeTimestamp, setActiveTimestamp] = useState<number | null>(null);
+
+  // Helper format giây -> mm:ss hoặc hh:mm:ss
+  const formatTime = (sec: number): string => {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    if (h > 0) {
+      return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  // Trạng thái Resume Video Watch (Lưu tiến độ xem & Pop-up tiếp tục)
+  const [resumePrompt, setResumePrompt] = useState<{ lessonId: number; timeSec: number; timeStr: string; lessonTitle?: string } | null>(null);
+  // Ghi nhận bài học đã được xử lý/hiển thị pop-up hỏi tiếp tục (chỉ hiện 1 lần duy nhất, tránh API đè lại)
+  const promptedLessonRef = useRef<number | null>(null);
+  const lastSyncTimeRef = useRef<number>(0);
+  const currentWatchSecRef = useRef<number>(0);
+
+  // Lưu tiến độ xem vào LocalStorage & đồng bộ lên Cloud Database
+  const saveWatchProgress = (lessonId: number, sec: number, forceSync = false) => {
+    if (sec < 5) return;
+    const timeStr = formatTime(sec);
+    currentWatchSecRef.current = sec;
+
+    try {
+      // 1. Lưu tiến độ riêng của từng bài học
+      localStorage.setItem(
+        `grammar_last_watch_${lessonId}`,
+        JSON.stringify({ timeSec: sec, timeStr, updatedAt: Date.now() })
+      );
+      // 2. Lưu bài học gần nhất toàn hệ thống mà người dùng đang xem
+      localStorage.setItem(
+        'grammar_last_active_lesson',
+        JSON.stringify({
+          lessonId,
+          levelCode: selectedLevel,
+          timeSec: sec,
+          timeStr,
+          updatedAt: Date.now()
+        })
+      );
+    } catch (e) { }
+
+    // 3. Cập nhật ngay vào cache bộ nhớ để đồng bộ tức thì 0ms
+    if (detailCacheRef.current.has(lessonId)) {
+      const cached = detailCacheRef.current.get(lessonId);
+      if (cached) {
+        cached.lastWatchSec = sec;
+        cached.lastWatchTimeStr = timeStr;
+      }
+    }
+
+    // 4. Đồng bộ lên Cloud Database (bỏ qua throttle 8s nếu forceSync = true)
+    const now = Date.now();
+    if (forceSync || (now - lastSyncTimeRef.current > 8000)) {
+      lastSyncTimeRef.current = now;
+      grammarApi.saveWatchProgress(lessonId, sec, timeStr).catch(() => { });
+    }
+  };
+
+  // Trạng thái Bài Test 20 câu (MCQ & Star)
+  const [mcqAnswers, setMcqAnswers] = useState<Record<number, string>>({});
+  const [starSlots, setStarSlots] = useState<Record<number, (string | null)[]>>({});
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
+  const [quizScore, setQuizScore] = useState<number | null>(null);
+  const [isSubmittingQuiz, setIsSubmittingQuiz] = useState<boolean>(false);
+  const [quizAttemptCount, setQuizAttemptCount] = useState<number>(0);
+  const [shuffledOptionsMap, setShuffledOptionsMap] = useState<Record<number, string[]>>({});
 
   // Trạng thái Facebook-style Lightbox Modal (Phóng to ảnh & video toàn màn hình)
   const [activeLightboxMedia, setActiveLightboxMedia] = useState<LightboxMedia | null>(null);
 
-  // Trạng thái Hỏi Đáp & Thảo luận
-  const [discussions, setDiscussions] = useState<DiscussionItem[]>([
-    {
-      id: 'd1',
-      authorName: 'Hoàng Long',
-      avatarLetter: 'L',
-      avatarBg: 'bg-blue-600',
-      role: 'student',
-      timeAgo: '1 giờ trước',
-      content: 'Thầy ơi, khi nào thì mình nên dùng「ではありません」thay vì「じゃありません」ạ? Trong đề thi JLPT N5 họ hay ra bẫy dạng này không ạ? 🎌🤔',
-      imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1000&auto=format&fit=crop&q=85',
-      imageName: 'bai_tap_mau_n5.jpg',
-      likes: 6,
-      replies: [
-        {
-          id: 'r1',
-          authorName: 'Yamada Sensei',
-          avatarLetter: 'Y',
-          avatarBg: 'bg-[#b91c1c]',
-          role: 'teacher',
-          timeAgo: '45 phút trước',
-          content: 'Chào em! Trong giao tiếp hàng ngày nói chuyện với bạn bè thì người Nhật luôn dùng「じゃありません」cho tự nhiên. Nhưng trong đề thi JLPT hoặc khi viết văn bản trang trọng thì sẽ dùng「ではありません」. Cả hai nghĩa hoàn toàn giống nhau nhé! 🌸',
-          likes: 12
-        },
-        {
-          id: 'r2',
-          authorName: 'Thu Trang (Học viên N4)',
-          avatarLetter: 'T',
-          avatarBg: 'bg-purple-600',
-          role: 'student',
-          timeAgo: '30 phút trước',
-          content: 'Mình vừa thi đợt tháng 7 xong, phần đọc hiểu hay có「ではありません」lắm bạn nhé, còn phần nghe thì hay gặp「じゃありません」. Chúc bạn học tốt! 👍',
-          likes: 4
-        }
-      ]
-    },
-    {
-      id: 'd2',
-      authorName: 'Mai Anh',
-      avatarLetter: 'M',
-      avatarBg: 'bg-emerald-600',
-      role: 'student',
-      timeAgo: '3 giờ trước',
-      content: 'Mọi người cho mình hỏi trợ từ「も」ở phút 13:30 nếu câu trước là phủ định thì câu sau dùng thế nào ạ? 💡',
-      likes: 3,
-      replies: [
-        {
-          id: 'r3',
-          authorName: 'Quang Huy',
-          avatarLetter: 'H',
-          avatarBg: 'bg-amber-600',
-          role: 'student',
-          timeAgo: '2 giờ trước',
-          content: 'Câu sau vẫn dùng「も」được bạn nhé, ví dụ:「わたしは 医者じゃありません。サントスさんも 医者じゃありません」(Tôi không phải bác sĩ, anh Santos cũng không phải bác sĩ).',
-          likes: 5
-        }
-      ]
-    }
-  ]);
+  // Trạng thái NipponMaster Custom Confirm Modal khi xóa comment
+  const [deleteConfirmTarget, setDeleteConfirmTarget] = useState<{
+    discussionId: number;
+    isReply: boolean;
+    parentId?: number;
+  } | null>(null);
+  const [isDeletingComment, setIsDeletingComment] = useState<boolean>(false);
 
-  // Khung soạn câu hỏi chính
+  // Trạng thái Hỏi Đáp & Thảo luận
+  const [discussions, setDiscussions] = useState<GrammarDiscussionDto[]>([]);
   const [questionText, setQuestionText] = useState('');
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
-  const [attachedImageName, setAttachedImageName] = useState<string>('');
   const [attachedVideo, setAttachedVideo] = useState<string | null>(null);
-  const [attachedVideoName, setAttachedVideoName] = useState<string>('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showUrlInputModal, setShowUrlInputModal] = useState<'image' | 'video' | null>(null);
   const [mediaUrlInput, setMediaUrlInput] = useState('');
 
-  // Khung trả lời lồng nhau (Thread reply)
-  const [replyingToDiscussionId, setReplyingToDiscussionId] = useState<string | null>(null);
+  // Trạng thái trả lời (Reply Threading)
+  const [replyingToDiscussionId, setReplyingToDiscussionId] = useState<number | null>(null);
   const [replyText, setReplyText] = useState<string>('');
   const [replyAttachedImage, setReplyAttachedImage] = useState<string | null>(null);
-  const [replyAttachedImageName, setReplyAttachedImageName] = useState<string>('');
   const [replyAttachedVideo, setReplyAttachedVideo] = useState<string | null>(null);
-  const [replyAttachedVideoName, setReplyAttachedVideoName] = useState<string>('');
   const [showReplyEmoji, setShowReplyEmoji] = useState(false);
 
   // File Inputs ẩn
@@ -441,291 +340,818 @@ export default function Grammar() {
   const replyImageInputRef = useRef<HTMLInputElement>(null);
   const replyVideoInputRef = useRef<HTMLInputElement>(null);
 
-  const currentLesson = LESSON_PLAYLIST_N5.find(l => l.id === selectedLessonId) || LESSON_PLAYLIST_N5[0];
-  const starQ = currentLesson.quiz.starQuestion;
-
-  // Lắng nghe phím ESC để đóng Lightbox phóng to
+  // Lắng nghe phím Esc để đóng Lightbox hoặc Modal xác nhận xóa
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setActiveLightboxMedia(null);
+        setDeleteConfirmTarget(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // 1. Tải danh sách bài học khi selectedLevel thay đổi
+  useEffect(() => {
+    let isMounted = true;
+    const initialList = getInitialLessons(selectedLevel);
+    setLessons(initialList);
+    // Chỉ đổi bài học nếu bài hiện tại không thuộc cấp độ mới được chọn
+    if (!initialList.some(l => l.id === selectedLessonId)) {
+      if (initialList.length > 0) {
+        setSelectedLessonId(initialList[0].id);
+        try {
+          localStorage.setItem(
+            'grammar_last_active_lesson',
+            JSON.stringify({
+              lessonId: initialList[0].id,
+              levelCode: selectedLevel,
+              updatedAt: Date.now()
+            })
+          );
+        } catch (e) { }
+      }
+    }
+
+    async function loadLessons() {
+      setLoadingLessons(true);
+      try {
+        const data = await grammarApi.getLessonsByLevel(selectedLevel);
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setLessons(data);
+          // Chọn bài đầu tiên nếu bài hiện tại không thuộc level mới
+          if (!data.some(l => l.id === selectedLessonId)) {
+            setSelectedLessonId(data[0].id);
+          }
+        }
+      } catch (err) {
+        console.warn('Backend chưa sẵn sàng, dùng danh mục từ catalog local:', err);
+      } finally {
+        if (isMounted) setLoadingLessons(false);
+      }
+    }
+    loadLessons();
+    return () => { isMounted = false; };
+  }, [selectedLevel]);
+
+  // 2. Tải chi tiết bài học & thảo luận khi selectedLessonId thay đổi (Tối ưu Song Song + SWR Cache 0ms)
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLessonDetail() {
+      if (!selectedLessonId) return;
+
+      // Reset quiz state khi đổi bài
+      setMcqAnswers({});
+      setStarSlots({});
+      setQuizSubmitted(false);
+      setQuizScore(null);
+      setActiveTimestamp(null);
+
+      // Đọc tiến độ xem đã lưu trong LocalStorage (nếu có)
+      let localWatch: { timeSec: number; timeStr: string; updatedAt: number } | null = null;
+      try {
+        const raw = localStorage.getItem(`grammar_last_watch_${selectedLessonId}`);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.timeSec === 'number' && parsed.timeSec >= 15) {
+            localWatch = {
+              timeSec: parsed.timeSec,
+              timeStr: parsed.timeStr || formatTime(parsed.timeSec),
+              updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0
+            };
+          }
+        }
+      } catch (e) { }
+
+      // A. Phục hồi ngay lập tức từ bộ nhớ đệm Cache SWR (0ms phản hồi tức thì)
+      const cached = detailCacheRef.current.get(selectedLessonId);
+      if (cached) {
+        setLessonDetail(cached);
+      } else {
+        setLoadingDetail(true);
+      }
+
+      if (discussionCacheRef.current.has(selectedLessonId)) {
+        setDiscussions(discussionCacheRef.current.get(selectedLessonId)!);
+      }
+
+      // Xử lý Pop-up Tiếp tục xem: ƯU TIÊN MỐC THỜI GIAN MỚI NHẤT & CHỈ HIỂN THỊ ĐÚNG 1 LẦN DUY NHẤT
+      if (promptedLessonRef.current !== selectedLessonId) {
+        let bestSec: number | null = null;
+        let bestStr: string = '';
+
+        const cachedSec = cached?.lastWatchSec && cached.lastWatchSec >= 15 ? cached.lastWatchSec : null;
+
+        if (localWatch && cachedSec) {
+          // Ưu tiên mốc thời gian xem tiến bộ hơn (lớn hơn) giữa local và cache
+          if (localWatch.timeSec >= cachedSec) {
+            bestSec = localWatch.timeSec;
+            bestStr = localWatch.timeStr;
+          } else {
+            bestSec = cachedSec;
+            bestStr = cached?.lastWatchTimeStr || formatTime(cachedSec);
+          }
+        } else if (localWatch) {
+          bestSec = localWatch.timeSec;
+          bestStr = localWatch.timeStr;
+        } else if (cachedSec) {
+          bestSec = cachedSec;
+          bestStr = cached!.lastWatchTimeStr || formatTime(cachedSec);
+        }
+
+        if (bestSec && bestSec >= 15) {
+          promptedLessonRef.current = selectedLessonId;
+          const lessonTitle = cached?.titleVi || (grammarLessonsCatalog as any[]).find(l => l.id === selectedLessonId)?.titleVi || '';
+          setResumePrompt({
+            lessonId: selectedLessonId,
+            timeSec: bestSec,
+            timeStr: bestStr,
+            lessonTitle
+          });
+        } else {
+          setResumePrompt(null);
+        }
+      }
+
+      // B. Tải SONG SONG cả 2 API qua mạng cùng lúc, không chờ nhau tuần tự
+      const detailPromise = grammarApi.getLessonDetail(selectedLessonId)
+        .then((detail) => {
+          if (!isMounted || !detail || !detail.id) return;
+
+          // Nếu server trả về mốc cũ hơn mốc local đã lưu (do người dùng vừa tua nhanh hoặc throttle chưa kịp gửi lên),
+          // tự động đồng bộ mốc mới từ local lên server trong nền để dữ liệu hai bên khớp nhau!
+          if (localWatch && localWatch.timeSec > (detail.lastWatchSec || 0)) {
+            grammarApi.saveWatchProgress(selectedLessonId, localWatch.timeSec, localWatch.timeStr).catch(() => { });
+            detail.lastWatchSec = localWatch.timeSec;
+            detail.lastWatchTimeStr = localWatch.timeStr;
+          }
+
+          setLessonDetail(detail);
+          detailCacheRef.current.set(selectedLessonId, detail);
+
+          // QUY TẮC BẢO VỆ CHỐNG TRÙNG POP-UP:
+          // Nếu bài học này ĐÃ được hiển thị hoặc người dùng đã bấm xem tiếp/đóng pop-up trước đó trong phiên này:
+          // TUYỆT ĐỐI KHÔNG GHI ĐÈ hoặc bật lại pop-up lần 2!
+          if (promptedLessonRef.current === selectedLessonId) {
+            return;
+          }
+
+          // Trường hợp lần đầu vào bài (local & cache trước đó đều chưa có dữ liệu):
+          if (detail.lastWatchSec && detail.lastWatchSec >= 15) {
+            promptedLessonRef.current = selectedLessonId;
+            setResumePrompt({
+              lessonId: selectedLessonId,
+              timeSec: detail.lastWatchSec,
+              timeStr: detail.lastWatchTimeStr || formatTime(detail.lastWatchSec),
+              lessonTitle: detail.titleVi
+            });
+            try {
+              localStorage.setItem(
+                `grammar_last_watch_${selectedLessonId}`,
+                JSON.stringify({
+                  timeSec: detail.lastWatchSec,
+                  timeStr: detail.lastWatchTimeStr || formatTime(detail.lastWatchSec),
+                  updatedAt: Date.now()
+                })
+              );
+            } catch (e) { }
+          }
+        })
+        .catch((err) => {
+          console.warn('Không tải được chi tiết bài học từ API, dùng dữ liệu catalog local:', err);
+        })
+        .finally(() => {
+          if (isMounted) setLoadingDetail(false);
+        });
+
+      const discussionPromise = grammarApi.getDiscussions(selectedLessonId)
+        .then((discList) => {
+          if (isMounted && Array.isArray(discList)) {
+            setDiscussions(discList);
+            discussionCacheRef.current.set(selectedLessonId, discList);
+          }
+        })
+        .catch((err) => {
+          console.warn('Không tải được thảo luận từ API:', err);
+        });
+
+      await Promise.allSettled([detailPromise, discussionPromise]);
+    }
+    loadLessonDetail();
+    return () => { isMounted = false; };
+  }, [selectedLessonId]);
+
+  // Tìm bài học tương ứng trong catalog 131 bài
+  const matchedCatalog = (grammarLessonsCatalog as any[]).find(l => l.id === selectedLessonId);
+  const currentLesson: GrammarLessonDetailDto = (lessonDetail && lessonDetail.id === selectedLessonId)
+    ? lessonDetail
+    : (matchedCatalog as any || FALLBACK_N5_LESSON_1);
+
+  // 1. Phân đoạn Mục lục thời gian YouTube Chapters (Bóc tách từ YouTube thực tế)
+  const videoChapters: any[] = (grammarChaptersData as Record<string, any[]>)[currentLesson.videoId]
+    || (currentLesson.timestamps && currentLesson.timestamps.length > 0 ? currentLesson.timestamps : []);
+
+  // 2. Bài Test Kiến Thức 20 câu chuẩn module Kho Hán Tự (16 MCQ + 4 STAR, Đạt >= 85%)
+  const fullQuizList: GrammarQuizItem[] = (currentLesson.quizzes && currentLesson.quizzes.length >= 20)
+    ? currentLesson.quizzes
+    : getQuizForLesson(currentLesson.lessonNumber, selectedLevel, currentLesson.titleVi);
+
+  const mcqList: GrammarQuizItem[] = fullQuizList.filter(q => q.quizType === 'MCQ');
+  const starList: GrammarQuizItem[] = fullQuizList.filter(q => q.quizType === 'STAR');
+
+  // Trộn ngẫu nhiên (Fisher-Yates Shuffle) các đáp án A, B, C, D cho 16 câu trắc nghiệm MCQ
+  // Giữ cố định trong suốt quá trình làm bài, chỉ xáo trộn lại khi đổi bài hoặc bấm "Làm lại bài test"
+  useEffect(() => {
+    if (!fullQuizList || fullQuizList.length === 0) return;
+    const newMap: Record<number, string[]> = {};
+    fullQuizList.forEach(q => {
+      if (q.quizType === 'MCQ' && Array.isArray(q.options) && q.options.length > 0) {
+        const copy = [...q.options];
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        newMap[q.id] = copy;
+      }
+    });
+    setShuffledOptionsMap(newMap);
+  }, [currentLesson.id, currentLesson.quizzes, quizAttemptCount]);
+
+  // Lắng nghe YouTube Iframe postMessage để tự động theo dõi tiến độ thời gian xem
+  useEffect(() => {
+    const iframe = document.getElementById('yt-lesson-player') as HTMLIFrameElement;
+    if (!iframe) return;
+
+    const interval = setInterval(() => {
+      try {
+        iframe.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 'yt-lesson-player' }), '*');
+        iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'getCurrentTime', args: [] }), '*');
+      } catch (e) { }
+    }, 4000);
+
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        if (typeof event.data === 'string') {
+          const data = JSON.parse(event.data);
+          if (data.event === 'infoDelivery' && data.info?.currentTime) {
+            const currSec = Math.floor(data.info.currentTime);
+            if (currSec >= 15 && selectedLessonId) {
+              saveWatchProgress(selectedLessonId, currSec);
+            }
+          }
+        }
+      } catch (e) { }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [selectedLessonId, currentLesson.videoId]);
+
+  // Tự động flush tiến độ xem lần cuối khi unmount trang hoặc chuyển bài
+  useEffect(() => {
+    return () => {
+      const lastSec = currentWatchSecRef.current;
+      if (selectedLessonId && lastSec >= 15) {
+        grammarApi.saveWatchProgress(selectedLessonId, lastSec, formatTime(lastSec)).catch(() => { });
+      }
+    };
+  }, [selectedLessonId]);
+
   // Mở Lightbox xem phóng to
   const handleOpenMedia = (media: LightboxMedia) => {
     setActiveLightboxMedia(media);
   };
 
-  // Tua video theo timestamp
+  // Tua video theo timestamp & lưu tiến độ (Tối ưu phản hồi <10ms qua postMessage, không reload iframe)
   const handleJumpToTimestamp = (sec: number) => {
     setActiveTimestamp(sec);
+    saveWatchProgress(currentLesson.id, sec, true); // forceSync = true để ghi nhận ngay lập tức lên server
     const iframe = document.getElementById('yt-lesson-player') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      try {
+        // Gửi lệnh tua trực tiếp vào YouTube Player đang chạy (0ms giật lag, không tải lại trang video)
+        iframe.contentWindow.postMessage(JSON.stringify({
+          event: 'command',
+          func: 'seekTo',
+          args: [sec, true]
+        }), '*');
+        iframe.contentWindow.postMessage(JSON.stringify({
+          event: 'command',
+          func: 'playVideo',
+          args: []
+        }), '*');
+        return;
+      } catch (e) {
+        console.warn('postMessage tua video thất bại, fallback reload:', e);
+      }
+    }
+    // Fallback nếu iframe chưa gắn kết
     if (iframe) {
-      iframe.src = `https://www.youtube.com/embed/${currentLesson.videoId}?start=${sec}&autoplay=1`;
+      iframe.src = `https://www.youtube.com/embed/${currentLesson.videoId}?start=${sec}&autoplay=1&enablejsapi=1`;
     }
   };
 
-  // Xử lý kéo thả / click xếp từ câu ngôi sao
-  const handleSelectFragment = (fragText: string) => {
-    if (starSubmitted) return;
-    const firstEmptyIndex = selectedSlots.findIndex(s => s === null);
+  // Tiếp tục xem từ đoạn đã lưu (Phản hồi tức thì 0ms, đóng pop-up ngay)
+  const handleResumeWatching = (sec: number) => {
+    if (selectedLessonId) {
+      promptedLessonRef.current = selectedLessonId;
+    }
+    setResumePrompt(null);
+    handleJumpToTimestamp(sec);
+  };
+
+  // Xem lại từ đầu (Phản hồi tức thì 0ms, đóng pop-up ngay)
+  const handleRestartFromBeginning = () => {
+    if (selectedLessonId) {
+      promptedLessonRef.current = selectedLessonId;
+      localStorage.removeItem(`grammar_last_watch_${selectedLessonId}`);
+      if (detailCacheRef.current.has(selectedLessonId)) {
+        const cached = detailCacheRef.current.get(selectedLessonId);
+        if (cached) {
+          cached.lastWatchSec = 0;
+          cached.lastWatchTimeStr = "0:00";
+        }
+      }
+      grammarApi.saveWatchProgress(selectedLessonId, 0, "0:00").catch(() => { });
+    }
+    setResumePrompt(null);
+    handleJumpToTimestamp(0);
+  };
+
+  // Xử lý chọn mảnh từ ghép câu ngôi sao
+  const handleSelectFragment = (qId: number, text: string) => {
+    const current = starSlots[qId] || [null, null, null, null];
+    const firstEmptyIndex = current.findIndex(slot => slot === null);
     if (firstEmptyIndex !== -1) {
-      const newSlots = [...selectedSlots];
-      newSlots[firstEmptyIndex] = fragText;
-      setSelectedSlots(newSlots);
+      const nextSlots = [...current];
+      nextSlots[firstEmptyIndex] = text;
+      setStarSlots({ ...starSlots, [qId]: nextSlots });
     }
   };
 
-  const handleRemoveSlot = (index: number) => {
-    if (starSubmitted) return;
-    const newSlots = [...selectedSlots];
-    newSlots[index] = null;
-    setSelectedSlots(newSlots);
+  const handleRemoveSlot = (qId: number, index: number) => {
+    const current = starSlots[qId] || [null, null, null, null];
+    const nextSlots = [...current];
+    nextSlots[index] = null;
+    setStarSlots({ ...starSlots, [qId]: nextSlots });
   };
 
-  const handleCheckStarAnswer = () => {
-    if (!starQ || !starQ.fragments) return;
-    if (selectedSlots.some(s => s === null)) {
-      alert('Vui lòng xếp đủ cả 4 mảnh từ vào các vị trí trống trước khi kiểm tra!');
-      return;
-    }
-    const sortedCorrect = [...starQ.fragments].sort((a, b) => a.correctIndex - b.correctIndex).map(f => f.text);
-    const isAllCorrect = selectedSlots.every((val, idx) => val === sortedCorrect[idx]);
-    setIsStarCorrect(isAllCorrect);
-    setStarSubmitted(true);
-
-    if (isAllCorrect) {
-      confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.7 }
-      });
-    }
+  const handleResetStar = (qId: number) => {
+    setStarSlots({ ...starSlots, [qId]: [null, null, null, null] });
   };
 
-  const handleResetStar = () => {
-    setSelectedSlots([null, null, null, null]);
-    setStarSubmitted(false);
-    setIsStarCorrect(null);
+  const handleResetTest = () => {
+    setQuizSubmitted(false);
+    setQuizScore(null);
+    setMcqAnswers({});
+    setStarSlots({});
+    setQuizAttemptCount(c => c + 1); // Xáo trộn ngẫu nhiên thứ tự các đáp án cho lượt làm mới
   };
 
-  // Nộp bài test củng cố (MCQ + Star)
-  const handleSubmitFullQuiz = () => {
-    let correctCount = 0;
-    const total = (currentLesson.quiz.mcq?.length || 0) + 1;
+  // Xử lý Nộp Bài Test 20 Câu & Đánh Giá chuẩn >= 85%
+  const handleSubmitFullQuiz = async () => {
+    const answersPayload: Record<number, string> = { ...mcqAnswers };
 
-    currentLesson.quiz.mcq.forEach(q => {
-      if (mcqAnswers[q.id] === q.correctAnswer) {
-        correctCount++;
+    starList.forEach(q => {
+      const slots = starSlots[q.id] || [];
+      const starIdx = q.starIndex !== undefined && q.starIndex !== null ? q.starIndex : 0;
+      const chosen = slots[starIdx];
+      if (chosen) {
+        answersPayload[q.id] = chosen;
       }
     });
 
-    if (isStarCorrect) {
-      correctCount++;
-    }
+    setIsSubmittingQuiz(true);
+    try {
+      const res = await grammarApi.submitQuiz(currentLesson.id, answersPayload);
+      setQuizSubmitted(true);
+      setQuizScore(res.score);
 
-    const calculated = Math.round((correctCount / total) * 100);
-    setQuizScore(calculated);
-    setQuizSubmitted(true);
+      if (res.passed) {
+        confetti({
+          particleCount: 90,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
 
-    if (calculated >= 85) {
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.6 }
+        setLessons(prev => {
+          const currentIdx = prev.findIndex(l => l.id === currentLesson.id);
+          return prev.map((l, idx) => {
+            if (l.id === currentLesson.id) {
+              return { ...l, isPassed: true, highestScore: Math.max(l.highestScore || 0, res.score) };
+            }
+            if (idx === currentIdx + 1 || (res.nextLessonId && l.id === res.nextLessonId)) {
+              return { ...l, isUnlocked: true };
+            }
+            return l;
+          });
+        });
+      }
+    } catch (err) {
+      console.warn('Lỗi khi nộp bài qua API, chấm điểm cục bộ:', err);
+      let correct = 0;
+      const total = fullQuizList.length;
+      fullQuizList.forEach(q => {
+        if (q.quizType === 'MCQ') {
+          if (mcqAnswers[q.id]?.trim() === q.correctAnswer?.trim()) correct++;
+        } else if (q.quizType === 'STAR') {
+          const slots = starSlots[q.id] || [];
+          const starIdx = q.starIndex !== undefined && q.starIndex !== null ? q.starIndex : 0;
+          if (slots[starIdx] === q.correctAnswer) correct++;
+        }
       });
+
+      const scoreCalc = total > 0 ? Math.round((correct / total) * 100) : 100;
+      setQuizSubmitted(true);
+      setQuizScore(scoreCalc);
+      if (scoreCalc >= 85) {
+        confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } });
+        setLessons(prev => {
+          const currentIdx = prev.findIndex(l => l.id === currentLesson.id);
+          return prev.map((l, idx) => {
+            if (l.id === currentLesson.id) {
+              return { ...l, isPassed: true, highestScore: Math.max(l.highestScore || 0, scoreCalc) };
+            }
+            if (idx === currentIdx + 1) {
+              return { ...l, isUnlocked: true };
+            }
+            return l;
+          });
+        });
+      }
+    } finally {
+      setIsSubmittingQuiz(false);
     }
   };
 
-  // Chọn ảnh từ máy tính (Main form)
-  const handleMainImageFilePicked = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const answeredCount = fullQuizList.reduce((acc, q) => {
+    if (q.quizType === 'MCQ') {
+      return acc + (mcqAnswers[q.id] ? 1 : 0);
+    } else if (q.quizType === 'STAR') {
+      const slots = starSlots[q.id] || [];
+      return acc + (slots.filter(Boolean).length === 4 ? 1 : 0);
+    }
+    return acc;
+  }, 0);
+
+  const correctCount = fullQuizList.reduce((acc, q) => {
+    if (q.quizType === 'MCQ') {
+      return acc + (mcqAnswers[q.id]?.trim() === q.correctAnswer?.trim() ? 1 : 0);
+    } else if (q.quizType === 'STAR') {
+      const slots = starSlots[q.id] || [];
+      const starIdx = q.starIndex !== undefined && q.starIndex !== null ? q.starIndex : 0;
+      return acc + (slots[starIdx] === q.correctAnswer ? 1 : 0);
+    }
+    return acc;
+  }, 0);
+
+  const [isUploadingMedia, setIsUploadingMedia] = useState<boolean>(false);
+
+  // Upload ảnh thảo luận từ máy tính lên Supabase Storage CDN
+  const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const localUrl = URL.createObjectURL(file);
-      setAttachedImage(localUrl);
-      setAttachedImageName(file.name);
+    if (!file) return;
+
+    // Local preview tức thì cho trải nghiệm mượt mà
+    const localUrl = URL.createObjectURL(file);
+    setAttachedImage(localUrl);
+
+    setIsUploadingMedia(true);
+    try {
+      const res = await grammarApi.uploadDiscussionMedia(file);
+      if (res && res.url) {
+        setAttachedImage(res.url);
+      }
+    } catch (err) {
+      console.warn('Upload ảnh lên Supabase thất bại, sử dụng preview:', err);
+    } finally {
+      setIsUploadingMedia(false);
     }
   };
 
-  // Chọn video từ máy tính (Main form)
-  const handleMainVideoFilePicked = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const localUrl = URL.createObjectURL(file);
       setAttachedVideo(localUrl);
-      setAttachedVideoName(file.name);
     }
   };
 
-  // Chọn ảnh từ máy tính (Reply form)
-  const handleReplyImageFilePicked = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleReplyImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const localUrl = URL.createObjectURL(file);
-      setReplyAttachedImage(localUrl);
-      setReplyAttachedImageName(file.name);
+    if (!file) return;
+
+    const localUrl = URL.createObjectURL(file);
+    setReplyAttachedImage(localUrl);
+
+    setIsUploadingMedia(true);
+    try {
+      const res = await grammarApi.uploadDiscussionMedia(file);
+      if (res && res.url) {
+        setReplyAttachedImage(res.url);
+      }
+    } catch (err) {
+      console.warn('Upload ảnh reply lên Supabase thất bại, sử dụng preview:', err);
+    } finally {
+      setIsUploadingMedia(false);
     }
   };
 
-  // Chọn video từ máy tính (Reply form)
-  const handleReplyVideoFilePicked = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleReplyVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const localUrl = URL.createObjectURL(file);
       setReplyAttachedVideo(localUrl);
-      setReplyAttachedVideoName(file.name);
     }
   };
 
-  // Đính kèm media qua link online
+  // Mở popup xác nhận xóa comment chuẩn giao diện NipponMaster (thay cho window.confirm mặc định của trình duyệt)
+  const handleRequestDeleteDiscussion = (discussionId: number, isReply: boolean = false, parentId?: number) => {
+    setDeleteConfirmTarget({ discussionId, isReply, parentId });
+  };
+
+  // Thực thi xóa comment khi học viên xác nhận trên Modal NipponMaster
+  const executeDeleteDiscussion = async () => {
+    if (!deleteConfirmTarget) return;
+    const { discussionId, isReply, parentId } = deleteConfirmTarget;
+    setIsDeletingComment(true);
+
+    try {
+      await grammarApi.deleteDiscussion(discussionId);
+      if (isReply && parentId) {
+        setDiscussions(prev => {
+          const updated = prev.map(d => {
+            if (d.id === parentId) {
+              return {
+                ...d,
+                replies: (d.replies || []).filter(r => r.id !== discussionId)
+              };
+            }
+            return d;
+          });
+          discussionCacheRef.current.set(currentLesson.id, updated);
+          return updated;
+        });
+      } else {
+        setDiscussions(prev => {
+          const updated = prev.filter(d => d.id !== discussionId);
+          discussionCacheRef.current.set(currentLesson.id, updated);
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.warn('Lỗi khi gọi API xóa thảo luận, xóa cục bộ giao diện:', err);
+      if (isReply && parentId) {
+        setDiscussions(prev => {
+          const updated = prev.map(d => {
+            if (d.id === parentId) {
+              return {
+                ...d,
+                replies: (d.replies || []).filter(r => r.id !== discussionId)
+              };
+            }
+            return d;
+          });
+          discussionCacheRef.current.set(currentLesson.id, updated);
+          return updated;
+        });
+      } else {
+        setDiscussions(prev => {
+          const updated = prev.filter(d => d.id !== discussionId);
+          discussionCacheRef.current.set(currentLesson.id, updated);
+          return updated;
+        });
+      }
+    } finally {
+      setIsDeletingComment(false);
+      setDeleteConfirmTarget(null);
+    }
+  };
+
   const handleAttachMediaUrl = () => {
     if (!mediaUrlInput.trim()) return;
     if (showUrlInputModal === 'image') {
       setAttachedImage(mediaUrlInput.trim());
-      setAttachedImageName('Hình ảnh từ liên kết');
     } else if (showUrlInputModal === 'video') {
       setAttachedVideo(mediaUrlInput.trim());
-      setAttachedVideoName('Video từ liên kết');
     }
     setShowUrlInputModal(null);
     setMediaUrlInput('');
   };
 
-  // Đăng câu hỏi mới (Dùng trực tiếp tài khoản thật của người dùng)
-  const handlePostQuestion = () => {
+  // Đăng câu hỏi thảo luận mới
+  const handlePostQuestion = async () => {
     if (!questionText.trim() && !attachedImage && !attachedVideo) return;
 
-    const newDiscussion: DiscussionItem = {
-      id: Date.now().toString(),
-      authorName: currentAuthorName,
-      avatarLetter: currentAuthorName.charAt(0).toUpperCase() || 'U',
-      avatarBg: isTeacher ? 'bg-[#b91c1c]' : 'bg-blue-600',
-      role: currentUserRole,
-      timeAgo: 'Vừa xong',
-      content: questionText.trim(),
-      imageUrl: attachedImage || undefined,
-      imageName: attachedImageName,
-      videoUrl: attachedVideo || undefined,
-      videoName: attachedVideoName,
-      likes: 0,
-      replies: []
-    };
+    try {
+      const created = await grammarApi.createDiscussion(currentLesson.id, {
+        content: questionText.trim(),
+        imageUrl: attachedImage || undefined,
+        videoUrl: attachedVideo || undefined
+      });
+      if (created && !created.authorLevel) {
+        created.authorLevel = currentUserLevel;
+      }
+      setDiscussions(prev => {
+        const updated = [created, ...prev];
+        discussionCacheRef.current.set(currentLesson.id, updated);
+        return updated;
+      });
+    } catch (err) {
+      console.warn('Lỗi đăng thảo luận API, fallback cục bộ:', err);
+      const newDiscussion: GrammarDiscussionDto = {
+        id: Date.now(),
+        authorName: currentAuthorName,
+        authorLevel: currentUserLevel,
+        avatarLetter: currentAuthorName.charAt(0).toUpperCase() || 'U',
+        avatarBg: isTeacher ? 'bg-[#b91c1c]' : 'bg-blue-600',
+        role: currentUserRole,
+        isSensei: isTeacher,
+        timeAgo: 'Vừa xong',
+        content: questionText.trim(),
+        imageUrl: attachedImage || undefined,
+        videoUrl: attachedVideo || undefined,
+        helpfulCount: 0,
+        replies: []
+      };
+      setDiscussions(prev => {
+        const updated = [newDiscussion, ...prev];
+        discussionCacheRef.current.set(currentLesson.id, updated);
+        return updated;
+      });
+    }
 
-    setDiscussions([newDiscussion, ...discussions]);
     setQuestionText('');
     setAttachedImage(null);
-    setAttachedImageName('');
     setAttachedVideo(null);
-    setAttachedVideoName('');
     setShowEmojiPicker(false);
   };
 
-  // Đăng câu trả lời cho một chủ đề (Dùng trực tiếp tài khoản thật)
-  const handlePostReply = (discussionId: string) => {
+  // Đăng câu trả lời cho một chủ đề
+  const handlePostReply = async (discussionId: number) => {
     if (!replyText.trim() && !replyAttachedImage && !replyAttachedVideo) return;
 
-    const newReply: CommentReplyItem = {
-      id: Date.now().toString(),
-      authorName: currentAuthorName,
-      avatarLetter: currentAuthorName.charAt(0).toUpperCase() || 'U',
-      avatarBg: isTeacher ? 'bg-[#b91c1c]' : 'bg-emerald-600',
-      role: currentUserRole,
-      timeAgo: 'Vừa xong',
-      content: replyText.trim(),
-      imageUrl: replyAttachedImage || undefined,
-      imageName: replyAttachedImageName,
-      videoUrl: replyAttachedVideo || undefined,
-      videoName: replyAttachedVideoName,
-      likes: 0
-    };
-
-    setDiscussions(discussions.map(d => {
-      if (d.id === discussionId) {
-        return {
-          ...d,
-          replies: [...d.replies, newReply]
-        };
+    try {
+      const replyCreated = await grammarApi.createDiscussion(currentLesson.id, {
+        content: replyText.trim(),
+        imageUrl: replyAttachedImage || undefined,
+        videoUrl: replyAttachedVideo || undefined,
+        replyToId: discussionId
+      });
+      if (replyCreated && !replyCreated.authorLevel) {
+        replyCreated.authorLevel = currentUserLevel;
       }
-      return d;
-    }));
+      setDiscussions(prev => {
+        const updated = prev.map(d => {
+          if (d.id === discussionId) {
+            return {
+              ...d,
+              replies: [...(d.replies || []), replyCreated]
+            };
+          }
+          return d;
+        });
+        discussionCacheRef.current.set(currentLesson.id, updated);
+        return updated;
+      });
+    } catch (err) {
+      console.warn('Lỗi đăng phản hồi API, fallback cục bộ:', err);
+      const newReply: GrammarDiscussionDto = {
+        id: Date.now(),
+        authorName: currentAuthorName,
+        authorLevel: currentUserLevel,
+        avatarLetter: currentAuthorName.charAt(0).toUpperCase() || 'U',
+        avatarBg: isTeacher ? 'bg-[#b91c1c]' : 'bg-emerald-600',
+        role: currentUserRole,
+        isSensei: isTeacher,
+        timeAgo: 'Vừa xong',
+        content: replyText.trim(),
+        imageUrl: replyAttachedImage || undefined,
+        videoUrl: replyAttachedVideo || undefined,
+        helpfulCount: 0,
+        replies: []
+      };
+      setDiscussions(prev => {
+        const updated = prev.map(d => {
+          if (d.id === discussionId) {
+            return {
+              ...d,
+              replies: [...(d.replies || []), newReply]
+            };
+          }
+          return d;
+        });
+        discussionCacheRef.current.set(currentLesson.id, updated);
+        return updated;
+      });
+    }
 
     setReplyText('');
     setReplyAttachedImage(null);
-    setReplyAttachedImageName('');
     setReplyAttachedVideo(null);
-    setReplyAttachedVideoName('');
     setReplyingToDiscussionId(null);
     setShowReplyEmoji(false);
   };
 
+  // Thả tim hữu ích
+  const handleLikeDiscussion = async (id: number) => {
+    try {
+      await grammarApi.toggleHelpful(id);
+    } catch (err) {
+      // ignore
+    }
+    setDiscussions(prev => prev.map(d => d.id === id ? { ...d, helpfulCount: d.helpfulCount + 1 } : d));
+  };
+
   return (
-    <div className="min-h-screen bg-[#fcfbf9] text-[#1c1917] p-3 md:p-6 font-sans selection:bg-[#e7e5e4]">
-      {/* Ẩn các file input thật để kích hoạt bằng nút giao diện */}
-      <input type="file" accept="image/*" ref={mainImageInputRef} onChange={handleMainImageFilePicked} className="hidden" />
-      <input type="file" accept="video/*" ref={mainVideoInputRef} onChange={handleMainVideoFilePicked} className="hidden" />
-      <input type="file" accept="image/*" ref={replyImageInputRef} onChange={handleReplyImageFilePicked} className="hidden" />
-      <input type="file" accept="video/*" ref={replyVideoInputRef} onChange={handleReplyVideoFilePicked} className="hidden" />
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+      {/* Inputs ẩn để chọn file từ máy */}
+      <input type="file" ref={mainImageInputRef} accept="image/*" onChange={handleMainImageChange} className="hidden" />
+      <input type="file" ref={mainVideoInputRef} accept="video/*" onChange={handleMainVideoChange} className="hidden" />
+      <input type="file" ref={replyImageInputRef} accept="image/*" onChange={handleReplyImageChange} className="hidden" />
+      <input type="file" ref={replyVideoInputRef} accept="video/*" onChange={handleReplyVideoChange} className="hidden" />
 
-      {/* ─── BANNER TIÊU ĐỀ & CHỌN LEVEL (GỌN GÀNG THEO YÊU CẦU) ─── */}
-      <div className="max-w-7xl mx-auto mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#e7e5e4] gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 text-xs font-mono font-bold uppercase tracking-wider bg-[#b91c1c] text-white">
-                BÀI GIẢNG CHUYÊN SÂU
-              </span>
-              <span className="text-xs font-mono text-[#78716c] bg-[#f5f5f4] px-2 py-0.5 border border-[#e7e5e4]">
-                SMART CINEMA CLASSROOM 🎬
-              </span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#1c1917] mt-1.5 tracking-tight flex items-center gap-2">
-              <GraduationCap className="w-7 h-7 text-[#b91c1c]" />
-              <span>Phòng Học Ngữ Pháp Qua Video Bài Giảng</span>
-            </h1>
+      {/* ════════ HEADER TRANG & BỘ CHỌN CẤP ĐỘ N5 ~ N1 ════════ */}
+      <div className="border-b border-[#e7e5e4] pb-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 bg-[#1c1917] text-white text-[10px] font-mono font-bold uppercase tracking-wider">
+              KHÓA HỌC CHUẨN JLPT
+            </span>
           </div>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1c1917] tracking-tight">
+            Phòng Học Ngữ Pháp Qua Video Bài Giảng
+          </h1>
+        </div>
 
-          {/* Level Switcher (N5..N1) */}
-          <div className="flex items-center gap-1.5 bg-[#f5f5f4] p-1.5 border border-[#e7e5e4]">
-            {(['N5', 'N4', 'N3', 'N2', 'N1'] as JlptLevel[]).map((lvl) => {
-              const isSelected = selectedLevel === lvl;
-              return (
-                <button
-                  key={lvl}
-                  onClick={() => setSelectedLevel(lvl)}
-                  className={`px-3.5 py-1.5 text-xs font-mono font-bold transition-all ${
-                    isSelected
-                      ? 'bg-[#b91c1c] text-white shadow-xs'
-                      : 'text-[#44403c] hover:bg-white hover:text-[#1c1917]'
+        {/* Nút bấm chuyển cấp độ N5 ~ N1 (Phân quyền theo cấp bậc tài khoản thực tế) */}
+        <div className="flex items-center gap-1 bg-[#f5f5f4] p-1 border border-[#e7e5e4]">
+          {(['N5', 'N4', 'N3', 'N2', 'N1'] as JlptLevel[]).map((lvl) => {
+            const isSelected = selectedLevel === lvl;
+            const hasAccess = canAccessLevel(lvl);
+
+            return (
+              <button
+                key={lvl}
+                onClick={() => {
+                  if (hasAccess) {
+                    setSelectedLevel(lvl);
+                    setLockedNotice(null);
+                  } else {
+                    setLockedNotice(
+                      `Cấp độ ${lvl} hiện đang bị khóa. Tài khoản của bạn hiện ở cấp độ ${currentUserLevel} (được học từ N5 đến ${currentUserLevel}). Hãy vượt qua kỳ thi JLPT ${currentUserLevel} hoặc nâng cấp tài khoản để mở khóa giáo trình ${lvl}!`
+                    );
+                  }
+                }}
+                className={`px-3.5 py-1.5 text-xs font-mono font-bold transition-all flex items-center gap-1 cursor-pointer ${isSelected
+                    ? 'bg-[#b91c1c] text-white shadow-2xs'
+                    : hasAccess
+                      ? 'text-[#57534e] hover:text-[#1c1917] hover:bg-white'
+                      : 'text-[#a8a29e] hover:bg-red-50/50'
                   }`}
-                >
-                  {lvl}
-                </button>
-              );
-            })}
-          </div>
+                title={hasAccess ? `Xem giáo trình JLPT ${lvl}` : `Khóa: Cần tài khoản JLPT ${lvl} trở lên`}
+              >
+                {!hasAccess && <Lock className="w-3 h-3 text-[#a8a29e]" />}
+                <span>{lvl}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* ─── NỘI DUNG CHÍNH: BỐ CỤC PHÒNG HỌC 2 CỘT ─────────────────────────── */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* ════════ CỘT TRÁI (8/12): VIDEO PLAYER & 3 TABS HỌC TẬP ════════ */}
-        <div className="lg:col-span-8 space-y-5">
-          {/* Header Bài Học Đang Chọn */}
-          <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs">
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-              <span className="px-2 py-0.5 text-xs font-mono font-bold bg-[#fef2f2] text-[#b91c1c] border border-[#fecaca]">
-                BÀI {currentLesson.lessonNumber} · {currentLesson.curriculum}
+      {/* Thông báo khóa cấp độ trang nhã */}
+      {lockedNotice && (
+        <div className="p-3 bg-[#fef2f2] border border-[#fecaca] text-xs text-[#991b1b] flex items-center justify-between gap-3 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <Lock className="w-4 h-4 text-[#b91c1c] shrink-0" />
+            <span>{lockedNotice}</span>
+          </div>
+          <button
+            onClick={() => setLockedNotice(null)}
+            className="text-[#991b1b] hover:text-black font-mono font-bold p-1 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* ════════ LAYOUT 2 CỘT CHÍNH ════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* CỘT TRÁI (8/12): PLAYER VIDEO + 3 TABS NỘI DUNG */}
+        <div className="lg:col-span-8 space-y-4">
+          {/* Tiêu đề bài học */}
+          <div className="bg-white border border-[#e7e5e4] p-4 shadow-xs">
+            <div className="flex items-center justify-between text-xs text-[#78716c] font-mono mb-1">
+              <span className="font-bold text-[#b91c1c]">
+                BÀI {currentLesson.lessonNumber} • {selectedLevel}
               </span>
-              <div className="flex items-center gap-2 text-xs font-mono text-[#78716c]">
-                <Clock className="w-3.5 h-3.5" />
-                <span>{currentLesson.duration}</span>
-              </div>
+              <span>⏱️ {currentLesson.durationStr}</span>
             </div>
-            <h2 className="text-lg md:text-xl font-serif font-bold text-[#1c1917]">
+            <h2 className="text-lg sm:text-xl font-serif font-bold text-[#1c1917] leading-snug">
               {currentLesson.titleVi}
             </h2>
             <p className="text-xs font-serif text-[#78716c] mt-0.5">
@@ -733,64 +1159,126 @@ export default function Grammar() {
             </p>
           </div>
 
-          {/* 🎬 TRÌNH PHÁT VIDEO BÀI GIẢNG (CHUẨN YOUTUBE EMBED PLAYER NGUYÊN BẢN) */}
+          {/* TRÌNH PHÁT VIDEO BÀI GIẢNG YOUTUBE */}
           <div className="bg-[#0c0a09] border border-[#292524] shadow-lg overflow-hidden relative group">
             <div className="aspect-video w-full bg-black relative">
-              <iframe
-                id="yt-lesson-player"
-                src={`https://www.youtube.com/embed/${currentLesson.videoId}?enablejsapi=1&autoplay=0`}
-                title="Japanese Grammar Video Lecture"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="w-full h-full border-0"
-              />
+              {/* Pop-up tiếp tục bài giảng tại mốc thời gian xem lần cuối */}
+              {resumePrompt && (
+                <div className="absolute inset-0 bg-black/75 backdrop-blur-xs z-30 flex items-center justify-center p-4 animate-in fade-in duration-200">
+                  <div className="bg-white border-2 border-[#1c1917] p-5 max-w-md w-full shadow-2xl relative text-left">
+                    <button
+                      onClick={() => {
+                        if (selectedLessonId) {
+                          promptedLessonRef.current = selectedLessonId;
+                        }
+                        setResumePrompt(null);
+                      }}
+                      className="absolute top-3 right-3 text-[#78716c] hover:text-[#1c1917] p-1 transition-colors"
+                      title="Đóng"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    <div className="flex items-start gap-3.5 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-[#fef2f2] border border-[#fecaca] flex items-center justify-center shrink-0">
+                        <History className="w-5 h-5 text-[#b91c1c]" />
+                      </div>
+                      <div>
+                        <h3 className="font-serif font-bold text-base text-[#1c1917]">
+                          Tiếp tục bài giảng Bài {currentLesson.sortOrder}
+                        </h3>
+                        <p className="text-xs text-[#57534e] mt-1.5 leading-relaxed">
+                          Lần cuối bạn xem bài <strong className="text-[#1c1917] font-semibold">{currentLesson.titleVi}</strong> là ở đoạn <strong className="font-mono text-[#b91c1c] font-bold text-sm bg-[#fef2f2] px-1.5 py-0.5 border border-[#fecaca]">{resumePrompt.timeStr}</strong>. Bạn có muốn tiếp tục xem không?
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e7e5e4]">
+                      <button
+                        onClick={handleRestartFromBeginning}
+                        className="px-3.5 py-2 text-xs font-mono font-medium border border-[#d6d3d1] hover:bg-[#f5f5f4] text-[#57534e] transition-colors flex items-center gap-1.5"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Xem lại từ đầu</span>
+                      </button>
+                      <button
+                        onClick={() => handleResumeWatching(resumePrompt.timeSec)}
+                        className="px-4 py-2 text-xs font-mono font-bold bg-[#b91c1c] hover:bg-[#991b1b] text-white shadow-xs transition-colors flex items-center gap-1.5"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-white" />
+                        <span>Tiếp tục xem ({resumePrompt.timeStr})</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {loadingDetail && !currentLesson.videoId ? (
+                <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400 gap-2">
+                  <Loader2 className="w-8 h-8 animate-spin text-[#b91c1c]" />
+                  <span className="text-xs font-mono">Đang tải video bài giảng...</span>
+                </div>
+              ) : (
+                <iframe
+                  key={`yt-${currentLesson.id}-${currentLesson.videoId}`}
+                  id="yt-lesson-player"
+                  src={`https://www.youtube.com/embed/${currentLesson.videoId}?enablejsapi=1&autoplay=1`}
+                  title={currentLesson.titleVi || "Japanese Grammar Video Lecture"}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="w-full h-full border-0"
+                />
+              )}
             </div>
           </div>
 
-          {/* ⏱️ INTERACTIVE TIMESTAMPS BAR (CLICK NHẢY ĐẾN ĐOẠN GIẢNG MẪU CÂU) */}
-          <div className="bg-white border border-[#e7e5e4] p-3.5 shadow-xs">
-            <div className="flex items-center justify-between mb-2.5">
-              <div className="flex items-center gap-2">
-                <Bookmark className="w-4 h-4 text-[#b91c1c]" />
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1c1917]">
-                  Mục lục thời gian thông minh (Bấm để tua video):
+          {/* INTERACTIVE TIMESTAMPS BAR (TUA VIDEO THEO PHÂN ĐOẠN YOUTUBE) */}
+          {videoChapters && videoChapters.length > 0 && (
+            <div className="bg-white border border-[#e7e5e4] p-3.5 shadow-xs">
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2">
+                  <Bookmark className="w-4 h-4 text-[#b91c1c]" />
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1c1917]">
+                    Mục lục thời gian:
+                  </span>
+                </div>
+                <span className="text-[11px] text-[#a8a29e] hidden sm:inline">
+                  {videoChapters.length} phân đoạn bài giảng • Bấm để tua nhanh đến phần học
                 </span>
               </div>
-              <span className="text-[11px] text-[#a8a29e] hidden sm:inline">
-                Tự động nhảy đến vị trí giáo viên bắt đầu giảng
-              </span>
-            </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
-              {currentLesson.timestamps.map((ts) => {
-                const isActive = activeTimestamp === ts.timeSec;
-                return (
-                  <button
-                    key={ts.id}
-                    onClick={() => handleJumpToTimestamp(ts.timeSec)}
-                    className={`px-3 py-2 text-left border transition-all flex-shrink-0 min-w-[170px] ${
-                      isActive
-                        ? 'bg-[#fef2f2] border-[#b91c1c] shadow-xs'
-                        : 'bg-[#fafaf9] border-[#e7e5e4] hover:border-[#a8a29e]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-[11px] font-mono">
-                      <span className="px-1.5 py-0.5 bg-[#1c1917] text-white font-bold">
-                        {ts.timeStr}
-                      </span>
-                      {isActive && <span className="text-[#b91c1c] text-[10px] font-bold">Đang phát 🟢</span>}
-                    </div>
-                    <div className="font-serif font-bold text-xs text-[#1c1917] mt-1 truncate">
-                      {ts.pattern}
-                    </div>
-                    <div className="text-[10px] text-[#78716c] truncate mt-0.5">
-                      {ts.title}
-                    </div>
-                  </button>
-                );
-              })}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                {videoChapters.map((ts, idx) => {
+                  const isActive = activeTimestamp === ts.timeSec;
+                  return (
+                    <button
+                      key={ts.id || idx}
+                      onClick={() => handleJumpToTimestamp(ts.timeSec)}
+                      className={`px-3 py-2 text-left border transition-all flex-shrink-0 min-w-[170px] max-w-[240px] ${isActive
+                          ? 'bg-[#fef2f2] border-[#b91c1c] shadow-xs'
+                          : 'bg-[#fafaf9] border-[#e7e5e4] hover:border-[#a8a29e]'
+                        }`}
+                    >
+                      <div className="flex items-center justify-between text-[11px] font-mono">
+                        <span className="px-1.5 py-0.5 bg-[#1c1917] text-white font-bold">
+                          {ts.timeStr}
+                        </span>
+                        {isActive && <span className="text-[#b91c1c] text-[10px] font-bold">Đang phát 🟢</span>}
+                      </div>
+                      <div className="font-serif font-bold text-xs text-[#1c1917] mt-1 truncate" title={ts.title}>
+                        {ts.title}
+                      </div>
+                      {ts.pattern && ts.pattern !== ts.title && (
+                        <div className="text-[10px] text-[#78716c] truncate mt-0.5">
+                          {ts.pattern}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* 📑 HỆ THỐNG 3 TABS HỌC TẬP TRỌNG TÂM */}
           <div className="bg-white border border-[#e7e5e4] shadow-xs overflow-hidden">
@@ -798,11 +1286,10 @@ export default function Grammar() {
             <div className="flex border-b border-[#e7e5e4] bg-[#fafaf9] overflow-x-auto">
               <button
                 onClick={() => setActiveTab('cheatsheet')}
-                className={`px-5 py-3 text-xs font-mono font-bold transition-all flex items-center gap-2 border-b-2 whitespace-nowrap ${
-                  activeTab === 'cheatsheet'
+                className={`px-5 py-3 text-xs font-mono font-bold transition-all flex items-center gap-2 border-b-2 whitespace-nowrap ${activeTab === 'cheatsheet'
                     ? 'border-[#b91c1c] text-[#b91c1c] bg-white'
                     : 'border-transparent text-[#78716c] hover:text-[#1c1917]'
-                }`}
+                  }`}
               >
                 <FileText className="w-4 h-4" />
                 <span>1. Bảng Tóm Tắt Công Thức</span>
@@ -810,14 +1297,13 @@ export default function Grammar() {
 
               <button
                 onClick={() => setActiveTab('quiz')}
-                className={`px-5 py-3 text-xs font-mono font-bold transition-all flex items-center gap-2 border-b-2 whitespace-nowrap ${
-                  activeTab === 'quiz'
+                className={`px-5 py-3 text-xs font-mono font-bold transition-all flex items-center gap-2 border-b-2 whitespace-nowrap ${activeTab === 'quiz'
                     ? 'border-[#b91c1c] text-[#b91c1c] bg-white'
                     : 'border-transparent text-[#78716c] hover:text-[#1c1917]'
-                }`}
+                  }`}
               >
                 <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                <span>2. Bài Test Củng Cố & Xếp Sao ⭐</span>
+                <span>2. Bài Test Kiến Thức</span>
                 {quizSubmitted && quizScore !== null && (
                   <span className={`px-1.5 py-0.2 text-[10px] ${quizScore >= 85 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                     {quizScore}%
@@ -827,11 +1313,10 @@ export default function Grammar() {
 
               <button
                 onClick={() => setActiveTab('discussion')}
-                className={`px-5 py-3 text-xs font-mono font-bold transition-all flex items-center gap-2 border-b-2 whitespace-nowrap ${
-                  activeTab === 'discussion'
+                className={`px-5 py-3 text-xs font-mono font-bold transition-all flex items-center gap-2 border-b-2 whitespace-nowrap ${activeTab === 'discussion'
                     ? 'border-[#b91c1c] text-[#b91c1c] bg-white'
                     : 'border-transparent text-[#78716c] hover:text-[#1c1917]'
-                }`}
+                  }`}
               >
                 <MessageSquare className="w-4 h-4" />
                 <span>3. Hỏi Đáp ({discussions.length})</span>
@@ -843,295 +1328,425 @@ export default function Grammar() {
               {/* TAB 1: BẢNG CÔNG THỨC CHEATSHEET */}
               {activeTab === 'cheatsheet' && (
                 <div className="space-y-6">
-                  <div className="p-3 bg-[#fdfbf7] border border-[#f5ecd8] text-xs text-[#854d0e] flex items-start gap-2.5">
-                    <Lightbulb className="w-4 h-4 text-[#854d0e] shrink-0 mt-0.5" />
-                    <div>
-                      <strong>Ghi nhớ nhanh:</strong> Bạn không cần phải tạm dừng video để chép tay! Toàn bộ công thức kết hợp, sắc thái và ví dụ tiêu biểu đã được tổng hợp sẵn bên dưới theo thứ tự bài giảng.
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {currentLesson.cheatsheet.map((item, idx) => (
-                      <div key={item.id} className="p-4 border border-[#e7e5e4] bg-[#fafaf9] hover:bg-white transition-colors">
-                        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
-                              {idx + 1}
-                            </span>
-                            <span className="text-base font-serif font-bold text-[#b91c1c]">
-                              {item.pattern}
-                            </span>
-                          </div>
-                          <span className="px-2 py-0.5 text-xs font-mono font-bold bg-[#f5f5f4] text-[#44403c] border border-[#e7e5e4]">
-                            {item.badge}
-                          </span>
-                        </div>
-
-                        {/* Ý nghĩa & Cấu trúc */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs my-2.5">
-                          <div className="p-2.5 bg-white border border-[#e7e5e4]">
-                            <span className="text-[#a8a29e] font-mono uppercase block text-[10px] font-bold">Ý NGHĨA:</span>
-                            <span className="font-semibold text-[#1c1917] text-sm">{item.meaning}</span>
-                          </div>
-                          <div className="p-2.5 bg-white border border-[#e7e5e4]">
-                            <span className="text-[#a8a29e] font-mono uppercase block text-[10px] font-bold">CẤU TRÚC KẾT HỢP:</span>
-                            <span className="font-mono text-[#b91c1c] font-bold">{item.structure}</span>
-                          </div>
-                        </div>
-
-                        {/* Sắc thái & Lưu ý */}
-                        <div className="text-xs text-[#44403c] bg-[#f5f5f4] p-3 border border-[#e7e5e4] mb-3 leading-relaxed">
-                          <span className="font-bold text-[#1c1917]">💡 Sắc thái & Lưu ý: </span>
-                          {item.nuance}
-                        </div>
-
-                        {/* Ví dụ mẫu */}
-                        <div className="space-y-1.5">
-                          <span className="text-[11px] font-mono font-bold text-[#78716c] uppercase">VÍ DỤ TIÊU BIỂU:</span>
-                          {item.examples.map((ex, exIdx) => (
-                            <div key={exIdx} className="p-2.5 bg-white border border-[#e7e5e4] text-xs flex flex-col gap-0.5">
-                              <span className="font-serif font-bold text-sm text-[#1c1917]">{ex.ja}</span>
-                              <span className="text-[#78716c]">{ex.vi}</span>
+                  {currentLesson.cheatsheets && currentLesson.cheatsheets.length > 0 ? (
+                    <div className="space-y-4">
+                      {currentLesson.cheatsheets.map((item, idx) => (
+                        <div key={item.id} className="p-4 border border-[#e7e5e4] bg-[#fafaf9] hover:bg-white transition-colors">
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-full bg-[#1c1917] text-white flex items-center justify-center text-xs font-mono font-bold">
+                                {idx + 1}
+                              </span>
+                              <span className="text-base font-serif font-bold text-[#b91c1c]">
+                                {item.pattern}
+                              </span>
                             </div>
-                          ))}
+                            {item.badge && (
+                              <span className="px-2 py-0.5 text-xs font-mono font-bold bg-[#f5f5f4] text-[#44403c] border border-[#e7e5e4]">
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs my-2.5">
+                            <div className="p-2.5 bg-white border border-[#e7e5e4]">
+                              <span className="text-[#a8a29e] font-mono uppercase block text-[10px] font-bold">Ý NGHĨA:</span>
+                              <span className="font-semibold text-[#1c1917] text-sm">{item.meaning}</span>
+                            </div>
+                            <div className="p-2.5 bg-white border border-[#e7e5e4]">
+                              <span className="text-[#a8a29e] font-mono uppercase block text-[10px] font-bold">CẤU TRÚC KẾT HỢP:</span>
+                              <span className="font-mono text-[#b91c1c] font-bold">{item.structure}</span>
+                            </div>
+                          </div>
+
+                          {item.nuance && (
+                            <div className="text-xs text-[#44403c] bg-[#f5f5f4] p-3 border border-[#e7e5e4] mb-3 leading-relaxed">
+                              <span className="font-bold text-[#1c1917]">💡 Sắc thái & Lưu ý: </span>
+                              {item.nuance}
+                            </div>
+                          )}
+
+                          {item.examples && Array.isArray(item.examples) && item.examples.length > 0 && (
+                            <div className="space-y-1.5">
+                              <span className="text-[11px] font-mono font-bold text-[#78716c] uppercase">VÍ DỤ TIÊU BIỂU:</span>
+                              {item.examples.map((ex: any, exIdx: number) => (
+                                <div key={exIdx} className="p-2.5 bg-white border border-[#e7e5e4] text-xs flex flex-col gap-0.5">
+                                  <span className="font-serif font-bold text-sm text-[#1c1917]">{ex.ja}</span>
+                                  <span className="text-[#78716c]">{ex.vi}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-6 text-center text-xs text-[#78716c] border border-dashed border-[#d6d3d1] bg-[#fafaf9]">
+                      📖 Bảng tóm tắt công thức cho bài học này đang được Sensei cập nhật chi tiết. Hãy theo dõi bài giảng video phía trên và thảo luận cùng các bạn học tại tab Hỏi Đáp nhé!
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* TAB 2: BÀI TEST CỦNG CỐ & XẾP SAO ⭐ */}
+              {/* TAB 2: BÀI TEST KIẾN THỨC (20 CÂU - CHUẨN KHO HÁN TỰ - ĐẠT >= 85%) */}
               {activeTab === 'quiz' && (
                 <div className="space-y-6">
-                  {/* Banner hướng dẫn làm bài */}
-                  <div className="p-4 bg-[#fef2f2] border border-[#fecaca] flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <Award className="w-8 h-8 text-[#b91c1c] shrink-0" />
-                      <div>
-                        <h4 className="font-serif font-bold text-sm text-[#991b1b]">
-                          BÀI KIỂM TRA CỦNG CỐ BÀI {currentLesson.lessonNumber}
-                        </h4>
-                        <p className="text-xs text-[#7f1d1d] mt-0.5">
-                          Hoàn thành các câu trắc nghiệm và câu sắp xếp ngôi sao đạt <strong className="font-bold">≥ 85%</strong> để mở khóa bài tiếp theo!
-                        </p>
+                  {/* Thanh điều hướng & Tiến độ bài kiểm tra */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white border border-[#e7e5e4] shadow-xs">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono font-bold text-[#b91c1c] bg-[#fef2f2] px-2 py-0.5 border border-[#fecaca]">
+                          BÀI TEST KIẾN THỨC
+                        </span>
+                        <span className="text-xs font-serif font-bold text-[#1c1917]">
+                          20 Câu hỏi tổng hợp
+                        </span>
+                      </div>
+                      <div className="text-xs text-[#78716c] mt-1 flex flex-wrap items-center gap-3">
+                        <span>Đã làm: <strong className="text-[#1c1917] font-mono font-bold">{answeredCount}/20</strong> câu</span>
+                        <span>•</span>
+                        <span>Chuẩn đạt: <strong className="text-[#b91c1c] font-bold">≥ 85%</strong> (tối thiểu 17/20 câu đúng)</span>
                       </div>
                     </div>
-                    {quizSubmitted && quizScore !== null && (
-                      <div className={`px-4 py-2 border font-mono font-bold text-center ${
-                        quizScore >= 85 ? 'bg-green-100 border-green-300 text-green-800' : 'bg-red-100 border-red-300 text-red-800'
-                      }`}>
-                        <div className="text-xl">{quizScore}%</div>
-                        <div className="text-[10px]">{quizScore >= 85 ? '✓ ĐẠT CHUẨN' : '✕ CHƯA ĐẠT'}</div>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Phần 1: Các câu trắc nghiệm MCQ */}
-                  <div className="space-y-5">
-                    <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#78716c] border-b pb-1">
-                      PHẦN 1: TRẮC NGHIỆM CHỌN MẪU CÂU (TRỌNG TÂM NGỮ PHÁP)
+                    {/* Quick Nav Bubbles 1..20 */}
+                    <div className="flex flex-wrap items-center gap-1 max-w-full sm:max-w-md">
+                      {fullQuizList.map((q, idx) => {
+                        const isAnswered = q.quizType === 'MCQ'
+                          ? !!mcqAnswers[q.id]
+                          : ((starSlots[q.id] || []).filter(Boolean).length === 4);
+                        let btnBg = isAnswered
+                          ? 'bg-[#1c1917] text-white border-[#1c1917]'
+                          : 'bg-[#fafaf9] text-[#78716c] border-[#e7e5e4] hover:border-[#1c1917]';
+
+                        if (quizSubmitted) {
+                          const isCorrect = q.quizType === 'MCQ'
+                            ? mcqAnswers[q.id]?.trim() === q.correctAnswer?.trim()
+                            : ((starSlots[q.id] || [])[q.starIndex ?? 0] === q.correctAnswer);
+                          btnBg = isCorrect ? 'bg-green-100 border-green-500 text-green-800' : 'bg-red-100 border-red-400 text-red-800';
+                        }
+
+                        return (
+                          <button
+                            key={q.id}
+                            type="button"
+                            onClick={() => {
+                              const el = document.getElementById(`quiz-question-${q.id}`);
+                              el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }}
+                            className={`w-6 h-6 text-[10px] font-mono font-bold border flex items-center justify-center transition-colors cursor-pointer ${btnBg}`}
+                            title={`Câu ${idx + 1}`}
+                          >
+                            {idx + 1}
+                          </button>
+                        );
+                      })}
                     </div>
-
-                    {currentLesson.quiz.mcq.map((q, idx) => (
-                      <div key={q.id} className="p-4 border border-[#e7e5e4] bg-[#fafaf9]">
-                        <div className="text-xs font-mono font-bold text-[#b91c1c] mb-1">
-                          CÂU {idx + 1}:
-                        </div>
-                        <div className="text-sm font-serif font-bold text-[#1c1917] mb-3">
-                          {q.question}
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                          {q.options.map((opt) => {
-                            const isSelected = mcqAnswers[q.id] === opt;
-                            const isCorrect = opt === q.correctAnswer;
-                            let btnStyle = 'bg-white border-[#d6d3d1] hover:border-[#1c1917]';
-                            if (quizSubmitted) {
-                              if (isCorrect) btnStyle = 'bg-green-50 border-green-500 text-green-800 font-bold';
-                              else if (isSelected && !isCorrect) btnStyle = 'bg-red-50 border-red-500 text-red-800 line-through';
-                            } else if (isSelected) {
-                              btnStyle = 'bg-[#1c1917] border-[#1c1917] text-white font-bold';
-                            }
-
-                            return (
-                              <button
-                                key={opt}
-                                disabled={quizSubmitted}
-                                onClick={() => setMcqAnswers({ ...mcqAnswers, [q.id]: opt })}
-                                className={`px-3 py-2 text-xs border transition-all text-left ${btnStyle}`}
-                              >
-                                {opt}
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {quizSubmitted && (
-                          <div className="mt-2.5 p-2.5 bg-white border border-[#e7e5e4] text-xs text-[#44403c]">
-                            <span className="font-bold text-[#1c1917]">💡 Giải thích: </span>
-                            {q.explanation}
-                          </div>
-                        )}
-                      </div>
-                    ))}
                   </div>
 
-                  {/* Phần 2: BÀI TẬP SẮP XẾP VỊ TRÍ NGÔI SAO ⭐ */}
-                  {starQ && starQ.fragments && (
-                    <div className="space-y-4 pt-2">
-                      <div className="flex items-center justify-between border-b pb-1">
-                        <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#b91c1c] flex items-center gap-1.5">
-                          <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
-                          <span>PHẦN 2: BÀI TẬP DẤU SAO JLPT ⭐ (TÌM TỪ TẠI VỊ TRÍ ★)</span>
-                        </div>
-                        <span className="text-[11px] text-[#78716c]">Dạng bài trọng điểm thi JLPT</span>
-                      </div>
-
-                      <div className="p-5 border-2 border-dashed border-[#d6d3d1] bg-[#fafaf9] space-y-4">
-                        <p className="text-xs text-[#57534e]">
-                          {starQ.prompt}
-                        </p>
-
-                        {/* Khung ghép câu hoàn chỉnh */}
-                        <div className="flex flex-wrap items-center gap-2 p-3 bg-white border border-[#e7e5e4] text-sm">
-                          {starQ.leftSentence && (
-                            <span className="font-serif font-bold text-[#1c1917]">{starQ.leftSentence}</span>
+                  {/* Kết quả sau khi nộp bài */}
+                  {quizSubmitted && quizScore !== null && (
+                    <div
+                      className={`p-5 border transition-all ${quizScore >= 85
+                          ? 'bg-[#f0fdf4] border-[#86efac] text-[#166534]'
+                          : 'bg-[#fef2f2] border-[#fca5a5] text-[#991b1b]'
+                        }`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-3.5">
+                          {quizScore >= 85 ? (
+                            <CheckCircle2 className="w-8 h-8 text-[#166534] flex-shrink-0 mt-0.5" />
+                          ) : (
+                            <AlertCircle className="w-8 h-8 text-[#991b1b] flex-shrink-0 mt-0.5" />
                           )}
-
-                          {/* 4 Slots để xếp từ */}
-                          {[0, 1, 2, 3].map((slotIdx) => {
-                            const val = selectedSlots[slotIdx];
-                            const isStar = slotIdx === starQ.starIndex;
-
-                            return (
-                              <div
-                                key={slotIdx}
-                                onClick={() => val && handleRemoveSlot(slotIdx)}
-                                className={`min-w-[70px] h-9 px-2.5 border-2 flex items-center justify-center font-serif font-bold text-xs cursor-pointer transition-all ${
-                                  val
-                                    ? isStar
-                                      ? 'bg-amber-50 border-amber-500 text-amber-900 shadow-xs'
-                                      : 'bg-white border-[#1c1917] text-[#1c1917]'
-                                    : isStar
-                                    ? 'bg-amber-50/50 border-dashed border-amber-400 text-amber-600'
-                                    : 'bg-[#f5f5f4] border-dashed border-[#d6d3d1] text-[#a8a29e]'
-                                }`}
-                              >
-                                {val ? (
-                                  <span className="flex items-center gap-1">
-                                    {isStar && <span className="text-amber-500">★</span>}
-                                    {val}
-                                  </span>
-                                ) : (
-                                  <span className="text-[11px] font-mono">
-                                    {isStar ? '★ (Vị trí sao)' : `[ ${slotIdx + 1} ]`}
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          })}
-
-                          {starQ.rightSentence && (
-                            <span className="font-serif font-bold text-[#1c1917]">{starQ.rightSentence}</span>
-                          )}
-                        </div>
-
-                        {/* 4 Mảnh từ xáo trộn để người học bấm chọn */}
-                        <div className="space-y-1.5">
-                          <span className="text-[11px] font-mono text-[#78716c]">
-                            Bấm vào từng mảnh từ dưới đây để xếp vào ô trống:
-                          </span>
-                          <div className="flex flex-wrap gap-2">
-                            {starQ.fragments.map((frag, fIdx) => {
-                              const isPlaced = selectedSlots.includes(frag.text);
-                              return (
-                                <button
-                                  key={frag.id}
-                                  disabled={isPlaced || starSubmitted}
-                                  onClick={() => handleSelectFragment(frag.text)}
-                                  className={`px-3 py-1.5 text-xs font-serif font-bold border transition-all ${
-                                    isPlaced
-                                      ? 'bg-[#f5f5f4] text-[#a8a29e] border-[#e7e5e4] cursor-not-allowed line-through'
-                                      : 'bg-white text-[#1c1917] border-[#d6d3d1] hover:border-[#b91c1c] hover:text-[#b91c1c] shadow-2xs'
-                                  }`}
-                                >
-                                  {fIdx + 1}. {frag.text}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Nút hành động kiểm tra câu sao */}
-                        <div className="flex items-center justify-between pt-2">
-                          <button
-                            onClick={handleResetStar}
-                            className="text-xs text-[#78716c] hover:text-[#1c1917] underline font-mono"
-                          >
-                            Xếp lại từ đầu
-                          </button>
-
-                          <button
-                            disabled={starSubmitted}
-                            onClick={handleCheckStarAnswer}
-                            className="px-4 py-1.5 bg-[#1c1917] text-white text-xs font-mono font-bold hover:bg-[#b91c1c] transition-colors disabled:opacity-50"
-                          >
-                            Kiểm tra vị trí ngôi sao ★
-                          </button>
-                        </div>
-
-                        {/* Kết quả kiểm tra câu sao */}
-                        {starSubmitted && isStarCorrect !== null && (
-                          <div className={`p-3 border text-xs ${
-                            isStarCorrect ? 'bg-green-50 border-green-300 text-green-800' : 'bg-red-50 border-red-300 text-red-800'
-                          }`}>
-                            <div className="font-bold mb-1">
-                              {isStarCorrect ? '🎉 Chính xác! Bạn đã xếp đúng vị trí ngôi sao!' : '✕ Chưa chính xác! Hãy đọc lại lời giải bên dưới:'}
+                          <div>
+                            <div className="font-bold text-base font-serif">
+                              {quizScore >= 85
+                                ? '🎉 XUẤT SẮC! BẠN ĐÃ VƯỢT QUA BÀI TEST KIẾN THỨC!'
+                                : '⚠️ CHƯA ĐẠT CHUẨN MỞ KHÓA!'}
                             </div>
-                            <p className="text-[11px] leading-relaxed">
-                              {starQ.explanation}
-                            </p>
+                            <div className="text-xs mt-1 text-[#44403c] leading-relaxed">
+                              {quizScore >= 85
+                                ? `Chúc mừng bạn đã đạt ${quizScore}% (${correctCount}/20 câu đúng), vượt qua chuẩn quy định (≥ 85%). Bài học tiếp theo đã được mở khóa!`
+                                : `Bạn đạt ${quizScore}% (${correctCount}/20 câu đúng). Cần đạt tối thiểu 85% (tức từ 17/20 câu đúng trở lên) để mở khóa bài học kế tiếp. Hãy xem lại phần giải thích bên dưới và thử lại nhé!`}
+                            </div>
                           </div>
-                        )}
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0">
+                          <div className="text-right font-mono">
+                            <div className="text-2xl font-bold">{quizScore}%</div>
+                            <div className="text-[11px] text-[#78716c]">{correctCount}/20 câu đúng</div>
+                          </div>
+                          <button
+                            onClick={handleResetTest}
+                            className="px-4 py-2 bg-white border border-[#d6d3d1] text-[#1c1917] hover:bg-[#fafaf9] text-xs font-mono font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>Làm lại 🔄</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Nút Nộp Bài Chung */}
-                  <div className="pt-4 border-t border-[#e7e5e4] flex items-center justify-between">
-                    <span className="text-xs font-mono text-[#78716c]">
-                      {quizSubmitted
-                        ? `Điểm kiểm tra của bạn: ${quizScore}% (${quizScore! >= 85 ? 'ĐÃ ĐẠT CHUẨN ĐỂ MỞ BÀI TIẾP THEO' : 'CHƯA ĐẠT CHUẨN 85%'})`
-                        : 'Hoàn thành câu hỏi trắc nghiệm & câu ngôi sao rồi bấm Nộp bài'}
-                    </span>
-                    {!quizSubmitted ? (
-                      <button
-                        onClick={handleSubmitFullQuiz}
-                        className="px-6 py-2.5 bg-[#b91c1c] text-white text-xs font-mono font-bold hover:bg-[#991b1b] transition-all shadow-xs flex items-center gap-2"
-                      >
-                        <span>Nộp Bài Test & Đánh Giá 📝</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setQuizSubmitted(false);
-                          setQuizScore(null);
-                          setMcqAnswers({});
-                          handleResetStar();
-                        }}
-                        className="px-4 py-2 bg-white border border-[#d6d3d1] text-xs font-medium hover:bg-[#fafaf9]"
-                      >
-                        Làm lại bài kiểm tra 🔄
-                      </button>
+                  {/* Danh sách 20 Câu Hỏi (16 MCQ + 4 STAR) */}
+                  <div className="space-y-6">
+                    {/* PHẦN 1: 16 CÂU TRẮC NGHIỆM MCQ */}
+                    {mcqList.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#78716c] border-b pb-1 flex items-center justify-between">
+                          <span>PHẦN 1: TRẮC NGHIỆM TRỌNG TÂM NGỮ PHÁP ({mcqList.length} CÂU)</span>
+                          <span className="text-[11px] font-normal text-[#a8a29e]">Chọn 1 đáp án chính xác nhất</span>
+                        </div>
+
+                        {mcqList.map((q, idx) => {
+                          const isThisCorrect = mcqAnswers[q.id]?.trim() === q.correctAnswer?.trim();
+
+                          return (
+                            <div
+                              key={q.id}
+                              id={`quiz-question-${q.id}`}
+                              className="p-4 border border-[#e7e5e4] bg-[#fafaf9] transition-all"
+                            >
+                              <div className="flex items-center justify-between mb-1.5">
+                                <div className="text-xs font-mono font-bold text-[#b91c1c]">
+                                  CÂU {idx + 1} / 20:
+                                </div>
+                                {quizSubmitted && (
+                                  <span
+                                    className={`text-[11px] font-mono font-bold px-2 py-0.5 border ${isThisCorrect
+                                        ? 'bg-green-100 border-green-300 text-green-800'
+                                        : 'bg-red-100 border-red-300 text-red-800'
+                                      }`}
+                                  >
+                                    {isThisCorrect ? '✓ Đúng' : '✕ Sai'}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="text-sm font-serif font-bold text-[#1c1917] mb-3 leading-relaxed">
+                                {q.prompt}
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {(shuffledOptionsMap[q.id] || (Array.isArray(q.options) ? q.options : [])).map((opt, optIdx) => {
+                                  const isSelected = mcqAnswers[q.id] === opt;
+                                  const isOptCorrect = opt === q.correctAnswer;
+                                  const OPTION_LABELS = ['A', 'B', 'C', 'D'];
+                                  let btnStyle = 'bg-white border-[#d6d3d1] hover:border-[#1c1917] text-[#1c1917]';
+
+                                  if (quizSubmitted) {
+                                    if (isOptCorrect) {
+                                      btnStyle = 'bg-green-50 border-green-500 text-green-800 font-bold';
+                                    } else if (isSelected) {
+                                      btnStyle = 'bg-red-50 border-red-400 text-red-800 line-through';
+                                    }
+                                  } else if (isSelected) {
+                                    btnStyle = 'bg-[#1c1917] text-white border-[#1c1917] font-bold shadow-2xs';
+                                  }
+
+                                  return (
+                                    <button
+                                      key={`${q.id}-${opt}-${optIdx}`}
+                                      disabled={quizSubmitted}
+                                      onClick={() => setMcqAnswers({ ...mcqAnswers, [q.id]: opt })}
+                                      className={`px-3 py-2.5 text-xs font-serif border transition-all text-left flex items-center justify-between cursor-pointer ${btnStyle}`}
+                                    >
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                        <span
+                                          className={`w-5 h-5 rounded-full border text-[10px] font-mono font-bold flex items-center justify-center shrink-0 ${
+                                            isSelected
+                                              ? (quizSubmitted
+                                                  ? (isOptCorrect ? 'border-green-600 bg-green-200 text-green-900' : 'border-red-500 bg-red-200 text-red-900')
+                                                  : 'border-white bg-white/20 text-white')
+                                              : (quizSubmitted && isOptCorrect
+                                                  ? 'border-green-600 bg-green-200 text-green-900'
+                                                  : 'border-[#d6d3d1] bg-[#f5f5f4] text-[#57534e]')
+                                          }`}
+                                        >
+                                          {OPTION_LABELS[optIdx] || (optIdx + 1)}
+                                        </span>
+                                        <span className="leading-snug">{opt}</span>
+                                      </div>
+                                      {quizSubmitted && isOptCorrect && (
+                                        <span className="text-green-600 font-bold text-xs shrink-0 ml-1">✓ Đúng</span>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              {quizSubmitted && q.explanation && (
+                                <div className="mt-3 text-xs text-[#57534e] bg-white p-3 border border-[#e7e5e4] leading-relaxed">
+                                  💡 <strong className="font-bold text-[#1c1917]">Giải thích:</strong> {q.explanation}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* PHẦN 2: 4 CÂU HỎI NGÔI SAO JLPT */}
+                    {starList.length > 0 && (
+                      <div className="space-y-4 pt-3">
+                        <div className="flex items-center justify-between border-b pb-1">
+                          <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#b91c1c] flex items-center gap-1.5">
+                            <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                            <span>PHẦN 2: BÀI TẬP DẤU SAO JLPT ⭐ ({starList.length} CÂU)</span>
+                          </div>
+                          <span className="text-[11px] text-[#78716c]">Tìm từ chính xác ở vị trí [★]</span>
+                        </div>
+
+                        {starList.map((sq, sIdx) => {
+                          const currentSlots = starSlots[sq.id] || [null, null, null, null];
+                          const starIdx = sq.starIndex !== undefined && sq.starIndex !== null ? sq.starIndex : 0;
+                          const isCorrect = currentSlots[starIdx] === sq.correctAnswer;
+
+                          return (
+                            <div
+                              key={sq.id}
+                              id={`quiz-question-${sq.id}`}
+                              className="p-5 border-2 border-dashed border-[#d6d3d1] bg-[#fafaf9] space-y-4"
+                            >
+                              <div className="flex items-center justify-between border-b pb-1">
+                                <div className="text-xs font-mono font-bold text-[#b91c1c] flex items-center gap-1.5">
+                                  <span>CÂU {mcqList.length + sIdx + 1} / 20:</span>
+                                </div>
+                                {quizSubmitted && (
+                                  <span
+                                    className={`text-[11px] font-mono font-bold px-2 py-0.5 border ${isCorrect
+                                        ? 'bg-green-100 border-green-300 text-green-800'
+                                        : 'bg-red-100 border-red-300 text-red-800'
+                                      }`}
+                                  >
+                                    {isCorrect ? '✓ Đúng vị trí ★' : '✕ Sai'}
+                                  </span>
+                                )}
+                              </div>
+
+                              <p className="text-xs text-[#57534e]">
+                                {sq.prompt}
+                              </p>
+
+                              {/* 4 ô xếp mảnh từ */}
+                              <div className="flex flex-wrap items-center gap-2 p-3 bg-white border border-[#e7e5e4] text-sm">
+                                {sq.leftSentence && (
+                                  <span className="font-serif font-bold text-[#1c1917]">{sq.leftSentence}</span>
+                                )}
+
+                                {[0, 1, 2, 3].map((slotIdx) => {
+                                  const val = currentSlots[slotIdx];
+                                  const isStar = slotIdx === starIdx;
+
+                                  return (
+                                    <div
+                                      key={slotIdx}
+                                      onClick={() => !quizSubmitted && val && handleRemoveSlot(sq.id, slotIdx)}
+                                      className={`min-w-[70px] h-9 px-2.5 border-2 flex items-center justify-center font-serif font-bold text-xs cursor-pointer transition-all ${val
+                                          ? isStar
+                                            ? 'bg-amber-50 border-amber-500 text-amber-900 shadow-xs'
+                                            : 'bg-white border-[#1c1917] text-[#1c1917]'
+                                          : isStar
+                                            ? 'bg-amber-50/50 border-dashed border-amber-400 text-amber-600'
+                                            : 'bg-[#f5f5f4] border-dashed border-[#d6d3d1] text-[#a8a29e]'
+                                        }`}
+                                    >
+                                      {val ? (
+                                        <span className="flex items-center gap-1">
+                                          {isStar && <span className="text-amber-500">★</span>}
+                                          {val}
+                                        </span>
+                                      ) : (
+                                        <span className="text-[11px] font-mono">
+                                          {isStar ? '★ (Vị trí sao)' : `[ ${slotIdx + 1} ]`}
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+
+                                {sq.rightSentence && (
+                                  <span className="font-serif font-bold text-[#1c1917]">{sq.rightSentence}</span>
+                                )}
+                              </div>
+
+                              {/* Danh sách mảnh từ */}
+                              <div className="space-y-1.5">
+                                <span className="text-[11px] font-mono text-[#78716c]">
+                                  Bấm vào từng mảnh từ dưới đây để xếp vào ô trống:
+                                </span>
+                                <div className="flex flex-wrap gap-2">
+                                  {(sq.fragments || []).map((frag: any, fIdx: number) => {
+                                    const isPlaced = currentSlots.includes(frag.text);
+                                    return (
+                                      <button
+                                        key={frag.id || fIdx}
+                                        disabled={isPlaced || quizSubmitted}
+                                        onClick={() => handleSelectFragment(sq.id, frag.text)}
+                                        className={`px-3 py-1.5 text-xs font-serif font-bold border transition-all ${isPlaced
+                                            ? 'bg-[#f5f5f4] text-[#a8a29e] border-[#e7e5e4] cursor-not-allowed line-through'
+                                            : 'bg-white text-[#1c1917] border-[#d6d3d1] hover:border-[#b91c1c] hover:text-[#b91c1c] shadow-2xs cursor-pointer'
+                                          }`}
+                                      >
+                                        {fIdx + 1}. {frag.text}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between pt-1">
+                                <button
+                                  disabled={quizSubmitted}
+                                  onClick={() => handleResetStar(sq.id)}
+                                  className="text-xs text-[#78716c] hover:text-[#1c1917] underline font-mono disabled:opacity-50 cursor-pointer"
+                                >
+                                  Xếp lại câu này
+                                </button>
+                              </div>
+
+                              {quizSubmitted && sq.explanation && (
+                                <div className="mt-2 text-xs text-[#57534e] bg-white p-3 border border-[#e7e5e4] leading-relaxed">
+                                  💡 <strong className="font-bold text-[#1c1917]">Giải thích:</strong> {sq.explanation}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     )}
                   </div>
+
+                  {/* Nút Nộp Bài Chung 20 Câu */}
+                  {!quizSubmitted && (
+                    <div className="pt-4 border-t border-[#e7e5e4] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="text-xs font-mono text-[#78716c]">
+                        {answeredCount < 20
+                          ? `⚠️ Bạn đã hoàn thành ${answeredCount}/20 câu. Hãy làm đủ 20 câu để đạt kết quả tốt nhất!`
+                          : `✓ Đã làm xong 20/20 câu. Bấm nộp bài để xem điểm số & kiểm tra điều kiện ≥ 85%!`}
+                      </div>
+                      <button
+                        disabled={isSubmittingQuiz || answeredCount === 0}
+                        onClick={handleSubmitFullQuiz}
+                        className="px-6 py-2.5 bg-[#b91c1c] text-white text-xs font-mono font-bold hover:bg-[#991b1b] transition-all shadow-xs flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0"
+                      >
+                        {isSubmittingQuiz ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <span>Nộp Bài Test Kiến Thức (20 Câu) 📝</span>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* TAB 3: HỎI ĐÁP & THẢO LUẬN (CHẾ ĐỘ TÀI KHOẢN THẬT & XEM ẢNH/VIDEO KIỂU FACEBOOK) */}
+              {/* TAB 3: HỎI ĐÁP & THẢO LUẬN */}
               {activeTab === 'discussion' && (
                 <div className="space-y-6">
-                  {/* Khung soạn câu hỏi / chủ đề mới */}
+                  {/* Khung soạn câu hỏi */}
                   <div className="p-4 bg-white border border-[#e7e5e4] shadow-xs space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#f5f5f4] pb-2">
                       <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#1c1917] flex items-center gap-2">
@@ -1139,19 +1754,21 @@ export default function Grammar() {
                         <span>Đặt câu hỏi hoặc thảo luận về bài học:</span>
                       </div>
 
-                      {/* Hiển thị danh tính tài khoản thật của người dùng */}
                       <div className="text-xs font-mono text-[#78716c] flex items-center gap-1.5">
                         <span>Đang đăng với tư cách:</span>
                         <strong className="text-[#1c1917]">{currentAuthorName}</strong>
                         {isTeacher ? (
                           <span className="px-1.5 py-0.2 bg-[#fef2f2] text-[#b91c1c] border border-[#fecaca] text-[10px] font-bold">
-                            Giảng viên ★
+                            Giảng viên
                           </span>
                         ) : (
-                          <span className="px-1.5 py-0.2 bg-[#f5f5f4] text-[#78716c] text-[10px]">
+                          <span className="px-1.5 py-0.2 bg-[#f5f5f4] text-[#78716c] text-[10px] border border-[#e7e5e4]">
                             Học viên
                           </span>
                         )}
+                        <span className="px-1.5 py-0.2 bg-[#fafaf9] text-[#b91c1c] border border-[#e7e5e4] text-[10px] font-bold">
+                          {currentUserLevel}
+                        </span>
                       </div>
                     </div>
 
@@ -1159,17 +1776,17 @@ export default function Grammar() {
                       rows={3}
                       value={questionText}
                       onChange={(e) => setQuestionText(e.target.value)}
-                      placeholder="Nhập nội dung câu hỏi hoặc chia sẻ thắc mắc... (Bạn có thể chọn ảnh/video từ máy tính của bạn hoặc chèn icon cảm xúc bên dưới)"
+                      placeholder="Nhập nội dung câu hỏi hoặc chia sẻ thắc mắc... (Bạn có thể chọn ảnh/video từ máy tính của bạn hoặc chèn icon bên dưới)"
                       className="w-full text-xs p-3 border border-[#d6d3d1] bg-[#fafaf9] focus:bg-white focus:outline-none focus:border-[#b91c1c] font-sans"
                     />
 
-                    {/* Xem trước Media đính kèm từ máy hoặc link */}
+                    {/* Xem trước Media đính kèm */}
                     {(attachedImage || attachedVideo) && (
                       <div className="flex flex-wrap items-center gap-3 p-2.5 bg-[#f5f5f4] border border-[#e7e5e4]">
                         {attachedImage && (
                           <div className="relative group inline-block">
                             <div
-                              onClick={() => handleOpenMedia({ type: 'image', url: attachedImage, title: attachedImageName })}
+                              onClick={() => handleOpenMedia({ type: 'image', url: attachedImage })}
                               className="cursor-pointer overflow-hidden rounded-xs border border-[#d6d3d1] shadow-2xs hover:opacity-90"
                               title="Bấm để phóng to như Facebook"
                             >
@@ -1180,23 +1797,22 @@ export default function Grammar() {
                               />
                             </div>
                             <button
-                              onClick={() => { setAttachedImage(null); setAttachedImageName(''); }}
+                              onClick={() => setAttachedImage(null)}
                               className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#b91c1c] text-white rounded-full flex items-center justify-center text-xs hover:bg-black transition-colors shadow-md z-10"
                               title="Xóa ảnh"
                             >
                               <X className="w-3 h-3" />
                             </button>
-
                           </div>
                         )}
 
                         {attachedVideo && (
                           <div className="relative group inline-block">
                             <div
-                              onClick={() => handleOpenMedia({ type: 'video', url: attachedVideo, title: attachedVideoName })}
+                              onClick={() => handleOpenMedia({ type: 'video', url: attachedVideo })}
                               onMouseEnter={(e) => {
                                 const v = e.currentTarget.querySelector('video');
-                                if (v) v.play().catch(() => {});
+                                if (v) v.play().catch(() => { });
                               }}
                               onMouseLeave={(e) => {
                                 const v = e.currentTarget.querySelector('video');
@@ -1220,19 +1836,26 @@ export default function Grammar() {
                               </div>
                             </div>
                             <button
-                              onClick={() => { setAttachedVideo(null); setAttachedVideoName(''); }}
+                              onClick={() => setAttachedVideo(null)}
                               className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#b91c1c] text-white rounded-full flex items-center justify-center text-xs hover:bg-black transition-colors shadow-md z-10"
                               title="Xóa video"
                             >
                               <X className="w-3 h-3" />
                             </button>
-
                           </div>
                         )}
                       </div>
                     )}
 
-                    {/* Popover Bảng chọn Icon / Emoji */}
+                    {/* Trạng thái upload lên Cloud */}
+                    {isUploadingMedia && (
+                      <div className="flex items-center gap-1.5 text-xs text-[#b91c1c] font-mono py-1">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Đang đồng bộ file lên Supabase Storage...</span>
+                      </div>
+                    )}
+
+                    {/* Popover Icon / Emoji */}
                     {showEmojiPicker && (
                       <div className="p-2.5 bg-white border border-[#e7e5e4] shadow-md flex flex-wrap gap-1.5 max-w-md animate-in fade-in zoom-in-95">
                         {EMOJI_LIST.map((emoji) => (
@@ -1248,7 +1871,7 @@ export default function Grammar() {
                       </div>
                     )}
 
-                    {/* Hộp thoại dán link URL nếu user muốn chèn online */}
+                    {/* Hộp thoại dán link URL */}
                     {showUrlInputModal && (
                       <div className="p-2.5 bg-[#fdfbf7] border border-[#f5ecd8] flex items-center gap-2">
                         <Link className="w-4 h-4 text-amber-700 shrink-0" />
@@ -1274,10 +1897,9 @@ export default function Grammar() {
                       </div>
                     )}
 
-                    {/* Thanh công cụ: Nút Tải Ảnh (Máy tính & URL), Tải Video (Máy tính & URL), Chèn Icon, và Gửi */}
+                    {/* Toolbar */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        {/* Nhóm Chèn Ảnh */}
                         <div className="flex items-center border border-[#d6d3d1] bg-white">
                           <button
                             type="button"
@@ -1299,7 +1921,6 @@ export default function Grammar() {
                           </button>
                         </div>
 
-                        {/* Nhóm Chèn Video */}
                         <div className="flex items-center border border-[#d6d3d1] bg-white">
                           <button
                             type="button"
@@ -1321,13 +1942,11 @@ export default function Grammar() {
                           </button>
                         </div>
 
-                        {/* Nút Emoji */}
                         <button
                           type="button"
                           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                          className={`px-2.5 py-1.5 text-xs border flex items-center gap-1.5 transition-colors ${
-                            showEmojiPicker ? 'bg-[#b91c1c] text-white border-[#b91c1c]' : 'bg-white text-[#44403c] border-[#d6d3d1] hover:border-[#1c1917]'
-                          }`}
+                          className={`px-2.5 py-1.5 text-xs border flex items-center gap-1.5 transition-colors ${showEmojiPicker ? 'bg-[#b91c1c] text-white border-[#b91c1c]' : 'bg-white text-[#44403c] border-[#d6d3d1] hover:border-[#1c1917]'
+                            }`}
                         >
                           <Smile className="w-3.5 h-3.5" />
                           <span>Icon</span>
@@ -1345,37 +1964,44 @@ export default function Grammar() {
                     </div>
                   </div>
 
-                  {/* Danh sách các câu hỏi & luồng bình luận (Threading) */}
+                  {/* Danh sách các câu hỏi & luồng bình luận */}
                   <div className="space-y-4">
                     {discussions.map((d) => (
                       <div key={d.id} className="p-4 border border-[#e7e5e4] bg-[#fafaf9] space-y-3">
-                        {/* Header Chủ đề */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div className={`w-8 h-8 rounded-full ${d.avatarBg} text-white flex items-center justify-center text-xs font-bold font-mono`}>
+                            <div className={`w-8 h-8 rounded-full ${d.avatarBg || 'bg-blue-600'} text-white flex items-center justify-center font-bold text-xs shadow-2xs`}>
                               {d.avatarLetter}
                             </div>
                             <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-[#1c1917]">{d.authorName}</span>
-                                {d.role === 'teacher' ? (
-                                  <span className="px-1.5 py-0.2 bg-[#fef2f2] text-[#b91c1c] border border-[#fecaca] text-[10px] font-mono font-bold">
-                                    Giảng viên ★
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <span className={`text-xs font-bold ${d.isSensei ? 'text-[#b91c1c]' : 'text-[#1c1917]'}`}>
+                                  {d.authorName}
+                                </span>
+                                {d.isSensei ? (
+                                  <span className="px-1.5 py-0.2 bg-[#fef2f2] text-[#b91c1c] text-[10px] font-mono font-bold border border-[#fecaca]">
+                                    Giảng viên
                                   </span>
                                 ) : (
-                                  <span className="px-1.5 py-0.2 bg-[#f5f5f4] text-[#78716c] text-[10px] font-mono">
+                                  <span className="px-1.5 py-0.2 bg-[#f5f5f4] text-[#78716c] text-[10px] font-mono border border-[#e7e5e4]">
                                     Học viên
                                   </span>
                                 )}
+                                <span className="px-1.5 py-0.2 bg-[#fafaf9] text-[#b91c1c] text-[10px] font-mono font-bold border border-[#e7e5e4]">
+                                  {d.authorLevel || (d.isSensei ? 'N1' : 'N5')}
+                                </span>
                               </div>
                               <span className="text-[10px] text-[#a8a29e] font-mono">{d.timeAgo}</span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3">
-                            <button className="flex items-center gap-1 text-[11px] font-mono text-[#78716c] hover:text-[#b91c1c] transition-colors">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleLikeDiscussion(d.id)}
+                              className="flex items-center gap-1 text-[11px] font-mono text-[#78716c] hover:text-[#b91c1c] transition-colors"
+                            >
                               <ThumbsUp className="w-3.5 h-3.5" />
-                              <span>{d.likes}</span>
+                              <span>{d.helpfulCount}</span>
                             </button>
                             <button
                               onClick={() => {
@@ -1385,42 +2011,52 @@ export default function Grammar() {
                               className="px-2.5 py-1 text-xs font-mono font-bold border border-[#d6d3d1] bg-white text-[#1c1917] hover:border-[#b91c1c] hover:text-[#b91c1c] flex items-center gap-1 shadow-2xs"
                             >
                               <CornerDownRight className="w-3 h-3 text-[#b91c1c]" />
-                              <span>Trả lời ({d.replies.length})</span>
+                              <span>Trả lời ({(d.replies || []).length})</span>
                             </button>
+
+                            {/* Nút xóa câu hỏi/thảo luận (dành cho người tạo bài hoặc Giáo viên/Admin) */}
+                            {(isTeacher || (user?.id && d.authorId && user.id === d.authorId) || d.authorName === currentAuthorName) && (
+                              <button
+                                type="button"
+                                onClick={() => handleRequestDeleteDiscussion(d.id, false)}
+                                title="Xóa comment"
+                                className="p-1 text-[#a8a29e] hover:text-[#b91c1c] hover:bg-red-50 rounded-xs transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </div>
                         </div>
 
-                        {/* Nội dung câu hỏi */}
                         <p className="text-xs text-[#1c1917] leading-relaxed whitespace-pre-wrap pl-1">
                           {d.content}
                         </p>
 
-                        {/* Render ảnh đính kèm: BẤM VÀO ĐỂ PHÓNG TO KIỂU FACEBOOK */}
+                        {/* Render ảnh đính kèm */}
                         {d.imageUrl && (
                           <div className="pt-1 pl-1">
                             <div
-                              onClick={() => handleOpenMedia({ type: 'image', url: d.imageUrl!, title: d.imageName || 'Hình ảnh đính kèm' })}
+                              onClick={() => handleOpenMedia({ type: 'image', url: d.imageUrl! })}
                               className="relative group inline-block cursor-pointer overflow-hidden rounded-xs border border-[#e7e5e4] shadow-xs hover:shadow-md transition-all my-1"
                               title="Bấm để phóng to ảnh như Facebook"
                             >
                               <img
                                 src={d.imageUrl}
-                                alt={d.imageName || 'Đính kèm'}
+                                alt="Đính kèm"
                                 className="max-h-64 max-w-full object-contain bg-white group-hover:scale-[1.01] transition-transform duration-200 pointer-events-none"
                               />
                             </div>
-
                           </div>
                         )}
 
-                        {/* Render video đính kèm: HOVER TỰ CHẠY KHÔNG TIẾNG · CLICK PHÓNG TO KIỂU FACEBOOK */}
+                        {/* Render video đính kèm */}
                         {d.videoUrl && (
                           <div className="pt-1 pl-1">
                             <div
-                              onClick={() => handleOpenMedia({ type: 'video', url: d.videoUrl!, title: d.videoName || 'Video minh họa' })}
+                              onClick={() => handleOpenMedia({ type: 'video', url: d.videoUrl! })}
                               onMouseEnter={(e) => {
                                 const v = e.currentTarget.querySelector('video');
-                                if (v) v.play().catch(() => {});
+                                if (v) v.play().catch(() => { });
                               }}
                               onMouseLeave={(e) => {
                                 const v = e.currentTarget.querySelector('video');
@@ -1446,27 +2082,25 @@ export default function Grammar() {
                                 </div>
                               </div>
                             </div>
-
                           </div>
                         )}
 
-                        {/* ─── CÁC CÂU TRẢ LỜI CỦA GIẢNG VIÊN VÀ CÁC HỌC VIÊN KHÁC (THREAD REPLIES) ─── */}
-                        {d.replies.length > 0 && (
+                        {/* Thread Replies */}
+                        {d.replies && d.replies.length > 0 && (
                           <div className="space-y-2.5 pt-2 border-t border-[#e7e5e4] pl-3 sm:pl-6">
                             {d.replies.map((reply) => {
-                              const isReplyTeacher = reply.role === 'teacher';
+                              const isReplyTeacher = reply.isSensei || reply.role === 'teacher';
                               return (
                                 <div
                                   key={reply.id}
-                                  className={`p-3 border transition-colors ${
-                                    isReplyTeacher
+                                  className={`p-3 border transition-colors ${isReplyTeacher
                                       ? 'bg-white border-[#fecaca] border-l-4 border-l-[#b91c1c]'
                                       : 'bg-white border-[#e7e5e4] border-l-4 border-l-zinc-400'
-                                  }`}
+                                    }`}
                                 >
                                   <div className="flex items-center justify-between text-xs mb-1.5">
-                                    <div className="flex items-center gap-2">
-                                      <div className={`w-5 h-5 rounded-full ${reply.avatarBg} text-white flex items-center justify-center text-[10px] font-bold`}>
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                      <div className={`w-5 h-5 rounded-full ${reply.avatarBg || 'bg-blue-600'} text-white flex items-center justify-center text-[10px] font-bold`}>
                                         {reply.avatarLetter}
                                       </div>
                                       <span className={`font-bold ${isReplyTeacher ? 'text-[#b91c1c]' : 'text-[#1c1917]'}`}>
@@ -1474,26 +2108,40 @@ export default function Grammar() {
                                       </span>
                                       {isReplyTeacher ? (
                                         <span className="px-1.5 py-0.2 bg-[#fef2f2] text-[#b91c1c] text-[10px] font-mono font-bold border border-[#fecaca]">
-                                          Giảng viên xác nhận ✓
+                                          Giảng viên
                                         </span>
                                       ) : (
-                                        <span className="px-1.5 py-0.2 bg-[#f5f5f4] text-[#78716c] text-[10px] font-mono">
-                                          Học viên thảo luận
+                                        <span className="px-1.5 py-0.2 bg-[#f5f5f4] text-[#78716c] text-[10px] font-mono border border-[#e7e5e4]">
+                                          Học viên
                                         </span>
                                       )}
+                                      <span className="px-1.5 py-0.2 bg-[#fafaf9] text-[#b91c1c] text-[10px] font-mono font-bold border border-[#e7e5e4]">
+                                        {reply.authorLevel || (isReplyTeacher ? 'N1' : 'N5')}
+                                      </span>
                                     </div>
-                                    <span className="text-[10px] text-[#a8a29e] font-mono">{reply.timeAgo}</span>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-[10px] text-[#a8a29e] font-mono">{reply.timeAgo}</span>
+                                      {(isTeacher || (user?.id && reply.authorId && user.id === reply.authorId) || reply.authorName === currentAuthorName) && (
+                                        <button
+                                          type="button"
+                                          onClick={() => handleRequestDeleteDiscussion(reply.id, true, d.id)}
+                                          title="Xóa comment"
+                                          className="text-[#a8a29e] hover:text-[#b91c1c] p-0.5 rounded-xs transition-colors cursor-pointer"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
+                                      )}
+                                    </div>
                                   </div>
 
                                   <p className="text-xs text-[#1c1917] leading-relaxed pl-7 whitespace-pre-wrap">
                                     {reply.content}
                                   </p>
 
-                                  {/* Ảnh đính kèm trong câu trả lời (phóng to khi click) */}
                                   {reply.imageUrl && (
                                     <div className="pl-7 pt-1">
                                       <div
-                                        onClick={() => handleOpenMedia({ type: 'image', url: reply.imageUrl!, title: reply.imageName })}
+                                        onClick={() => handleOpenMedia({ type: 'image', url: reply.imageUrl! })}
                                         className="cursor-pointer inline-block"
                                       >
                                         <img
@@ -1506,14 +2154,13 @@ export default function Grammar() {
                                     </div>
                                   )}
 
-                                  {/* Video đính kèm trong câu trả lời (hover demo + click phóng to) */}
                                   {reply.videoUrl && (
                                     <div className="pl-7 pt-1">
                                       <div
-                                        onClick={() => handleOpenMedia({ type: 'video', url: reply.videoUrl!, title: reply.videoName })}
+                                        onClick={() => handleOpenMedia({ type: 'video', url: reply.videoUrl! })}
                                         onMouseEnter={(e) => {
                                           const v = e.currentTarget.querySelector('video');
-                                          if (v) v.play().catch(() => {});
+                                          if (v) v.play().catch(() => { });
                                         }}
                                         onMouseLeave={(e) => {
                                           const v = e.currentTarget.querySelector('video');
@@ -1544,7 +2191,7 @@ export default function Grammar() {
                           </div>
                         )}
 
-                        {/* ─── KHUNG TRẢ LỜI CHO CHỦ ĐỀ NÀY (INLINE REPLY FORM) ─── */}
+                        {/* Inline Reply Form */}
                         {replyingToDiscussionId === d.id && (
                           <div className="mt-3 p-3.5 bg-white border border-[#d6d3d1] shadow-xs space-y-3 pl-3 sm:pl-6 animate-in fade-in">
                             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#f5f5f4] pb-1.5">
@@ -1552,8 +2199,15 @@ export default function Grammar() {
                                 Viết phản hồi cho {d.authorName}:
                               </span>
 
-                              <span className="text-xs font-mono text-[#78716c]">
-                                Trả lời với tư cách: <strong className="text-[#1c1917]">{currentAuthorName}</strong> ({isTeacher ? 'Giảng viên' : 'Học viên'})
+                              <span className="text-xs font-mono text-[#78716c] flex items-center gap-1.5">
+                                <span>Trả lời với tư cách:</span>
+                                <strong className="text-[#1c1917]">{currentAuthorName}</strong>
+                                <span className="px-1.5 py-0.2 bg-[#f5f5f4] text-[#78716c] text-[10px] border border-[#e7e5e4]">
+                                  {isTeacher ? 'Giảng viên' : 'Học viên'}
+                                </span>
+                                <span className="px-1.5 py-0.2 bg-[#fafaf9] text-[#b91c1c] border border-[#e7e5e4] text-[10px] font-bold">
+                                  {currentUserLevel}
+                                </span>
                               </span>
                             </div>
 
@@ -1561,17 +2215,16 @@ export default function Grammar() {
                               rows={2}
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
-                              placeholder={`Nhập phản hồi của bạn...`}
+                              placeholder="Nhập phản hồi của bạn..."
                               className="w-full text-xs p-2.5 border border-[#d6d3d1] bg-[#fafaf9] focus:bg-white focus:outline-none focus:border-[#b91c1c]"
                             />
 
-                            {/* Xem trước Media đính kèm của reply */}
                             {(replyAttachedImage || replyAttachedVideo) && (
                               <div className="flex flex-wrap items-center gap-2 p-2 bg-[#f5f5f4] border border-[#e7e5e4] text-xs">
                                 {replyAttachedImage && (
                                   <div className="relative group inline-block">
                                     <div
-                                      onClick={() => handleOpenMedia({ type: 'image', url: replyAttachedImage, title: replyAttachedImageName })}
+                                      onClick={() => handleOpenMedia({ type: 'image', url: replyAttachedImage })}
                                       className="cursor-pointer"
                                     >
                                       <img
@@ -1581,7 +2234,7 @@ export default function Grammar() {
                                       />
                                     </div>
                                     <button
-                                      onClick={() => { setReplyAttachedImage(null); setReplyAttachedImageName(''); }}
+                                      onClick={() => setReplyAttachedImage(null)}
                                       className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#b91c1c] text-white rounded-full flex items-center justify-center text-[10px]"
                                     >
                                       ✕
@@ -1591,10 +2244,10 @@ export default function Grammar() {
                                 {replyAttachedVideo && (
                                   <div className="relative group inline-block">
                                     <div
-                                      onClick={() => handleOpenMedia({ type: 'video', url: replyAttachedVideo, title: replyAttachedVideoName })}
+                                      onClick={() => handleOpenMedia({ type: 'video', url: replyAttachedVideo })}
                                       onMouseEnter={(e) => {
                                         const v = e.currentTarget.querySelector('video');
-                                        if (v) v.play().catch(() => {});
+                                        if (v) v.play().catch(() => { });
                                       }}
                                       onMouseLeave={(e) => {
                                         const v = e.currentTarget.querySelector('video');
@@ -1618,7 +2271,7 @@ export default function Grammar() {
                                       </div>
                                     </div>
                                     <button
-                                      onClick={() => { setReplyAttachedVideo(null); setReplyAttachedVideoName(''); }}
+                                      onClick={() => setReplyAttachedVideo(null)}
                                       className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#b91c1c] text-white rounded-full flex items-center justify-center text-[10px]"
                                     >
                                       ✕
@@ -1628,7 +2281,6 @@ export default function Grammar() {
                               </div>
                             )}
 
-                            {/* Popover Emoji của Reply */}
                             {showReplyEmoji && (
                               <div className="p-2 bg-white border border-[#e7e5e4] shadow-sm flex flex-wrap gap-1 max-w-sm">
                                 {EMOJI_LIST.map((emoji) => (
@@ -1644,7 +2296,6 @@ export default function Grammar() {
                               </div>
                             )}
 
-                            {/* Toolbar của Reply */}
                             <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                               <div className="flex items-center gap-1.5">
                                 <button
@@ -1706,7 +2357,7 @@ export default function Grammar() {
           </div>
         </div>
 
-        {/* ════════ CỘT PHẢI (4/12): PLAYLIST DANH SÁCH BÀI HỌC ════════ */}
+        {/* CỘT PHẢI (4/12): PLAYLIST TOÀN BỘ BÀI HỌC CỦA LEVEL */}
         <div className="lg:col-span-4 space-y-4">
           <div className="bg-white border border-[#e7e5e4] p-4 shadow-xs">
             <div className="flex items-center justify-between pb-3 border-b border-[#e7e5e4] mb-3">
@@ -1718,85 +2369,107 @@ export default function Grammar() {
                   {selectedLevel === 'N5' ? '25 Bài Minna no Nihongo I' : selectedLevel === 'N4' ? '25 Bài Minna no Nihongo II' : `Giáo trình Shinkanzen ${selectedLevel}`}
                 </h3>
               </div>
-              <span className="text-xs font-mono font-bold text-[#166534] bg-[#f0fdf4] px-2 py-1 border border-[#bbf7d0]">
-                1/25 Đạt
+              <span className="text-xs font-mono px-2 py-0.5 bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0] font-bold">
+                {lessons.filter(l => l.isPassed).length}/{lessons.length || (selectedLevel === 'N3' ? 30 : selectedLevel === 'N2' ? 26 : 25)} Đạt
               </span>
             </div>
 
-            <div className="space-y-2">
-              {LESSON_PLAYLIST_N5.map((lesson) => {
-                const isCurrent = lesson.id === selectedLessonId;
-                const isLocked = !lesson.isUnlocked;
+            {loadingLessons ? (
+              <div className="py-12 flex flex-col items-center justify-center text-zinc-400 gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-[#b91c1c]" />
+                <span className="text-xs font-mono">Đang tải danh sách bài học...</span>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[780px] overflow-y-auto pr-1 scrollbar-thin">
+                {lessons.map((lesson) => {
+                  const isSelected = lesson.id === currentLesson.id;
+                  const isUnlocked = isTeacher || lesson.isUnlocked !== false;
 
-                return (
-                  <div
-                    key={lesson.id}
-                    onClick={() => {
-                      if (!isLocked) {
+                  return (
+                    <div
+                      key={lesson.id}
+                      onClick={() => {
+                        if (!isUnlocked) {
+                          setLockedNotice(
+                            `Bài học số ${lesson.lessonNumber} hiện đang bị khóa! Bạn cần hoàn thành bài kiểm tra kiến thức của Bài trước đạt từ 85% trở lên (tối thiểu 17/20 câu đúng) để mở khóa bài học này.`
+                          );
+                          return;
+                        }
+                        setLockedNotice(null);
                         setSelectedLessonId(lesson.id);
-                        setActiveTimestamp(0);
-                      }
-                    }}
-                    className={`p-3 border transition-all text-left flex items-start justify-between gap-3 ${
-                      isCurrent
-                        ? 'border-[#b91c1c] bg-[#fef2f2] shadow-xs'
-                        : isLocked
-                        ? 'border-[#f5f5f4] bg-[#fafaf9] opacity-60 cursor-not-allowed'
-                        : 'border-[#e7e5e4] bg-white hover:border-[#a8a29e] cursor-pointer'
-                    }`}
-                  >
-                    <div className="flex items-start gap-2.5 min-w-0">
-                      <div
-                        className={`w-7 h-7 flex items-center justify-center font-mono text-xs font-bold shrink-0 border ${
-                          isCurrent
-                            ? 'bg-[#b91c1c] text-white border-[#b91c1c]'
-                            : lesson.isPassed
-                            ? 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]'
-                            : isLocked
-                            ? 'bg-[#e7e5e4] text-[#78716c] border-[#d6d3d1]'
-                            : 'bg-white text-[#1c1917] border-[#e7e5e4]'
+                        try {
+                          localStorage.setItem(
+                            'grammar_last_active_lesson',
+                            JSON.stringify({
+                              lessonId: lesson.id,
+                              levelCode: selectedLevel,
+                              updatedAt: Date.now()
+                            })
+                          );
+                        } catch (e) { }
+                      }}
+                      className={`p-3 border transition-all flex items-start justify-between gap-3 ${!isUnlocked
+                          ? 'bg-[#f5f5f4]/80 border-[#e7e5e4] opacity-65 cursor-not-allowed'
+                          : isSelected
+                            ? 'bg-[#fef2f2] border-[#b91c1c] shadow-2xs ring-1 ring-[#b91c1c]/20 cursor-pointer'
+                            : 'bg-white border-[#e7e5e4] hover:border-[#a8a29e] hover:shadow-2xs cursor-pointer'
                         }`}
-                      >
-                        {lesson.lessonNumber < 10 ? `0${lesson.lessonNumber}` : lesson.lessonNumber}
+                      title={!isUnlocked ? `Bài ${lesson.lessonNumber} đang bị khóa. Cần đạt >= 85% bài kiểm tra trước đó để mở khóa!` : undefined}
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <span className={`w-6 h-6 rounded-xs flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5 ${!isUnlocked
+                            ? 'bg-[#e7e5e4] text-[#a8a29e]'
+                            : isSelected
+                              ? 'bg-[#b91c1c] text-white'
+                              : lesson.isPassed
+                                ? 'bg-[#166534] text-white'
+                                : 'bg-[#f5f5f4] text-[#78716c]'
+                          }`}>
+                          {!isUnlocked ? <Lock className="w-3 h-3 text-[#78716c]" /> : String(lesson.sortOrder).padStart(2, '0')}
+                        </span>
+                        <div className="space-y-0.5">
+                          <h4 className={`text-xs font-medium leading-snug line-clamp-2 ${!isUnlocked ? 'text-[#a8a29e]' : isSelected ? 'text-[#b91c1c] font-bold' : 'text-[#1c1917]'
+                            }`}>
+                            {lesson.titleVi}
+                          </h4>
+                          <div className="flex items-center gap-2 text-[10px] text-[#78716c] font-mono">
+                            <span>⏱️ {lesson.durationStr}</span>
+                            {lesson.highestScore > 0 && (
+                              <span className="text-[#166534] font-bold">• {lesson.highestScore}%</span>
+                            )}
+                            {lesson.starsEarned > 0 && (
+                              <span className="text-amber-500 font-bold">
+                                {'★'.repeat(lesson.starsEarned)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="min-w-0">
-                        <div className="font-serif font-bold text-xs text-[#1c1917] truncate">
-                          {lesson.titleVi}
-                        </div>
-                        <div className="text-[11px] text-[#78716c] font-mono mt-0.5 flex items-center gap-2">
-                          <span>⏱️ {lesson.duration}</span>
-                          {lesson.score && (
-                            <span className="text-[#166534] font-bold">• {lesson.score}%</span>
-                          )}
-                        </div>
+                      <div className="shrink-0 mt-1">
+                        {!isUnlocked ? (
+                          <Lock className="w-3.5 h-3.5 text-[#a8a29e]" />
+                        ) : lesson.isPassed ? (
+                          <CheckCircle2 className="w-4 h-4 text-[#166534]" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-[#a8a29e]" />
+                        )}
                       </div>
                     </div>
-
-                    <div className="shrink-0 mt-1">
-                      {isLocked ? (
-                        <Lock className="w-4 h-4 text-[#a8a29e]" />
-                      ) : lesson.isPassed ? (
-                        <CheckCircle2 className="w-4 h-4 text-[#166534]" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-[#a8a29e]" />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ════════ FACEBOOK-STYLE LIGHTBOX PORTAL (PHÓNG TO ẢNH & VIDEO TRỰC TIẾP TRÊN BODY) ════════ */}
+      {/* FACEBOOK-STYLE LIGHTBOX PORTAL */}
       {activeLightboxMedia && createPortal(
         <div
           className="fixed inset-0 z-[99999] bg-black/95 flex items-center justify-center p-3 sm:p-6 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setActiveLightboxMedia(null)}
         >
-          {/* Nút đóng ở góc trên bên phải */}
           <button
             onClick={() => setActiveLightboxMedia(null)}
             className="absolute top-4 right-4 z-[100000] w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-2xl border border-white/20 hover:scale-105"
@@ -1813,10 +2486,9 @@ export default function Grammar() {
               <div className="flex flex-col items-center max-w-full max-h-[85vh]">
                 <img
                   src={activeLightboxMedia.url}
-                  alt={activeLightboxMedia.title || 'Xem ảnh phóng to'}
+                  alt="Xem ảnh phóng to"
                   className="max-w-full max-h-[82vh] object-contain rounded shadow-2xl bg-black"
                 />
-
               </div>
             ) : (
               <div className="w-full max-w-4xl flex flex-col items-center">
@@ -1829,9 +2501,80 @@ export default function Grammar() {
                     className="w-full h-full object-contain"
                   />
                 </div>
-
               </div>
             )}
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* NIPPONMASTER CUSTOM CONFIRMATION MODAL KHI XÓA COMMENT */}
+      {deleteConfirmTarget && createPortal(
+        <div
+          className="fixed inset-0 z-[99999] bg-black/65 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => !isDeletingComment && setDeleteConfirmTarget(null)}
+        >
+          <div
+            className="bg-white border-2 border-[#1c1917] p-5 sm:p-6 max-w-sm sm:max-w-md w-full shadow-2xl relative text-left animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              disabled={isDeletingComment}
+              onClick={() => setDeleteConfirmTarget(null)}
+              className="absolute top-3.5 right-3.5 text-[#78716c] hover:text-[#1c1917] p-1 transition-colors cursor-pointer disabled:opacity-50"
+              title="Đóng (Esc)"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-start gap-3.5 mb-4">
+              <div className="w-10 h-10 rounded-full bg-[#fef2f2] border border-[#fecaca] text-[#b91c1c] flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="space-y-1 pr-4">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#b91c1c] block">
+                  NIPPONMASTER
+                </span>
+                <h3 className="font-serif font-bold text-base text-[#1c1917] leading-snug">
+                  Xác nhận xóa comment
+                </h3>
+                <p className="text-xs text-[#57534e] mt-2 leading-relaxed">
+                  {deleteConfirmTarget.isReply
+                    ? 'Bạn có chắc chắn muốn xóa câu trả lời này không? Hành động này không thể hoàn tác.'
+                    : 'Bạn có chắc chắn muốn xóa comment này không? Tất cả các câu trả lời bên dưới cũng sẽ bị xóa theo.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e7e5e4]">
+              <button
+                type="button"
+                disabled={isDeletingComment}
+                onClick={() => setDeleteConfirmTarget(null)}
+                className="px-4 py-2 text-xs font-mono font-medium text-[#57534e] hover:text-[#1c1917] hover:bg-[#f5f5f4] border border-[#d6d3d1] transition-all cursor-pointer disabled:opacity-50"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingComment}
+                onClick={executeDeleteDiscussion}
+                className="px-4 py-2 text-xs font-mono font-bold bg-[#b91c1c] hover:bg-[#991b1b] text-white transition-all shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+              >
+                {isDeletingComment ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Đang xóa...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Xóa comment</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>,
         document.body

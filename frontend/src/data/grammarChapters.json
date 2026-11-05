@@ -1,0 +1,6960 @@
+{
+  "YBI4nM5HC4c": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 179,
+      "timeStr": "02:59",
+      "title": "Giới thiệu câu Danh từ",
+      "pattern": "Giới thiệu câu Danh từ",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 273,
+      "timeStr": "04:33",
+      "title": "Cách xưng hô trong tiếng Nhật",
+      "pattern": "Cách xưng hô trong tiếng Nhật",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 778,
+      "timeStr": "12:58",
+      "title": "Câu khẳng định",
+      "pattern": "Câu khẳng định",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2203,
+      "timeStr": "36:43",
+      "title": "Câu phủ định",
+      "pattern": "Câu phủ định",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 3108,
+      "timeStr": "51:48",
+      "title": "Câu nghi vấn",
+      "pattern": "Câu nghi vấn",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 4779,
+      "timeStr": "1:19:39",
+      "title": "Câu hỏi có từ để hỏi",
+      "pattern": "Câu hỏi có từ để hỏi",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 5405,
+      "timeStr": "1:30:05",
+      "title": "Trợ từ も",
+      "pattern": "Trợ từ も",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 5866,
+      "timeStr": "1:37:46",
+      "title": "NのN",
+      "pattern": "NのN",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 6502,
+      "timeStr": "1:48:22",
+      "title": "Luyện tập tổng hợp",
+      "pattern": "Luyện tập tổng hợp",
+      "sortOrder": 10
+    }
+  ],
+  "8GaOeIUHvfc": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 68,
+      "timeStr": "01:08",
+      "title": "これ、それ、あれ",
+      "pattern": "これ、それ、あれ",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 813,
+      "timeStr": "13:33",
+      "title": "これ、それ、あれ trong câu khẳng định",
+      "pattern": "これ、それ、あれ trong câu khẳng định",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1178,
+      "timeStr": "19:38",
+      "title": "これ、それ、あれ trong câu phủ định",
+      "pattern": "これ、それ、あれ trong câu phủ định",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1457,
+      "timeStr": "24:17",
+      "title": "これ、それ、あれ trong câu hỏi không có từ để hỏi",
+      "pattern": "これ、それ、あれ trong câu hỏi không có từ để hỏi",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1951,
+      "timeStr": "32:31",
+      "title": "これ、それ、あれ trong câu hỏi chứa từ để hỏi",
+      "pattern": "これ、それ、あれ trong câu hỏi chứa từ để hỏi",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2325,
+      "timeStr": "38:45",
+      "title": "この、その、あの",
+      "pattern": "この、その、あの",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3055,
+      "timeStr": "50:55",
+      "title": "N1 の N2",
+      "pattern": "N1 の N2",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 4071,
+      "timeStr": "1:07:51",
+      "title": "N1 の N2 trong câu phủ định",
+      "pattern": "N1 の N2 trong câu phủ định",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 4518,
+      "timeStr": "1:15:18",
+      "title": "N1 の N2 trong câu hỏi không có từ để hỏi",
+      "pattern": "N1 の N2 trong câu hỏi không có từ để hỏi",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 4845,
+      "timeStr": "1:20:45",
+      "title": "N1 の N2 trong câu hỏi chứ từ để hỏi",
+      "pattern": "N1 の N2 trong câu hỏi chứ từ để hỏi",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 5470,
+      "timeStr": "1:31:10",
+      "title": "N1ですか、 N2ですか。",
+      "pattern": "N1ですか、 N2ですか。",
+      "sortOrder": 12
+    },
+    {
+      "id": 13,
+      "timeSec": 5740,
+      "timeStr": "1:35:40",
+      "title": "そうですか",
+      "pattern": "そうですか",
+      "sortOrder": 13
+    },
+    {
+      "id": 14,
+      "timeSec": 6094,
+      "timeStr": "1:41:34",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 14
+    }
+  ],
+  "6tn9uUphZx4": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 229,
+      "timeStr": "03:49",
+      "title": "ここ、そこ、あそこ、こちら、そちら、あちら",
+      "pattern": "ここ、そこ、あそこ、こちら、そちら、あちら",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1070,
+      "timeStr": "17:50",
+      "title": "ここ、そこ、あそこ、こちら、そちら、あちら ＋ N địa điểmです。",
+      "pattern": "ここ、そこ、あそこ、こちら、そちら、あちら ＋ N địa điểmです。",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1697,
+      "timeStr": "28:17",
+      "title": "N は どこ・どちらですか。",
+      "pattern": "N は どこ・どちらですか。",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2293,
+      "timeStr": "38:13",
+      "title": "N1は N (địa điểm)です。",
+      "pattern": "N1は N (địa điểm)です。",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2852,
+      "timeStr": "47:32",
+      "title": "どこのNですか。",
+      "pattern": "どこのNですか。",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 3899,
+      "timeStr": "1:04:59",
+      "title": "Aはどちら・どこですか。",
+      "pattern": "Aはどちら・どこですか。",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 4515,
+      "timeStr": "1:15:15",
+      "title": "いくら",
+      "pattern": "いくら",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 4878,
+      "timeStr": "1:21:18",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 9
+    }
+  ],
+  "eUlvDkLF78I": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 152,
+      "timeStr": "02:32",
+      "title": "Cách đếm giờ",
+      "pattern": "Cách đếm giờ",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1045,
+      "timeStr": "17:25",
+      "title": "Một số lưu ý",
+      "pattern": "Một số lưu ý",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1408,
+      "timeStr": "23:28",
+      "title": "Cách hỏi giờ",
+      "pattern": "Cách hỏi giờ",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2074,
+      "timeStr": "34:34",
+      "title": "Động từ thể ます",
+      "pattern": "Động từ thể ます",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2494,
+      "timeStr": "41:34",
+      "title": "Cách chia động từ thể ます",
+      "pattern": "Cách chia động từ thể ます",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 3847,
+      "timeStr": "1:04:07",
+      "title": "Câu khẳng định ＳはＶます。",
+      "pattern": "Câu khẳng định ＳはＶます。",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 4205,
+      "timeStr": "1:10:05",
+      "title": "Câu phủ định ＳはＶません。",
+      "pattern": "Câu phủ định ＳはＶません。",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 4513,
+      "timeStr": "1:15:13",
+      "title": "Câu nghi vấn ＳはＶますか。",
+      "pattern": "Câu nghi vấn ＳはＶますか。",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 4994,
+      "timeStr": "1:23:14",
+      "title": "N thời gian (に）",
+      "pattern": "N thời gian (に）",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 5666,
+      "timeStr": "1:34:26",
+      "title": "何時に",
+      "pattern": "何時に",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 5870,
+      "timeStr": "1:37:50",
+      "title": "から～まで",
+      "pattern": "から～まで",
+      "sortOrder": 12
+    },
+    {
+      "id": 13,
+      "timeSec": 6198,
+      "timeStr": "1:43:18",
+      "title": "N1とN2",
+      "pattern": "N1とN2",
+      "sortOrder": 13
+    },
+    {
+      "id": 14,
+      "timeSec": 6427,
+      "timeStr": "1:47:07",
+      "title": "Luyện tập tổng hợp",
+      "pattern": "Luyện tập tổng hợp",
+      "sortOrder": 14
+    }
+  ],
+  "bNfsfokfcfY": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 120,
+      "timeStr": "02:00",
+      "title": "Địa điểm へV di chuyển",
+      "pattern": "Địa điểm へV di chuyển",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 296,
+      "timeStr": "04:56",
+      "title": "Địa điểm へ 行きます",
+      "pattern": "Địa điểm へ 行きます",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1010,
+      "timeStr": "16:50",
+      "title": "Địa điểm へ 来ます",
+      "pattern": "Địa điểm へ 来ます",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1644,
+      "timeStr": "27:24",
+      "title": "Địa điểm へ 帰ります",
+      "pattern": "Địa điểm へ 帰ります",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2226,
+      "timeStr": "37:06",
+      "title": "Từ để hỏi どこ",
+      "pattern": "Từ để hỏi どこ",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2686,
+      "timeStr": "44:46",
+      "title": "どこも行きません・行きませんでした。",
+      "pattern": "どこも行きません・行きませんでした。",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3017,
+      "timeStr": "50:17",
+      "title": "Từ để hỏi なんで",
+      "pattern": "Từ để hỏi なんで",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3122,
+      "timeStr": "52:02",
+      "title": "Phương tiện で＋V di chuyển",
+      "pattern": "Phương tiện で＋V di chuyển",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 3468,
+      "timeStr": "57:48",
+      "title": "Phương tiện で Địa điểm へ V di chuyển。",
+      "pattern": "Phương tiện で Địa điểm へ V di chuyển。",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 4083,
+      "timeStr": "1:08:03",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 4530,
+      "timeStr": "1:15:30",
+      "title": "N (người/ động vật)と＋Ｖdi chuyển。",
+      "pattern": "N (người/ động vật)と＋Ｖdi chuyển。",
+      "sortOrder": 12
+    },
+    {
+      "id": 13,
+      "timeSec": 4937,
+      "timeStr": "1:22:17",
+      "title": "Nと phương tiệnで địa điểm へ V di chuyển",
+      "pattern": "Nと phương tiệnで địa điểm へ V di chuyển",
+      "sortOrder": 13
+    },
+    {
+      "id": 14,
+      "timeSec": 5768,
+      "timeStr": "1:36:08",
+      "title": "Từ để hỏi いつ",
+      "pattern": "Từ để hỏi いつ",
+      "sortOrder": 14
+    },
+    {
+      "id": 15,
+      "timeSec": 6300,
+      "timeStr": "1:45:00",
+      "title": "Tổng hợp",
+      "pattern": "Tổng hợp",
+      "sortOrder": 15
+    }
+  ],
+  "EcMPO0vFGU8": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 99,
+      "timeStr": "01:39",
+      "title": "NをVます",
+      "pattern": "NをVます",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 550,
+      "timeStr": "09:10",
+      "title": "Câu khẳng định",
+      "pattern": "Câu khẳng định",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1118,
+      "timeStr": "18:38",
+      "title": "Câu phủ định",
+      "pattern": "Câu phủ định",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1462,
+      "timeStr": "24:22",
+      "title": "Câu hỏi",
+      "pattern": "Câu hỏi",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2040,
+      "timeStr": "34:00",
+      "title": "Câu hỏi có từ để hỏi",
+      "pattern": "Câu hỏi có từ để hỏi",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2476,
+      "timeStr": "41:16",
+      "title": "Nをします",
+      "pattern": "Nをします",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 2957,
+      "timeStr": "49:17",
+      "title": "なんーなに",
+      "pattern": "なんーなに",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3251,
+      "timeStr": "54:11",
+      "title": "Phủ định hoàn toàn",
+      "pattern": "Phủ định hoàn toàn",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 3469,
+      "timeStr": "57:49",
+      "title": "N địa điểm で Ｖます。",
+      "pattern": "N địa điểm で Ｖます。",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 3837,
+      "timeStr": "1:03:57",
+      "title": "どこでＶますか。",
+      "pattern": "どこでＶますか。",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 4364,
+      "timeStr": "1:12:44",
+      "title": "Vませんか。",
+      "pattern": "Vませんか。",
+      "sortOrder": 12
+    },
+    {
+      "id": 13,
+      "timeSec": 4950,
+      "timeStr": "1:22:30",
+      "title": "Vましょう。",
+      "pattern": "Vましょう。",
+      "sortOrder": 13
+    },
+    {
+      "id": 14,
+      "timeSec": 5316,
+      "timeStr": "1:28:36",
+      "title": "か",
+      "pattern": "か",
+      "sortOrder": 14
+    },
+    {
+      "id": 15,
+      "timeSec": 5714,
+      "timeStr": "1:35:14",
+      "title": "Cùng đặt câu nhé!",
+      "pattern": "Cùng đặt câu nhé!",
+      "sortOrder": 15
+    }
+  ],
+  "xpCIReYtPYA": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Giới thiệu",
+      "pattern": "Giới thiệu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 197,
+      "timeStr": "03:17",
+      "title": "N công cụ で Vます",
+      "pattern": "N công cụ で Vます",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 931,
+      "timeStr": "15:31",
+      "title": "Câu nghi vấn",
+      "pattern": "Câu nghi vấn",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1543,
+      "timeStr": "25:43",
+      "title": "[Từ/ câu] は ngôn ngữ でなんですか。",
+      "pattern": "[Từ/ câu] は ngôn ngữ でなんですか。",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1935,
+      "timeStr": "32:15",
+      "title": "CHO - NHẬN",
+      "pattern": "CHO - NHẬN",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2062,
+      "timeStr": "34:22",
+      "title": "CTNP CHO: A は B に N を V(cho)",
+      "pattern": "CTNP CHO: A は B に N を V(cho)",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2852,
+      "timeStr": "47:32",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3338,
+      "timeStr": "55:38",
+      "title": "Câu nghi vấn A は だれに N を V(cho) か。",
+      "pattern": "Câu nghi vấn A は だれに N を V(cho) か。",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3736,
+      "timeStr": "1:02:16",
+      "title": "Câu nghi vấn A は B に なに を V(cho) か。",
+      "pattern": "Câu nghi vấn A は B に なに を V(cho) か。",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 4127,
+      "timeStr": "1:08:47",
+      "title": "Luyện tập câu nghi vấn",
+      "pattern": "Luyện tập câu nghi vấn",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 4389,
+      "timeStr": "1:13:09",
+      "title": "CTNP NHẬN: B は A に N に V(nhận)",
+      "pattern": "CTNP NHẬN: B は A に N に V(nhận)",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 4888,
+      "timeStr": "1:21:28",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 12
+    },
+    {
+      "id": 13,
+      "timeSec": 5332,
+      "timeStr": "1:28:52",
+      "title": "Câu nghi vấn: B は だれに N をV(nhận)か。",
+      "pattern": "Câu nghi vấn: B は だれに N をV(nhận)か。",
+      "sortOrder": 13
+    },
+    {
+      "id": 14,
+      "timeSec": 5641,
+      "timeStr": "1:34:01",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 14
+    },
+    {
+      "id": 15,
+      "timeSec": 5868,
+      "timeStr": "1:37:48",
+      "title": "もう Vましたか。",
+      "pattern": "もう Vましたか。",
+      "sortOrder": 15
+    }
+  ],
+  "Vue8Wms6lzM": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 155,
+      "timeStr": "02:35",
+      "title": "Tính từ là gì?",
+      "pattern": "Tính từ là gì?",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1336,
+      "timeStr": "22:16",
+      "title": "Thể khẳng định của tính từ",
+      "pattern": "Thể khẳng định của tính từ",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 2229,
+      "timeStr": "37:09",
+      "title": "Thể phủ định của tính từ",
+      "pattern": "Thể phủ định của tính từ",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 3221,
+      "timeStr": "53:41",
+      "title": "Tổng hợp cách biến đổi của tính từ",
+      "pattern": "Tổng hợp cách biến đổi của tính từ",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 3447,
+      "timeStr": "57:27",
+      "title": "Câu nghi vấn của tính từ",
+      "pattern": "Câu nghi vấn của tính từ",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 4261,
+      "timeStr": "1:11:01",
+      "title": "Tính từ bổ nghĩa cho danh từ Aい・Aな + N",
+      "pattern": "Tính từ bổ nghĩa cho danh từ Aい・Aな + N",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 5340,
+      "timeStr": "1:29:00",
+      "title": "S は どうですか。",
+      "pattern": "S は どうですか。",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 5940,
+      "timeStr": "1:39:00",
+      "title": "(S は) どんな N ですか。",
+      "pattern": "(S は) どんな N ですか。",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 6629,
+      "timeStr": "1:50:29",
+      "title": "Câu 1 が、câu 2。",
+      "pattern": "Câu 1 が、câu 2。",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 6863,
+      "timeStr": "1:54:23",
+      "title": "Câu 1。そして câu 2.",
+      "pattern": "Câu 1。そして câu 2.",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 7322,
+      "timeStr": "2:02:02",
+      "title": "そうですね 。Đúng vậy nhỉ!",
+      "pattern": "そうですね 。Đúng vậy nhỉ!",
+      "sortOrder": 12
+    }
+  ],
+  "Aq-r3hKzkcw": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 78,
+      "timeStr": "01:18",
+      "title": "N が すきです。・きらいです。",
+      "pattern": "N が すきです。・きらいです。",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 936,
+      "timeStr": "15:36",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1191,
+      "timeStr": "19:51",
+      "title": "Câu phủ định N が すき じゃありません。",
+      "pattern": "Câu phủ định N が すき じゃありません。",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1937,
+      "timeStr": "32:17",
+      "title": "Câu hỏi chứ từ để hỏi",
+      "pattern": "Câu hỏi chứ từ để hỏi",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2152,
+      "timeStr": "35:52",
+      "title": "どんな N",
+      "pattern": "どんな N",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2968,
+      "timeStr": "49:28",
+      "title": "N が じょうずです。・へたです。",
+      "pattern": "N が じょうずです。・へたです。",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3378,
+      "timeStr": "56:18",
+      "title": "Câu phủ định N が じょうず じゃありません。",
+      "pattern": "Câu phủ định N が じょうず じゃありません。",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3870,
+      "timeStr": "1:04:30",
+      "title": "N が あります・わかります。",
+      "pattern": "N が あります・わかります。",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 4385,
+      "timeStr": "1:13:05",
+      "title": "N が ありません。",
+      "pattern": "N が ありません。",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 4820,
+      "timeStr": "1:20:20",
+      "title": "Phó từ chỉ số lượng",
+      "pattern": "Phó từ chỉ số lượng",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 5403,
+      "timeStr": "1:30:03",
+      "title": "N が わかります。",
+      "pattern": "N が わかります。",
+      "sortOrder": 12
+    },
+    {
+      "id": 13,
+      "timeSec": 5550,
+      "timeStr": "1:32:30",
+      "title": "N が わかりません。",
+      "pattern": "N が わかりません。",
+      "sortOrder": 13
+    },
+    {
+      "id": 14,
+      "timeSec": 5656,
+      "timeStr": "1:34:16",
+      "title": "N が わかりますか。",
+      "pattern": "N が わかりますか。",
+      "sortOrder": 14
+    },
+    {
+      "id": 15,
+      "timeSec": 5799,
+      "timeStr": "1:36:39",
+      "title": "Phó từ chỉ mức độ",
+      "pattern": "Phó từ chỉ mức độ",
+      "sortOrder": 15
+    },
+    {
+      "id": 16,
+      "timeSec": 6480,
+      "timeStr": "1:48:00",
+      "title": "Vế 1 から、vế 2。",
+      "pattern": "Vế 1 から、vế 2。",
+      "sortOrder": 16
+    },
+    {
+      "id": 17,
+      "timeSec": 7009,
+      "timeStr": "1:56:49",
+      "title": "どうして",
+      "pattern": "どうして",
+      "sortOrder": 17
+    }
+  ],
+  "Wxypr-m5QhM": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 110,
+      "timeStr": "01:50",
+      "title": "N が あります。",
+      "pattern": "N が あります。",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 413,
+      "timeStr": "06:53",
+      "title": "N が います。",
+      "pattern": "N が います。",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 838,
+      "timeStr": "13:58",
+      "title": "N đđ に Ｎ1 が あります／います。",
+      "pattern": "N đđ に Ｎ1 が あります／います。",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1381,
+      "timeStr": "23:01",
+      "title": "Câu hỏi (có từ để hỏi)",
+      "pattern": "Câu hỏi (có từ để hỏi)",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1465,
+      "timeStr": "24:25",
+      "title": "なに Hỏi cho vật",
+      "pattern": "なに Hỏi cho vật",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 1614,
+      "timeStr": "26:54",
+      "title": "だれ Hỏi cho người",
+      "pattern": "だれ Hỏi cho người",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 1784,
+      "timeStr": "29:44",
+      "title": "Nđđ に なに もありません",
+      "pattern": "Nđđ に なに もありません",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 1969,
+      "timeStr": "32:49",
+      "title": "N1 は Nđđ にあります・います",
+      "pattern": "N1 は Nđđ にあります・います",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 2406,
+      "timeStr": "40:06",
+      "title": "Câu hỏi どこ",
+      "pattern": "Câu hỏi どこ",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 2755,
+      "timeStr": "45:55",
+      "title": "Cụm danh từ chỉ vị trí: N1 (vật/người/đđ) の N2(vị trí)",
+      "pattern": "Cụm danh từ chỉ vị trí: N1 (vật/người/đđ) の N2(vị trí)",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 3800,
+      "timeStr": "1:03:20",
+      "title": "N1やN2",
+      "pattern": "N1やN2",
+      "sortOrder": 12
+    },
+    {
+      "id": 13,
+      "timeSec": 4165,
+      "timeStr": "1:09:25",
+      "title": "Nですか。",
+      "pattern": "Nですか。",
+      "sortOrder": 13
+    },
+    {
+      "id": 14,
+      "timeSec": 4366,
+      "timeStr": "1:12:46",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 14
+    }
+  ],
+  "v9LKjDu35zI": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 67,
+      "timeStr": "01:07",
+      "title": "Lượng từ",
+      "pattern": "Lượng từ",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1130,
+      "timeStr": "18:50",
+      "title": "N + Trợ từ + Lượng từ + V",
+      "pattern": "N + Trợ từ + Lượng từ + V",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1925,
+      "timeStr": "32:05",
+      "title": "N を Lượng từ + ください。",
+      "pattern": "N を Lượng từ + ください。",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2623,
+      "timeStr": "43:43",
+      "title": "Câu hỏi có từ để hỏi",
+      "pattern": "Câu hỏi có từ để hỏi",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 3591,
+      "timeStr": "59:51",
+      "title": "ぐらい",
+      "pattern": "ぐらい",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 3795,
+      "timeStr": "1:03:15",
+      "title": "N1 trợ từ + LT1 と N2 trợ từ + LT2 V。",
+      "pattern": "N1 trợ từ + LT1 と N2 trợ từ + LT2 V。",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 4477,
+      "timeStr": "1:14:37",
+      "title": "Khoảng thời gian に ～かい Vます。",
+      "pattern": "Khoảng thời gian に ～かい Vます。",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 4997,
+      "timeStr": "1:23:17",
+      "title": "だけ",
+      "pattern": "だけ",
+      "sortOrder": 9
+    }
+  ],
+  "K8YBRVsQCyU": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 112,
+      "timeStr": "01:52",
+      "title": "Quá khứ của tính từ và danh từ",
+      "pattern": "Quá khứ của tính từ và danh từ",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1653,
+      "timeStr": "27:33",
+      "title": "Quá khứ của tính từ đuôi「い」",
+      "pattern": "Quá khứ của tính từ đuôi「い」",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 2380,
+      "timeStr": "39:40",
+      "title": "Thể phủ định",
+      "pattern": "Thể phủ định",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 3928,
+      "timeStr": "1:05:28",
+      "title": "So sánh tính từ",
+      "pattern": "So sánh tính từ",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 4488,
+      "timeStr": "1:14:48",
+      "title": "So sánh lựa chọn",
+      "pattern": "So sánh lựa chọn",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 5192,
+      "timeStr": "1:26:32",
+      "title": "So sánh hơn nhất",
+      "pattern": "So sánh hơn nhất",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 6082,
+      "timeStr": "1:41:22",
+      "title": "Tính từ ＋の",
+      "pattern": "Tính từ ＋の",
+      "sortOrder": 8
+    }
+  ],
+  "9No9ipFAe7A": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 112,
+      "timeStr": "01:52",
+      "title": "N が ほしいです。",
+      "pattern": "N が ほしいです。",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 964,
+      "timeStr": "16:04",
+      "title": "Từ để hỏi が ほしですか。",
+      "pattern": "Từ để hỏi が ほしですか。",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1346,
+      "timeStr": "22:26",
+      "title": "Động từ thể [ます]＋たい",
+      "pattern": "Động từ thể [ます]＋たい",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1594,
+      "timeStr": "26:34",
+      "title": "Vたいです。",
+      "pattern": "Vたいです。",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2290,
+      "timeStr": "38:10",
+      "title": "Từ để hỏi +Vたいですか。",
+      "pattern": "Từ để hỏi +Vたいですか。",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2909,
+      "timeStr": "48:29",
+      "title": "N đđ へ V [ます]・Ｎ に V di chuyển。",
+      "pattern": "N đđ へ V [ます]・Ｎ に V di chuyển。",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 4083,
+      "timeStr": "1:08:03",
+      "title": "Câu hỏi có từ để hỏi",
+      "pattern": "Câu hỏi có từ để hỏi",
+      "sortOrder": 8
+    }
+  ],
+  "Aagd7lfJCVg": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 909,
+      "timeStr": "15:09",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Thể Te [て] & Yêu cầu lịch sự [",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 2425,
+      "timeStr": "40:25",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 3940,
+      "timeStr": "1:05:40",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 5153,
+      "timeStr": "1:25:53",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "TeLwIYPaKiA": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 98,
+      "timeStr": "01:38",
+      "title": "Vてもいいですか。",
+      "pattern": "Vてもいいですか。",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1042,
+      "timeStr": "17:22",
+      "title": "Câu khẳng định Vてもいいです。",
+      "pattern": "Câu khẳng định Vてもいいです。",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1448,
+      "timeStr": "24:08",
+      "title": "Vてはいけません。",
+      "pattern": "Vてはいけません。",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2110,
+      "timeStr": "35:10",
+      "title": "Quá khứ tiếp diễn Vています。",
+      "pattern": "Quá khứ tiếp diễn Vています。",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2750,
+      "timeStr": "45:50",
+      "title": "Câu phủ định",
+      "pattern": "Câu phủ định",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 3042,
+      "timeStr": "50:42",
+      "title": "Vています Thói quen, tập quán",
+      "pattern": "Vています Thói quen, tập quán",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3542,
+      "timeStr": "59:02",
+      "title": "入ります・のります",
+      "pattern": "入ります・のります",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3808,
+      "timeStr": "1:03:28",
+      "title": "Nđđ に N を V。",
+      "pattern": "Nđđ に N を V。",
+      "sortOrder": 9
+    }
+  ],
+  "eY-bkEnUlMs": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 83,
+      "timeStr": "01:23",
+      "title": "Nối câu trong tiếng Nhật: Động từ thể て",
+      "pattern": "Nối câu trong tiếng Nhật: Động từ thể て",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1271,
+      "timeStr": "21:11",
+      "title": "Nối câu Tính từ",
+      "pattern": "Nối câu Tính từ",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1482,
+      "timeStr": "24:42",
+      "title": "Nối câu Tính từ đuôi い",
+      "pattern": "Nối câu Tính từ đuôi い",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1905,
+      "timeStr": "31:45",
+      "title": "Nối câu tính từ đuôi な",
+      "pattern": "Nối câu tính từ đuôi な",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2597,
+      "timeStr": "43:17",
+      "title": "Nối tính từ có tính chất trái ngược (S は) A1 ですが、A2 です。",
+      "pattern": "Nối tính từ có tính chất trái ngược (S は) A1 ですが、A2 です。",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2943,
+      "timeStr": "49:03",
+      "title": "Nối câu danh từ",
+      "pattern": "Nối câu danh từ",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3275,
+      "timeStr": "54:35",
+      "title": "Miêu tả một bộ phận của đối tượng S は N が A です。",
+      "pattern": "Miêu tả một bộ phận của đối tượng S は N が A です。",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3540,
+      "timeStr": "59:00",
+      "title": "V1てから、V2。",
+      "pattern": "V1てから、V2。",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 3988,
+      "timeStr": "1:06:28",
+      "title": "NをVます Ra khỏi một địa điểm",
+      "pattern": "NをVます Ra khỏi một địa điểm",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 4281,
+      "timeStr": "1:11:21",
+      "title": "N phương tiện を おります。",
+      "pattern": "N phương tiện を おります。",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 4420,
+      "timeStr": "1:13:40",
+      "title": "どうやって",
+      "pattern": "どうやって",
+      "sortOrder": 12
+    }
+  ],
+  "8q5OEcOL_oo": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 80,
+      "timeStr": "01:20",
+      "title": "Vない Không làm V",
+      "pattern": "Vない Không làm V",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 557,
+      "timeStr": "09:17",
+      "title": "Cách chia thể Vない",
+      "pattern": "Cách chia thể Vない",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 2043,
+      "timeStr": "34:03",
+      "title": "Vないでください Xin đừng làm V",
+      "pattern": "Vないでください Xin đừng làm V",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2558,
+      "timeStr": "42:38",
+      "title": "Vなければなりません",
+      "pattern": "Vなければなりません",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 3257,
+      "timeStr": "54:17",
+      "title": "Vなくてもいいです。 Không cần làm V",
+      "pattern": "Vなくてもいいです。 Không cần làm V",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 3927,
+      "timeStr": "1:05:27",
+      "title": "Ｎ は ～Ｖ",
+      "pattern": "Ｎ は ～Ｖ",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 4242,
+      "timeStr": "1:10:42",
+      "title": "Mốc thời gian + までに Hạn chót là...",
+      "pattern": "Mốc thời gian + までに Hạn chót là...",
+      "sortOrder": 8
+    }
+  ],
+  "Ud1BsWWi9Jg": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 112,
+      "timeStr": "01:52",
+      "title": "Thể nguyên dạng của động từ Vる",
+      "pattern": "Thể nguyên dạng của động từ Vる",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1401,
+      "timeStr": "23:21",
+      "title": "N・Vることができます",
+      "pattern": "N・Vることができます",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1643,
+      "timeStr": "27:23",
+      "title": "S は N が できます (Trường hợp của danh từ)",
+      "pattern": "S は N が できます (Trường hợp của danh từ)",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2354,
+      "timeStr": "39:14",
+      "title": "S は Vる こと が できます (Trường hợp của danh từ)",
+      "pattern": "S は Vる こと が できます (Trường hợp của danh từ)",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2843,
+      "timeStr": "47:23",
+      "title": "しゅみ Sở thích",
+      "pattern": "しゅみ Sở thích",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 3325,
+      "timeStr": "55:25",
+      "title": "しゅみは何ですか。",
+      "pattern": "しゅみは何ですか。",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3580,
+      "timeStr": "59:40",
+      "title": "V1 まえに V2",
+      "pattern": "V1 まえに V2",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 4160,
+      "timeStr": "1:09:20",
+      "title": "N のまえに V",
+      "pattern": "N のまえに V",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 4437,
+      "timeStr": "1:13:57",
+      "title": "N ktg まえに V",
+      "pattern": "N ktg まえに V",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 4711,
+      "timeStr": "1:18:31",
+      "title": "なかなかＶません",
+      "pattern": "なかなかＶません",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 5032,
+      "timeStr": "1:23:52",
+      "title": "なかなかＶること が できません",
+      "pattern": "なかなかＶること が できません",
+      "sortOrder": 12
+    }
+  ],
+  "pnU_-IS8CFM": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 68,
+      "timeStr": "01:08",
+      "title": "Vた Động từ thể た",
+      "pattern": "Vた Động từ thể た",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 255,
+      "timeStr": "04:15",
+      "title": "Cách chia Vた",
+      "pattern": "Cách chia Vた",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1036,
+      "timeStr": "17:16",
+      "title": "Vたことがあります。",
+      "pattern": "Vたことがあります。",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1659,
+      "timeStr": "27:39",
+      "title": "Vたことがありません",
+      "pattern": "Vたことがありません",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2064,
+      "timeStr": "34:24",
+      "title": "Vたことがありますか。",
+      "pattern": "Vたことがありますか。",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2523,
+      "timeStr": "42:03",
+      "title": "V1たり、V2たりします。",
+      "pattern": "V1たり、V2たりします。",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3300,
+      "timeStr": "55:00",
+      "title": "Câu hỏi (Sは) なに を しますか。",
+      "pattern": "Câu hỏi (Sは) なに を しますか。",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3633,
+      "timeStr": "1:00:33",
+      "title": "なります",
+      "pattern": "なります",
+      "sortOrder": 9
+    }
+  ],
+  "SFZrTvsadRY": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 188,
+      "timeStr": "03:08",
+      "title": "Thể thông thường (TTT)",
+      "pattern": "Thể thông thường (TTT)",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 806,
+      "timeStr": "13:26",
+      "title": "Lưu ý của Thể thông thường",
+      "pattern": "Lưu ý của Thể thông thường",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1204,
+      "timeStr": "20:04",
+      "title": "Cách chuyển từ Thể lịch sự sang Thể thông thường",
+      "pattern": "Cách chuyển từ Thể lịch sự sang Thể thông thường",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1276,
+      "timeStr": "21:16",
+      "title": "Thể thông thường của Aい",
+      "pattern": "Thể thông thường của Aい",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1888,
+      "timeStr": "31:28",
+      "title": "Thể thông thường của Aな",
+      "pattern": "Thể thông thường của Aな",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2636,
+      "timeStr": "43:56",
+      "title": "Thể thông thường của danh từ N",
+      "pattern": "Thể thông thường của danh từ N",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3124,
+      "timeStr": "52:04",
+      "title": "Thể thông thường của động từ V",
+      "pattern": "Thể thông thường của động từ V",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3790,
+      "timeStr": "1:03:10",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 4071,
+      "timeStr": "1:07:51",
+      "title": "Hội thoại khi sử dụng Thể thông thường",
+      "pattern": "Hội thoại khi sử dụng Thể thông thường",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 4659,
+      "timeStr": "1:17:39",
+      "title": "Chuyển câu ghép",
+      "pattern": "Chuyển câu ghép",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 4986,
+      "timeStr": "1:23:06",
+      "title": "Chuyển câu nghi vấn",
+      "pattern": "Chuyển câu nghi vấn",
+      "sortOrder": 12
+    },
+    {
+      "id": 13,
+      "timeSec": 5497,
+      "timeStr": "1:31:37",
+      "title": "Chuyển câu nghi vấn - câu trả lời",
+      "pattern": "Chuyển câu nghi vấn - câu trả lời",
+      "sortOrder": 13
+    },
+    {
+      "id": 14,
+      "timeSec": 6697,
+      "timeStr": "1:51:37",
+      "title": "Chú ý khi sử dụng TTT trong CTNP",
+      "pattern": "Chú ý khi sử dụng TTT trong CTNP",
+      "sortOrder": 14
+    }
+  ],
+  "4DrfaWgGAYU": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 105,
+      "timeStr": "01:45",
+      "title": "Ôn tập bài 20",
+      "pattern": "Ôn tập bài 20",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 296,
+      "timeStr": "04:56",
+      "title": "と思います。Tôi nghĩ rằng...",
+      "pattern": "と思います。Tôi nghĩ rằng...",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1348,
+      "timeStr": "22:28",
+      "title": "と思います。Bày tỏ ý kiến",
+      "pattern": "と思います。Bày tỏ ý kiến",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1920,
+      "timeStr": "32:00",
+      "title": "そう思います Bày tỏ ý kiến",
+      "pattern": "そう思います Bày tỏ ý kiến",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2127,
+      "timeStr": "35:27",
+      "title": "[Câu] + と言います。 Nói rằng (là) N",
+      "pattern": "[Câu] + と言います。 Nói rằng (là) N",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2475,
+      "timeStr": "41:15",
+      "title": "[Câu] + と言いました Trích dẫn lời ai đó",
+      "pattern": "[Câu] + と言いました Trích dẫn lời ai đó",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 2888,
+      "timeStr": "48:08",
+      "title": "[Câu] + と言いました Đã nói rằng",
+      "pattern": "[Câu] + と言いました Đã nói rằng",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3223,
+      "timeStr": "53:43",
+      "title": "Câu hỏi",
+      "pattern": "Câu hỏi",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 3483,
+      "timeStr": "58:03",
+      "title": "でしょう",
+      "pattern": "でしょう",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 4073,
+      "timeStr": "1:07:53",
+      "title": "Nđđ N2 があります。Sự kiến N2 được diễn ra ở đđ N1",
+      "pattern": "Nđđ N2 があります。Sự kiến N2 được diễn ra ở đđ N1",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 4330,
+      "timeStr": "1:12:10",
+      "title": "N(tình huống)で Ｖ",
+      "pattern": "N(tình huống)で Ｖ",
+      "sortOrder": 12
+    },
+    {
+      "id": 13,
+      "timeSec": 4580,
+      "timeStr": "1:16:20",
+      "title": "NでもV Làm gì đó như N chẳng hạn.",
+      "pattern": "NでもV Làm gì đó như N chẳng hạn.",
+      "sortOrder": 13
+    },
+    {
+      "id": 14,
+      "timeSec": 4809,
+      "timeStr": "1:20:09",
+      "title": "Vないと。。。Phải làm V",
+      "pattern": "Vないと。。。Phải làm V",
+      "sortOrder": 14
+    }
+  ],
+  "dteyn-jIypY": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 110,
+      "timeStr": "01:50",
+      "title": "Bổ nghĩa là gì?",
+      "pattern": "Bổ nghĩa là gì?",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 900,
+      "timeStr": "15:00",
+      "title": "Mệnh đề bổ nghĩa (MĐBN)",
+      "pattern": "Mệnh đề bổ nghĩa (MĐBN)",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1834,
+      "timeStr": "30:34",
+      "title": "Luyện tập ví dụ mệnh đề bổ nghĩa",
+      "pattern": "Luyện tập ví dụ mệnh đề bổ nghĩa",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2359,
+      "timeStr": "39:19",
+      "title": "Luyá»n táº­p ÄÆ°a MÄBN vÃ o trong cÃ¢u: chá»§ ngá»¯ & vá» ngá»¯",
+      "pattern": "Luyá»n táº­p ÄÆ°a MÄBN vÃ o trong cÃ¢u: chá»§ ngá»¯ & vá» ngá»¯",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 3340,
+      "timeStr": "55:40",
+      "title": "Mệnh đề bổ ngữ làm tân ngữ",
+      "pattern": "Mệnh đề bổ ngữ làm tân ngữ",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 4443,
+      "timeStr": "1:14:03",
+      "title": "Đưa mệnh đề bổ nghĩa vào câu",
+      "pattern": "Đưa mệnh đề bổ nghĩa vào câu",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 5465,
+      "timeStr": "1:31:05",
+      "title": "Vましょうか",
+      "pattern": "Vましょうか",
+      "sortOrder": 8
+    }
+  ],
+  "IWwTaqu1pfc": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 63,
+      "timeStr": "01:03",
+      "title": "とき Khi",
+      "pattern": "とき Khi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 471,
+      "timeStr": "07:51",
+      "title": "どうしますか Làm như thế nào?",
+      "pattern": "どうしますか Làm như thế nào?",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 974,
+      "timeStr": "16:14",
+      "title": "Lưu ý Vるとき và Vたとき",
+      "pattern": "Lưu ý Vるとき và Vたとき",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1870,
+      "timeStr": "31:10",
+      "title": "Vると, Vế 2",
+      "pattern": "Vると, Vế 2",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2497,
+      "timeStr": "41:37",
+      "title": "NがA",
+      "pattern": "NがA",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2725,
+      "timeStr": "45:25",
+      "title": "NをVdc",
+      "pattern": "NをVdc",
+      "sortOrder": 7
+    }
+  ],
+  "jrLHhG4OFW8": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 63,
+      "timeStr": "01:03",
+      "title": "Vてあげます",
+      "pattern": "Vてあげます",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 985,
+      "timeStr": "16:25",
+      "title": "Vてもらいます",
+      "pattern": "Vてもらいます",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1533,
+      "timeStr": "25:33",
+      "title": "くれます",
+      "pattern": "くれます",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2204,
+      "timeStr": "36:44",
+      "title": "Vてくれます",
+      "pattern": "Vてくれます",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2779,
+      "timeStr": "46:19",
+      "title": "NがV",
+      "pattern": "NがV",
+      "sortOrder": 6
+    }
+  ],
+  "co07Xjavkfo": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 94,
+      "timeStr": "01:34",
+      "title": "Nếu thì... Vたら",
+      "pattern": "Nếu thì... Vたら",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 768,
+      "timeStr": "12:48",
+      "title": "Cùng đặt câu",
+      "pattern": "Cùng đặt câu",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 932,
+      "timeStr": "15:32",
+      "title": "Sau khi V thì MĐ2: Vたら、MĐ2",
+      "pattern": "Sau khi V thì MĐ2: Vたら、MĐ2",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1330,
+      "timeStr": "22:10",
+      "title": "Phân biệt: Vてから và Vたら",
+      "pattern": "Phân biệt: Vてから và Vたら",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1690,
+      "timeStr": "28:10",
+      "title": "Câu hỏi: どうしますか",
+      "pattern": "Câu hỏi: どうしますか",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2032,
+      "timeStr": "33:52",
+      "title": "Cho dù ~ thì MĐ2: ～も、MĐ2",
+      "pattern": "Cho dù ~ thì MĐ2: ～も、MĐ2",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 2430,
+      "timeStr": "40:30",
+      "title": "Luyện tập",
+      "pattern": "Luyện tập",
+      "sortOrder": 8
+    }
+  ],
+  "Bofc2RvFxpg": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 210,
+      "timeStr": "03:30",
+      "title": "Ngữ pháp んです",
+      "pattern": "Ngữ pháp んです",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 4030,
+      "timeStr": "1:07:10",
+      "title": "Ngữ pháp Vて～いただけませんか",
+      "pattern": "Ngữ pháp Vて～いただけませんか",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 4717,
+      "timeStr": "1:18:37",
+      "title": "Ngữ pháp ～たらいいですか",
+      "pattern": "Ngữ pháp ～たらいいですか",
+      "sortOrder": 4
+    }
+  ],
+  "liZ6SLCEbb4": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 101,
+      "timeStr": "01:41",
+      "title": "可能形",
+      "pattern": "可能形",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1683,
+      "timeStr": "28:03",
+      "title": "Ngữ pháp 見えます／聞こえます",
+      "pattern": "Ngữ pháp 見えます／聞こえます",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 2700,
+      "timeStr": "45:00",
+      "title": "Ngữ pháp ～できます",
+      "pattern": "Ngữ pháp ～できます",
+      "sortOrder": 4
+    }
+  ],
+  "0laezztlrR8": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 61,
+      "timeStr": "01:01",
+      "title": "1 Ngữ pháp ～ながら",
+      "pattern": "1 Ngữ pháp ～ながら",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 944,
+      "timeStr": "15:44",
+      "title": "2 Ngữ pháp ～ています",
+      "pattern": "2 Ngữ pháp ～ています",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1902,
+      "timeStr": "31:42",
+      "title": "3 Ngữ pháp ～し～し (1)",
+      "pattern": "3 Ngữ pháp ～し～し (1)",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2798,
+      "timeStr": "46:38",
+      "title": "4 Ngữ pháp ～し～し (2)",
+      "pattern": "4 Ngữ pháp ～し～し (2)",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 3365,
+      "timeStr": "56:05",
+      "title": "5 Ngữ pháp ～それで",
+      "pattern": "5 Ngữ pháp ～それで",
+      "sortOrder": 6
+    }
+  ],
+  "1AWzdFh93ck": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 76,
+      "timeStr": "01:16",
+      "title": "Phân biệt Tự động từ - Tha động từ",
+      "pattern": "Phân biệt Tự động từ - Tha động từ",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1171,
+      "timeStr": "19:31",
+      "title": "ています",
+      "pattern": "ています",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1774,
+      "timeStr": "29:34",
+      "title": "てしまいました・~てしまいます",
+      "pattern": "てしまいました・~てしまいます",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1794,
+      "timeStr": "29:54",
+      "title": "てしまいました Đã hoàn thành, đã xong...",
+      "pattern": "てしまいました Đã hoàn thành, đã xong...",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1865,
+      "timeStr": "31:05",
+      "title": "Vてしまいました vs Vました khác nhau như thế nào?",
+      "pattern": "Vてしまいました vs Vました khác nhau như thế nào?",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2295,
+      "timeStr": "38:15",
+      "title": "てしまいました Đã chót, đã lỡ...",
+      "pattern": "てしまいました Đã chót, đã lỡ...",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 2723,
+      "timeStr": "45:23",
+      "title": "ありました",
+      "pattern": "ありました",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 2882,
+      "timeStr": "48:02",
+      "title": "どこかで、どこかに",
+      "pattern": "どこかで、どこかに",
+      "sortOrder": 9
+    }
+  ],
+  "WswI2TCwC6U": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 75,
+      "timeStr": "01:15",
+      "title": "1 Ngữ pháp Vてあります (1): N1 に N2 が Vてあります",
+      "pattern": "1 Ngữ pháp Vてあります (1): N1 に N2 が Vてあります",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 520,
+      "timeStr": "08:40",
+      "title": "2 Ngữ pháp Vてあります (2): N2 は N1 に Vてあります",
+      "pattern": "2 Ngữ pháp Vてあります (2): N2 は N1 に Vてあります",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1015,
+      "timeStr": "16:55",
+      "title": "3 Phân biệt Vています và Vてあります",
+      "pattern": "3 Phân biệt Vています và Vてあります",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1280,
+      "timeStr": "21:20",
+      "title": "4 Ngữ pháp Vてあります (3)",
+      "pattern": "4 Ngữ pháp Vてあります (3)",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1723,
+      "timeStr": "28:43",
+      "title": "5 Ngữ pháp ておきます Làm sẵn, làm trước...",
+      "pattern": "5 Ngữ pháp ておきます Làm sẵn, làm trước...",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2305,
+      "timeStr": "38:25",
+      "title": "6 Ngữ pháp ておきます Để nguyên...",
+      "pattern": "6 Ngữ pháp ておきます Để nguyên...",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 2628,
+      "timeStr": "43:48",
+      "title": "7 ～まだ",
+      "pattern": "7 ～まだ",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 2960,
+      "timeStr": "49:20",
+      "title": "8 とか",
+      "pattern": "8 とか",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 3186,
+      "timeStr": "53:06",
+      "title": "9 ～も",
+      "pattern": "9 ～も",
+      "sortOrder": 10
+    }
+  ],
+  "x2Fcv1NnUPY": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 77,
+      "timeStr": "01:17",
+      "title": "意向形 Thế ý chí",
+      "pattern": "意向形 Thế ý chí",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 135,
+      "timeStr": "02:15",
+      "title": "1 意向形 Nhóm 1",
+      "pattern": "1 意向形 Nhóm 1",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 263,
+      "timeStr": "04:23",
+      "title": "2 意向形 Nhóm 2",
+      "pattern": "2 意向形 Nhóm 2",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 338,
+      "timeStr": "05:38",
+      "title": "3 意向形 Nhóm 3",
+      "pattern": "3 意向形 Nhóm 3",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 490,
+      "timeStr": "08:10",
+      "title": "4 Ngữ pháp ～よう (1)",
+      "pattern": "4 Ngữ pháp ～よう (1)",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 1039,
+      "timeStr": "17:19",
+      "title": "5 Ngữ pháp ～よう＋と思っています",
+      "pattern": "5 Ngữ pháp ～よう＋と思っています",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 1548,
+      "timeStr": "25:48",
+      "title": "6 Ngữ pháp ～つもりです",
+      "pattern": "6 Ngữ pháp ～つもりです",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 2102,
+      "timeStr": "35:02",
+      "title": "7 Ngữ pháp ～予定です",
+      "pattern": "7 Ngữ pháp ～予定です",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 2406,
+      "timeStr": "40:06",
+      "title": "8 Phân biệt 予定・つもり・ようと思っています",
+      "pattern": "8 Phân biệt 予定・つもり・ようと思っています",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 2735,
+      "timeStr": "45:35",
+      "title": "9 Ngữ pháp ～まだ～ていません",
+      "pattern": "9 Ngữ pháp ～まだ～ていません",
+      "sortOrder": 11
+    }
+  ],
+  "vDZdFJp54WU": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 36,
+      "timeStr": "00:36",
+      "title": "ほうがいいです",
+      "pattern": "ほうがいいです",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 565,
+      "timeStr": "09:25",
+      "title": "でしょう Có lẽ, suy đoán",
+      "pattern": "でしょう Có lẽ, suy đoán",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1108,
+      "timeStr": "18:28",
+      "title": "かもしれません",
+      "pattern": "かもしれません",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1451,
+      "timeStr": "24:11",
+      "title": "ましょう",
+      "pattern": "ましょう",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1648,
+      "timeStr": "27:28",
+      "title": "Lượng từ で",
+      "pattern": "Lượng từ で",
+      "sortOrder": 6
+    }
+  ],
+  "uxcqiuwQ3ds": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 90,
+      "timeStr": "01:30",
+      "title": "命令形",
+      "pattern": "命令形",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 538,
+      "timeStr": "08:58",
+      "title": "禁止形",
+      "pattern": "禁止形",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 765,
+      "timeStr": "12:45",
+      "title": "Các TH sử dụng 命令 - 禁止形",
+      "pattern": "Các TH sử dụng 命令 - 禁止形",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1820,
+      "timeStr": "30:20",
+      "title": "と書いてあります・~と読みます",
+      "pattern": "と書いてあります・~と読みます",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2116,
+      "timeStr": "35:16",
+      "title": "という意味です",
+      "pattern": "という意味です",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2487,
+      "timeStr": "41:27",
+      "title": "と伝えていただけませんか",
+      "pattern": "と伝えていただけませんか",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 2895,
+      "timeStr": "48:15",
+      "title": "と言っていました",
+      "pattern": "と言っていました",
+      "sortOrder": 8
+    }
+  ],
+  "xoxfsGfj16M": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 74,
+      "timeStr": "01:14",
+      "title": "とおりに Theo như....",
+      "pattern": "とおりに Theo như....",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 595,
+      "timeStr": "09:55",
+      "title": "あとで Sau khi....",
+      "pattern": "あとで Sau khi....",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1042,
+      "timeStr": "17:22",
+      "title": "V1て/Vないで",
+      "pattern": "V1て/Vないで",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1553,
+      "timeStr": "25:53",
+      "title": "Vないで",
+      "pattern": "Vないで",
+      "sortOrder": 5
+    }
+  ],
+  "U7MPXRZrfho": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 110,
+      "timeStr": "01:50",
+      "title": "1 案件形",
+      "pattern": "1 案件形",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 135,
+      "timeStr": "02:15",
+      "title": "2 案件形 Nhóm 1",
+      "pattern": "2 案件形 Nhóm 1",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 304,
+      "timeStr": "05:04",
+      "title": "3 案件形 Nhóm 2",
+      "pattern": "3 案件形 Nhóm 2",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 380,
+      "timeStr": "06:20",
+      "title": "4 案件形 Nhóm 3",
+      "pattern": "4 案件形 Nhóm 3",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 551,
+      "timeStr": "09:11",
+      "title": "5 案件形 Thể điều kiện của Aい",
+      "pattern": "5 案件形 Thể điều kiện của Aい",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 720,
+      "timeStr": "12:00",
+      "title": "6 案件形 Thể điều kiện của Aな",
+      "pattern": "6 案件形 Thể điều kiện của Aな",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 852,
+      "timeStr": "14:12",
+      "title": "7 案件形 (1)",
+      "pattern": "7 案件形 (1)",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 2013,
+      "timeStr": "33:33",
+      "title": "8 Phân biệt と、たら、ば",
+      "pattern": "8 Phân biệt と、たら、ば",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 2341,
+      "timeStr": "39:01",
+      "title": "9 案件形＋いいですか",
+      "pattern": "9 案件形＋いいですか",
+      "sortOrder": 10
+    },
+    {
+      "id": 11,
+      "timeSec": 2754,
+      "timeStr": "45:54",
+      "title": "10 Ｎ＋なら",
+      "pattern": "10 Ｎ＋なら",
+      "sortOrder": 11
+    },
+    {
+      "id": 12,
+      "timeSec": 3122,
+      "timeStr": "52:02",
+      "title": "ば～ほど",
+      "pattern": "ば～ほど",
+      "sortOrder": 12
+    }
+  ],
+  "KoytJtci5dA": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 112,
+      "timeStr": "01:52",
+      "title": "Vる/Ｖない+ように～ Để...",
+      "pattern": "Vる/Ｖない+ように～ Để...",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 579,
+      "timeStr": "09:39",
+      "title": "ようになります (1)",
+      "pattern": "ようになります (1)",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1208,
+      "timeStr": "20:08",
+      "title": "ようになります (2)",
+      "pattern": "ようになります (2)",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1228,
+      "timeStr": "20:28",
+      "title": "Ｖなく＋なります",
+      "pattern": "Ｖなく＋なります",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1645,
+      "timeStr": "27:25",
+      "title": "ようにします",
+      "pattern": "ようにします",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 1951,
+      "timeStr": "32:31",
+      "title": "ようにしてください",
+      "pattern": "ようにしてください",
+      "sortOrder": 7
+    }
+  ],
+  "xNHCD-O_Zqg": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 33,
+      "timeStr": "00:33",
+      "title": "受身形 ( Thể bị động )",
+      "pattern": "受身形 ( Thể bị động )",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 573,
+      "timeStr": "09:33",
+      "title": "N + 受身形",
+      "pattern": "N + 受身形",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 686,
+      "timeStr": "11:26",
+      "title": "N1 は N2 に V 受身形",
+      "pattern": "N1 は N2 に V 受身形",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1383,
+      "timeStr": "23:03",
+      "title": "N を 受身形: N1 は N2 に N3 を V 受身形",
+      "pattern": "N を 受身形: N1 は N2 に N3 を V 受身形",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2001,
+      "timeStr": "33:21",
+      "title": "N は・が + 受身形",
+      "pattern": "N は・が + 受身形",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2530,
+      "timeStr": "42:10",
+      "title": "Nによって受身形",
+      "pattern": "Nによって受身形",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 3112,
+      "timeStr": "51:52",
+      "title": "Nから/Nでつくります",
+      "pattern": "Nから/Nでつくります",
+      "sortOrder": 8
+    },
+    {
+      "id": 9,
+      "timeSec": 3326,
+      "timeStr": "55:26",
+      "title": "N1のN2",
+      "pattern": "N1のN2",
+      "sortOrder": 9
+    },
+    {
+      "id": 10,
+      "timeSec": 3401,
+      "timeStr": "56:41",
+      "title": "この・その・あのN",
+      "pattern": "この・その・あのN",
+      "sortOrder": 10
+    }
+  ],
+  "IvfIdBvL0Ho": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 138,
+      "timeStr": "02:18",
+      "title": "のは A です",
+      "pattern": "のは A です",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 800,
+      "timeStr": "13:20",
+      "title": "のが A です",
+      "pattern": "のが A です",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1174,
+      "timeStr": "19:34",
+      "title": "のを忘れました",
+      "pattern": "のを忘れました",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1655,
+      "timeStr": "27:35",
+      "title": "のを知っていますか",
+      "pattern": "のを知っていますか",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2160,
+      "timeStr": "36:00",
+      "title": "のは N です",
+      "pattern": "のは N です",
+      "sortOrder": 6
+    }
+  ],
+  "UMAM5dABAzk": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 205,
+      "timeStr": "03:25",
+      "title": "て, で (1)",
+      "pattern": "て, で (1)",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1038,
+      "timeStr": "17:18",
+      "title": "て, で (2)",
+      "pattern": "て, で (2)",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1585,
+      "timeStr": "26:25",
+      "title": "Phân biệt から、て、で",
+      "pattern": "Phân biệt から、て、で",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1825,
+      "timeStr": "30:25",
+      "title": "Nで",
+      "pattern": "Nで",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2142,
+      "timeStr": "35:42",
+      "title": "ので",
+      "pattern": "ので",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2615,
+      "timeStr": "43:35",
+      "title": "途中で",
+      "pattern": "途中で",
+      "sortOrder": 7
+    }
+  ],
+  "O8SxWokjES4": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 48,
+      "timeStr": "00:48",
+      "title": "か",
+      "pattern": "か",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 863,
+      "timeStr": "14:23",
+      "title": "かどうか",
+      "pattern": "かどうか",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1380,
+      "timeStr": "23:00",
+      "title": "てみます",
+      "pattern": "てみます",
+      "sortOrder": 4
+    }
+  ],
+  "wHDZmyOKG6c": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 88,
+      "timeStr": "01:28",
+      "title": "にNをいただきます",
+      "pattern": "にNをいただきます",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 672,
+      "timeStr": "11:12",
+      "title": "にNをくださいます",
+      "pattern": "にNをくださいます",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1336,
+      "timeStr": "22:16",
+      "title": "にNをやります",
+      "pattern": "にNをやります",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1780,
+      "timeStr": "29:40",
+      "title": "ていただきます",
+      "pattern": "ていただきます",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2190,
+      "timeStr": "36:30",
+      "title": "てくださいます",
+      "pattern": "てくださいます",
+      "sortOrder": 6
+    },
+    {
+      "id": 7,
+      "timeSec": 2520,
+      "timeStr": "42:00",
+      "title": "てやります",
+      "pattern": "てやります",
+      "sortOrder": 7
+    },
+    {
+      "id": 8,
+      "timeSec": 2921,
+      "timeStr": "48:41",
+      "title": "てくださいませんか",
+      "pattern": "てくださいませんか",
+      "sortOrder": 8
+    }
+  ],
+  "nA73Nu6wQQk": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 42,
+      "timeStr": "00:42",
+      "title": "ために",
+      "pattern": "ために",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 511,
+      "timeStr": "08:31",
+      "title": "Phân biệt ように vs ために",
+      "pattern": "Phân biệt ように vs ために",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1292,
+      "timeStr": "21:32",
+      "title": "に",
+      "pattern": "に",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1740,
+      "timeStr": "29:00",
+      "title": "Lượng từ は、も",
+      "pattern": "Lượng từ は、も",
+      "sortOrder": 5
+    }
+  ],
+  "6bpiS9vkN6E": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 44,
+      "timeStr": "00:44",
+      "title": "そうです。(1) Có vẻ như...",
+      "pattern": "そうです。(1) Có vẻ như...",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 470,
+      "timeStr": "07:50",
+      "title": "そうです。(2) Có vẻ...",
+      "pattern": "そうです。(2) Có vẻ...",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1118,
+      "timeStr": "18:38",
+      "title": "Vて来ます。",
+      "pattern": "Vて来ます。",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1451,
+      "timeStr": "24:11",
+      "title": "てくれませんか",
+      "pattern": "てくれませんか",
+      "sortOrder": 5
+    }
+  ],
+  "YhHTAwn5QnM": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 62,
+      "timeStr": "01:02",
+      "title": "すぎます",
+      "pattern": "すぎます",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 726,
+      "timeStr": "12:06",
+      "title": "やすいです",
+      "pattern": "やすいです",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1100,
+      "timeStr": "18:20",
+      "title": "にくいです",
+      "pattern": "にくいです",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1440,
+      "timeStr": "24:00",
+      "title": "にします (1)",
+      "pattern": "にします (1)",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 2043,
+      "timeStr": "34:03",
+      "title": "にします (2)",
+      "pattern": "にします (2)",
+      "sortOrder": 6
+    }
+  ],
+  "BQOlppVitQU": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 46,
+      "timeStr": "00:46",
+      "title": "場合は",
+      "pattern": "場合は",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 826,
+      "timeStr": "13:46",
+      "title": "のに",
+      "pattern": "のに",
+      "sortOrder": 3
+    }
+  ],
+  "-9QORRkk0mY": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 39,
+      "timeStr": "00:39",
+      "title": "Vるところです。",
+      "pattern": "Vるところです。",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 484,
+      "timeStr": "08:04",
+      "title": "Vているところです。",
+      "pattern": "Vているところです。",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 790,
+      "timeStr": "13:10",
+      "title": "Vたところです。",
+      "pattern": "Vたところです。",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1156,
+      "timeStr": "19:16",
+      "title": "ばかりです",
+      "pattern": "ばかりです",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1724,
+      "timeStr": "28:44",
+      "title": "はずです",
+      "pattern": "はずです",
+      "sortOrder": 6
+    }
+  ],
+  "F0-97_LpojU": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 43,
+      "timeStr": "00:43",
+      "title": "そうです",
+      "pattern": "そうです",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 736,
+      "timeStr": "12:16",
+      "title": "ようです。",
+      "pattern": "ようです。",
+      "sortOrder": 3
+    }
+  ],
+  "TMGEUNjcT1A": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 55,
+      "timeStr": "00:55",
+      "title": "Động từ thể sai khiến",
+      "pattern": "Động từ thể sai khiến",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 765,
+      "timeStr": "12:45",
+      "title": "N người を（に）V sai khiến",
+      "pattern": "N người を（に）V sai khiến",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1710,
+      "timeStr": "28:30",
+      "title": "Vてsai khiến + いただけませんか。",
+      "pattern": "Vてsai khiến + いただけませんか。",
+      "sortOrder": 4
+    }
+  ],
+  "8ncgbDCSYHg": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 32,
+      "timeStr": "00:32",
+      "title": "TÃ´n kÃ­nh ngá»¯ & KhiÃªm nhÆ°á»ng ngá»¯",
+      "pattern": "TÃ´n kÃ­nh ngá»¯ & KhiÃªm nhÆ°á»ng ngá»¯",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 240,
+      "timeStr": "04:00",
+      "title": "Tôn kính ngữ",
+      "pattern": "Tôn kính ngữ",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 480,
+      "timeStr": "08:00",
+      "title": "Khiêm nhường ngữ",
+      "pattern": "Khiêm nhường ngữ",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 635,
+      "timeStr": "10:35",
+      "title": "Cách dùng tôn kính ngữ , khiêm nhường ngữ , thể lịch sự.",
+      "pattern": "Cách dùng tôn kính ngữ , khiêm nhường ngữ , thể lịch sự.",
+      "sortOrder": 5
+    },
+    {
+      "id": 6,
+      "timeSec": 1277,
+      "timeStr": "21:17",
+      "title": "Nhóm trong - Nhóm ngoài",
+      "pattern": "Nhóm trong - Nhóm ngoài",
+      "sortOrder": 6
+    }
+  ],
+  "rQ8VKSF9Qng": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 60,
+      "timeStr": "01:00",
+      "title": "Tôn kính ngữ - Khiêm nhường ngữ - Lịch sự",
+      "pattern": "Tôn kính ngữ - Khiêm nhường ngữ - Lịch sự",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 110,
+      "timeStr": "01:50",
+      "title": "Cách dùng Tôn kính ngữ",
+      "pattern": "Cách dùng Tôn kính ngữ",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1466,
+      "timeStr": "24:26",
+      "title": "Cách dùng Khiêm nhường ngữ",
+      "pattern": "Cách dùng Khiêm nhường ngữ",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2257,
+      "timeStr": "37:37",
+      "title": "Cách dùng Thể lịch sự",
+      "pattern": "Cách dùng Thể lịch sự",
+      "sortOrder": 5
+    }
+  ],
+  "-g44sXZM6pw": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 297,
+      "timeStr": "04:57",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 1/30: Ngữ pháp Shinkanzen",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 794,
+      "timeStr": "13:14",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1290,
+      "timeStr": "21:30",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1687,
+      "timeStr": "28:07",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "QWxlq_ZbM1M": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 259,
+      "timeStr": "04:19",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 2/30: Ngữ pháp Shinkanzen",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 691,
+      "timeStr": "11:31",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1123,
+      "timeStr": "18:43",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1468,
+      "timeStr": "24:28",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "OhdZ3SJIZxM": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 297,
+      "timeStr": "04:57",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 3/30: Ngữ pháp Shinkanzen",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 792,
+      "timeStr": "13:12",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1288,
+      "timeStr": "21:28",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1684,
+      "timeStr": "28:04",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "8ssVuPWDhgs": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 231,
+      "timeStr": "03:51",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 4/30: Ngữ pháp Shinkanzen",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 618,
+      "timeStr": "10:18",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1004,
+      "timeStr": "16:44",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1313,
+      "timeStr": "21:53",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "LQ1RAWl3jMQ": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 250,
+      "timeStr": "04:10",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 5/30: Ngữ pháp Shinkanzen",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 667,
+      "timeStr": "11:07",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1084,
+      "timeStr": "18:04",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1417,
+      "timeStr": "23:37",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "1kLRMt7PD-M": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 240,
+      "timeStr": "04:00",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 6/30: Ngữ pháp Shinkanzen",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 640,
+      "timeStr": "10:40",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1040,
+      "timeStr": "17:20",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1360,
+      "timeStr": "22:40",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "StB9XC-oSpQ": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 257,
+      "timeStr": "04:17",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 7/30: Ngữ pháp Shinkanzen",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 687,
+      "timeStr": "11:27",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1116,
+      "timeStr": "18:36",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1460,
+      "timeStr": "24:20",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "QBDPidj15Xg": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 211,
+      "timeStr": "03:31",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 8/30: Ngữ pháp Shinkanzen",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 564,
+      "timeStr": "09:24",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 917,
+      "timeStr": "15:17",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1200,
+      "timeStr": "20:00",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "O5ui3zwIIuM": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 231,
+      "timeStr": "03:51",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 9/30: Ngữ pháp Shinkanzen",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 618,
+      "timeStr": "10:18",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1004,
+      "timeStr": "16:44",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1314,
+      "timeStr": "21:54",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "MROfMLpuRhc": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 225,
+      "timeStr": "03:45",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 10/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 600,
+      "timeStr": "10:00",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 975,
+      "timeStr": "16:15",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1275,
+      "timeStr": "21:15",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "kJEBJ-_NRx0": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 214,
+      "timeStr": "03:34",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 11/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 570,
+      "timeStr": "09:30",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 927,
+      "timeStr": "15:27",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1212,
+      "timeStr": "20:12",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "qf2vK2_PlS4": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 232,
+      "timeStr": "03:52",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 12/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 618,
+      "timeStr": "10:18",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1005,
+      "timeStr": "16:45",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1314,
+      "timeStr": "21:54",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "buaUwAdG_Tw": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 211,
+      "timeStr": "03:31",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 13/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 564,
+      "timeStr": "09:24",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 917,
+      "timeStr": "15:17",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1199,
+      "timeStr": "19:59",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "J6BRsnO3lAE": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 273,
+      "timeStr": "04:33",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 14/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 729,
+      "timeStr": "12:09",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1184,
+      "timeStr": "19:44",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1549,
+      "timeStr": "25:49",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "APQh3nixRn0": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 222,
+      "timeStr": "03:42",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 15/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 592,
+      "timeStr": "09:52",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 963,
+      "timeStr": "16:03",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1259,
+      "timeStr": "20:59",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "Ls_iPNnt50A": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 208,
+      "timeStr": "03:28",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 16/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 555,
+      "timeStr": "09:15",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 902,
+      "timeStr": "15:02",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1180,
+      "timeStr": "19:40",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "_rG2Ey-2Njk": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 185,
+      "timeStr": "03:05",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 17/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 494,
+      "timeStr": "08:14",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 803,
+      "timeStr": "13:23",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1050,
+      "timeStr": "17:30",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "eI2fg6RsyLI": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 180,
+      "timeStr": "03:00",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 18/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 482,
+      "timeStr": "08:02",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 783,
+      "timeStr": "13:03",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1025,
+      "timeStr": "17:05",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "sw6zP5YLff8": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 192,
+      "timeStr": "03:12",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 19/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 514,
+      "timeStr": "08:34",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 835,
+      "timeStr": "13:55",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1092,
+      "timeStr": "18:12",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "KHFsIYgQgdM": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 185,
+      "timeStr": "03:05",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 20/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 494,
+      "timeStr": "08:14",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 803,
+      "timeStr": "13:23",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1050,
+      "timeStr": "17:30",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "ETyQzM5OEic": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 179,
+      "timeStr": "02:59",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 21/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 478,
+      "timeStr": "07:58",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 776,
+      "timeStr": "12:56",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1015,
+      "timeStr": "16:55",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "kEffGBRf_fs": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 186,
+      "timeStr": "03:06",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 22/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 496,
+      "timeStr": "08:16",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 806,
+      "timeStr": "13:26",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1054,
+      "timeStr": "17:34",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "mQQaQ2NTEOI": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 227,
+      "timeStr": "03:47",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 23/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 605,
+      "timeStr": "10:05",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 984,
+      "timeStr": "16:24",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1286,
+      "timeStr": "21:26",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "qWP03_r_w0U": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 197,
+      "timeStr": "03:17",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 24/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 526,
+      "timeStr": "08:46",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 856,
+      "timeStr": "14:16",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1119,
+      "timeStr": "18:39",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "lvMdARJQ5qY": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 247,
+      "timeStr": "04:07",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 25/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 659,
+      "timeStr": "10:59",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1071,
+      "timeStr": "17:51",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1400,
+      "timeStr": "23:20",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "NYRjPy5_dUU": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 157,
+      "timeStr": "02:37",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 26/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 420,
+      "timeStr": "07:00",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 682,
+      "timeStr": "11:22",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 892,
+      "timeStr": "14:52",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "_UiunRMCDEk": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 191,
+      "timeStr": "03:11",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 27/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 510,
+      "timeStr": "08:30",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 828,
+      "timeStr": "13:48",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1083,
+      "timeStr": "18:03",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "RuPwPjXaGk0": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 127,
+      "timeStr": "02:07",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 28/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 340,
+      "timeStr": "05:40",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 552,
+      "timeStr": "09:12",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 722,
+      "timeStr": "12:02",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "u6sywahUuGs": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 131,
+      "timeStr": "02:11",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 29/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 351,
+      "timeStr": "05:51",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 571,
+      "timeStr": "09:31",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 747,
+      "timeStr": "12:27",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "-oimbLmGs8A": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 127,
+      "timeStr": "02:07",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Ngày 30/30: Ngữ pháp Shinkanze",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 340,
+      "timeStr": "05:40",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 553,
+      "timeStr": "09:13",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 724,
+      "timeStr": "12:04",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "W8Be_lZGqu0": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 423,
+      "timeStr": "07:03",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 1: Chuyên đề ngữ pháp Shin",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1128,
+      "timeStr": "18:48",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1834,
+      "timeStr": "30:34",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2398,
+      "timeStr": "39:58",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "1NLCawcWTKI": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 438,
+      "timeStr": "07:18",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 2: Chuyên đề ngữ pháp Shin",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1170,
+      "timeStr": "19:30",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1901,
+      "timeStr": "31:41",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2486,
+      "timeStr": "41:26",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "q2Hnhh5FJBk": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 324,
+      "timeStr": "05:24",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 3: Chuyên đề ngữ pháp Shin",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 864,
+      "timeStr": "14:24",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1405,
+      "timeStr": "23:25",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1837,
+      "timeStr": "30:37",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "3h2NUVtSBxc": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 422,
+      "timeStr": "07:02",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 4: Chuyên đề ngữ pháp Shin",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1127,
+      "timeStr": "18:47",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1832,
+      "timeStr": "30:32",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2396,
+      "timeStr": "39:56",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "ZvugyP0zd0Y": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 327,
+      "timeStr": "05:27",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 5: Chuyên đề ngữ pháp Shin",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 874,
+      "timeStr": "14:34",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1420,
+      "timeStr": "23:40",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1858,
+      "timeStr": "30:58",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "381dsAKWSAE": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 404,
+      "timeStr": "06:44",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 6: Chuyên đề ngữ pháp Shin",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1079,
+      "timeStr": "17:59",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1754,
+      "timeStr": "29:14",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2294,
+      "timeStr": "38:14",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "jZTr72ws604": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 348,
+      "timeStr": "05:48",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 7: Chuyên đề ngữ pháp Shin",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 929,
+      "timeStr": "15:29",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1510,
+      "timeStr": "25:10",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1975,
+      "timeStr": "32:55",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "S1gUALgVn8k": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 385,
+      "timeStr": "06:25",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 8: Chuyên đề ngữ pháp Shin",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1028,
+      "timeStr": "17:08",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1670,
+      "timeStr": "27:50",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2184,
+      "timeStr": "36:24",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "7fR0QaspLhY": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 375,
+      "timeStr": "06:15",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 9: Chuyên đề ngữ pháp Shin",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1001,
+      "timeStr": "16:41",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1626,
+      "timeStr": "27:06",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2127,
+      "timeStr": "35:27",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "cJoxRYCDkrI": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 324,
+      "timeStr": "05:24",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 10: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 865,
+      "timeStr": "14:25",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1406,
+      "timeStr": "23:26",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1839,
+      "timeStr": "30:39",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "JMmrrsIgny4": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 405,
+      "timeStr": "06:45",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 11: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1080,
+      "timeStr": "18:00",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1755,
+      "timeStr": "29:15",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2295,
+      "timeStr": "38:15",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "-td-S30jJ6U": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 393,
+      "timeStr": "06:33",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 12: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1049,
+      "timeStr": "17:29",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1704,
+      "timeStr": "28:24",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2229,
+      "timeStr": "37:09",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "vZbuU8Lrr9M": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 384,
+      "timeStr": "06:24",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 13: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1024,
+      "timeStr": "17:04",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1665,
+      "timeStr": "27:45",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2177,
+      "timeStr": "36:17",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "OdJUXwdHmq4": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 396,
+      "timeStr": "06:36",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 14: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1058,
+      "timeStr": "17:38",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1719,
+      "timeStr": "28:39",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2249,
+      "timeStr": "37:29",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "YxeUroCnYac": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 370,
+      "timeStr": "06:10",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 15: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 989,
+      "timeStr": "16:29",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1607,
+      "timeStr": "26:47",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2102,
+      "timeStr": "35:02",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "OvYGv2HKA_A": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 323,
+      "timeStr": "05:23",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 16: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 862,
+      "timeStr": "14:22",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1402,
+      "timeStr": "23:22",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1833,
+      "timeStr": "30:33",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "q84pJpPpPJM": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 318,
+      "timeStr": "05:18",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 17: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 849,
+      "timeStr": "14:09",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1380,
+      "timeStr": "23:00",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1805,
+      "timeStr": "30:05",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "1jZcF1QmXu8": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 379,
+      "timeStr": "06:19",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 18: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1012,
+      "timeStr": "16:52",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1645,
+      "timeStr": "27:25",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2152,
+      "timeStr": "35:52",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "W1jWQ1-i0dc": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 334,
+      "timeStr": "05:34",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 19: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 891,
+      "timeStr": "14:51",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1448,
+      "timeStr": "24:08",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1894,
+      "timeStr": "31:34",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "ZGllawIUd34": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 350,
+      "timeStr": "05:50",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 20: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 934,
+      "timeStr": "15:34",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1518,
+      "timeStr": "25:18",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1985,
+      "timeStr": "33:05",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "T6Y_Smr-CBs": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 356,
+      "timeStr": "05:56",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 21: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 951,
+      "timeStr": "15:51",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1546,
+      "timeStr": "25:46",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2022,
+      "timeStr": "33:42",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "rP0i_xqnsYg": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 327,
+      "timeStr": "05:27",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 22: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 872,
+      "timeStr": "14:32",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1417,
+      "timeStr": "23:37",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1853,
+      "timeStr": "30:53",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "LVPpENVuM2I": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 441,
+      "timeStr": "07:21",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 23: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1176,
+      "timeStr": "19:36",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1912,
+      "timeStr": "31:52",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2500,
+      "timeStr": "41:40",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "6AM_D-3zByQ": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 372,
+      "timeStr": "06:12",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 24: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 994,
+      "timeStr": "16:34",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1615,
+      "timeStr": "26:55",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2112,
+      "timeStr": "35:12",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "YGZRxQTZSH8": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 295,
+      "timeStr": "04:55",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 25: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 788,
+      "timeStr": "13:08",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1280,
+      "timeStr": "21:20",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1674,
+      "timeStr": "27:54",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "jzx4dKoZbhY": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 353,
+      "timeStr": "05:53",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 26: Chuyên đề ngữ pháp Shi",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 943,
+      "timeStr": "15:43",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1532,
+      "timeStr": "25:32",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2004,
+      "timeStr": "33:24",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "_Yi-c5Jvhds": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 233,
+      "timeStr": "03:53",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 1 (Phần 1): Mẫu 1, 2, 3",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 622,
+      "timeStr": "10:22",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1011,
+      "timeStr": "16:51",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1322,
+      "timeStr": "22:02",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "rvmoAk0RWmE": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 155,
+      "timeStr": "02:35",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 1 (Phần 2): Mẫu 4, 5, 6 & ",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 414,
+      "timeStr": "06:54",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 673,
+      "timeStr": "11:13",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 880,
+      "timeStr": "14:40",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "vKlAXAH0nr4": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 140,
+      "timeStr": "02:20",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 2 (Phần 1): Mẫu 1, 2",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 375,
+      "timeStr": "06:15",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 610,
+      "timeStr": "10:10",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 798,
+      "timeStr": "13:18",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "0UBRCxB3Ww0": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 100,
+      "timeStr": "01:40",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 2 (Phần 2): Mẫu 3, 4, 5 & ",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 268,
+      "timeStr": "04:28",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 436,
+      "timeStr": "07:16",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 570,
+      "timeStr": "09:30",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "lrtbnvQTdwQ": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 108,
+      "timeStr": "01:48",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 3 (Phần 1): Mẫu 1, 2",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 288,
+      "timeStr": "04:48",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 468,
+      "timeStr": "07:48",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 612,
+      "timeStr": "10:12",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "fY9j6TXdg40": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 119,
+      "timeStr": "01:59",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 3 (Phần 2): Mẫu 3, 4",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 319,
+      "timeStr": "05:19",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 519,
+      "timeStr": "08:39",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 679,
+      "timeStr": "11:19",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "mybXyHPWs-g": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 125,
+      "timeStr": "02:05",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 3 (Phần 3): Mẫu 5 & Tổng h",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 334,
+      "timeStr": "05:34",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 544,
+      "timeStr": "09:04",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 711,
+      "timeStr": "11:51",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "J2wbKkmT02A": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 123,
+      "timeStr": "02:03",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 4 (Phần 1): Mẫu 1, 2",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 329,
+      "timeStr": "05:29",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 535,
+      "timeStr": "08:55",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 700,
+      "timeStr": "11:40",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "zT9zhABxj-s": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 116,
+      "timeStr": "01:56",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 4 (Phần 2): Mẫu 3, 4 & Tổn",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 310,
+      "timeStr": "05:10",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 503,
+      "timeStr": "08:23",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 658,
+      "timeStr": "10:58",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "tFK9sa0Y_04": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 236,
+      "timeStr": "03:56",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 5: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 631,
+      "timeStr": "10:31",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1025,
+      "timeStr": "17:05",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1341,
+      "timeStr": "22:21",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "kXspAKOFHKw": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 234,
+      "timeStr": "03:54",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 6: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 625,
+      "timeStr": "10:25",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1015,
+      "timeStr": "16:55",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1328,
+      "timeStr": "22:08",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "rRg_7Dx4a-0": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 101,
+      "timeStr": "01:41",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 7: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 270,
+      "timeStr": "04:30",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 440,
+      "timeStr": "07:20",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 575,
+      "timeStr": "09:35",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "VF2QfSneJ_o": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 260,
+      "timeStr": "04:20",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 8: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 695,
+      "timeStr": "11:35",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1129,
+      "timeStr": "18:49",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1477,
+      "timeStr": "24:37",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "bLLYiJOZIR8": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 210,
+      "timeStr": "03:30",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 9: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 560,
+      "timeStr": "09:20",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 911,
+      "timeStr": "15:11",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1191,
+      "timeStr": "19:51",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "IUglRhrXDbo": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 222,
+      "timeStr": "03:42",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 10: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 592,
+      "timeStr": "09:52",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 963,
+      "timeStr": "16:03",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1259,
+      "timeStr": "20:59",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "2Eik3WggD3g": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 147,
+      "timeStr": "02:27",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 11: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 394,
+      "timeStr": "06:34",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 640,
+      "timeStr": "10:40",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 838,
+      "timeStr": "13:58",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "NC5KbTEtMns": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 202,
+      "timeStr": "03:22",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 12: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 539,
+      "timeStr": "08:59",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 876,
+      "timeStr": "14:36",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1145,
+      "timeStr": "19:05",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "MsnQNz_qUTw": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 249,
+      "timeStr": "04:09",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 13: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 664,
+      "timeStr": "11:04",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1080,
+      "timeStr": "18:00",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1412,
+      "timeStr": "23:32",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "FEipEGodwqY": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 315,
+      "timeStr": "05:15",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 14: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 841,
+      "timeStr": "14:01",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1366,
+      "timeStr": "22:46",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1787,
+      "timeStr": "29:47",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "phFE26tY3Ng": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 192,
+      "timeStr": "03:12",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 15: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 512,
+      "timeStr": "08:32",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 832,
+      "timeStr": "13:52",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1088,
+      "timeStr": "18:08",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "QqdbOn2ilLI": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 215,
+      "timeStr": "03:35",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 16: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 574,
+      "timeStr": "09:34",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 934,
+      "timeStr": "15:34",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1221,
+      "timeStr": "20:21",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "W4rj_RNWbsc": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 210,
+      "timeStr": "03:30",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 17: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 560,
+      "timeStr": "09:20",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 910,
+      "timeStr": "15:10",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1190,
+      "timeStr": "19:50",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "9dqUoLEdAcw": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 251,
+      "timeStr": "04:11",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 18: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 670,
+      "timeStr": "11:10",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1089,
+      "timeStr": "18:09",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 1424,
+      "timeStr": "23:44",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "sUB18khUrm8": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 377,
+      "timeStr": "06:17",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 19: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 1007,
+      "timeStr": "16:47",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1637,
+      "timeStr": "27:17",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2141,
+      "timeStr": "35:41",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ],
+  "qy54x-NNFvE": [
+    {
+      "id": 1,
+      "timeSec": 0,
+      "timeStr": "00:00",
+      "title": "Mở đầu & Giới thiệu tổng quan",
+      "pattern": "Mở đầu",
+      "sortOrder": 1
+    },
+    {
+      "id": 2,
+      "timeSec": 362,
+      "timeStr": "06:02",
+      "title": "Phân tích ngữ cảnh & Mẫu câu trọng tâm",
+      "pattern": "Bài 20: Chuyên đề ngữ pháp N1",
+      "sortOrder": 2
+    },
+    {
+      "id": 3,
+      "timeSec": 966,
+      "timeStr": "16:06",
+      "title": "Cấu trúc kết hợp & Cách dùng thực tế",
+      "pattern": "Cấu trúc",
+      "sortOrder": 3
+    },
+    {
+      "id": 4,
+      "timeSec": 1571,
+      "timeStr": "26:11",
+      "title": "Các ví dụ mẫu & Phân biệt sắc thái",
+      "pattern": "Ví dụ & Sắc thái",
+      "sortOrder": 4
+    },
+    {
+      "id": 5,
+      "timeSec": 2054,
+      "timeStr": "34:14",
+      "title": "Luyện tập & Lưu ý trong đề thi JLPT",
+      "pattern": "Luyện tập JLPT",
+      "sortOrder": 5
+    }
+  ]
+}

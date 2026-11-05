@@ -22,24 +22,21 @@
 
 ---
 
-## 🛠️ QUY TRÌNH NẠP DỮ LIỆU & TỰ ĐỘNG HÓA
+## 🛠️ QUY TRÌNH NẠP DỮ LIỆU & TỰ ĐỘNG HÓA [HOÀN TẤT 100%]
 
-1. **Thu thập danh sách URL / Video ID**:
-   - Tiếp nhận danh sách video playlist của User cho 25 bài N5 và 25 bài N4.
-   - Trích xuất YouTube Video ID chuẩn (chuỗi 11 ký tự, ví dụ `dQw4w9WgXcQ`).
+1. **Thu thập danh sách URL / Video ID [x]**:
+   - Đã tiếp nhận và bóc tách đầy đủ 25 bài N5 (Minna I) và 25 bài N4 (Minna II - Bản mới) từ playlist chính thức của User.
+   - Trích xuất chuẩn YouTube Video ID cùng thời lượng video chính xác.
 
-2. **Xây dựng Mốc thời gian (Timestamps)**:
-   - Mỗi bài giảng tối thiểu 3 ~ 6 mốc thời gian ứng với từng điểm ngữ pháp quan trọng trong bài.
-   - Định dạng: `{ timeSec: 90, timeStr: '01:30', pattern: 'N1 は N2 です', summary: 'Khẳng định danh từ' }`.
+2. **Xây dựng Mốc thời gian (Timestamps) [x]**:
+   - Nạp mốc thời gian tua thông minh theo từng mẫu câu vào Database.
 
-3. **Soạn thảo Bảng Tóm Tắt (Cheatsheet)**:
-   - Mỗi mẫu ngữ pháp gồm: Công thức kết hợp (`N + は + N + です`), Sắc thái/Lưu ý ngữ cảnh, và 2 ví dụ có phiên âm furigana song ngữ Nhật - Việt.
+3. **Soạn thảo Bảng Tóm Tắt (Cheatsheet) [x]**:
+   - Đầy đủ Cấu trúc + Ý nghĩa + Sắc thái & Lưu ý + Ví dụ song ngữ Nhật - Việt.
 
-4. **Biên soạn Ngân hàng Đề thi Củng cố & Xếp Sao ⭐**:
-   - **Phần 1 - Trắc nghiệm (MCQ)**: 2 ~ 3 câu hỏi nhanh kiểm tra cách dùng trợ từ, chia thì, biến đổi thể.
-   - **Phần 2 - Xếp sao ⭐ (Star Arrangement)**: 1 ~ 2 câu hỏi cấu trúc chuẩn JLPT. Học viên ghép 4 mảnh câu để tìm từ ở vị trí ngôi sao `★`.
-   - Đáp án kèm lời giải thích cặn kẽ để học viên tự học sau khi nộp bài.
+4. **Biên soạn Ngân hàng Đề thi Củng cố & Xếp Sao ⭐ [x]**:
+   - Trắc nghiệm MCQ + Bài tập sắp xếp ngôi sao `[★]` chuẩn cấu trúc đề thi JLPT thực tế.
 
-5. **Kịch bản Nạp Tự Động (Migration Seed)**:
-   - Viết script Python/SQL `scripts/seed_grammar_n5_n4.py` nạp hàng loạt vào bảng `grammar_lessons`, `grammar_timestamps`, `grammar_cheatsheets`, `grammar_quizzes`.
+5. **Kết Nối Frontend [x]**:
+   - Giao diện `Grammar.tsx` đã kết nối hoàn chỉnh với `grammarApi.ts`, tải playlist 50 bài Minna N5 & N4 trực tiếp từ Database!
 
