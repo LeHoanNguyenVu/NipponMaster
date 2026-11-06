@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  Headphones, Volume2, VolumeX, Play, RotateCcw, ArrowLeft, 
-  Sparkles, HelpCircle, 
-  Search, Clock, Zap, 
+import {
+  Headphones, Volume2, VolumeX, Play, RotateCcw, ArrowLeft,
+  Sparkles, HelpCircle,
+  Search, Clock, Zap,
   Eye, EyeOff, Radio, ChevronRight, Flame, MessageSquare
 } from 'lucide-react';
-import { 
-  listeningApi, 
-  type ListeningScenarioSummary, 
-  type ListeningScenarioDetail, 
-  type DialogueNode, 
-  type DialogueOption 
+import {
+  listeningApi,
+  type ListeningScenarioSummary,
+  type ListeningScenarioDetail,
+  type DialogueNode,
+  type DialogueOption,
+  type SubmitListeningSessionResponse
 } from '../api/listeningApi';
 import { ambienceEngine, speakJapaneseVoice } from '../utils/listeningAmbience';
 import { playCorrectSound, playWrongSound } from '../utils/audioSfx';
@@ -53,7 +54,7 @@ export default function ListeningRoom() {
   const [lastFeedback, setLastFeedback] = useState<string | null>(null);
 
   // --- Session Submission Results ---
-  const [sessionResult, setSessionResult] = useState<any>(null);
+  const [sessionResult, setSessionResult] = useState<SubmitListeningSessionResponse | null>(null);
 
   const roomRef = useRef<HTMLDivElement>(null);
 
@@ -76,6 +77,7 @@ export default function ListeningRoom() {
   }, [selectedLevel, selectedCategory, searchKeyword]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchScenarios();
   }, [fetchScenarios]);
 
@@ -88,6 +90,7 @@ export default function ListeningRoom() {
       setActiveScenarioId(scenario.id);
       setCurrentNodeId(detail.initialNodeId);
       setVisitedNodes([detail.initialNodeId]);
+      // eslint-disable-next-line react-hooks/purity
       setSessionStartTime(Date.now());
       setQuizScore({ correct: 0, total: 0 });
       setEtiquettePoints(0);
@@ -191,6 +194,7 @@ export default function ListeningRoom() {
   // Submit Completed Session
   const handleFinishSession = async () => {
     if (!activeScenarioId) return;
+    // eslint-disable-next-line react-hooks/purity
     const durationSeconds = Math.round((Date.now() - sessionStartTime) / 1000);
     try {
       const res = await listeningApi.submitSession({
@@ -270,12 +274,11 @@ export default function ListeningRoom() {
           </button>
 
           <div className="flex items-center gap-3">
-            <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase ${
-              summary.level === 'N5' ? 'bg-emerald-100 text-emerald-800' :
-              summary.level === 'N4' ? 'bg-sky-100 text-sky-800' :
-              summary.level === 'N3' ? 'bg-amber-100 text-amber-800' :
-              summary.level === 'N2' ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800'
-            }`}>
+            <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase ${summary.level === 'N5' ? 'bg-emerald-100 text-emerald-800' :
+                summary.level === 'N4' ? 'bg-sky-100 text-sky-800' :
+                  summary.level === 'N3' ? 'bg-amber-100 text-amber-800' :
+                    summary.level === 'N2' ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800'
+              }`}>
               {summary.level}
             </span>
             <span className="text-xs font-bold text-on-surface-variant truncate max-w-[240px] md:max-w-md">
@@ -288,11 +291,10 @@ export default function ListeningRoom() {
             <button
               onClick={() => setAmbienceEnabled(!ambienceEnabled)}
               title={ambienceEnabled ? t('listening:ambienceTooltipOn', 'Tắt âm thanh môi trường') : t('listening:ambienceTooltipOff', 'Bật âm thanh môi trường')}
-              className={`p-2 rounded-xl border text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
-                ambienceEnabled 
-                  ? 'bg-primary/10 border-primary/30 text-primary' 
+              className={`p-2 rounded-xl border text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${ambienceEnabled
+                  ? 'bg-primary/10 border-primary/30 text-primary'
                   : 'bg-surface-container-low border-outline-variant text-outline'
-              }`}
+                }`}
             >
               {ambienceEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
               <span className="hidden sm:inline">{t('listening:ambienceLabel', 'Ambience')}</span>
@@ -304,11 +306,10 @@ export default function ListeningRoom() {
                 <button
                   key={spd}
                   onClick={() => setSpeechSpeed(spd)}
-                  className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    speechSpeed === spd
+                  className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${speechSpeed === spd
                       ? 'bg-primary text-on-primary shadow-xs'
                       : 'text-on-surface-variant hover:text-on-surface'
-                  }`}
+                    }`}
                 >
                   {spd}x
                 </button>
@@ -349,11 +350,10 @@ export default function ListeningRoom() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setBlindMode(!blindMode)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
-                  blindMode 
-                    ? 'bg-amber-500/15 border-amber-500/30 text-amber-700 dark:text-amber-300' 
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${blindMode
+                    ? 'bg-amber-500/15 border-amber-500/30 text-amber-700 dark:text-amber-300'
                     : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:text-on-surface'
-                }`}
+                  }`}
               >
                 {blindMode ? <EyeOff size={14} /> : <Eye size={14} />}
                 <span>{blindMode ? t('listening:blindModeActive', 'Blind Mode (Đang ẩn)') : t('listening:blindModeInactive', 'Luyện Tai (Ẩn Chữ)')}</span>
@@ -429,25 +429,22 @@ export default function ListeningRoom() {
               <span>{t('listening:accessibility', 'Trợ năng hiển thị:')}</span>
               <button
                 onClick={() => setShowFurigana(!showFurigana)}
-                className={`px-2.5 py-1 rounded-lg border text-xs cursor-pointer font-bold ${
-                  showFurigana ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container border-outline-variant text-outline'
-                }`}
+                className={`px-2.5 py-1 rounded-lg border text-xs cursor-pointer font-bold ${showFurigana ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container border-outline-variant text-outline'
+                  }`}
               >
                 Furigana
               </button>
               <button
                 onClick={() => setShowRomaji(!showRomaji)}
-                className={`px-2.5 py-1 rounded-lg border text-xs cursor-pointer font-bold ${
-                  showRomaji ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container border-outline-variant text-outline'
-                }`}
+                className={`px-2.5 py-1 rounded-lg border text-xs cursor-pointer font-bold ${showRomaji ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container border-outline-variant text-outline'
+                  }`}
               >
                 Romaji
               </button>
               <button
                 onClick={() => setShowVietnamese(!showVietnamese)}
-                className={`px-2.5 py-1 rounded-lg border text-xs cursor-pointer font-bold ${
-                  showVietnamese ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container border-outline-variant text-outline'
-                }`}
+                className={`px-2.5 py-1 rounded-lg border text-xs cursor-pointer font-bold ${showVietnamese ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container border-outline-variant text-outline'
+                  }`}
               >
                 {t('listening:meaningVi', 'Dịch Nghĩa TV')}
               </button>
@@ -476,15 +473,14 @@ export default function ListeningRoom() {
                     key={idx}
                     disabled={isQuizSubmitted}
                     onClick={() => handleQuizAnswer(idx, currentNode.quiz!)}
-                    className={`p-3.5 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
-                      isCorrect 
+                    className={`p-3.5 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${isCorrect
                         ? 'bg-emerald-500/15 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-bold'
                         : isWrong
-                        ? 'bg-rose-500/15 border-rose-500 text-rose-800 dark:text-rose-200'
-                        : isSelected
-                        ? 'bg-primary/10 border-primary text-primary font-bold'
-                        : 'bg-surface-container-low border-outline-variant/60 hover:bg-surface-container-high text-on-surface'
-                    }`}
+                          ? 'bg-rose-500/15 border-rose-500 text-rose-800 dark:text-rose-200'
+                          : isSelected
+                            ? 'bg-primary/10 border-primary text-primary font-bold'
+                            : 'bg-surface-container-low border-outline-variant/60 hover:bg-surface-container-high text-on-surface'
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-surface-container-high flex items-center justify-center text-[10px] font-bold">
@@ -621,7 +617,7 @@ export default function ListeningRoom() {
       {/* Hero Banner Header */}
       <div className="relative rounded-3xl bg-gradient-to-br from-surface-container-low via-surface-container-lowest to-primary/5 border border-outline-variant/60 p-6 md:p-10 overflow-hidden shadow-sm">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-        
+
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 border border-primary/25 text-primary text-xs font-bold tracking-wide">
             <Headphones size={14} />
@@ -661,11 +657,10 @@ export default function ListeningRoom() {
             <button
               key={tab.id}
               onClick={() => setSelectedLevel(tab.id)}
-              className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer flex-shrink-0 ${
-                selectedLevel === tab.id
+              className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer flex-shrink-0 ${selectedLevel === tab.id
                   ? 'bg-primary text-on-primary shadow-md scale-105'
                   : 'bg-surface-container-low border border-outline-variant/60 text-on-surface-variant hover:bg-surface-container-high'
-              }`}
+                }`}
             >
               {t(`listening:catalogTabs.${tab.id}`, tab.label)}
             </button>
@@ -687,11 +682,10 @@ export default function ListeningRoom() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer flex-shrink-0 ${
-                  selectedCategory === cat.id
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer flex-shrink-0 ${selectedCategory === cat.id
                     ? 'bg-surface-container-highest border border-primary text-primary font-bold'
                     : 'bg-surface-container-low border border-outline-variant/40 text-outline hover:text-on-surface'
-                }`}
+                  }`}
               >
                 {t(`listening:categories.${cat.id}`, cat.label)}
               </button>
@@ -734,12 +728,11 @@ export default function ListeningRoom() {
               <div className="space-y-3">
                 {/* Header Badge */}
                 <div className="flex items-center justify-between gap-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                    s.level === 'N5' ? 'bg-emerald-100 text-emerald-800' :
-                    s.level === 'N4' ? 'bg-sky-100 text-sky-800' :
-                    s.level === 'N3' ? 'bg-amber-100 text-amber-800' :
-                    s.level === 'N2' ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800'
-                  }`}>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${s.level === 'N5' ? 'bg-emerald-100 text-emerald-800' :
+                      s.level === 'N4' ? 'bg-sky-100 text-sky-800' :
+                        s.level === 'N3' ? 'bg-amber-100 text-amber-800' :
+                          s.level === 'N2' ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800'
+                    }`}>
                     JLPT {s.level}
                   </span>
 

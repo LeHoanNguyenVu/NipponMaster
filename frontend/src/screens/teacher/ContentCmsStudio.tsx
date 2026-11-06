@@ -93,7 +93,9 @@ export default function ContentCmsStudio() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, selectedLevel]);
 
   const handleOpenAddModal = () => {
@@ -229,11 +231,10 @@ export default function ContentCmsStudio() {
       {/* Alert Message */}
       {message && (
         <div
-          className={`p-4 rounded-2xl border flex items-center justify-between text-sm font-semibold ${
-            message.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-              : 'bg-red-50 text-red-800 border-red-200'
-          }`}
+          className={`p-4 rounded-2xl border flex items-center justify-between text-sm font-semibold ${message.type === 'success'
+            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+            : 'bg-red-50 text-red-800 border-red-200'
+            }`}
         >
           <span>{message.text}</span>
           <button onClick={() => setMessage(null)} className="p-1 hover:opacity-75">
@@ -248,27 +249,24 @@ export default function ContentCmsStudio() {
         <div className="flex items-center gap-1.5 p-1 bg-surface-container-low rounded-xl border border-outline-variant/30">
           <button
             onClick={() => setActiveTab('vocab')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'vocab' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
-            }`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${activeTab === 'vocab' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+              }`}
           >
             <BookOpen size={15} />
             Từ Vựng
           </button>
           <button
             onClick={() => setActiveTab('kanji')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'kanji' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
-            }`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${activeTab === 'kanji' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+              }`}
           >
             <Layers size={15} />
             Hán Tự Kanji
           </button>
           <button
             onClick={() => setActiveTab('grammar')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'grammar' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
-            }`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${activeTab === 'grammar' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+              }`}
           >
             <FileText size={15} />
             Ngữ Pháp
@@ -283,9 +281,8 @@ export default function ContentCmsStudio() {
               <button
                 key={lvl}
                 onClick={() => setSelectedLevel(lvl)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  selectedLevel === lvl ? 'bg-secondary text-on-secondary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${selectedLevel === lvl ? 'bg-secondary text-on-secondary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+                  }`}
               >
                 {lvl}
               </button>

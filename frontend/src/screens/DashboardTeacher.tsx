@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { 
-  Users, TrendingUp, PlusCircle, 
-  UserPlus, Copy, Check, Sparkles, 
+import {
+  Users, TrendingUp, PlusCircle,
+  UserPlus, Copy, Check, Sparkles,
   GraduationCap, FileText, BookOpen, Star,
   Languages, Shapes, BookType, ShieldCheck
 } from 'lucide-react';
@@ -44,10 +44,6 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
   const [newStudentEmail, setNewStudentEmail] = useState('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchTeacherData();
-  }, []);
-
   const fetchTeacherData = async () => {
     setLoading(true);
     try {
@@ -68,6 +64,12 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchTeacherData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (selectedClassId) {
@@ -163,11 +165,10 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-primary text-on-primary shadow-sm'
-                    : 'text-on-surface-variant hover:bg-surface-container-high'
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${isActive
+                  ? 'bg-primary text-on-primary shadow-sm'
+                  : 'text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
               >
                 <Icon size={16} />
                 {tab.label}
@@ -310,11 +311,10 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
                 <div
                   key={c.id}
                   onClick={() => setSelectedClassId(c.id)}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                    selectedClassId === c.id
-                      ? 'bg-primary/10 border-primary text-on-surface shadow-sm'
-                      : 'bg-surface-container-lowest border-outline-variant hover:border-outline'
-                  }`}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer ${selectedClassId === c.id
+                    ? 'bg-primary/10 border-primary text-on-surface shadow-sm'
+                    : 'bg-surface-container-lowest border-outline-variant hover:border-outline'
+                    }`}
                 >
                   <div className="flex justify-between items-center mb-2">
                     <Badge variant="crimson">{c.level}</Badge>
@@ -338,7 +338,7 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
                       </div>
                       <p className="text-xs text-on-surface-variant mt-1">Mã lớp: <span className="font-mono font-bold text-primary">{selectedClass.joinCode}</span></p>
                     </div>
-                    
+
                     {/* Add student form */}
                     <form onSubmit={handleAddStudent} className="flex gap-2 w-full sm:w-auto">
                       <Input
@@ -448,11 +448,10 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
                     <button
                       key={lvl}
                       onClick={() => setExamLevelFilter(lvl)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                        examLevelFilter === lvl
-                          ? 'bg-primary text-on-primary shadow-sm'
-                          : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                      }`}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${examLevelFilter === lvl
+                        ? 'bg-primary text-on-primary shadow-sm'
+                        : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                        }`}
                     >
                       {lvl === 'ALL' ? '🔍 Tất cả' : lvl}
                     </button>
@@ -494,9 +493,8 @@ export default function DashboardTeacher({ username }: DashboardTeacherProps) {
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <Badge variant="crimson">{ex.jlptLevel || 'N5'}</Badge>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                              ex.isPublished ? 'bg-secondary/15 text-secondary' : 'bg-surface-container text-on-surface-variant'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${ex.isPublished ? 'bg-secondary/15 text-secondary' : 'bg-surface-container text-on-surface-variant'
+                              }`}>
                               {ex.isPublished ? '✅ Đã xuất bản' : '📝 Bản nháp'}
                             </span>
                           </div>

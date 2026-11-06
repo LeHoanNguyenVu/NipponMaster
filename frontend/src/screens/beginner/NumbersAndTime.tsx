@@ -125,11 +125,12 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
     if (!currentPrompt) return [];
     const arr = [...currentPrompt.options];
     for (let i = arr.length - 1; i > 0; i--) {
+      // eslint-disable-next-line react-hooks/purity
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
-  }, [reflexIdx, currentPrompt]);
+  }, [currentPrompt]);
 
   // Handle Reflex choice
   const handleReflexChoice = (optionReading: string) => {
@@ -188,7 +189,9 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
       const pct = Math.round((finalScore / NUMBERS_CHAPTER_QUIZ.length) * 100);
       try {
         saveChapterScore(2, pct);
-      } catch {}
+      } catch (err) {
+        console.warn('Failed to save score:', err);
+      }
       if (onChapterComplete) {
         onChapterComplete('chapter-2', pct);
       }
@@ -231,12 +234,11 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
         ].map(tTab => (
           <button
             key={tTab.id}
-            onClick={() => setActiveTab(tTab.id as any)}
-            className={`px-4 py-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer font-serif ${
-              activeTab === tTab.id
-                ? 'bg-primary text-on-primary shadow-sm scale-102'
-                : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-            }`}
+            onClick={() => setActiveTab(tTab.id as Parameters<typeof setActiveTab>[0])}
+            className={`px-4 py-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer font-serif ${activeTab === tTab.id
+              ? 'bg-primary text-on-primary shadow-sm scale-102'
+              : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+              }`}
             style={{ borderRadius: '2px' }}
           >
             {tTab.label}
@@ -273,7 +275,7 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
                     >
                       <span className="text-xs font-bold text-on-surface-variant/60 mb-1">{n.value.toLocaleString()}</span>
                       <span className="text-3xl font-bold font-jp text-on-surface group-hover:text-primary transition-colors">{n.kanji}</span>
-                      
+
                       {/* Hiển thị loa riêng biệt nếu có 2 cách đọc */}
                       <DualReadingPlayer hiragana={n.hiragana} romaji={n.romaji} />
 
@@ -321,7 +323,7 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
                     <span className="text-xs font-semibold text-amber-800">20 Tuổi = 二十歳 (はたち - hatachi)</span>
                   </div>
                   <p className="text-xs text-on-surface-variant leading-relaxed max-w-2xl">
-                    Tại Nhật Bản, 20 tuổi là mốc thành niên quan trọng được tổ chức ngày lễ lớn <strong>Lễ Thành Nhân (成人式 - Seijinshiki)</strong>. 
+                    Tại Nhật Bản, 20 tuổi là mốc thành niên quan trọng được tổ chức ngày lễ lớn <strong>Lễ Thành Nhân (成人式 - Seijinshiki)</strong>.
                     Người Nhật gọi riêng tuổi 20 là <strong>はたち (hatachi)</strong>, tuyệt đối <em>không đọc là にじゅっさい</em> khi nói tuổi đời.
                   </p>
                 </div>
@@ -344,13 +346,12 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
                       onClick={() => {
                         if (!hasMulti) speakJapanese(a.hiragana);
                       }}
-                      className={`p-3 rounded-2xl border text-center cursor-pointer transition-all hover:scale-102 flex flex-col justify-between ${
-                        a.age === 20
-                          ? 'bg-amber-500/15 border-amber-500/50 shadow-sm'
-                          : a.isSpecial
+                      className={`p-3 rounded-2xl border text-center cursor-pointer transition-all hover:scale-102 flex flex-col justify-between ${a.age === 20
+                        ? 'bg-amber-500/15 border-amber-500/50 shadow-sm'
+                        : a.isSpecial
                           ? 'bg-crimson-500/10 border-crimson-500/30 hover:bg-crimson-500/20'
                           : 'bg-surface-container-lowest border-outline-variant/30 hover:border-primary/40'
-                      }`}
+                        }`}
                     >
                       <div>
                         <span className="text-[11px] font-bold text-on-surface-variant block mb-1">{a.age} tuổi</span>
@@ -421,13 +422,12 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
                       onClick={() => {
                         if (!hasMulti) speakJapanese(p.hiragana);
                       }}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-102 flex flex-col justify-between ${
-                        p.count === 1 || p.count === 2
-                          ? 'bg-amber-500/12 border-amber-500/40 hover:bg-amber-500/20'
-                          : p.count === 4
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-102 flex flex-col justify-between ${p.count === 1 || p.count === 2
+                        ? 'bg-amber-500/12 border-amber-500/40 hover:bg-amber-500/20'
+                        : p.count === 4
                           ? 'bg-crimson-500/12 border-crimson-500/40 hover:bg-crimson-500/20'
                           : 'bg-surface-container-lowest border-outline-variant/30 hover:border-primary/40'
-                      }`}
+                        }`}
                     >
                       <div>
                         <div className="flex items-center justify-between text-xs text-on-surface-variant mb-1">
@@ -488,11 +488,10 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
                   <button
                     key={c.id}
                     onClick={() => setSelectedCounter(c)}
-                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                      selectedCounter.id === c.id
-                        ? 'bg-secondary text-on-secondary shadow-sm scale-102'
-                        : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                    }`}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${selectedCounter.id === c.id
+                      ? 'bg-secondary text-on-secondary shadow-sm scale-102'
+                      : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                      }`}
                   >
                     <span className="font-jp text-sm">{c.kanji}</span>
                     <span>{c.reading}</span>
@@ -534,11 +533,10 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
                           onClick={() => {
                             if (!hasMulti) speakJapanese(m.japanese);
                           }}
-                          className={`p-3 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 flex flex-col justify-between ${
-                            m.isIrregular
-                              ? 'bg-crimson-500/10 border-crimson-500/40 hover:bg-crimson-500/20'
-                              : 'bg-surface-container-low border-outline-variant/30 hover:border-primary/40'
-                          }`}
+                          className={`p-3 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 flex flex-col justify-between ${m.isIrregular
+                            ? 'bg-crimson-500/10 border-crimson-500/40 hover:bg-crimson-500/20'
+                            : 'bg-surface-container-low border-outline-variant/30 hover:border-primary/40'
+                            }`}
                         >
                           <div className="flex items-center justify-between text-xs text-on-surface-variant mb-1">
                             <span className="font-bold">{m.count}</span>
@@ -577,21 +575,19 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
               <div className="flex gap-2">
                 <button
                   onClick={() => setCalendarFilter('all')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
-                    calendarFilter === 'all'
-                      ? 'bg-primary text-on-primary'
-                      : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${calendarFilter === 'all'
+                    ? 'bg-primary text-on-primary'
+                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
                 >
                   Tất cả 31 ngày
                 </button>
                 <button
                   onClick={() => setCalendarFilter('special')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center gap-1.5 ${
-                    calendarFilter === 'special'
-                      ? 'bg-crimson-600 text-white'
-                      : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center gap-1.5 ${calendarFilter === 'special'
+                    ? 'bg-crimson-600 text-white'
+                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
                 >
                   <span>Chỉ ngày bất quy tắc (14 ngày)</span>
                 </button>
@@ -641,11 +637,10 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
                     onClick={() => {
                       if (!hasMulti) speakJapanese(d.hiragana);
                     }}
-                    className={`p-3.5 rounded-2xl border text-center cursor-pointer transition-all hover:scale-103 flex flex-col justify-between ${
-                      d.isSpecial
-                        ? 'bg-crimson-500/10 border-crimson-500/40 hover:bg-crimson-500/20 shadow-sm'
-                        : 'bg-surface-container-lowest border-outline-variant/30 hover:border-primary/40'
-                    }`}
+                    className={`p-3.5 rounded-2xl border text-center cursor-pointer transition-all hover:scale-103 flex flex-col justify-between ${d.isSpecial
+                      ? 'bg-crimson-500/10 border-crimson-500/40 hover:bg-crimson-500/20 shadow-sm'
+                      : 'bg-surface-container-lowest border-outline-variant/30 hover:border-primary/40'
+                      }`}
                   >
                     <div className="flex items-center justify-between text-xs text-on-surface-variant mb-1">
                       <span className="font-mono font-bold">Ngày {d.day}</span>
@@ -691,11 +686,10 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
                   <div
                     key={h.hour}
                     onClick={() => speakJapanese(h.hiragana)}
-                    className={`p-3 rounded-xl border text-center cursor-pointer transition-all hover:scale-102 ${
-                      h.isIrregular
-                        ? 'bg-crimson-500/10 border-crimson-500/40 hover:bg-crimson-500/20'
-                        : 'bg-surface-container-lowest border-outline-variant/30 hover:border-primary/40'
-                    }`}
+                    className={`p-3 rounded-xl border text-center cursor-pointer transition-all hover:scale-102 ${h.isIrregular
+                      ? 'bg-crimson-500/10 border-crimson-500/40 hover:bg-crimson-500/20'
+                      : 'bg-surface-container-lowest border-outline-variant/30 hover:border-primary/40'
+                      }`}
                   >
                     <span className="text-2xl font-bold font-jp text-on-surface block">{h.kanji}</span>
                     <span className="text-sm font-semibold text-primary block">{h.hiragana}</span>
@@ -719,11 +713,10 @@ export default function NumbersAndTime({ onChapterComplete }: NumbersAndTimeProp
                       onClick={() => {
                         if (!hasMulti) speakJapanese(m.hiragana);
                       }}
-                      className={`p-3 rounded-xl border cursor-pointer transition-all hover:scale-102 ${
-                        m.isIrregular
-                          ? 'bg-tertiary/10 border-tertiary/30'
-                          : 'bg-surface-container-lowest border-outline-variant/30'
-                      }`}
+                      className={`p-3 rounded-xl border cursor-pointer transition-all hover:scale-102 ${m.isIrregular
+                        ? 'bg-tertiary/10 border-tertiary/30'
+                        : 'bg-surface-container-lowest border-outline-variant/30'
+                        }`}
                     >
                       <span className="text-xl font-bold font-jp text-on-surface block text-center">{m.kanji}</span>
                       <DualReadingPlayer hiragana={m.hiragana} romaji={m.romaji} colorClass="text-secondary" />

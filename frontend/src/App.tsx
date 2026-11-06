@@ -30,7 +30,7 @@ export default function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
-  
+
   const { isAuthenticated, user, fetchMe } = useAuthStore();
 
   const isGraduated = isBeginnerGraduated();
@@ -40,6 +40,7 @@ export default function App() {
   // Route guard: Nếu ở level Nhập Môn mà screen trỏ vào module N5 đang bị ẩn, tự động điều hướng sang Khóa Nhập Môn
   useEffect(() => {
     if (isStarter && ['kanji', 'grammar', 'exams', 'listening'].includes(currentScreen)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentScreen('beginner');
     }
   }, [isStarter, currentScreen]);
@@ -54,9 +55,9 @@ export default function App() {
         gsap.globalTimeline.timeScale(1);
       }
     };
-    
+
     handleMotionChange(mediaQuery);
-    
+
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener('change', handleMotionChange);
       return () => mediaQuery.removeEventListener('change', handleMotionChange);
@@ -114,7 +115,7 @@ export default function App() {
           .join('')
       );
       return JSON.parse(jsonPayload);
-    } catch (e) {
+    } catch {
       return null;
     }
   };
@@ -213,11 +214,11 @@ export default function App() {
   if (!isAuthenticated) {
     if (showAuth) {
       return (
-        <Auth 
+        <Auth
           onAuthSuccess={() => {
             window.location.hash = '';
             setCurrentScreen('dashboard');
-          }} 
+          }}
           onBack={() => {
             window.location.hash = '';
           }}
@@ -242,16 +243,16 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface font-sans">
-      <Sidebar 
-        currentScreen={currentScreen} 
-        onNavigate={setCurrentScreen} 
+      <Sidebar
+        currentScreen={currentScreen}
+        onNavigate={setCurrentScreen}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
       <div className="flex flex-col flex-1 min-w-0">
-        <TopBar 
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
-          onNavigate={setCurrentScreen} 
+        <TopBar
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          onNavigate={setCurrentScreen}
         />
         <main ref={mainRef} className="flex-1 overflow-y-auto">
           {currentScreen === 'dashboard' && user?.role === 'teacher' && (

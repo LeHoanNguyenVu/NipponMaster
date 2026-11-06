@@ -13,7 +13,8 @@ class ListeningAmbienceEngine {
 
   private getContext(): AudioContext {
     if (!this.ctx) {
-      this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      this.ctx = new AudioCtx();
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
       this.masterGain.connect(this.ctx.destination);
@@ -129,7 +130,7 @@ class ListeningAmbienceEngine {
         osc.start(now + n.start);
         osc.stop(now + n.start + n.dur);
       });
-    } catch (e) {
+    } catch {
       // Audio fallback
     }
   }
@@ -166,7 +167,7 @@ class ListeningAmbienceEngine {
         osc.start(now + n.start);
         osc.stop(now + n.start + n.dur);
       });
-    } catch (e) {
+    } catch {
       // Audio fallback
     }
   }
@@ -193,7 +194,7 @@ class ListeningAmbienceEngine {
 
       osc.start(now);
       osc.stop(now + 1.2);
-    } catch (e) {
+    } catch {
       // Audio fallback
     }
   }
@@ -237,7 +238,7 @@ class ListeningAmbienceEngine {
 
       whiteNoise.start(now);
       whiteNoise.stop(now + 2.0);
-    } catch (e) {
+    } catch {
       // Audio fallback
     }
   }

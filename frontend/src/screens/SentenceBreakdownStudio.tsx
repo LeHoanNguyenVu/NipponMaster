@@ -40,7 +40,9 @@ export default function SentenceBreakdownStudio({ initialSentence }: { initialSe
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     handleBreakdown(inputText);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
