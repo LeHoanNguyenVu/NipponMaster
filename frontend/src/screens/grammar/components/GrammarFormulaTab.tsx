@@ -1,4 +1,5 @@
 import React from 'react';
+import { BookOpen } from 'lucide-react';
 import type { GrammarCheatsheetItem } from '../types';
 
 interface GrammarFormulaTabProps {
@@ -79,8 +80,16 @@ export const GrammarFormulaTab: React.FC<GrammarFormulaTabProps> = ({ cheatsheet
           ))}
         </div>
       ) : (
-        <div className="text-center py-10 text-xs font-mono text-[#78716c]">
-          Đang cập nhật tóm tắt công thức cho bài học này...
+        <div className="py-12 px-4 text-center border border-dashed border-[#e7e5e4] bg-[#fafaf9] flex flex-col items-center justify-center space-y-2">
+          <div className="w-10 h-10 rounded-full bg-white border border-[#e7e5e4] flex items-center justify-center text-[#78716c] shadow-2xs">
+            <BookOpen className="w-5 h-5 text-[#b91c1c]" />
+          </div>
+          <div className="text-sm font-serif font-bold text-[#1c1917]">
+            Chưa có bảng tóm tắt công thức cho bài học này
+          </div>
+          <p className="text-xs text-[#78716c] max-w-md leading-relaxed font-sans">
+            Dữ liệu tóm tắt công thức trọng tâm cho bài giảng này đang được ban biên tập giáo trình NipponMaster hoàn thiện. Bạn hãy theo dõi các mốc thời gian trong video hoặc chuyển sang tab <strong>2. Bài Test Kiến Thức</strong> để luyện tập!
+          </p>
         </div>
       )}
     </div>

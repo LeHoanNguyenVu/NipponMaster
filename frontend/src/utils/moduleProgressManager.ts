@@ -84,7 +84,9 @@ export const getKanjiRadicalsProgress = (fallbackLearned = 0): { completed: numb
         };
       }
     }
-  } catch {}
+  } catch {
+    // Ignore parse error and fall back
+  }
 
   const completed = Math.min(total, Math.max(0, fallbackLearned));
   return {
@@ -110,7 +112,9 @@ export const getGrammarProgress = (fallbackLearned = 0): { completed: number; to
         };
       }
     }
-  } catch {}
+  } catch {
+    // Ignore parse error and fall back
+  }
 
   const completed = Math.min(total, Math.max(0, fallbackLearned));
   return {
@@ -136,7 +140,9 @@ export const getListeningProgress = (fallbackLearned = 0): { completed: number; 
         };
       }
     }
-  } catch {}
+  } catch {
+    // Ignore parse error and fall back
+  }
 
   const completed = Math.min(total, Math.max(0, fallbackLearned));
   return {
@@ -270,7 +276,7 @@ export const loadAllModulesProgress = (serverStats?: {
 export const recordRadicalLearned = (radicalId: string): number => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.KANJI_RADICALS);
-    let list: string[] = raw ? JSON.parse(raw) : [];
+    const list: string[] = raw ? JSON.parse(raw) : [];
     if (!list.includes(radicalId)) {
       list.push(radicalId);
       localStorage.setItem(STORAGE_KEYS.KANJI_RADICALS, JSON.stringify(list));
@@ -285,7 +291,7 @@ export const recordRadicalLearned = (radicalId: string): number => {
 export const recordGrammarWatched = (lessonId: string | number): number => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.GRAMMAR_LESSONS);
-    let list: string[] = raw ? JSON.parse(raw) : [];
+    const list: string[] = raw ? JSON.parse(raw) : [];
     const strId = String(lessonId);
     if (!list.includes(strId)) {
       list.push(strId);
@@ -301,7 +307,7 @@ export const recordGrammarWatched = (lessonId: string | number): number => {
 export const recordListeningScenarioCompleted = (scenarioId: string): number => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.LISTENING_SCENARIOS);
-    let list: string[] = raw ? JSON.parse(raw) : [];
+    const list: string[] = raw ? JSON.parse(raw) : [];
     if (!list.includes(scenarioId)) {
       list.push(scenarioId);
       localStorage.setItem(STORAGE_KEYS.LISTENING_SCENARIOS, JSON.stringify(list));

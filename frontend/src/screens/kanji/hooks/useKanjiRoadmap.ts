@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import axiosClient from '../../../api/axiosClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { JLPT_RANK, type RoadmapResponse } from '../types';
@@ -10,8 +10,9 @@ export function useKanjiRoadmap() {
   const userRank = user?.role === 'ADMIN' ? 5 : (JLPT_RANK[userLevel] || 2);
 
   // Danh sách cấp độ học viên được phép xem & truy cập (chỉ hiển thị và cho phép truy cập các level <= level tài khoản)
-  const availableLevels: readonly string[] = (['N5', 'N4', 'N3', 'N2', 'N1'] as const).filter(
-    (lvl) => JLPT_RANK[lvl] <= userRank
+  const availableLevels: readonly string[] = useMemo(
+    () => (['N5', 'N4', 'N3', 'N2', 'N1'] as const).filter((lvl) => JLPT_RANK[lvl] <= userRank),
+    [userRank]
   );
 
   // Cấp độ đang học: Mặc định theo level tài khoản, và bị khóa nếu vượt quá quyền truy cập
@@ -23,10 +24,10 @@ export function useKanjiRoadmap() {
   const [selectedChapterId, setSelectedChapterId] = useState<number>(0);
   const detailRequestIdRef = useRef<number>(0);
 
-  // Tự động kiểm soát quyền truy cập khi quyền hạn thay đổi (điều chỉnh state ngay trong render)
-  const [prevAvailable, setPrevAvailable] = useState(availableLevels);
-  if (prevAvailable !== availableLevels) {
-    setPrevAvailable(availableLevels);
+  // Tự động kiểm soát quyền truy cập khi quyền hạn thay đổi (điều chỉnh state ngay trong render dựa trên userRank nguyên thủy)
+  const [prevUserRank, setPrevUserRank] = useState(userRank);
+  if (prevUserRank !== userRank) {
+    setPrevUserRank(userRank);
     if (!availableLevels.includes(selectedLevel)) {
       setSelectedLevel(availableLevels[availableLevels.length - 1] || 'N4');
       setSelectedChapterId(0);

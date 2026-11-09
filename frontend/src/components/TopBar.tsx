@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { 
-  Search, Bell, Menu, LogOut, Check, 
+  Bell, Menu, LogOut, Check, 
   Palette, Shield, Key, CreditCard, Camera, Upload,
   X, CheckCircle, AlertCircle, Laptop,
   Lock, Settings
@@ -129,10 +129,6 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
 
   const userAvatar = user?.avatarUrl || (user?.email ? localStorage.getItem(`user_avatar_${user.email}`) : null) || (user?.id ? localStorage.getItem(`user_avatar_${user.id}`) : null) || localStorage.getItem('user_avatar_global');
 
-  useEffect(() => {
-    setImgError(false);
-  }, [userAvatar, user?.avatarUrl]);
-
   const currentLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
   const levelDisplay = currentLevel === 'STARTER' ? t('topbar:starter', 'Nhập Môn') : `${currentLevel} Level`;
   const initialLetter = (user?.username || user?.email || 'U').trim()[0].toUpperCase();
@@ -243,11 +239,12 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
         setActiveModal(null);
         setIsSubmittingPass(false);
       }, 1800);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setIsSubmittingPass(false);
+      const errorMessage = err instanceof Error ? err.message : '';
       setPassStatus({ 
         type: 'error', 
-        message: err.message || 'Mật khẩu hiện tại không chính xác. Vui lòng kiểm tra lại.' 
+        message: errorMessage || 'Mật khẩu hiện tại không chính xác. Vui lòng kiểm tra lại.' 
       });
     }
   };
@@ -255,8 +252,8 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
   return (
     <>
       <header ref={containerRef} className="h-16 flex-shrink-0 bg-surface-container-lowest border-b border-outline-variant/40 flex items-center justify-between px-4 md:px-6 relative z-30">
-        {/* Left Area: Search & Mobile Menu Button */}
-        <div className="flex-1 max-w-xl">
+        {/* Left Area: Mobile Menu Button */}
+        <div className="flex-1">
           <div className="flex items-center gap-3 md:hidden">
             <button 
               onClick={onToggleSidebar}
@@ -266,16 +263,6 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
               <Menu size={22} />
             </button>
             <span className="text-lg font-bold text-primary tracking-tight font-serif">NipponMaster</span>
-          </div>
-          <div className="hidden md:flex relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline" size={16} />
-            <input
-              type="text"
-              placeholder={t('topbar:searchPlaceholder')}
-              aria-label="Search database"
-              className="w-full bg-surface-container-low border border-outline-variant/60 py-1.5 pl-9 pr-4 text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-on-surface placeholder:text-outline font-serif"
-              style={{ borderRadius: '2px' }}
-            />
           </div>
         </div>
 

@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/tts/**").permitAll()
 
                         // Cho phép xem cấu trúc đề thi (không cần login, submit thì cần)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/exams/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/placement-test/questions").permitAll()
 
                         // Cho phép xem danh sách gói học (public pricing) và webhook thanh toán & trial status
