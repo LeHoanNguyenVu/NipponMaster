@@ -10,8 +10,8 @@
    - Thang điểm: `0 ~ 60 điểm`.
    - Điểm liệt (`基準点`): **19 / 60 điểm** (Nếu dưới 19 điểm sẽ trượt bất kể tổng điểm).
 3. **Tổng điểm đỗ (`合格点`)**:
-   - N5: **90 / 180 điểm** (và không phần nào bị điểm liệt).
-   - N4: **90 / 180 điểm** (và không phần nào bị điểm liệt).
+   - N5: **80 / 180 điểm** theo chuẩn chính thức Japan Foundation (và không phần nào bị điểm liệt: Kiến thức & Đọc hiểu $\ge 38/120$, Nghe hiểu $\ge 19/60$).
+   - N4: **90 / 180 điểm** (và không phần nào bị điểm liệt: Kiến thức & Đọc hiểu $\ge 38/120$, Nghe hiểu $\ge 19/60$).
    - N3: **95 / 180 điểm** (3 phần tách biệt: Từ vựng/Ngữ pháp $\ge 19/60$, Đọc hiểu $\ge 19/60$, Nghe hiểu $\ge 19/60$).
    - N2: **90 / 180 điểm** (Mỗi phần $\ge 19/60$).
    - N1: **100 / 180 điểm** (Mỗi phần $\ge 19/60$).

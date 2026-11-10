@@ -1,6 +1,7 @@
-import React from 'react';
-import { BookOpen, CheckCircle2, XCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { BookOpen, CheckCircle2, XCircle, ZoomIn } from 'lucide-react';
 import type { JLPTQuestion, JLPTReadingPassage } from '../types';
+import { ExamImageModal } from './ExamImageModal';
 
 interface ExamPassageCardProps {
   passage: JLPTReadingPassage;
@@ -13,11 +14,30 @@ interface ExamPassageCardProps {
 function renderFormattedPassage(text: string): React.ReactNode {
   const lines = text.split('\n');
   return lines.map((line, lineIdx) => {
-    const parts = line.split(/(【\s*\d+\s*】)/g);
+    const parts = line.split(/(<b>.*?<\/b>|<strong>.*?<\/strong>|<u>.*?<\/u>|【\s*\d+\s*】)/g);
     return (
       <React.Fragment key={lineIdx}>
         {lineIdx > 0 && <br />}
         {parts.map((part, idx) => {
+          if (
+            (part.startsWith('<b>') && part.endsWith('</b>')) ||
+            (part.startsWith('<strong>') && part.endsWith('</strong>'))
+          ) {
+            const inner = part.startsWith('<b>') ? part.slice(3, -4) : part.slice(8, -9);
+            return (
+              <strong key={idx} className="font-bold text-primary px-0.5">
+                {inner}
+              </strong>
+            );
+          }
+          if (part.startsWith('<u>') && part.endsWith('</u>')) {
+            const inner = part.slice(3, -4);
+            return (
+              <span key={idx} className="underline decoration-2 decoration-primary underline-offset-4 font-bold text-primary px-0.5">
+                {inner}
+              </span>
+            );
+          }
           if (part.startsWith('【') && part.endsWith('】')) {
             return (
               <span
@@ -42,6 +62,8 @@ export const ExamPassageCard: React.FC<ExamPassageCardProps> = ({
   onSelectOption,
   isSubmitted,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="rounded-xl border border-outline-variant/35 bg-surface-container-lowest p-4 sm:p-6 shadow-2xs space-y-5">
       {/* 1. Single Continuous Passage Header & Content */}
@@ -57,13 +79,44 @@ export const ExamPassageCard: React.FC<ExamPassageCardProps> = ({
           {renderFormattedPassage(passage.contentJp)}
         </div>
 
-        {/* Clean Illustration Image: NO captions, NO zoom */}
+        {/* Clean Illustration Image: interactive zoom and detailed view */}
         {passage.imageUrl && (
-          <div className="pt-2">
-            <img
-              src={passage.imageUrl}
-              alt=""
-              className="max-h-72 w-auto object-contain mx-auto rounded-lg border border-outline-variant/30 bg-white p-2"
+          <div className="pt-3 text-center">
+            <div
+              className="group relative inline-block max-w-full rounded-xl overflow-hidden border border-outline-variant/35 bg-white p-2.5 shadow-xs cursor-zoom-in transition-all hover:border-primary/60 hover:shadow-md"
+              onClick={() => setIsModalOpen(true)}
+              title="Nhấp để phóng to và xem chi tiết ảnh"
+            >
+              <img
+                src={passage.imageUrl}
+                alt={passage.title || 'Tài liệu bài đọc'}
+                className="max-h-[550px] w-auto max-w-full object-contain mx-auto transition-transform duration-200 group-hover:scale-[1.01]"
+              />
+              {/* Hover overlay hint */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors flex items-center justify-center pointer-events-none">
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 backdrop-blur-xs">
+                  <ZoomIn size={14} />
+                  Xem ảnh chi tiết (Phóng to)
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-2.5">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-on-surface text-xs font-bold border border-outline-variant/40 transition-all cursor-pointer shadow-2xs"
+              >
+                <ZoomIn size={14} />
+                Xem ảnh chi tiết (Phóng to tài liệu)
+              </button>
+            </div>
+
+            <ExamImageModal
+              isOpen={isModalOpen}
+              imageUrl={passage.imageUrl}
+              title={passage.title ? `Tài liệu bài đọc: ${passage.title}` : 'Chi tiết tài liệu bài đọc'}
+              onClose={() => setIsModalOpen(false)}
             />
           </div>
         )}

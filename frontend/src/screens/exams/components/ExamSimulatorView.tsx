@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, CheckCircle2, Clock, RotateCcw } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { AlertTriangle, ArrowLeft, CheckCircle2, Clock, RotateCcw, X } from 'lucide-react';
 import type { ExamAttemptSummary, JLPTExamPaper, JLPTExamSection } from '../types';
 import type { ExamStartConfig } from './ExamDetailView';
-import { submitExamAttempt } from '../services/examService';
 import { ExamPassageCard } from './ExamPassageCard';
 import { ExamQuestionCard } from './ExamQuestionCard';
 
@@ -11,7 +11,6 @@ interface ExamSimulatorViewProps {
   startConfig: ExamStartConfig;
   initialAnswers?: Record<string, number>;
   isReviewMode?: boolean;
-  userId?: string | number;
   onExit: () => void;
   onSaveAttempt: (summary: ExamAttemptSummary) => void;
 }
@@ -33,7 +32,6 @@ export const ExamSimulatorView: React.FC<ExamSimulatorViewProps> = ({
   startConfig,
   initialAnswers = {},
   isReviewMode = false,
-  userId,
   onExit,
   onSaveAttempt,
 }) => {
@@ -51,6 +49,8 @@ export const ExamSimulatorView: React.FC<ExamSimulatorViewProps> = ({
   );
   const [answers, setAnswers] = useState<Record<string, number>>(initialAnswers);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(isReviewMode);
+  const [showIncompleteModal, setShowIncompleteModal] = useState<boolean>(false);
+  const [showConfirmSubmitModal, setShowConfirmSubmitModal] = useState<boolean>(false);
 
   const isUnlimitedTime = startConfig.durationMinutes === null;
   const initialSeconds = (startConfig.durationMinutes ?? exam.totalMinutes) * 60;
@@ -84,12 +84,22 @@ export const ExamSimulatorView: React.FC<ExamSimulatorViewProps> = ({
     return () => window.clearInterval(timer);
   }, [isSubmitted, isUnlimitedTime, isReviewMode]);
 
-  const activeSection: JLPTExamSection = useMemo(() => {
+  useEffect(() => {
+    if (showIncompleteModal || showConfirmSubmitModal) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [showIncompleteModal, showConfirmSubmitModal]);
+
+  const activeSection: JLPTExamSection | undefined = useMemo(() => {
     return activeSections.find((s) => s.id === activeSectionId) || activeSections[0];
   }, [activeSections, activeSectionId]);
 
   const allQuestions = useMemo(
-    () => activeSections.flatMap((s) => s.questions),
+    () => activeSections.flatMap((s) => s.questions || []),
     [activeSections]
   );
 
@@ -160,13 +170,22 @@ export const ExamSimulatorView: React.FC<ExamSimulatorViewProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const unansweredQuestions = useMemo(() => {
+    return allQuestions.filter((q) => answers[q.id] === undefined);
+  }, [allQuestions, answers]);
+
   const handleSubmitExam = () => {
-    if (answeredCount < allQuestions.length) {
-      const confirmSubmit = window.confirm(
-        `Bạn mới hoàn thành ${answeredCount}/${allQuestions.length} câu hỏi. Bạn có chắc chắn muốn nộp bài để chấm điểm ngay?`
-      );
-      if (!confirmSubmit) return;
+    if (unansweredQuestions.length > 0) {
+      setShowIncompleteModal(true);
+      return;
     }
+    setShowConfirmSubmitModal(true);
+  };
+
+  const handleForceSubmit = () => {
+    if (isSubmitted) return;
+    setShowIncompleteModal(false);
+    setShowConfirmSubmitModal(false);
     setIsSubmitted(true);
     const summary: ExamAttemptSummary = {
       examId: exam.id,
@@ -180,14 +199,28 @@ export const ExamSimulatorView: React.FC<ExamSimulatorViewProps> = ({
       totalQuestions: allQuestions.length,
       userAnswers: answers,
     };
-    submitExamAttempt(summary, userId);
     onSaveAttempt(summary);
     scrollToSimulatorTop();
+  };
+
+  const handleJumpToMissingQuestion = (
+    secId: 'vocab' | 'grammar_reading' | 'listening',
+    qId: string
+  ) => {
+    setShowIncompleteModal(false);
+    if (activeSectionId !== secId) {
+      setActiveSectionId(secId);
+    }
+    setTimeout(() => {
+      scrollToQuestion(qId);
+    }, 120);
   };
 
   const handleResetExam = () => {
     setAnswers({});
     setIsSubmitted(false);
+    setShowIncompleteModal(false);
+    setShowConfirmSubmitModal(false);
     setSecondsLeft(initialSeconds);
     scrollToSimulatorTop();
   };
@@ -198,6 +231,32 @@ export const ExamSimulatorView: React.FC<ExamSimulatorViewProps> = ({
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
+
+  if (!activeSection || activeSections.length === 0 || allQuestions.length === 0) {
+    return (
+      <div className="py-16 px-4 text-center border border-dashed border-outline-variant/40 rounded-2xl bg-surface-container-lowest max-w-xl mx-auto space-y-4 my-8">
+        <div className="w-14 h-14 rounded-full bg-amber-500/15 text-amber-600 flex items-center justify-center mx-auto">
+          <AlertTriangle size={28} />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-base font-bold text-on-surface">
+            Đề thi chưa có câu hỏi tương tác
+          </h3>
+          <p className="text-xs text-on-surface-variant leading-relaxed">
+            Dữ liệu câu hỏi tương tác cho đề thi <strong>{exam.title}</strong> hiện đang được số hóa. 
+            Bạn hãy chọn các đề có huy hiệu <strong>✨ Sẵn sàng làm bài</strong> (ví dụ: Đề thi N2 Kỳ tháng 12/2019) để bắt đầu thi thử trực tuyến.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onExit}
+          className="px-5 py-2.5 rounded-lg bg-primary text-on-primary text-xs font-bold uppercase tracking-wider hover:opacity-95 transition-all cursor-pointer shadow-xs"
+        >
+          Quay lại danh sách đề thi
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 pb-12">
@@ -388,23 +447,89 @@ export const ExamSimulatorView: React.FC<ExamSimulatorViewProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-outline-variant/20 text-xs">
-            <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant/20">
-              <span className="text-on-surface-variant block">1. Từ vựng & Hán tự:</span>
-              <strong className="text-sm text-primary">{scoreReport.vocab.scaled} / 60 điểm</strong>
-              <div className="text-[11px] text-on-surface-variant">Đúng {scoreReport.vocab.correct}/{scoreReport.vocab.total} câu</div>
+          {/* Official JLPT Scoring Groups Breakdown (Chuẩn Phase 4 & Japan Foundation) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-outline-variant/20 text-xs">
+            {/* Group 1: Language Knowledge & Reading (120 points) */}
+            <div className={`p-3.5 rounded-xl border space-y-2 ${
+              scoreReport.isLanguageReadingPass
+                ? 'bg-surface-container-low border-outline-variant/25'
+                : 'bg-error/10 border-error/30'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-on-surface">
+                  1. Kiến thức ngôn ngữ & Đọc hiểu (言語知識・読解):
+                </span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                  scoreReport.isLanguageReadingPass
+                    ? 'bg-secondary/15 text-secondary'
+                    : 'bg-error text-on-error'
+                }`}>
+                  {scoreReport.isLanguageReadingPass ? 'Đạt chuẩn' : 'Bị điểm liệt'}
+                </span>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <strong className="text-base text-primary font-headline">
+                  {scoreReport.languageKnowledgeReadingTotal} / 120 điểm
+                </strong>
+                <span className="text-[11px] text-on-surface-variant font-mono">
+                  (Điểm liệt: ≥ 38/120)
+                </span>
+              </div>
+              <div className="text-[11px] text-on-surface-variant border-t border-outline-variant/15 pt-1.5 flex justify-between">
+                <span>Từ vựng: {scoreReport.vocab.scaled}/60 ({scoreReport.vocab.correct}/{scoreReport.vocab.total} câu)</span>
+                <span>Ngữ pháp & Đọc: {scoreReport.grammarReading.scaled}/60 ({scoreReport.grammarReading.correct}/{scoreReport.grammarReading.total} câu)</span>
+              </div>
             </div>
-            <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant/20">
-              <span className="text-on-surface-variant block">2. Ngữ pháp & Đọc hiểu:</span>
-              <strong className="text-sm text-primary">{scoreReport.grammarReading.scaled} / 60 điểm</strong>
-              <div className="text-[11px] text-on-surface-variant">Đúng {scoreReport.grammarReading.correct}/{scoreReport.grammarReading.total} câu</div>
-            </div>
-            <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant/20">
-              <span className="text-on-surface-variant block">3. Nghe hiểu:</span>
-              <strong className="text-sm text-primary">{scoreReport.listening.scaled} / 60 điểm</strong>
-              <div className="text-[11px] text-on-surface-variant">Đúng {scoreReport.listening.correct}/{scoreReport.listening.total} câu</div>
+
+            {/* Group 2: Listening (60 points) */}
+            <div className={`p-3.5 rounded-xl border space-y-2 ${
+              scoreReport.isListeningPass
+                ? 'bg-surface-container-low border-outline-variant/25'
+                : 'bg-error/10 border-error/30'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-on-surface">
+                  2. Nghe hiểu (聴解):
+                </span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                  scoreReport.isListeningPass
+                    ? 'bg-secondary/15 text-secondary'
+                    : 'bg-error text-on-error'
+                }`}>
+                  {scoreReport.isListeningPass ? 'Đạt chuẩn' : 'Bị điểm liệt'}
+                </span>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <strong className="text-base text-primary font-headline">
+                  {scoreReport.listening.scaled} / 60 điểm
+                </strong>
+                <span className="text-[11px] text-on-surface-variant font-mono">
+                  (Điểm liệt: ≥ 19/60)
+                </span>
+              </div>
+              <div className="text-[11px] text-on-surface-variant border-t border-outline-variant/15 pt-1.5">
+                Đúng {scoreReport.listening.correct}/{scoreReport.listening.total} câu hội thoại
+              </div>
             </div>
           </div>
+
+          {/* Failure diagnosis callout if not passed */}
+          {!scoreReport.passed && (
+            <div className="p-3 rounded-lg bg-error/10 border border-error/25 text-xs text-error space-y-1">
+              <strong className="block font-bold">Lý do chưa đạt (不合格):</strong>
+              <ul className="list-disc list-inside space-y-0.5 text-[11px]">
+                {!scoreReport.isTotalScorePass && (
+                  <li>Tổng điểm đạt {scoreReport.totalScore}/180 điểm (Yêu cầu điểm chuẩn đỗ ≥ {exam.passScore}/180).</li>
+                )}
+                {!scoreReport.isLanguageReadingPass && (
+                  <li>Bị điểm liệt phần Kiến thức ngôn ngữ & Đọc hiểu: {scoreReport.languageKnowledgeReadingTotal}/120 điểm (Yêu cầu tối thiểu ≥ 38/120).</li>
+                )}
+                {!scoreReport.isListeningPass && (
+                  <li>Bị điểm liệt phần Nghe hiểu: {scoreReport.listening.scaled}/60 điểm (Yêu cầu tối thiểu ≥ 19/60).</li>
+                )}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 
@@ -530,6 +655,142 @@ export const ExamSimulatorView: React.FC<ExamSimulatorViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Pop-up cảnh báo sót câu hỏi chưa làm (teleported to body to prevent clipping) */}
+      {showIncompleteModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-surface-container-lowest border border-outline-variant/35 rounded-2xl max-w-lg w-full shadow-2xl p-6 overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150 relative">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-outline-variant/20">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="font-headline font-bold text-base sm:text-lg text-on-surface">
+                    Chưa hoàn thành toàn bộ bài thi!
+                  </h3>
+                  <p className="text-xs text-on-surface-variant">
+                    Bạn còn câu hỏi chưa chọn đáp án, nộp ngay có thể bị mất điểm.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowIncompleteModal(false)}
+                className="p-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Statistics Banner */}
+            <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between text-xs">
+              <span className="text-on-surface">
+                Đã làm: <strong className="text-primary font-bold">{answeredCount}</strong> / {allQuestions.length} câu
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-error/15 text-error font-bold text-xs">
+                Còn thiếu {unansweredQuestions.length} câu
+              </span>
+            </div>
+
+            {/* List of missed questions grouped by Section */}
+            <div className="my-4 overflow-y-auto pr-1 space-y-3 max-h-[40vh] no-scrollbar">
+              <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block">
+                Danh sách các câu chưa làm (bấm vào câu để làm ngay):
+              </span>
+              {activeSections.map((sec) => {
+                const missingInSec = sec.questions.filter((q) => answers[q.id] === undefined);
+                if (missingInSec.length === 0) return null;
+                return (
+                  <div
+                    key={sec.id}
+                    className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/20 space-y-2"
+                  >
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-on-surface">
+                        {sec.shortTitleVi} ({sec.titleJp})
+                      </span>
+                      <span className="text-[11px] font-semibold text-error">
+                        Thiếu {missingInSec.length} câu
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {missingInSec.map((q) => (
+                        <button
+                          key={q.id}
+                          type="button"
+                          onClick={() => handleJumpToMissingQuestion(sec.id, q.id)}
+                          className="px-2.5 py-1 rounded-md bg-surface-container-lowest border border-error/35 text-error hover:bg-error hover:text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                          title={`Bấm để chuyển ngay đến câu ${q.number}`}
+                        >
+                          Câu {q.number}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="pt-3 border-t border-outline-variant/20 flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setShowIncompleteModal(false)}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-xs shadow-xs hover:opacity-95 transition-all cursor-pointer text-center"
+              >
+                Tiếp tục làm bài
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Pop-up xác nhận khi đã làm đủ 100% câu hỏi (teleported to body) */}
+      {showConfirmSubmitModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-surface-container-lowest border border-outline-variant/35 rounded-2xl max-w-md w-full shadow-2xl p-6 overflow-hidden flex flex-col animate-in zoom-in-95 duration-150 relative">
+            <div className="flex items-center gap-3 pb-3 border-b border-outline-variant/20">
+              <div className="w-10 h-10 rounded-xl bg-secondary/15 border border-secondary/30 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-5 h-5 text-secondary" />
+              </div>
+              <div>
+                <h3 className="font-headline font-bold text-base sm:text-lg text-on-surface">
+                  Xác nhận nộp bài thi
+                </h3>
+                <p className="text-xs text-on-surface-variant">
+                  Bạn đã hoàn thành 100% câu hỏi ({allQuestions.length}/{allQuestions.length} câu)
+                </p>
+              </div>
+            </div>
+
+            <p className="my-4 text-sm font-medium text-on-surface leading-relaxed">
+              Bạn có chắc chắn muốn nộp bài và tiến hành xem kết quả không?
+            </p>
+
+            <div className="pt-3 border-t border-outline-variant/20 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setShowConfirmSubmitModal(false)}
+                className="px-4 py-2.5 rounded-xl border border-outline-variant/40 hover:bg-surface-container text-on-surface font-bold text-xs transition-colors cursor-pointer"
+              >
+                Kiểm tra lại
+              </button>
+              <button
+                type="button"
+                onClick={handleForceSubmit}
+                className="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-xs shadow-xs hover:opacity-95 transition-all cursor-pointer"
+              >
+                Xác nhận nộp bài
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

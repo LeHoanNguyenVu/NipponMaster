@@ -4,11 +4,40 @@ import type { ExamAttemptSummary, ExamComment } from '../types';
 const ATTEMPTS_KEY_PREFIX = 'nippon_jlpt_attempts_';
 const COMMENTS_KEY_PREFIX = 'nippon_jlpt_comments_';
 
+function deduplicateAttempts(list: ExamAttemptSummary[]): ExamAttemptSummary[] {
+  const result: ExamAttemptSummary[] = [];
+  for (const item of list) {
+    const isDupe = result.some((existing) => {
+      if (existing.completedAt === item.completedAt) return true;
+      const t1 = new Date(existing.completedAt).getTime();
+      const t2 = new Date(item.completedAt).getTime();
+      const diffMs = Math.abs(t1 - t2);
+      return (
+        diffMs < 10000 &&
+        existing.totalScore === item.totalScore &&
+        existing.correctCount === item.correctCount
+      );
+    });
+    if (!isDupe) {
+      result.push(item);
+    }
+  }
+  return result;
+}
+
 export function getLocalExamAttempts(examId: string): ExamAttemptSummary[] {
   try {
     const key = `${ATTEMPTS_KEY_PREFIX}${examId}`;
     const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const list: ExamAttemptSummary[] = JSON.parse(raw);
+      const cleaned = deduplicateAttempts(list);
+      // Auto-heal localStorage if duplicate entries were previously stored
+      if (cleaned.length !== list.length) {
+        localStorage.setItem(key, JSON.stringify(cleaned));
+      }
+      return cleaned;
+    }
 
     // Check fallback legacy store
     const legacyRaw = localStorage.getItem('nippon_jlpt_exam_attempts_v1');
@@ -46,7 +75,7 @@ export async function fetchExamAttempts(examId: string, userId?: string | number
             userAnswers: item.userAnswers ? JSON.parse(item.userAnswers as string) : {},
           }));
         if (remoteList.length > 0) {
-          return remoteList;
+          return deduplicateAttempts(remoteList);
         }
       }
     }
@@ -61,13 +90,28 @@ export async function submitExamAttempt(
   summary: ExamAttemptSummary,
   userId?: string | number
 ): Promise<void> {
-  // 1. Save to local real-time attempts store
+  // 1. Save to local real-time attempts store with deduplication guard
   try {
     const key = `${ATTEMPTS_KEY_PREFIX}${summary.examId}`;
-    const raw = localStorage.getItem(key);
-    const list: ExamAttemptSummary[] = raw ? JSON.parse(raw) : [];
-    list.unshift(summary);
-    localStorage.setItem(key, JSON.stringify(list));
+    const list: ExamAttemptSummary[] = getLocalExamAttempts(summary.examId);
+    
+    // Check if duplicate attempt already exists
+    const isDuplicate = list.some((existing) => {
+      if (existing.completedAt === summary.completedAt) return true;
+      const t1 = new Date(existing.completedAt).getTime();
+      const t2 = new Date(summary.completedAt).getTime();
+      const diffMs = Math.abs(t1 - t2);
+      return (
+        diffMs < 10000 &&
+        existing.totalScore === summary.totalScore &&
+        existing.correctCount === summary.correctCount
+      );
+    });
+
+    if (!isDuplicate) {
+      list.unshift(summary);
+      localStorage.setItem(key, JSON.stringify(list));
+    }
   } catch {
     // Ignore storage quota
   }
@@ -203,8 +247,7 @@ export function getExamLiveStats(examId: string) {
   let localAttemptsCount = 0;
   let localCommentsCount = 0;
   try {
-    const rawAtt = localStorage.getItem(`${ATTEMPTS_KEY_PREFIX}${examId}`);
-    if (rawAtt) localAttemptsCount = JSON.parse(rawAtt).length;
+    localAttemptsCount = getLocalExamAttempts(examId).length;
     const rawCom = localStorage.getItem(`${COMMENTS_KEY_PREFIX}${examId}`);
     if (rawCom) {
       const parsed: ExamComment[] = JSON.parse(rawCom);

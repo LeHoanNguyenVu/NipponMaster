@@ -28,7 +28,13 @@ export const ExamLibraryView: React.FC<ExamLibraryViewProps> = ({
   };
 
   const allExams = getAllCatalogExams();
-  const filteredExams = allExams.filter((paper) => paper.level === selectedLevel);
+  const filteredExams = allExams
+    .filter((paper) => paper.level === selectedLevel)
+    .sort((a, b) => {
+      if (a.hasInteractiveData && !b.hasInteractiveData) return -1;
+      if (!a.hasInteractiveData && b.hasInteractiveData) return 1;
+      return b.year - a.year;
+    });
 
   return (
     <div className="space-y-4 pb-12">
@@ -137,9 +143,9 @@ export const ExamLibraryView: React.FC<ExamLibraryViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onSelectExamDetail(paper)}
-                    className="w-full py-2 rounded-lg border border-primary text-primary hover:bg-primary hover:text-on-primary font-bold text-xs transition-colors cursor-pointer"
+                    className="w-full py-2 rounded-lg bg-primary text-on-primary hover:opacity-95 font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    Chi tiết
+                    Làm bài ngay
                   </button>
                 ) : (
                   <button

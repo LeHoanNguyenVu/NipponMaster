@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Square, Star, Volume2, XCircle } from 'lucide-react';
+import { CheckCircle2, Star, XCircle, ZoomIn } from 'lucide-react';
 import type { JLPTQuestion } from '../types';
+import { ExamAudioPlayer } from './ExamAudioPlayer';
+import { ExamImageModal } from './ExamImageModal';
 
 interface ExamQuestionCardProps {
   question: JLPTQuestion;
@@ -12,11 +14,25 @@ interface ExamQuestionCardProps {
 function renderFormattedJapanese(text: string): React.ReactNode {
   const lines = text.split('\n');
   return lines.map((line, lineIdx) => {
-    const parts = line.split(/(<u>.*?<\/u>|★|【\s*\d+\s*】)/g);
+    const parts = line.split(/(<b>.*?<\/b>|<strong>.*?<\/strong>|<u>.*?<\/u>|★|【\s*\d+\s*】)/g);
     return (
       <React.Fragment key={lineIdx}>
         {lineIdx > 0 && <br />}
         {parts.map((part, idx) => {
+          if (
+            (part.startsWith('<b>') && part.endsWith('</b>')) ||
+            (part.startsWith('<strong>') && part.endsWith('</strong>'))
+          ) {
+            const inner = part.startsWith('<b>') ? part.slice(3, -4) : part.slice(8, -9);
+            return (
+              <strong
+                key={idx}
+                className="font-bold text-primary font-japanese px-0.5"
+              >
+                {inner}
+              </strong>
+            );
+          }
           if (part.startsWith('<u>') && part.endsWith('</u>')) {
             const inner = part.slice(3, -4);
             return (
@@ -63,7 +79,7 @@ export const ExamQuestionCard: React.FC<ExamQuestionCardProps> = ({
 }) => {
   // Star slots: [slot0, slot1, slot2 (★), slot3] stores index 0..3 of token
   const [starSlots, setStarSlots] = useState<(number | null)[]>([null, null, null, null]);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   const isAnswered = selectedOption !== undefined;
   const isCorrect = isSubmitted && selectedOption === question.correctAnswer;
@@ -85,42 +101,6 @@ export const ExamQuestionCard: React.FC<ExamQuestionCardProps> = ({
     if (nextSlots[2] !== null) {
       onSelectOption(nextSlots[2]);
     }
-  };
-
-  const handlePlayDialogue = () => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-
-    if (isPlayingAudio) {
-      window.speechSynthesis.cancel();
-      setIsPlayingAudio(false);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-    const lines =
-      question.dialogue && question.dialogue.length > 0
-        ? question.dialogue
-        : [{ speaker: 'N' as const, speakerLabel: '音声', jp: question.promptJp }];
-
-    setIsPlayingAudio(true);
-
-    lines.forEach((line, idx) => {
-      const utterance = new SpeechSynthesisUtterance(line.jp);
-      utterance.lang = 'ja-JP';
-      utterance.rate = 1.0; // Fixed standard speed
-      if (line.speaker === 'M') {
-        utterance.pitch = 0.85;
-      } else if (line.speaker === 'F') {
-        utterance.pitch = 1.2;
-      } else {
-        utterance.pitch = 1.0;
-      }
-      if (idx === lines.length - 1) {
-        utterance.onend = () => setIsPlayingAudio(false);
-        utterance.onerror = () => setIsPlayingAudio(false);
-      }
-      window.speechSynthesis.speak(utterance);
-    });
   };
 
   return (
@@ -178,21 +158,15 @@ export const ExamQuestionCard: React.FC<ExamQuestionCardProps> = ({
         </div>
       </div>
 
-      {/* Listening Audio Control: Single standard speed, no script during test */}
+      {/* Listening Audio Player Bar */}
       {question.format === 'listening' && (
-        <div className="mb-4">
-          <button
-            type="button"
-            onClick={handlePlayDialogue}
-            className={`px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-xs cursor-pointer ${
-              isPlayingAudio
-                ? 'bg-error text-on-error'
-                : 'bg-primary text-on-primary hover:opacity-95'
-            }`}
-          >
-            {isPlayingAudio ? <Square size={14} /> : <Volume2 size={15} />}
-            {isPlayingAudio ? 'Dừng phát âm thanh' : 'Nghe bài thi'}
-          </button>
+        <div className="mb-4 space-y-3">
+          <ExamAudioPlayer
+            audioUrl={question.audioUrl}
+            dialogue={question.dialogue}
+            promptJp={question.promptJp}
+            questionNumber={question.number}
+          />
 
           {/* Script is ONLY revealed after submission */}
           {isSubmitted && question.dialogue && (
@@ -218,13 +192,44 @@ export const ExamQuestionCard: React.FC<ExamQuestionCardProps> = ({
         {renderFormattedJapanese(question.promptJp)}
       </div>
 
-      {/* Clean Image Only: NO Vietnamese description, NO zoom button */}
+      {/* Clean Image Only with Interactive Detailed View Modal */}
       {question.imageUrl && (
-        <div className="mb-4">
-          <img
-            src={question.imageUrl}
-            alt=""
-            className="max-h-72 w-auto object-contain mx-auto rounded-lg border border-outline-variant/30 bg-white p-2"
+        <div className="mb-4 text-center">
+          <div
+            className="group relative inline-block max-w-full rounded-xl overflow-hidden border border-outline-variant/35 bg-white p-2.5 shadow-xs cursor-zoom-in transition-all hover:border-primary/60 hover:shadow-md"
+            onClick={() => setIsImageModalOpen(true)}
+            title="Nhấp để phóng to và xem chi tiết ảnh"
+          >
+            <img
+              src={question.imageUrl}
+              alt=""
+              className="max-h-72 w-auto max-w-full object-contain mx-auto transition-transform duration-200 group-hover:scale-[1.01]"
+            />
+            {/* Hover overlay hint */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors flex items-center justify-center pointer-events-none">
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 backdrop-blur-xs">
+                <ZoomIn size={14} />
+                Xem ảnh chi tiết (Phóng to)
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-2">
+            <button
+              type="button"
+              onClick={() => setIsImageModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-on-surface text-xs font-bold border border-outline-variant/40 transition-all cursor-pointer shadow-2xs"
+            >
+              <ZoomIn size={14} />
+              Xem ảnh chi tiết (Phóng to)
+            </button>
+          </div>
+
+          <ExamImageModal
+            isOpen={isImageModalOpen}
+            imageUrl={question.imageUrl}
+            title={`Hình ảnh câu ${question.number}`}
+            onClose={() => setIsImageModalOpen(false)}
           />
         </div>
       )}

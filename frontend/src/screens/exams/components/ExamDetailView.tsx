@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import type { ExamAttemptSummary, ExamComment, JLPTExamPaper } from '../types';
+import { getAllCatalogExams } from '../data';
 import {
   deleteExamComment,
   fetchExamAttempts,
@@ -37,6 +38,7 @@ interface ExamDetailViewProps {
   onBack: () => void;
   onStartSimulator: (config: ExamStartConfig) => void;
   onReviewAttempt: (attempt: ExamAttemptSummary) => void;
+  onSelectExam?: (exam: JLPTExamPaper) => void;
 }
 
 const SECTION_SKILL_TAGS: Record<'vocab' | 'grammar_reading' | 'listening', string[]> = {
@@ -78,6 +80,7 @@ export const ExamDetailView: React.FC<ExamDetailViewProps> = ({
   onBack,
   onStartSimulator,
   onReviewAttempt,
+  onSelectExam,
 }) => {
   const { user } = useAuthStore();
   const isTeacher = user?.role === 'TEACHER' || user?.role === 'ADMIN';
@@ -93,6 +96,28 @@ export const ExamDetailView: React.FC<ExamDetailViewProps> = ({
     listening: false,
   });
   const [selectedTimeLimit, setSelectedTimeLimit] = useState<string>('');
+
+  const hasInteractiveQuestions = Boolean(
+    exam.hasInteractiveData &&
+    exam.sections &&
+    exam.sections.length > 0 &&
+    exam.sections.some((s) => s.questions.length > 0)
+  );
+
+  const suggestedInteractiveExam = React.useMemo(() => {
+    if (hasInteractiveQuestions) return null;
+    const all = getAllCatalogExams();
+    return (
+      all.find(
+        (p) =>
+          p.level === exam.level &&
+          p.id !== exam.id &&
+          p.hasInteractiveData &&
+          p.sections &&
+          p.sections.length > 0
+      ) || null
+    );
+  }, [exam.level, exam.id, hasInteractiveQuestions]);
 
   // Real-time live stats & comments
   const liveStats = getExamLiveStats(exam.id);
@@ -381,13 +406,42 @@ export const ExamDetailView: React.FC<ExamDetailViewProps> = ({
               </select>
             </div>
 
+            {!hasInteractiveQuestions && (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2.5">
+                <div className="flex items-center gap-2 font-bold text-sm text-amber-800 dark:text-amber-300">
+                  <AlertCircle size={18} />
+                  <span>Đề thi đang trong tiến trình số hóa câu hỏi tương tác</span>
+                </div>
+                <p className="leading-relaxed text-on-surface-variant">
+                  Bộ đề <strong>{exam.title}</strong> hiện được lưu trữ dữ liệu đề gốc Japan Foundation ({exam.sourcePdfName || 'PDF'}). 
+                  Các câu hỏi trắc nghiệm tương tác đang được hoàn thiện.
+                </p>
+                {suggestedInteractiveExam && onSelectExam && (
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => onSelectExam(suggestedInteractiveExam)}
+                      className="px-4 py-2 rounded-lg bg-primary text-on-primary font-bold text-xs hover:opacity-95 transition-all cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                    >
+                      👉 Chuyển sang làm {suggestedInteractiveExam.title} (Có đề tương tác)
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div>
               <button
                 type="button"
                 onClick={handleStartPractice}
-                className="px-6 py-2.5 rounded-lg bg-primary text-on-primary font-headline font-bold text-xs uppercase tracking-wider hover:opacity-95 transition-all cursor-pointer shadow-xs"
+                disabled={!hasInteractiveQuestions}
+                className={`px-6 py-2.5 rounded-lg font-headline font-bold text-xs uppercase tracking-wider transition-all shadow-xs ${
+                  hasInteractiveQuestions
+                    ? 'bg-primary text-on-primary hover:opacity-95 cursor-pointer'
+                    : 'bg-surface-container text-on-surface-variant/50 cursor-not-allowed border border-outline-variant/30'
+                }`}
               >
-                Luyện tập ngay
+                {hasInteractiveQuestions ? 'Luyện tập ngay' : 'Đang cập nhật câu hỏi tương tác'}
               </button>
             </div>
           </div>
@@ -406,6 +460,30 @@ export const ExamDetailView: React.FC<ExamDetailViewProps> = ({
                 thang điểm 180 của Japan Foundation và đánh giá Đạt / Chưa đạt.
               </p>
             </div>
+
+            {!hasInteractiveQuestions && (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2.5">
+                <div className="flex items-center gap-2 font-bold text-sm text-amber-800 dark:text-amber-300">
+                  <AlertCircle size={18} />
+                  <span>Đề thi đang trong tiến trình số hóa câu hỏi tương tác</span>
+                </div>
+                <p className="leading-relaxed text-on-surface-variant">
+                  Bộ đề <strong>{exam.title}</strong> hiện được lưu trữ dữ liệu đề gốc Japan Foundation ({exam.sourcePdfName || 'PDF'}). 
+                  Các câu hỏi trắc nghiệm tương tác đang được ban biên tập hoàn thiện.
+                </p>
+                {suggestedInteractiveExam && onSelectExam && (
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => onSelectExam(suggestedInteractiveExam)}
+                      className="px-4 py-2 rounded-lg bg-primary text-on-primary font-bold text-xs hover:opacity-95 transition-all cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                    >
+                      👉 Chuyển sang làm {suggestedInteractiveExam.title} (Có đề tương tác)
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="p-4 rounded-lg bg-surface-container-low border border-outline-variant/20 space-y-2 text-xs text-on-surface-variant">
               <div className="flex items-center justify-between">
@@ -430,9 +508,16 @@ export const ExamDetailView: React.FC<ExamDetailViewProps> = ({
               <button
                 type="button"
                 onClick={handleStartFullTest}
-                className="px-6 py-2.5 rounded-lg bg-primary text-on-primary font-headline font-bold text-xs uppercase tracking-wider hover:opacity-95 transition-all cursor-pointer shadow-xs"
+                disabled={!hasInteractiveQuestions}
+                className={`px-6 py-2.5 rounded-lg font-headline font-bold text-xs uppercase tracking-wider transition-all shadow-xs ${
+                  hasInteractiveQuestions
+                    ? 'bg-primary text-on-primary hover:opacity-95 cursor-pointer'
+                    : 'bg-surface-container text-on-surface-variant/50 cursor-not-allowed border border-outline-variant/30'
+                }`}
               >
-                Bắt đầu làm bài thi ({exam.totalMinutes} phút)
+                {hasInteractiveQuestions
+                  ? `Bắt đầu làm bài thi (${exam.totalMinutes} phút)`
+                  : 'Đang cập nhật câu hỏi tương tác'}
               </button>
             </div>
           </div>
@@ -477,9 +562,15 @@ export const ExamDetailView: React.FC<ExamDetailViewProps> = ({
                           {att.passed ? 'ĐẠT' : 'CHƯA ĐẠT'}
                         </span>
                       </div>
-                      <div className="text-xs text-on-surface-variant mt-1">
-                        Ngày làm: {new Date(att.completedAt).toLocaleDateString('vi-VN')} • Đúng{' '}
-                        {att.correctCount}/{att.totalQuestions} câu (Từ vựng: {att.vocabScore}/60 • Ngữ pháp & Đọc: {att.grammarReadingScore}/60 • Nghe: {att.listeningScore}/60)
+                      <div className="text-xs text-on-surface-variant mt-1 space-y-0.5">
+                        <div>
+                          Ngày làm: {new Date(att.completedAt).toLocaleDateString('vi-VN')} • Đúng {att.correctCount}/{att.totalQuestions} câu
+                        </div>
+                        <div className="font-mono text-[11px] text-on-surface-variant">
+                          • Kiến thức & Đọc hiểu: <strong>{att.vocabScore + att.grammarReadingScore} / 120</strong> (Từ vựng: {att.vocabScore} + Ngữ pháp: {att.grammarReadingScore} • Điểm liệt: ≥ 38)
+                          <span className="mx-1.5">•</span>
+                          • Nghe hiểu: <strong>{att.listeningScore} / 60</strong> (Điểm liệt: ≥ 19)
+                        </div>
                       </div>
                     </div>
 

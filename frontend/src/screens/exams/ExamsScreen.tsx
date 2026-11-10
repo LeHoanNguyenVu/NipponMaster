@@ -83,7 +83,6 @@ export default function ExamsScreen() {
           startConfig={activeSimulatorConfig}
           initialAnswers={reviewAttempt?.userAnswers || {}}
           isReviewMode={Boolean(reviewAttempt)}
-          userId={user?.id}
           onExit={() => {
             setActiveSimulatorConfig(null);
             setReviewAttempt(null);
@@ -101,6 +100,7 @@ export default function ExamsScreen() {
           }}
           onStartSimulator={handleStartSimulator}
           onReviewAttempt={handleReviewAttempt}
+          onSelectExam={handleSelectExamDetail}
         />
       ) : (
         <ExamLibraryView

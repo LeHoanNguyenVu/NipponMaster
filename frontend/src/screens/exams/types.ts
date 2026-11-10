@@ -18,9 +18,10 @@ export interface JLPTQuestion {
   format: JLPTQuestionFormat;
   promptJp: string;
   imageUrl?: string;
+  audioUrl?: string;
   starTokens?: string[];
   dialogue?: JLPTDialogueLine[];
-  options: [string, string, string, string];
+  options: [string, string, string, string] | [string, string, string];
   correctAnswer: 0 | 1 | 2 | 3;
   explanationVi: string;
   pointWeight: number;
