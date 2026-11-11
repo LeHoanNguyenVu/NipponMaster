@@ -1,15 +1,13 @@
 package com.nihongo.api.modules.translator.service;
 
+import com.nihongo.api.modules.kanji.entity.Kanji;
+import com.nihongo.api.modules.kanji.repository.KanjiRepository;
 import com.nihongo.api.modules.translator.dto.TranslateRequest;
 import com.nihongo.api.modules.translator.dto.TranslateResponse;
 import com.nihongo.api.modules.translator.dto.TranslateResponse.WordAnalysis;
-import com.nihongo.api.modules.kanji.entity.Kanji;
-import com.nihongo.api.modules.kanji.repository.KanjiRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -18,17 +16,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TranslationServiceImpl implements TranslationService {
 
+    private final GeminiClient geminiClient;
+    private final TranslationCache translationCache;
     private final KanjiRepository kanjiRepository;
-    private RestTemplate restTemplate = createRestTemplateWithTimeout();
 
-    private static RestTemplate createRestTemplateWithTimeout() {
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(2500);
-        factory.setReadTimeout(2500);
-        return new RestTemplate(factory);
-    }
-
-    // Bộ dịch cục bộ cho các câu thông dụng khi offline hoặc lỗi DNS mạng
+    // Bộ dịch cục bộ cho các câu thông dụng cơ bản phòng khi mất mạng hoàn toàn
     private static final Map<String, String> FALLBACK_JA_TO_VI = new HashMap<>();
     private static final Map<String, String> FALLBACK_VI_TO_JA = new HashMap<>();
     private static final Map<String, String> FALLBACK_EN_TO_JA = new HashMap<>();
@@ -39,40 +31,12 @@ public class TranslationServiceImpl implements TranslationService {
         FALLBACK_JA_TO_VI.put("毎日ご飯を食べます", "Mỗi ngày tôi đều ăn cơm.");
         FALLBACK_JA_TO_VI.put("水を飲みます。", "Tôi uống nước.");
         FALLBACK_JA_TO_VI.put("水を飲みます", "Tôi uống nước.");
-        FALLBACK_JA_TO_VI.put("テレビを見ます。", "Tôi xem tivi.");
-        FALLBACK_JA_TO_VI.put("テレビを見ます", "Tôi xem tivi.");
-        FALLBACK_JA_TO_VI.put("音楽を聞きます。", "Tôi nghe nhạc.");
-        FALLBACK_JA_TO_VI.put("音楽を聞きます", "Tôi nghe nhạc.");
-        FALLBACK_JA_TO_VI.put("本を読みます。", "Tôi đọc sách.");
-        FALLBACK_JA_TO_VI.put("本を読みます", "Tôi đọc sách.");
-        FALLBACK_JA_TO_VI.put("手紙を書きます。", "Tôi viết thư.");
-        FALLBACK_JA_TO_VI.put("手紙を書きます", "Tôi viết thư.");
-        FALLBACK_JA_TO_VI.put("日本語を話します。", "Tôi nói tiếng Nhật.");
-        FALLBACK_JA_TO_VI.put("日本語を話します", "Tôi nói tiếng Nhật.");
-        FALLBACK_JA_TO_VI.put("本を買います。", "Tôi mua sách.");
-        FALLBACK_JA_TO_VI.put("本を買います", "Tôi mua sách.");
         FALLBACK_JA_TO_VI.put("学校に行きます。", "Tôi đi đến trường.");
         FALLBACK_JA_TO_VI.put("学校に行きます", "Tôi đi đến trường.");
         FALLBACK_JA_TO_VI.put("先生はやさしいです。", "Thầy cô giáo rất hiền từ.");
         FALLBACK_JA_TO_VI.put("先生はやさしいです", "Thầy cô giáo rất hiền từ.");
-        FALLBACK_JA_TO_VI.put("私はい学生です。", "Tôi là học sinh/sinh viên.");
-        FALLBACK_JA_TO_VI.put("私は学生です", "Tôi là học sinh/sinh viên.");
-        FALLBACK_JA_TO_VI.put("友達と遊びます。", "Tôi đi chơi với bạn.");
-        FALLBACK_JA_TO_VI.put("友達と遊びます", "Tôi đi chơi với bạn.");
-        FALLBACK_JA_TO_VI.put("大きい犬がいます。", "Có một con chó lớn.");
-        FALLBACK_JA_TO_VI.put("大きい犬がいます", "Có một con chó lớn.");
-        FALLBACK_JA_TO_VI.put("小さい猫がいます。", "Có một con mèo nhỏ.");
-        FALLBACK_JA_TO_VI.put("小さい猫がいます", "Có một con mèo nhỏ.");
-        FALLBACK_JA_TO_VI.put("新しい車を買いました。", "Tôi đã mua một chiếc xe hơi mới.");
-        FALLBACK_JA_TO_VI.put("新しい車を買いました", "Tôi đã mua một chiếc xe hơi mới.");
-        FALLBACK_JA_TO_VI.put("古い家に住んでいます。", "Tôi đang sống trong một ngôi nhà cũ.");
-        FALLBACK_JA_TO_VI.put("古い家に住んでいます", "Tôi đang sống trong một ngôi nhà cũ.");
-        FALLBACK_JA_TO_VI.put("この花はきれいです。", "Bông hoa này thật đẹp.");
-        FALLBACK_JA_TO_VI.put("この花はきれいです", "Bông hoa này thật đẹp.");
         FALLBACK_JA_TO_VI.put("お元気ですか。", "Bạn có khỏe không?");
         FALLBACK_JA_TO_VI.put("お元気ですか", "Bạn có khỏe không?");
-        FALLBACK_JA_TO_VI.put("今日は暑いです。", "Hôm nay trời nóng nực.");
-        FALLBACK_JA_TO_VI.put("今日は暑いです", "Hôm nay trời nóng nực.");
         FALLBACK_JA_TO_VI.put("こんにちは", "Xin chào");
         FALLBACK_JA_TO_VI.put("ありがとう", "Cảm ơn bạn");
         FALLBACK_JA_TO_VI.put("さようなら", "Tạm biệt");
@@ -94,15 +58,9 @@ public class TranslationServiceImpl implements TranslationService {
 
         // Anh -> Nhật
         FALLBACK_EN_TO_JA.put("I eat rice every day.", "毎日ご飯を食べます。");
-        FALLBACK_EN_TO_JA.put("I eat rice every day", "毎日ご飯を食べます。");
-        FALLBACK_EN_TO_JA.put("I drink water.", "水を飲みます。");
-        FALLBACK_EN_TO_JA.put("I drink water", "水を飲みます。");
         FALLBACK_EN_TO_JA.put("I go to school.", "学校に行きます。");
-        FALLBACK_EN_TO_JA.put("I go to school", "学校に行きます。");
         FALLBACK_EN_TO_JA.put("The teacher is kind.", "先生はやさしいです。");
-        FALLBACK_EN_TO_JA.put("The teacher is kind", "先生はやさしいです。");
         FALLBACK_EN_TO_JA.put("How are you?", "お元気ですか。");
-        FALLBACK_EN_TO_JA.put("How are you", "お元気ですか。");
         FALLBACK_EN_TO_JA.put("Hello", "こんにちは");
         FALLBACK_EN_TO_JA.put("Thank you", "ありがとう");
         FALLBACK_EN_TO_JA.put("Goodbye", "さようなら");
@@ -110,96 +68,63 @@ public class TranslationServiceImpl implements TranslationService {
 
     @Override
     public TranslateResponse translate(TranslateRequest request) {
+        if (request == null || request.getText() == null || request.getText().trim().isEmpty()) {
+            return TranslateResponse.builder()
+                    .originalText("")
+                    .translatedText("")
+                    .sourceLang(request != null ? request.getSourceLang() : "ja")
+                    .targetLang(request != null ? request.getTargetLang() : "vi")
+                    .words(Collections.emptyList())
+                    .build();
+        }
+
         String text = request.getText().trim();
-        String sourceLang = request.getSourceLang() != null ? request.getSourceLang() : "ja";
-        String targetLang = request.getTargetLang();
-        log.info("Dịch thuật AI: '{}' ({} -> {})", text, sourceLang, targetLang);
+        String sourceLang = request.getSourceLang() != null ? request.getSourceLang().trim().toLowerCase() : "ja";
+        String targetLang = request.getTargetLang() != null ? request.getTargetLang().trim().toLowerCase() : "vi";
 
-        // 1. Tra cứu từ điển cục bộ trước (tối ưu tốc độ & độ chính xác cho câu mẫu học tập)
+        log.info("🤖 NipponMaster Translate: '{}' ({} -> {})", text, sourceLang, targetLang);
+
+        // 1. Kiểm tra Cache bộ nhớ đệm (phản hồi 0ms, tiết kiệm quota)
+        TranslateResponse cached = translationCache.get(sourceLang, targetLang, text);
+        if (cached != null) {
+            return cached;
+        }
+
+        // 2. Gọi Gemini AI để dịch thuật & phân tích sâu toàn diện
+        TranslateResponse geminiResult = geminiClient.translate(text, sourceLang, targetLang);
+        if (geminiResult != null && geminiResult.getTranslatedText() != null && !geminiResult.getTranslatedText().isBlank()) {
+            // Lưu vào cache cho các lần gọi sau
+            translationCache.put(sourceLang, targetLang, text, geminiResult);
+            return geminiResult;
+        }
+
+        // 3. Fallback dự phòng khi mất kết nối AI hoặc quota tạm thời đầy
+        log.warn("⚠️ Không nhận được kết quả từ Gemini AI, sử dụng fallback dự phòng cho: [{}]", text);
+        return handleFallback(text, sourceLang, targetLang);
+    }
+
+    private TranslateResponse handleFallback(String text, String sourceLang, String targetLang) {
         String translatedText = null;
+
         if ("ja".equals(sourceLang) && "vi".equals(targetLang)) {
-            translatedText = FALLBACK_JA_TO_VI.get(text);
-            if (translatedText == null) {
-                // Thử tìm không có dấu chấm cuối câu
-                String key = text.endsWith("。") ? text.substring(0, text.length() - 1) : text + "。";
-                translatedText = FALLBACK_JA_TO_VI.get(key);
-            }
+            translatedText = lookupFallback(FALLBACK_JA_TO_VI, text);
         } else if ("vi".equals(sourceLang) && "ja".equals(targetLang)) {
-            translatedText = FALLBACK_VI_TO_JA.get(text);
-            if (translatedText == null) {
-                String key = text.endsWith(".") ? text.substring(0, text.length() - 1) : text + ".";
-                translatedText = FALLBACK_VI_TO_JA.get(key);
-            }
+            translatedText = lookupFallback(FALLBACK_VI_TO_JA, text);
         } else if ("en".equals(sourceLang) && "ja".equals(targetLang)) {
-            translatedText = FALLBACK_EN_TO_JA.get(text);
-            if (translatedText == null) {
-                String key = text.endsWith(".") ? text.substring(0, text.length() - 1) : text + ".";
-                translatedText = FALLBACK_EN_TO_JA.get(key);
-            }
+            translatedText = lookupFallback(FALLBACK_EN_TO_JA, text);
         }
 
-        // 2. Gọi API ngoài nếu không tìm thấy trong từ điển cục bộ
-        if (translatedText == null || translatedText.isEmpty()) {
-            try {
-                String langPair = sourceLang + "|" + targetLang;
-                String url = "https://api.mymemory.translated.net/get?q={q}&langpair={langpair}";
-
-                @SuppressWarnings("unchecked")
-                Map<String, Object> response = restTemplate.getForObject(url, Map.class, text, langPair);
-                if (response != null && response.containsKey("responseData")) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> responseData = (Map<String, Object>) response.get("responseData");
-                    if (responseData != null && responseData.containsKey("translatedText")) {
-                        translatedText = (String) responseData.get("translatedText");
-                        // Loại bỏ các thông báo rác từ MyMemory nếu có
-                        if (translatedText.contains("MYMEMORY WARNING")) {
-                            translatedText = null;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.warn("Không thể kết nối API MyMemory: {}. Sử dụng bản dịch mẫu.", e.getMessage());
-            }
+        if (translatedText == null) {
+            translatedText = "[Bản dịch dự phòng] " + text;
         }
 
-        // 3. Fallback cuối cùng
-        if (translatedText == null || translatedText.isEmpty()) {
-            translatedText = "[Bản dịch mẫu] " + text;
-        }
-
-        // 2. Phân tích từ vựng & Sinh Furigana dựa trên dữ liệu database
-        // Xác định câu tiếng Nhật (nếu nguồn là ja, phân tích câu nguồn; nếu đích là ja, phân tích câu đích)
-        String japaneseText = null;
-        if ("ja".equals(sourceLang)) {
-            japaneseText = text;
-        } else if ("ja".equals(targetLang)) {
-            japaneseText = translatedText;
-        }
-
+        // Phân tích Kanji cơ bản trong fallback mode
+        String japaneseText = "ja".equals(sourceLang) ? text : ("ja".equals(targetLang) ? translatedText : null);
         List<WordAnalysis> matchedWords = new ArrayList<>();
         String pronunciationHtml = null;
 
         if (japaneseText != null && !japaneseText.isEmpty()) {
-            List<Kanji> allKanji = kanjiRepository.findAll();
-            Set<Long> matchedIds = new HashSet<>();
-
-            for (Kanji k : allKanji) {
-                if (k.getCharacter() != null && japaneseText.contains(k.getCharacter()) && !matchedIds.contains(k.getId())) {
-                    matchedIds.add(k.getId());
-                    String reading = (k.getOnReading() != null && !k.getOnReading().isBlank()) 
-                            ? k.getOnReading() 
-                            : (k.getKunReading() != null ? k.getKunReading() : "");
-                    matchedWords.add(WordAnalysis.builder()
-                            .word(k.getCharacter())
-                            .reading(reading)
-                            .meaning(k.getMeaning())
-                            .partOfSpeech("KANJI")
-                            .build());
-                }
-            }
-
-            // 3. Tạo chuỗi Furigana bằng thẻ ruby
-            pronunciationHtml = generateFuriganaHtml(japaneseText, matchedWords);
+            pronunciationHtml = generateBasicFurigana(japaneseText, matchedWords);
         }
 
         return TranslateResponse.builder()
@@ -209,44 +134,62 @@ public class TranslationServiceImpl implements TranslationService {
                 .targetLang(targetLang)
                 .pronunciation(pronunciationHtml)
                 .words(matchedWords)
+                .grammarNotes("Hệ thống đang hoạt động ở chế độ dự phòng do kết nối AI tạm thời gián đoạn.")
+                .detectedLevel(null)
                 .build();
     }
 
-    private String generateFuriganaHtml(String text, List<WordAnalysis> matchedWords) {
-        // Sắp xếp từ dài nhất trước để tránh thay thế con
-        List<WordAnalysis> sortedWords = new ArrayList<>(matchedWords);
-        sortedWords.sort((w1, w2) -> Integer.compare(w2.getWord().length(), w1.getWord().length()));
+    private String lookupFallback(Map<String, String> map, String text) {
+        String res = map.get(text);
+        if (res != null) return res;
 
-        String tempText = text;
-        List<String> replacements = new ArrayList<>();
-
-        for (WordAnalysis w : sortedWords) {
-            String word = w.getWord();
-            if (containsKanji(word)) {
-                String rubyTag = String.format("<ruby>%s<rt>%s</rt></ruby>", word, w.getReading());
-                
-                // Thay thế từ trong câu bằng mã placeholder để không bị chồng chéo
-                int index = replacements.size();
-                replacements.add(rubyTag);
-                tempText = tempText.replace(word, String.format("##REPLACE_%d##", index));
-            }
-        }
-
-        // Trả lại các mã ruby vào vị trí placeholder ban đầu
-        for (int i = 0; i < replacements.size(); i++) {
-            tempText = tempText.replace(String.format("##REPLACE_%d##", i), replacements.get(i));
-        }
-
-        return tempText;
+        // Thử tìm với hoặc không có dấu chấm
+        String alt = text.endsWith("。") ? text.substring(0, text.length() - 1) :
+                (text.endsWith(".") ? text.substring(0, text.length() - 1) : text + "。");
+        return map.get(alt);
     }
 
-    private static boolean containsKanji(String str) {
-        if (str == null) return false;
-        for (char c : str.toCharArray()) {
-            if (c >= '\u4e00' && c <= '\u9faf') {
-                return true;
+    private String generateBasicFurigana(String japaneseText, List<WordAnalysis> matchedWords) {
+        try {
+            // Tìm các Kanji xuất hiện trong câu (chỉ tìm trong tập ký tự thực tế xuất hiện)
+            Set<Character> kanjiInText = new HashSet<>();
+            for (char c : japaneseText.toCharArray()) {
+                if (c >= '\u4e00' && c <= '\u9faf') {
+                    kanjiInText.add(c);
+                }
             }
+
+            if (kanjiInText.isEmpty()) {
+                return japaneseText;
+            }
+
+            for (Character c : kanjiInText) {
+                Optional<Kanji> opt = kanjiRepository.findByCharacter(String.valueOf(c));
+                opt.ifPresent(k -> {
+                    String reading = (k.getOnReading() != null && !k.getOnReading().isBlank())
+                            ? k.getOnReading()
+                            : (k.getKunReading() != null ? k.getKunReading() : "");
+                    matchedWords.add(WordAnalysis.builder()
+                            .word(k.getCharacter())
+                            .reading(reading)
+                            .meaning(k.getMeaning())
+                            .partOfSpeech("KANJI")
+                            .sinoVietnamese(k.getHanViet())
+                            .build());
+                });
+            }
+
+            String temp = japaneseText;
+            for (WordAnalysis w : matchedWords) {
+                if (w.getWord() != null && !w.getReading().isBlank()) {
+                    temp = temp.replace(w.getWord(),
+                            String.format("<ruby>%s<rt>%s</rt></ruby>", w.getWord(), w.getReading()));
+                }
+            }
+            return temp;
+        } catch (Exception e) {
+            log.debug("Lỗi khi sinh basic furigana: {}", e.getMessage());
+            return japaneseText;
         }
-        return false;
     }
 }

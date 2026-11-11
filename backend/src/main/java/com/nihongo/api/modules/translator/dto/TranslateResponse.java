@@ -23,6 +23,12 @@ public class TranslateResponse {
     /** Danh sách từ vựng phân tích từ câu */
     private List<WordAnalysis> words;
 
+    /** Ghi chú ngữ pháp và sắc thái do AI phân tích */
+    private String grammarNotes;
+
+    /** Cấp độ JLPT ước tính của câu (N5, N4, N3, N2, N1) hoặc null */
+    private String detectedLevel;
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -32,5 +38,7 @@ public class TranslateResponse {
         private String reading;
         private String meaning;
         private String partOfSpeech;
+        /** Âm Hán Việt (nếu là chữ Hán) */
+        private String sinoVietnamese;
     }
 }
