@@ -31,24 +31,25 @@ export interface RetentionAnalytics {
 
 export const adminRetentionApi = {
   getCampaigns: async (): Promise<RetentionCampaign[]> => {
-    const res = await axiosClient.get('/admin/retention/campaigns');
-    return res.data.data;
+    const res: any = await axiosClient.get('/admin/retention/campaigns');
+    const data = res?.data ?? res;
+    return Array.isArray(data) ? data : [];
   },
 
   toggleStatus: async (id: number, active: boolean): Promise<RetentionCampaign> => {
-    const res = await axiosClient.put(`/admin/retention/campaigns/${id}/status`, null, {
+    const res: any = await axiosClient.put(`/admin/retention/campaigns/${id}/status`, null, {
       params: { active },
     });
-    return res.data.data;
+    return res?.data ?? res;
   },
 
   executeNow: async (id: number): Promise<RunCampaignResponse> => {
-    const res = await axiosClient.post(`/admin/retention/campaigns/${id}/execute`);
-    return res.data.data;
+    const res: any = await axiosClient.post(`/admin/retention/campaigns/${id}/execute`);
+    return res?.data ?? res;
   },
 
   getAnalytics: async (): Promise<RetentionAnalytics> => {
-    const res = await axiosClient.get('/admin/retention/analytics');
-    return res.data.data;
+    const res: any = await axiosClient.get('/admin/retention/analytics');
+    return res?.data ?? res;
   },
 };

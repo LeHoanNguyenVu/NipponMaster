@@ -34,7 +34,7 @@ public class GeminiClient {
     @Value("${gemini.api.key:}")
     private String apiKey;
 
-    @Value("${gemini.model:gemini-2.5-flash}")
+    @Value("${gemini.model:gemini-flash-lite-latest}")
     private String model;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -43,7 +43,8 @@ public class GeminiClient {
             .build();
 
     public TranslateResponse translate(String text, String sourceLang, String targetLang) {
-        if (apiKey == null || apiKey.isBlank()) {
+        String primaryKey = apiKey == null ? "" : apiKey.split("[,;\\s]+")[0].trim();
+        if (primaryKey.isBlank()) {
             log.warn("⚠️ Chưa cấu hình GEMINI_API_KEY trong hệ thống!");
             return null;
         }
@@ -52,27 +53,33 @@ public class GeminiClient {
             String prompt = buildPrompt(text, sourceLang, targetLang);
             String requestBodyJson = buildRequestBody(prompt);
 
-            String url = String.format(GEMINI_API_URL_TEMPLATE, model, apiKey);
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json; charset=utf-8")
-                    .timeout(Duration.ofSeconds(15))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBodyJson, StandardCharsets.UTF_8))
-                    .build();
-
-            long startTime = System.currentTimeMillis();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            long elapsed = System.currentTimeMillis() - startTime;
-
-            if (response.statusCode() != 200) {
-                log.error("❌ Gemini API trả về lỗi [HTTP {}]: {} (thời gian: {} ms)",
-                        response.statusCode(), response.body(), elapsed);
-                return null;
+            List<String> candidates = new ArrayList<>();
+            if (model != null && !model.isBlank()) candidates.add(model.trim());
+            for (String fb : List.of("gemini-flash-lite-latest", "gemini-3.1-flash-lite")) {
+                if (!candidates.contains(fb)) candidates.add(fb);
             }
 
-            log.info("✅ Gemini AI phản hồi thành công sau {} ms [model: {}]", elapsed, model);
-            return parseGeminiResponse(response.body(), text, sourceLang, targetLang);
+            for (String candidate : candidates) {
+                String url = String.format(GEMINI_API_URL_TEMPLATE, candidate, primaryKey);
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .header("Content-Type", "application/json; charset=utf-8")
+                        .timeout(Duration.ofSeconds(15))
+                        .POST(HttpRequest.BodyPublishers.ofString(requestBodyJson, StandardCharsets.UTF_8))
+                        .build();
+
+                long startTime = System.currentTimeMillis();
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                long elapsed = System.currentTimeMillis() - startTime;
+
+                if (response.statusCode() == 200) {
+                    log.info("✅ Gemini AI phản hồi thành công sau {} ms [model: {}]", elapsed, candidate);
+                    return parseGeminiResponse(response.body(), text, sourceLang, targetLang);
+                }
+                log.warn("⚠️ Gemini API [{}] trả về HTTP {}: {} (thời gian: {} ms)",
+                        candidate, response.statusCode(), response.body(), elapsed);
+            }
+            return null;
 
         } catch (Exception e) {
             log.error("❌ Lỗi ngoại lệ khi gọi Gemini AI: {}", e.getMessage(), e);

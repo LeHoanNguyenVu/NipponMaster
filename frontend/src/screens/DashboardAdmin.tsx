@@ -1,22 +1,54 @@
-import { useState, useRef, useEffect } from 'react';
+import { Component, type ErrorInfo, type ReactNode, useState, useRef, useEffect } from 'react';
 import { 
   Users, BookOpen, ShieldCheck, Activity, LayoutDashboard, 
   CreditCard, Building2, MailCheck, TrendingUp, 
-  CheckCircle2, Clock, Zap, Cpu, Server, Database, Lock, RefreshCw
+  CheckCircle2, Clock, Zap, Cpu, Server, Database, Lock, RefreshCw, Bot
 } from 'lucide-react';
 import UserManagementConsole from './admin/UserManagementConsole';
 import SubscriptionPlanConsole from './admin/SubscriptionPlanConsole';
 import EnterpriseManagementConsole from './admin/EnterpriseManagementConsole';
 import AntiCheatConsole from './admin/AntiCheatConsole';
 import RetentionCampaignConsole from './admin/RetentionCampaignConsole';
+import AiTelemetryConsole from './admin/AiTelemetryConsole';
 import { adminDashboardApi, type AdminOverviewData } from '../api/adminDashboardApi';
 
 interface DashboardAdminProps {
   username?: string;
 }
 
+class TabErrorBoundary extends Component<{ resetKey: string; children: ReactNode }, { hasError: boolean; message: string }> {
+  state = { hasError: false, message: '' };
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, message: error?.message || 'Lỗi hiển thị nội dung tab.' };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('Admin tab render error:', error, info);
+  }
+  componentDidUpdate(prevProps: { resetKey: string }) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false, message: '' });
+    }
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 rounded-3xl bg-error-container/30 border border-error/30 text-center space-y-3">
+          <p className="text-sm font-bold text-error">Không thể hiển thị mục này: {this.state.message}</p>
+          <button
+            onClick={() => this.setState({ hasError: false, message: '' })}
+            className="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold cursor-pointer"
+          >
+            Thử lại
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function DashboardAdmin({ username }: DashboardAdminProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'subscriptions' | 'enterprise' | 'security' | 'retention'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'subscriptions' | 'enterprise' | 'security' | 'retention' | 'ai'>('overview');
 
   // Real Dynamic Data State (100% PURE REAL DATABASE DATA)
   const [overviewData, setOverviewData] = useState<AdminOverviewData | null>(null);
@@ -123,6 +155,7 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
             { id: 'enterprise', label: '🏫 Trường Học & Doanh Nghiệp B2B', icon: Building2 },
             { id: 'security', label: '🛡️ An Ninh & Anti-Cheat', icon: ShieldCheck },
             { id: 'retention', label: '📩 Tự Động Hóa Retention', icon: MailCheck },
+            { id: 'ai', label: '🤖 Giám Sát AI & RAG', icon: Bot },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -144,6 +177,7 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
         </div>
       </div>
 
+      <TabErrorBoundary resetKey={activeTab}>
       {/* 📊 TAB 1: EXECUTIVE OVERVIEW */}
       {activeTab === 'overview' && (
         <div className="space-y-8 animate-fade-in">
@@ -274,7 +308,7 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
                     <span className="w-3 h-3 rounded-md bg-primary" /> Doanh Thu Subscriptions thực: {(overviewData?.cumulativeRevenue ?? 0).toLocaleString('vi-VN')} ₫
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-md bg-secondary" /> Học Viên trong DB: {overviewData?.totalUsers ?? 0} HV
+                    <span className="w-3 h-3 rounded-md bg-secondary" /> Học Viên trong DB: {overviewData?.vipStudentsCount ?? 0} HV
                   </span>
                 </div>
                 <span>Phân kỳ: <strong className="text-emerald-600">Đủ 12 Tháng (T1 - T12)</strong></span>
@@ -457,6 +491,14 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
           <RetentionCampaignConsole />
         </div>
       )}
+
+      {/* TAB 7: AI & RAG TELEMETRY CONSOLE */}
+      {activeTab === 'ai' && (
+        <div className="animate-fade-in">
+          <AiTelemetryConsole />
+        </div>
+      )}
+      </TabErrorBoundary>
     </div>
   );
 }

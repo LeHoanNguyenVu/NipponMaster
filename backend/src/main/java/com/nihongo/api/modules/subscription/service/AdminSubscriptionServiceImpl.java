@@ -153,7 +153,13 @@ public class AdminSubscriptionServiceImpl implements AdminSubscriptionService {
         long activeVipCount = subscriptionRepository.countActiveSubscriptions();
         long totalSubsCount = allSubs.size();
 
-        String topSelling = allPlans.isEmpty() ? "Chưa có" : allPlans.get(0).getName();
+        String topSelling = allSubs.stream()
+                .filter(s -> s.getPlan() != null && s.getPlan().getName() != null)
+                .collect(java.util.stream.Collectors.groupingBy(s -> s.getPlan().getName(), java.util.stream.Collectors.counting()))
+                .entrySet().stream()
+                .max(java.util.Map.Entry.comparingByValue())
+                .map(java.util.Map.Entry::getKey)
+                .orElse("Chưa có");
 
         return AdminSubscriptionPlanDTO.AnalyticsResponse.builder()
                 .totalRevenue(totalRevenue)

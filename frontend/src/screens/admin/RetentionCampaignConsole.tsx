@@ -68,7 +68,7 @@ export default function RetentionCampaignConsole() {
           </div>
           <div>
             <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Tổng Email Tự Động</span>
-            <div className="text-2xl font-extrabold text-on-surface">{analytics?.totalEmailsSent || 348}</div>
+            <div className="text-2xl font-extrabold text-on-surface">{analytics?.totalEmailsSent ?? 0}</div>
           </div>
         </div>
 
@@ -78,7 +78,7 @@ export default function RetentionCampaignConsole() {
           </div>
           <div>
             <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Học Viên Đã Kéo Quay Lại</span>
-            <div className="text-2xl font-extrabold text-on-surface">{analytics?.totalStudentsReengaged || 119}</div>
+            <div className="text-2xl font-extrabold text-on-surface">{analytics?.totalStudentsReengaged ?? 0}</div>
           </div>
         </div>
 
@@ -88,7 +88,7 @@ export default function RetentionCampaignConsole() {
           </div>
           <div>
             <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Tỉ Lệ Re-engagement</span>
-            <div className="text-2xl font-extrabold text-on-surface">{analytics?.reengagementConversionRate || 34.2}%</div>
+            <div className="text-2xl font-extrabold text-on-surface">{analytics?.reengagementConversionRate ?? 0}%</div>
           </div>
         </div>
 
@@ -98,7 +98,7 @@ export default function RetentionCampaignConsole() {
           </div>
           <div>
             <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Chiến Dịch Đang Chạy</span>
-            <div className="text-2xl font-extrabold text-on-surface">{analytics?.activeCampaignsCount || 1} Active</div>
+            <div className="text-2xl font-extrabold text-on-surface">{analytics?.activeCampaignsCount ?? 0} Active</div>
           </div>
         </div>
       </div>

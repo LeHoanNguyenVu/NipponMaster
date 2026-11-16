@@ -18,24 +18,28 @@ import Pricing from './screens/Pricing';
 import BeginnerCourseHub from './screens/BeginnerCourseHub';
 
 import ListeningRoom from './screens/ListeningRoom';
+import SenseiChat from './screens/SenseiChat';
+import FloatingSenseiButton from './components/FloatingSenseiButton';
 import OAuthPopup from './screens/OAuthPopup';
 import { useAuthStore } from './store/useAuthStore';
 import { isBeginnerGraduated } from './utils/beginnerProgressManager';
 import gsap from 'gsap';
 
-export type ScreenType = 'dashboard' | 'kanji' | 'grammar' | 'exams' | 'translation' | 'pricing' | 'listening' | 'beginner';
+export type ScreenType = 'dashboard' | 'kanji' | 'grammar' | 'exams' | 'translation' | 'sensei' | 'pricing' | 'listening' | 'beginner';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
   const [showAuth, setShowAuth] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [quickAsk, setQuickAsk] = useState<{ id: number; context: string; prompt?: string } | null>(null);
   const mainRef = useRef<HTMLDivElement>(null);
 
   const { isAuthenticated, user, fetchMe } = useAuthStore();
 
   const isGraduated = isBeginnerGraduated();
+  const isStaff = ['admin', 'system', 'teacher'].includes((user?.role || '').toLowerCase());
   const rawLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
-  const isStarter = rawLevel === 'STARTER' && !isGraduated;
+  const isStarter = !isStaff && rawLevel === 'STARTER' && !isBeginnerGraduated();
 
   // Route guard: Nếu ở level Nhập Môn mà screen trỏ vào module N5 đang bị ẩn, tự động điều hướng sang Khóa Nhập Môn
   useEffect(() => {
@@ -277,11 +281,24 @@ export default function App() {
           {currentScreen === 'kanji' && <Kanji />}
           {currentScreen === 'grammar' && <Grammar />}
           {currentScreen === 'translation' && <Translation />}
+          {currentScreen === 'sensei' && (
+            <SenseiChat
+              quickAsk={quickAsk}
+              onConsumeQuickAsk={() => setQuickAsk(null)}
+            />
+          )}
           {currentScreen === 'pricing' && <Pricing />}
           {currentScreen === 'listening' && <ListeningRoom />}
           {currentScreen === 'beginner' && <BeginnerCourseHub />}
 
         </main>
+        <FloatingSenseiButton
+          currentScreen={currentScreen}
+          onAskSensei={(ctx, q) => {
+            setQuickAsk({ id: Date.now(), context: ctx, prompt: q });
+            setCurrentScreen('sensei');
+          }}
+        />
       </div>
     </div>
   );

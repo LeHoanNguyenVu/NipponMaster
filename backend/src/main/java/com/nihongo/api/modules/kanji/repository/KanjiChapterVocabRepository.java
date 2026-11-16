@@ -7,4 +7,8 @@ import java.util.List;
 public interface KanjiChapterVocabRepository extends JpaRepository<KanjiChapterVocab, Long> {
 
     List<KanjiChapterVocab> findByChapterIdOrderByDisplayOrderAsc(Long chapterId);
+
+    java.util.Optional<KanjiChapterVocab> findFirstByWord(String word);
+
+    java.util.Optional<KanjiChapterVocab> findFirstByReading(String reading);
 }

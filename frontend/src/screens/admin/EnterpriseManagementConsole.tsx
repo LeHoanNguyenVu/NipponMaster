@@ -197,8 +197,8 @@ export default function EnterpriseManagementConsole() {
             📈
           </div>
           <div>
-            <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Tỉ Lệ Đạt Tiến Độ</span>
-            <div className="text-2xl font-extrabold text-on-surface">{analytics?.avgCompletionRate || 82.5}%</div>
+            <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Tỉ Lệ Sử Dụng Ghế B2B</span>
+            <div className="text-2xl font-extrabold text-on-surface">{analytics?.avgCompletionRate ?? 0}%</div>
           </div>
         </div>
       </div>

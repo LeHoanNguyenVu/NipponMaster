@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { 
   LayoutDashboard, Shapes, BookOpen, Target, BookType, 
-  CreditCard, X, GraduationCap, Headphones, Lock 
+  CreditCard, X, GraduationCap, Headphones, Lock, Bot 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ScreenType } from '../App';
@@ -20,8 +20,11 @@ export default function Sidebar({ currentScreen, onNavigate, isOpen, onClose }: 
   const { t } = useTranslation(['sidebar', 'common']);
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   const { user } = useAuthStore();
+  const role = (user?.role || '').toLowerCase();
+  const isAdmin = role === 'admin' || role === 'system';
+  const isStaff = isAdmin || role === 'teacher';
   const rawLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
-  const isStarter = rawLevel === 'STARTER' && !isBeginnerGraduated();
+  const isStarter = !isStaff && rawLevel === 'STARTER' && !isBeginnerGraduated();
 
   const allNavItems = [
     { id: 'dashboard', icon: LayoutDashboard },
@@ -30,15 +33,18 @@ export default function Sidebar({ currentScreen, onNavigate, isOpen, onClose }: 
     { id: 'grammar', icon: BookOpen },
     { id: 'exams', icon: Target },
     { id: 'translation', icon: BookType },
+    { id: 'sensei', icon: Bot },
     { id: 'listening', icon: Headphones },
     { id: 'pricing', icon: CreditCard },
   ];
 
-  // Ở level Nhập Môn: Chỉ hiện đúng 4 mục (Dashboard, Nhập Môn, Dịch, Gói học).
-  // Khi lên N5: Hiển thị đầy đủ toàn bộ 8 module!
-  const navItems = isStarter
-    ? allNavItems.filter((item) => ['dashboard', 'beginner', 'translation', 'pricing'].includes(item.id))
-    : allNavItems;
+  // Admin: ẩn Khóa Nhập Môn & box khóa N5; mở đủ module.
+  // Học viên Nhập Môn: chỉ hiện mục cơ bản + Dịch + Sensei AI.
+  const navItems = isAdmin
+    ? allNavItems.filter((item) => item.id !== 'beginner')
+    : isStarter
+      ? allNavItems.filter((item) => ['dashboard', 'beginner', 'translation', 'sensei', 'pricing'].includes(item.id))
+      : allNavItems;
 
   // GSAP animation for active item transitions
   useEffect(() => {

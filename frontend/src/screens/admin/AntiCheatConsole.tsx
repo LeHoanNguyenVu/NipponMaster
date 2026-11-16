@@ -58,7 +58,7 @@ export default function AntiCheatConsole() {
           </div>
           <div>
             <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Độ An Toàn Hệ Thống</span>
-            <div className="text-2xl font-extrabold text-on-surface">{overview?.systemSecurityScore || 98} / 100</div>
+            <div className="text-2xl font-extrabold text-on-surface">{overview?.systemSecurityScore ?? 100} / 100</div>
           </div>
         </div>
 

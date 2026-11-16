@@ -42,25 +42,26 @@ export interface AnalyticsResponse {
 
 export const adminSubscriptionApi = {
   getAllPlansAdmin: async (): Promise<SubscriptionPlanItem[]> => {
-    const res = await axiosClient.get('/admin/subscriptions/plans');
-    return res.data.data;
+    const res: any = await axiosClient.get('/admin/subscriptions/plans');
+    const data = res?.data ?? res;
+    return Array.isArray(data) ? data : [];
   },
 
   createPlan: async (payload: CreatePlanPayload): Promise<SubscriptionPlanItem> => {
-    const res = await axiosClient.post('/admin/subscriptions/plans', payload);
-    return res.data.data;
+    const res: any = await axiosClient.post('/admin/subscriptions/plans', payload);
+    return res?.data ?? res;
   },
 
   updatePlan: async (id: number, payload: CreatePlanPayload): Promise<SubscriptionPlanItem> => {
-    const res = await axiosClient.put(`/admin/subscriptions/plans/${id}`, payload);
-    return res.data.data;
+    const res: any = await axiosClient.put(`/admin/subscriptions/plans/${id}`, payload);
+    return res?.data ?? res;
   },
 
   togglePlanStatus: async (id: number, isActive?: boolean): Promise<SubscriptionPlanItem> => {
-    const res = await axiosClient.patch(`/admin/subscriptions/plans/${id}/status`, null, {
+    const res: any = await axiosClient.patch(`/admin/subscriptions/plans/${id}/status`, null, {
       params: isActive !== undefined ? { isActive } : {},
     });
-    return res.data.data;
+    return res?.data ?? res;
   },
 
   deletePlan: async (id: number): Promise<void> => {
@@ -68,12 +69,12 @@ export const adminSubscriptionApi = {
   },
 
   grantVipManual: async (payload: GrantVipPayload): Promise<any> => {
-    const res = await axiosClient.post('/admin/subscriptions/grant-vip', payload);
-    return res.data.data;
+    const res: any = await axiosClient.post('/admin/subscriptions/grant-vip', payload);
+    return res?.data ?? res;
   },
 
   getAnalytics: async (): Promise<AnalyticsResponse> => {
-    const res = await axiosClient.get('/admin/subscriptions/analytics');
-    return res.data.data;
+    const res: any = await axiosClient.get('/admin/subscriptions/analytics');
+    return res?.data ?? res;
   },
 };

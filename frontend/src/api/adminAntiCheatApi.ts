@@ -25,17 +25,18 @@ export interface SecurityOverview {
 
 export const adminAntiCheatApi = {
   getLogs: async (): Promise<CheatLog[]> => {
-    const res = await axiosClient.get('/admin/anti-cheat/logs');
-    return res.data.data;
+    const res: any = await axiosClient.get('/admin/anti-cheat/logs');
+    const data = res?.data ?? res;
+    return Array.isArray(data) ? data : [];
   },
 
   getOverview: async (): Promise<SecurityOverview> => {
-    const res = await axiosClient.get('/admin/anti-cheat/overview');
-    return res.data.data;
+    const res: any = await axiosClient.get('/admin/anti-cheat/overview');
+    return res?.data ?? res;
   },
 
   takeAction: async (logId: number, action: ActionTaken): Promise<CheatLog> => {
-    const res = await axiosClient.post(`/admin/anti-cheat/logs/${logId}/action`, { action });
-    return res.data.data;
+    const res: any = await axiosClient.post(`/admin/anti-cheat/logs/${logId}/action`, { action });
+    return res?.data ?? res;
   },
 };

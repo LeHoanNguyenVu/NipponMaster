@@ -1,5 +1,6 @@
 package com.nihongo.api.common.security;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +35,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // Cho phép async dispatch của SseEmitter sau khi request gốc đã được xác thực
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         // Các endpoint công khai (không cần đăng nhập)
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/public/**").permitAll()
@@ -69,8 +72,10 @@ public class SecurityConfig {
                         // Cho phép thử nghiệm vẽ Kanji Canvas & OCR
                         .requestMatchers("/api/v1/kanjis/canvas/**").permitAll()
 
-                        // Cho phép phân tích cú pháp câu AI
+                        // Cho phép phân tích cú pháp câu AI & Dịch thuật AI
                         .requestMatchers("/api/v1/sentence-breakdown/**").permitAll()
+                        .requestMatchers("/api/v1/translate/**").permitAll()
+                        .requestMatchers("/api/v1/ai/rag/**").permitAll()
 
                         // Endpoints Admin Dashboard & Consoles
                         .requestMatchers("/api/v1/admin/**").permitAll()

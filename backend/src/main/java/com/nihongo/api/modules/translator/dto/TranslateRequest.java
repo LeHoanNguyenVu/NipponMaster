@@ -1,18 +1,23 @@
 package com.nihongo.api.modules.translator.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TranslateRequest {
 
     @NotBlank(message = "Nội dung cần dịch không được để trống")
     private String text;
 
-    /** Ngôn ngữ nguồn: vi, ja, en. Nếu để trống sẽ tự phát hiện. */
+    /** Ngôn ngữ nguồn: vi, ja, en. Nếu để trống hoặc 'auto' sẽ tự phát hiện qua ký tự. */
     private String sourceLang;
 
-    /** Ngôn ngữ đích: vi, ja, en */
-    @NotBlank(message = "Ngôn ngữ đích không được để trống")
+    /** Ngôn ngữ đích: vi, ja, en. Nếu để trống sẽ tự đảo ngược (ja <-> vi). */
     private String targetLang;
 }

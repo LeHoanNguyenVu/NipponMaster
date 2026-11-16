@@ -78,3 +78,8 @@ tmp_*.png
 crop_*.png
 q_*.png
 
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+
+# graphify knowledge graph (rebuild: graphify update .)
+graphify-out/

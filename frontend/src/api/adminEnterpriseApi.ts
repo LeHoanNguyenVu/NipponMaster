@@ -46,18 +46,19 @@ export interface EnterpriseAnalytics {
 
 export const adminEnterpriseApi = {
   getOrgs: async (): Promise<EnterpriseOrg[]> => {
-    const res = await axiosClient.get('/admin/enterprise/orgs');
-    return res.data.data;
+    const res: any = await axiosClient.get('/admin/enterprise/orgs');
+    const data = res?.data ?? res;
+    return Array.isArray(data) ? data : [];
   },
 
   createOrg: async (payload: CreateOrgPayload): Promise<EnterpriseOrg> => {
-    const res = await axiosClient.post('/admin/enterprise/orgs', payload);
-    return res.data.data;
+    const res: any = await axiosClient.post('/admin/enterprise/orgs', payload);
+    return res?.data ?? res;
   },
 
   updateOrg: async (id: number, payload: CreateOrgPayload): Promise<EnterpriseOrg> => {
-    const res = await axiosClient.put(`/admin/enterprise/orgs/${id}`, payload);
-    return res.data.data;
+    const res: any = await axiosClient.put(`/admin/enterprise/orgs/${id}`, payload);
+    return res?.data ?? res;
   },
 
   deleteOrg: async (id: number): Promise<void> => {
@@ -65,12 +66,12 @@ export const adminEnterpriseApi = {
   },
 
   bulkImportStudents: async (id: number, students: StudentImportItem[]): Promise<BulkImportResponse> => {
-    const res = await axiosClient.post(`/admin/enterprise/orgs/${id}/bulk-import`, { students });
-    return res.data.data;
+    const res: any = await axiosClient.post(`/admin/enterprise/orgs/${id}/bulk-import`, { students });
+    return res?.data ?? res;
   },
 
   getAnalytics: async (): Promise<EnterpriseAnalytics> => {
-    const res = await axiosClient.get('/admin/enterprise/analytics');
-    return res.data.data;
+    const res: any = await axiosClient.get('/admin/enterprise/analytics');
+    return res?.data ?? res;
   },
 };

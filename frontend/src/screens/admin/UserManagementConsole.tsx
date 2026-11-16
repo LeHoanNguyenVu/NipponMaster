@@ -11,6 +11,7 @@ import { adminApi, type AdminUser } from '../../api/adminApi';
 
 export default function UserManagementConsole() {
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [totalElements, setTotalElements] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
@@ -31,13 +32,15 @@ export default function UserManagementConsole() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const payload: any = {};
+      const payload: any = { page: 0, size: 200 };
       if (roleFilter !== 'ALL') payload.role = roleFilter;
       if (statusFilter !== 'ALL') payload.isActive = statusFilter === 'ACTIVE';
       if (search.trim()) payload.search = search.trim();
 
       const data = await adminApi.getUsers(payload);
-      setUsers(data.content || []);
+      const list = Array.isArray(data.content) ? data.content : [];
+      setUsers(list);
+      setTotalElements(data.totalElements ?? list.length);
     } catch (err: any) {
       console.error('Lỗi tải danh sách người dùng:', err);
     } finally {
@@ -114,7 +117,7 @@ export default function UserManagementConsole() {
   };
 
   // Quick Stats
-  const totalCount = users.length;
+  const totalCount = totalElements || users.length;
   const activeCount = users.filter(u => u.isActive).length;
   const lockedCount = users.filter(u => !u.isActive).length;
   const teacherCount = users.filter(u => u.role === 'TEACHER').length;

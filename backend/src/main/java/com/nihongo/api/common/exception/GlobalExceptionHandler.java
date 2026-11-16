@@ -1,6 +1,7 @@
 package com.nihongo.api.common.exception;
 
 import com.nihongo.api.common.dto.ApiResponse;
+import com.nihongo.api.modules.ai.core.AiRateLimitException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,15 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AiRateLimitException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAiRateLimit(AiRateLimitException ex) {
+        log.warn("AI rate limit triggered: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()))
+                .body(ApiResponse.error(ex.getMessage()));
+    }
 
     /**
      * Xử lý lỗi không tìm thấy dữ liệu (404)

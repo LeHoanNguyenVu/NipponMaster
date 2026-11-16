@@ -165,11 +165,15 @@ public class AdminEnterpriseServiceImpl implements AdminEnterpriseService {
         long totalSeats = all.stream().mapToLong(EnterpriseOrg::getMaxSeats).sum();
         long activeStudents = all.stream().mapToLong(EnterpriseOrg::getActiveSeats).sum();
 
+        double seatUtilizationRate = totalSeats > 0
+                ? Math.round(((double) activeStudents / totalSeats) * 1000.0) / 10.0
+                : 0.0;
+
         return EnterpriseOrgDTO.AnalyticsResponse.builder()
                 .totalOrgsCount(totalOrgs)
                 .totalSeatsAllocated(totalSeats)
                 .totalActiveStudents(activeStudents)
-                .avgCompletionRate(82.5)
+                .avgCompletionRate(seatUtilizationRate)
                 .build();
     }
 

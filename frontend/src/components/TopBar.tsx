@@ -129,8 +129,17 @@ export default function TopBar({ onToggleSidebar, onNavigate }: TopBarProps) {
 
   const userAvatar = user?.avatarUrl || (user?.email ? localStorage.getItem(`user_avatar_${user.email}`) : null) || (user?.id ? localStorage.getItem(`user_avatar_${user.id}`) : null) || localStorage.getItem('user_avatar_global');
 
+  const role = (user?.role || '').toLowerCase();
+  const isAdmin = role === 'admin' || role === 'system';
+  const isTeacher = role === 'teacher';
   const currentLevel = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
-  const levelDisplay = currentLevel === 'STARTER' ? t('topbar:starter', 'Nhập Môn') : `${currentLevel} Level`;
+  const levelDisplay = isAdmin
+    ? 'Quản Trị Viên'
+    : (isTeacher && currentLevel === 'STARTER')
+      ? 'Giảng Viên'
+      : currentLevel === 'STARTER'
+        ? t('topbar:starter', 'Nhập Môn')
+        : `${currentLevel} Level`;
   const initialLetter = (user?.username || user?.email || 'U').trim()[0].toUpperCase();
 
   const getLevelBadgeColor = (lvl: string) => {

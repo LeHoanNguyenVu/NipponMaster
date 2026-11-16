@@ -24,6 +24,18 @@ public class RetentionServiceImpl implements RetentionService {
     private final RetentionCampaignRepository campaignRepository;
     private final UserRepository userRepository;
 
+    @jakarta.annotation.PostConstruct
+    public void resetFakeSeededMetrics() {
+        campaignRepository.findAll().stream()
+                .filter(c -> Integer.valueOf(348).equals(c.getSentCount()) && Integer.valueOf(119).equals(c.getConvertedCount()))
+                .forEach(c -> {
+                    c.setSentCount(0);
+                    c.setConvertedCount(0);
+                    c.setLastRunAt(null);
+                    campaignRepository.save(c);
+                });
+    }
+
     @Override
     public List<RetentionCampaignDTO.CampaignResponse> getAllCampaigns() {
         List<RetentionCampaign> list = campaignRepository.findAll();
@@ -60,15 +72,12 @@ public class RetentionServiceImpl implements RetentionService {
                 .limit(15) // Scan batch
                 .collect(Collectors.toList());
 
-        if (targetEmails.isEmpty()) {
-            targetEmails = List.of("student01@gmail.com", "hocvien_n3@gmail.com", "tan_sinh_vien@hust.edu.vn");
-        }
-
         int sent = targetEmails.size();
-        campaign.setSentCount(campaign.getSentCount() + sent);
-        campaign.setConvertedCount(campaign.getConvertedCount() + (int)(sent * 0.35));
-        campaign.setLastRunAt(LocalDateTime.now());
-        campaignRepository.save(campaign);
+        if (sent > 0) {
+            campaign.setSentCount(campaign.getSentCount() + sent);
+            campaign.setLastRunAt(LocalDateTime.now());
+            campaignRepository.save(campaign);
+        }
 
         log.info("🚀 Executed Retention Campaign '{}' - Sent {} emails", campaign.getName(), sent);
 
@@ -77,7 +86,9 @@ public class RetentionServiceImpl implements RetentionService {
                 .campaignName(campaign.getName())
                 .scannedInactiveCount(sent)
                 .emailSentCount(sent)
-                .message("Đã kích hoạt quét và gửi Email/Push Notification thành công cho " + sent + " học viên bỏ dở!")
+                .message(sent > 0
+                        ? "Đã kích hoạt quét và gửi Email/Push Notification thành công cho " + sent + " học viên!"
+                        : "Hiện chưa có học viên nào phù hợp điều kiện kích hoạt.")
                 .targetStudentEmails(targetEmails)
                 .build();
     }
@@ -92,11 +103,11 @@ public class RetentionServiceImpl implements RetentionService {
 
         long totalSent = campaigns.stream().mapToLong(RetentionCampaign::getSentCount).sum();
         long totalConverted = campaigns.stream().mapToLong(RetentionCampaign::getConvertedCount).sum();
-        double rate = totalSent > 0 ? (double) totalConverted / totalSent * 100.0 : 34.2;
+        double rate = totalSent > 0 ? (double) totalConverted / totalSent * 100.0 : 0.0;
 
         return RetentionCampaignDTO.RetentionAnalyticsResponse.builder()
-                .totalEmailsSent(totalSent > 0 ? totalSent : 348)
-                .totalStudentsReengaged(totalConverted > 0 ? totalConverted : 119)
+                .totalEmailsSent(totalSent)
+                .totalStudentsReengaged(totalConverted)
                 .reengagementConversionRate(Math.round(rate * 10.0) / 10.0)
                 .activeCampaignsCount((int) campaigns.stream().filter(RetentionCampaign::getIsActive).count())
                 .build();
@@ -119,10 +130,9 @@ public class RetentionServiceImpl implements RetentionService {
                 .triggerType(RetentionCampaign.TriggerType.INACTIVE_7_DAYS)
                 .emailSubject("🚨 [NipponMaster] Bạn ơi! Lộ trình tiếng Nhật N5-N1 đang chờ bạn quay lại!")
                 .emailTemplateBody("Chào {student_name}, bạn đã rời xa bài học tiếng Nhật được 7 ngày rồi. Đừng để chuỗi Streak bị dán đoạn! Hãy quay lại học 5 phút hôm nay nhé!")
-                .sentCount(348)
-                .convertedCount(119)
+                .sentCount(0)
+                .convertedCount(0)
                 .isActive(true)
-                .lastRunAt(LocalDateTime.now().minusDays(1))
                 .build());
     }
 
