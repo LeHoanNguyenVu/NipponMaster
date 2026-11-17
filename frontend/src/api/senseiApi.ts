@@ -53,7 +53,7 @@ export const senseiApi = {
     return res.data ?? res ?? [];
   },
 
-  async createSession(payload?: { title?: string; jlptLevel?: string }): Promise<ChatSession> {
+  async createSession(payload?: { title?: string; jlptLevel?: string; language?: string }): Promise<ChatSession> {
     const res: any = await axiosClient.post('/ai/chat/sessions', payload || {});
     return res.data ?? res;
   },
@@ -77,6 +77,7 @@ export const senseiApi = {
     reading?: string;
     meaning?: string;
     jlptLevel?: string;
+    language?: string;
   }): Promise<SavedCard> {
     const res: any = await axiosClient.post('/ai/chat/flashcards', payload);
     return res.data ?? res;
@@ -93,7 +94,7 @@ export const senseiApi = {
 
   async streamMessage(
     sessionId: number,
-    payload: { message: string; levelFilter?: string; pageContext?: string },
+    payload: { message: string; levelFilter?: string; pageContext?: string; language?: string },
     handlers: StreamHandlers
   ): Promise<void> {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -117,7 +118,7 @@ export const senseiApi = {
       try {
         const errJson = await res.json();
         if (errJson?.message) msg = errJson.message;
-      } catch {}
+      } catch { }
       throw new Error(msg);
     }
 
@@ -178,7 +179,7 @@ export const senseiApi = {
         dispatchEvent(buffer);
       }
     } finally {
-      reader.cancel().catch(() => {});
+      reader.cancel().catch(() => { });
     }
   },
 };

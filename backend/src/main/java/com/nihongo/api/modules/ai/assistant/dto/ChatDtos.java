@@ -25,6 +25,8 @@ public final class ChatDtos {
         private String title;
         @Size(max = 16)
         private String jlptLevel;
+        @Size(max = 8)
+        private String language;
     }
 
     @Data
@@ -50,6 +52,10 @@ public final class ChatDtos {
         /** Ngữ cảnh trang học viên đang mở (vd: tên bài ngữ pháp hoặc câu vừa làm sai). */
         @Size(max = 1000)
         private String pageContext;
+
+        /** Ngôn ngữ phản hồi ưu tiên của giao diện học viên ("vi" hoặc "en"). */
+        @Size(max = 8)
+        private String language;
     }
 
     @Data
@@ -106,6 +112,8 @@ public final class ChatDtos {
         private String meaning;
         @Size(max = 16)
         private String jlptLevel;
+        @Size(max = 8)
+        private String language;
     }
 
     @Data

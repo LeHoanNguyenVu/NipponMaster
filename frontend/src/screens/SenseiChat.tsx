@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Bot,
   Send,
@@ -15,9 +15,12 @@ import {
   BookmarkPlus,
   BookMarked,
   Wand2,
+  Keyboard,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { senseiApi, type ChatSession, type ChatMessage, type SavedCard } from '../api/senseiApi';
 import { SenseiMarkdown } from '../components/SenseiMarkdown';
+import { JapaneseVirtualKeyboard } from '../components/JapaneseVirtualKeyboard';
 
 export interface QuickAskRequest {
   id: number;
@@ -30,22 +33,50 @@ interface SenseiChatProps {
   onConsumeQuickAsk?: () => void;
 }
 
-const PERSONALIZED_ACTIONS = [
+const PERSONALIZED_ACTIONS_VI = [
   {
     label: 'Giải thích chỗ tôi hay sai',
-    prompt: 'Dựa vào kết quả thi thử, các chương Kanji/Ngữ pháp và từ vựng tôi đang yếu trên hệ thống, hãy chỉ ra những điểm tôi hay sai và giải thích cách khắc phục.',
+    prompt:
+      'Dựa vào kết quả thi thử, các chương Kanji/Ngữ pháp và từ vựng tôi đang yếu trên hệ thống, hãy chỉ ra những điểm tôi hay sai và giải thích cách khắc phục.',
   },
   {
     label: 'Tạo 5 câu luyện tập',
-    prompt: 'Dựa vào trình độ hiện tại và những từ vựng/ngữ pháp tôi cần củng cố, hãy tạo 5 câu bài tập ngắn (kèm đáp án và giải thích) để tôi luyện ngay.',
+    prompt:
+      'Dựa vào trình độ hiện tại và những từ vựng/ngữ pháp tôi cần củng cố, hãy tạo 5 câu bài tập ngắn (kèm đáp án và giải thích) để tôi luyện ngay.',
   },
   {
     label: 'Lập lộ trình tuần này',
-    prompt: 'Hãy lập cho tôi lộ trình học tiếng Nhật 7 ngày trong tuần này trên Nippon Master phù hợp với trình độ và phần tôi đang học dở.',
+    prompt:
+      'Hãy lập cho tôi lộ trình học tiếng Nhật 7 ngày trong tuần này trên Nippon Master phù hợp với trình độ và phần tôi đang học dở.',
   },
 ];
 
+const PERSONALIZED_ACTIONS_EN = [
+  {
+    label: 'Explain my common mistakes',
+    prompt:
+      'Based on my mock exam results and weak Kanji, Grammar, and Vocabulary chapters, please point out my common mistakes and explain how to fix them in English.',
+  },
+  {
+    label: 'Create 5 practice questions',
+    prompt:
+      'Based on my current JLPT level and the vocabulary/grammar points I need to review, please create 5 short practice questions (with answers and English explanations).',
+  },
+  {
+    label: 'Build my 7-day study plan',
+    prompt:
+      'Please create a personalized 7-day Japanese study plan for me this week on Nippon Master tailored to my current level and in-progress lessons.',
+  },
+];
+
+const DEFAULT_TITLES = new Set(['Cuộc trò chuyện mới', 'New Conversation']);
+
+
 export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatProps) {
+  const { i18n } = useTranslation();
+  const isEn = (i18n.language || 'vi').startsWith('en');
+  const langCode = isEn ? 'en' : 'vi';
+
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -67,11 +98,22 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
   const [selectionPopup, setSelectionPopup] = useState<{ text: string; x: number; y: number } | null>(null);
   const [saveToast, setSaveToast] = useState<string | null>(null);
   const [showPersonalMenu, setShowPersonalMenu] = useState(false);
+  const [showJpKeyboard, setShowJpKeyboard] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const feedRef = useRef<HTMLDivElement>(null);
+  const popupBtnRef = useRef<HTMLButtonElement>(null);
   const handledQuickAskIdRef = useRef<number | null>(null);
+
+  const displaySessionTitle = (rawTitle?: string) => {
+    if (!rawTitle || DEFAULT_TITLES.has(rawTitle)) {
+      return isEn ? 'New Conversation' : 'Cuộc trò chuyện mới';
+    }
+    return rawTitle;
+  };
 
   useEffect(() => {
     initLoad();
@@ -105,7 +147,9 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
     } catch (err: any) {
       setError(
         err?.message ||
-          'Chưa thể kết nối máy chủ Sensei AI. Hãy chắc chắn bạn đã khởi động lại backend để nạp bản cập nhật mới.'
+          (isEn
+            ? 'Could not connect to Sensei AI server. Please make sure the backend is running.'
+            : 'Chưa thể kết nối máy chủ Sensei AI. Hãy chắc chắn bạn đã khởi động lại backend để nạp bản cập nhật mới.')
       );
     } finally {
       setLoadingSessions(false);
@@ -117,7 +161,7 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
       const cards = await senseiApi.listFlashcards();
       setSavedCards(cards);
     } catch {
-      // Bỏ qua nếu backend chưa khởi động lại để nạp V34
+      // Bỏ qua nếu backend chưa khởi động lại
     }
   };
 
@@ -130,7 +174,7 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
     setPageContext(req.context || null);
     setMessages([]);
     try {
-      const created = await senseiApi.createSession();
+      const created = await senseiApi.createSession({ language: langCode });
       setSessions((prev) => [created, ...prev]);
       setActiveSessionId(created.id);
 
@@ -140,7 +184,10 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
         textareaRef.current?.focus();
       }
     } catch (err: any) {
-      setError(err?.message || 'Không thể khởi tạo cuộc trò chuyện mới.');
+      setError(
+        err?.message ||
+          (isEn ? 'Could not start a new conversation.' : 'Không thể khởi tạo cuộc trò chuyện mới.')
+      );
     }
   };
 
@@ -157,7 +204,10 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
       const msgs = await senseiApi.getMessages(sessionId);
       setMessages(msgs);
     } catch (err: any) {
-      setError(err?.message || 'Không tải được lịch sử hội thoại.');
+      setError(
+        err?.message ||
+          (isEn ? 'Failed to load conversation history.' : 'Không tải được lịch sử hội thoại.')
+      );
     } finally {
       setLoadingMessages(false);
     }
@@ -171,14 +221,17 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
     setError(null);
     setPageContext(null);
     try {
-      const created = await senseiApi.createSession();
+      const created = await senseiApi.createSession({ language: langCode });
       setSessions((prev) => [created, ...prev]);
       setActiveSessionId(created.id);
       setMessages([]);
       setMobileSidebarOpen(false);
       textareaRef.current?.focus();
     } catch (err: any) {
-      setError(err?.message || 'Không tạo được cuộc trò chuyện mới.');
+      setError(
+        err?.message ||
+          (isEn ? 'Failed to create a new conversation.' : 'Không tạo được cuộc trò chuyện mới.')
+      );
     }
   };
 
@@ -212,7 +265,10 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
         }
       }
     } catch (err: any) {
-      setError(err?.message || 'Không xóa được cuộc trò chuyện.');
+      setError(
+        err?.message ||
+          (isEn ? 'Failed to delete conversation.' : 'Không xóa được cuộc trò chuyện.')
+      );
     }
   };
 
@@ -252,6 +308,7 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
         {
           message: text,
           pageContext: ctx ?? (pageContext || undefined),
+          language: langCode,
         },
         {
           signal: controller.signal,
@@ -268,12 +325,11 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
                 s.id === targetSessionId
                   ? {
                       ...s,
-                      title:
-                        s.title === 'Cuộc trò chuyện mới'
-                          ? text.length > 48
-                            ? text.slice(0, 48) + '...'
-                            : text
-                          : s.title,
+                      title: DEFAULT_TITLES.has(s.title)
+                        ? text.length > 48
+                          ? text.slice(0, 48) + '...'
+                          : text
+                        : s.title,
                       lastMessagePreview: saved.content.slice(0, 80),
                     }
                   : s
@@ -288,7 +344,12 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
       );
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        setError(err?.message || 'Đã xảy ra lỗi khi gửi câu hỏi tới Sensei AI.');
+        setError(
+          err?.message ||
+            (isEn
+              ? 'An error occurred while sending your question to Sensei AI.'
+              : 'Đã xảy ra lỗi khi gửi câu hỏi tới Sensei AI.')
+        );
       }
     } finally {
       setIsStreaming(false);
@@ -306,7 +367,7 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
 
     try {
       if (!targetSessionId) {
-        const created = await senseiApi.createSession();
+        const created = await senseiApi.createSession({ language: langCode });
         setSessions((prev) => [created, ...prev]);
         targetSessionId = created.id;
         setActiveSessionId(created.id);
@@ -316,28 +377,125 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
       await sendToSession(targetSessionId, text);
     } catch (err: any) {
       setIsStreaming(false);
-      setError(err?.message || 'Đã xảy ra lỗi khi tạo phiên chat.');
+      setError(
+        err?.message ||
+          (isEn ? 'Failed to create chat session.' : 'Đã xảy ra lỗi khi tạo phiên chat.')
+      );
     }
   };
 
-  // Bôi đen chữ Nhật trong câu trả lời -> hiện nút "+ Lưu Flashcard" 1 click
-  const handleFeedMouseUp = () => {
+  // ---------------- Bàn phím tiếng Nhật ảo ----------------
+  const handleInsertKeyboardText = (chars: string) => {
+    const el = textareaRef.current;
+    if (!el) {
+      setInput((prev) => prev + chars);
+      return;
+    }
+    const start = el.selectionStart ?? input.length;
+    const end = el.selectionEnd ?? input.length;
+    const next = input.slice(0, start) + chars + input.slice(end);
+    setInput(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + chars.length;
+      el.setSelectionRange(pos, pos);
+    });
+  };
+
+  const handleBackspaceKeyboard = () => {
+    const el = textareaRef.current;
+    if (!el) {
+      setInput((prev) => prev.slice(0, -1));
+      return;
+    }
+    const start = el.selectionStart ?? input.length;
+    const end = el.selectionEnd ?? input.length;
+    if (start !== end) {
+      const next = input.slice(0, start) + input.slice(end);
+      setInput(next);
+      requestAnimationFrame(() => {
+        el.focus();
+        el.setSelectionRange(start, start);
+      });
+    } else if (start > 0) {
+      const next = input.slice(0, start - 1) + input.slice(end);
+      setInput(next);
+      requestAnimationFrame(() => {
+        el.focus();
+        const pos = start - 1;
+        el.setSelectionRange(pos, pos);
+      });
+    }
+  };
+
+  // ---------------- Bôi đen chữ Nhật -> hiện nút "+ Lưu Flashcard" chuẩn tọa độ góc ----------------
+  const updateSelectionPopup = useCallback(() => {
     const sel = window.getSelection();
     const selected = sel?.toString().trim() || '';
     if (!selected || selected.length > 40 || !/[\u3040-\u30ff\u4e00-\u9faf]/.test(selected)) {
       setSelectionPopup(null);
       return;
     }
-    const range = sel?.getRangeAt(0);
-    const rect = range?.getBoundingClientRect();
-    if (rect && rect.width > 0) {
-      setSelectionPopup({
-        text: selected,
-        x: Math.min(window.innerWidth - 180, Math.max(16, rect.left)),
-        y: Math.max(64, rect.top - 42),
-      });
+
+    if (!sel || sel.rangeCount === 0 || !containerRef.current || !feedRef.current) {
+      setSelectionPopup(null);
+      return;
     }
-  };
+
+    // Đảm bảo vùng bôi đen nằm bên trong khung tin nhắn
+    const anchorNode = sel.anchorNode;
+    if (anchorNode && !feedRef.current.contains(anchorNode)) {
+      setSelectionPopup(null);
+      return;
+    }
+
+    const range = sel.getRangeAt(0);
+    const clientRects = range.getClientRects();
+    const rect = clientRects.length > 0 ? clientRects[0] : range.getBoundingClientRect();
+    if (!rect || (rect.width === 0 && rect.height === 0)) {
+      setSelectionPopup(null);
+      return;
+    }
+
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const feedRect = feedRef.current.getBoundingClientRect();
+
+    // Tính tọa độ tương đối so với containerRef (tránh hoàn toàn lỗi lệch tọa độ khi <main> có CSS transform từ GSAP)
+    const pillEstimatedWidth = 250;
+    const pillHeight = 36;
+    const minX = Math.max(12, feedRect.left - containerRect.left + 12);
+    const maxX = Math.max(minX, feedRect.right - containerRect.left - pillEstimatedWidth - 12);
+
+    const rawX = rect.left - containerRect.left;
+    const clampedX = Math.min(maxX, Math.max(minX, rawX));
+
+    // Nếu bôi đen sát mép trên của khung chat, hiển thị nút ở ngay bên dưới dòng chữ thay vì bị che phía trên
+    const minTopY = Math.max(56, feedRect.top - containerRect.top + 8);
+    const maxBottomY = Math.max(minTopY, feedRect.bottom - containerRect.top - pillHeight - 8);
+    const aboveY = rect.top - containerRect.top - pillHeight - 8;
+    const belowY = rect.bottom - containerRect.top + 8;
+
+    const rawY = aboveY < minTopY ? belowY : aboveY;
+    const clampedY = Math.min(maxBottomY, Math.max(minTopY, rawY));
+
+    setSelectionPopup({
+      text: selected,
+      x: clampedX,
+      y: clampedY,
+    });
+  }, []);
+
+  // Bắt sự kiện nhả chuột trên toàn cửa sổ (kể cả khi kéo chuột lố ra sát mép góc ngoài bubble)
+  useEffect(() => {
+    const onGlobalMouseUp = (e: MouseEvent) => {
+      if (popupBtnRef.current && popupBtnRef.current.contains(e.target as Node)) {
+        return;
+      }
+      requestAnimationFrame(updateSelectionPopup);
+    };
+    window.addEventListener('mouseup', onGlobalMouseUp);
+    return () => window.removeEventListener('mouseup', onGlobalMouseUp);
+  }, [updateSelectionPopup]);
 
   const handleQuickSaveWord = async () => {
     if (!selectionPopup) return;
@@ -345,12 +503,20 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
     setSelectionPopup(null);
     window.getSelection()?.removeAllRanges();
     try {
-      const saved = await senseiApi.saveFlashcard({ word });
+      const saved = await senseiApi.saveFlashcard({ word, language: langCode });
       setSavedCards((prev) => [saved, ...prev.filter((c) => c.id !== saved.id)]);
-      setSaveToast(`Đã lưu "${saved.word}" vào sổ tay Flashcard`);
+      setSaveToast(
+        isEn
+          ? `Saved "${saved.word}" to Flashcard Notebook`
+          : `Đã lưu "${saved.word}" vào sổ tay Flashcard`
+      );
       setTimeout(() => setSaveToast(null), 2600);
     } catch {
-      setSaveToast('Không lưu được thẻ (cần backend đã bật bản cập nhật mới)');
+      setSaveToast(
+        isEn
+          ? 'Could not save flashcard (please make sure backend is updated)'
+          : 'Không lưu được thẻ (cần backend đã bật bản cập nhật mới)'
+      );
       setTimeout(() => setSaveToast(null), 2600);
     }
   };
@@ -362,26 +528,38 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
     } catch {}
   };
 
+  const personalizedActions = isEn ? PERSONALIZED_ACTIONS_EN : PERSONALIZED_ACTIONS_VI;
+  const activeSession = sessions.find((s) => s.id === activeSessionId);
+
   return (
-    <div className="h-[calc(100vh-4rem)] flex bg-surface overflow-hidden relative">
-      {/* Floating 1-click Save Flashcard pill on text selection */}
+    <div
+      ref={containerRef}
+      className="h-[calc(100vh-4rem)] flex bg-surface overflow-hidden relative"
+    >
+      {/* Floating 1-click Save Flashcard pill on text selection (positioned relative to containerRef) */}
       {selectionPopup && (
         <button
+          ref={popupBtnRef}
           onMouseDown={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             handleQuickSaveWord();
           }}
           style={{ left: selectionPopup.x, top: selectionPopup.y }}
-          className="fixed z-50 px-3 py-1.5 rounded-full bg-primary text-on-primary shadow-lg text-xs font-bold flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer"
+          className="absolute z-50 max-w-[260px] px-3 py-1.5 rounded-full bg-primary text-on-primary shadow-lg text-xs font-bold flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer border border-on-primary/15"
         >
-          <BookmarkPlus size={14} />
-          <span>Lưu "{selectionPopup.text}" vào Flashcard</span>
+          <BookmarkPlus size={14} className="shrink-0" />
+          <span className="truncate">
+            {isEn
+              ? `Save "${selectionPopup.text}" to Flashcards`
+              : `Lưu "${selectionPopup.text}" vào Flashcard`}
+          </span>
         </button>
       )}
 
       {/* Save Toast */}
       {saveToast && (
-        <div className="fixed top-20 right-5 z-50 px-4 py-2.5 rounded-xl bg-surface-container-highest border border-primary/40 text-on-surface text-xs font-bold shadow-lg flex items-center gap-2">
+        <div className="absolute top-16 right-5 z-50 px-4 py-2.5 rounded-xl bg-surface-container-highest border border-primary/40 text-on-surface text-xs font-bold shadow-lg flex items-center gap-2">
           <Check size={14} className="text-primary" />
           <span>{saveToast}</span>
         </div>
@@ -423,16 +601,20 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
             className="w-full py-2.5 px-3 rounded-xl bg-primary text-on-primary font-bold text-sm flex items-center justify-center gap-2 hover:opacity-95 transition-opacity shadow-xs cursor-pointer"
           >
             <Plus size={16} />
-            Cuộc trò chuyện mới
+            {isEn ? 'New Conversation' : 'Cuộc trò chuyện mới'}
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-2 pb-4 space-y-1">
           {loadingSessions ? (
-            <div className="p-4 text-xs text-outline text-center">Đang tải hội thoại...</div>
+            <div className="p-4 text-xs text-outline text-center">
+              {isEn ? 'Loading conversations...' : 'Đang tải hội thoại...'}
+            </div>
           ) : sessions.length === 0 ? (
             <div className="p-4 text-xs text-outline text-center">
-              Chưa có hội thoại nào. Hãy đặt câu hỏi đầu tiên cho Sensei!
+              {isEn
+                ? 'No conversations yet. Ask Sensei your first question!'
+                : 'Chưa có hội thoại nào. Hãy đặt câu hỏi đầu tiên cho Sensei!'}
             </div>
           ) : (
             sessions.map((s) => {
@@ -477,7 +659,9 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold truncate">{s.title}</span>
+                          <span className="text-xs font-bold truncate">
+                            {displaySessionTitle(s.title)}
+                          </span>
                           {s.jlptLevel && (
                             <span className="text-[10px] px-1.5 py-0.2 rounded bg-surface-container-high text-primary font-mono shrink-0">
                               {s.jlptLevel}
@@ -497,16 +681,16 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
                         <button
                           onClick={() => {
                             setEditingSessionId(s.id);
-                            setEditingTitle(s.title);
+                            setEditingTitle(displaySessionTitle(s.title));
                           }}
-                          title="Đổi tên"
+                          title={isEn ? 'Rename' : 'Đổi tên'}
                           className="p-1 rounded hover:bg-surface-container-high text-outline hover:text-primary cursor-pointer"
                         >
                           <Pencil size={12} />
                         </button>
                         <button
                           onClick={() => handleDeleteSession(s.id)}
-                          title="Xóa"
+                          title={isEn ? 'Delete' : 'Xóa'}
                           className="p-1 rounded hover:bg-surface-container-high text-outline hover:text-error cursor-pointer"
                         >
                           <Trash2 size={12} />
@@ -529,23 +713,34 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
             <button
               onClick={() => setMobileSidebarOpen(true)}
               className="p-2 rounded-lg bg-surface-container-low text-on-surface md:hidden cursor-pointer"
-              title="Danh sách hội thoại"
+              title={isEn ? 'Conversation list' : 'Danh sách hội thoại'}
             >
               <PanelLeft size={18} />
             </button>
             <Sparkles size={18} className="text-primary shrink-0" />
             <h1 className="text-sm md:text-base font-bold text-on-surface truncate">
-              {sessions.find((s) => s.id === activeSessionId)?.title || 'Hỏi đáp cùng Sensei AI'}
+              {activeSession
+                ? displaySessionTitle(activeSession.title)
+                : isEn
+                  ? 'Ask Sensei AI'
+                  : 'Hỏi đáp cùng Sensei AI'}
             </h1>
           </div>
 
           <button
+            id="sensei-notebook-toggle-btn"
             onClick={() => setShowSavedDrawer((v) => !v)}
             className="px-2.5 py-1.5 rounded-xl bg-surface-container-low hover:bg-primary/10 border border-outline-variant/40 text-xs font-semibold text-on-surface flex items-center gap-1.5 cursor-pointer shrink-0"
-            title="Bôi đen từ tiếng Nhật trong câu trả lời để lưu 1 click"
+            title={
+              isEn
+                ? 'Highlight any Japanese text in answers to save in 1 click'
+                : 'Bôi đen từ tiếng Nhật trong câu trả lời để lưu 1 click'
+            }
           >
             <BookMarked size={14} className="text-primary" />
-            <span>Sổ tay ({savedCards.length})</span>
+            <span>
+              {isEn ? `Notebook (${savedCards.length})` : `Sổ tay (${savedCards.length})`}
+            </span>
           </button>
         </div>
 
@@ -554,12 +749,12 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
           <div className="px-4 py-2 bg-primary/8 border-b border-primary/20 flex items-center justify-between gap-2 text-xs text-primary">
             <span className="flex items-center gap-1.5 font-medium truncate">
               <Compass size={14} className="shrink-0" />
-              Ngữ cảnh: <strong>{pageContext}</strong>
+              {isEn ? 'Context:' : 'Ngữ cảnh:'} <strong>{pageContext}</strong>
             </span>
             <button
               onClick={() => setPageContext(null)}
               className="p-0.5 hover:bg-primary/15 rounded cursor-pointer"
-              title="Bỏ ngữ cảnh"
+              title={isEn ? 'Clear context' : 'Bỏ ngữ cảnh'}
             >
               <X size={14} />
             </button>
@@ -568,8 +763,10 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
 
         {/* Messages Feed */}
         <div
+          ref={feedRef}
           className="flex-1 overflow-y-auto px-4 md:px-8 py-6"
-          onMouseUp={handleFeedMouseUp}
+          onMouseUp={updateSelectionPopup}
+          onScroll={() => selectionPopup && setSelectionPopup(null)}
         >
           <div className="max-w-3xl mx-auto space-y-6">
             {error && (
@@ -580,19 +777,33 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
             )}
 
             {loadingMessages ? (
-              <div className="text-center py-12 text-sm text-outline">Đang tải lịch sử tin nhắn...</div>
+              <div className="text-center py-12 text-sm text-outline">
+                {isEn ? 'Loading message history...' : 'Đang tải lịch sử tin nhắn...'}
+              </div>
             ) : messages.length === 0 ? (
               <div className="py-12 md:py-20 space-y-4 text-center">
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/12 border border-primary/25 text-primary flex items-center justify-center font-jp text-2xl font-bold shadow-xs">
                   先生
                 </div>
                 <h2 className="text-2xl font-bold text-on-surface tracking-tight">
-                  Xin chào! Mình là Sensei AI của Nippon Master
+                  {isEn
+                    ? "Hello! I'm Sensei AI from Nippon Master"
+                    : 'Xin chào! Mình là Sensei AI của Nippon Master'}
                 </h2>
                 <p className="text-sm text-on-surface-variant max-w-lg mx-auto leading-relaxed">
-                  Hỏi bất kỳ thắc mắc nào về <strong>từ vựng, Kanji, ngữ pháp, đề JLPT</strong> hoặc
-                  cách dùng các tính năng trên ứng dụng — mình sẽ tra cứu trực tiếp kho bài học để
-                  trả lời cho bạn.
+                  {isEn ? (
+                    <>
+                      Ask any question about <strong>vocabulary, Kanji, grammar, JLPT exams</strong>{' '}
+                      or how to use features on the platform — I will look up lessons directly to
+                      help you.
+                    </>
+                  ) : (
+                    <>
+                      Hỏi bất kỳ thắc mắc nào về <strong>từ vựng, Kanji, ngữ pháp, đề JLPT</strong>{' '}
+                      hoặc cách dùng các tính năng trên ứng dụng — mình sẽ tra cứu trực tiếp kho bài
+                      học để trả lời cho bạn.
+                    </>
+                  )}
                 </p>
               </div>
             ) : (
@@ -633,7 +844,11 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
                       ) : (
                         <div className="flex items-center gap-2 text-xs text-outline py-1">
                           <Bot size={15} className="animate-bounce text-primary" />
-                          <span>Sensei đang tra cứu bài học và soạn câu trả lời...</span>
+                          <span>
+                            {isEn
+                              ? 'Sensei is looking up lessons and composing an answer...'
+                              : 'Sensei đang tra cứu bài học và soạn câu trả lời...'}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -648,13 +863,23 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
         {/* Input Composer */}
         <div className="p-3 md:p-4 border-t border-outline-variant/40 bg-surface-container-lowest">
           <div className="max-w-3xl mx-auto relative">
+            {/* Virtual Japanese Keyboard */}
+            {showJpKeyboard && (
+              <JapaneseVirtualKeyboard
+                isEn={isEn}
+                onInsert={handleInsertKeyboardText}
+                onBackspace={handleBackspaceKeyboard}
+                onClose={() => setShowJpKeyboard(false)}
+              />
+            )}
+
             {/* Compact personalized quick-actions popover */}
             {showPersonalMenu && (
               <div className="absolute bottom-full mb-2 left-0 w-72 rounded-2xl bg-surface-container-lowest border border-outline-variant/60 shadow-xl p-2 space-y-1 z-30">
                 <div className="px-2.5 py-1 text-[11px] font-bold text-outline uppercase tracking-wider">
-                  Trợ lý cá nhân hóa
+                  {isEn ? 'Personalized Assistant' : 'Trợ lý cá nhân hóa'}
                 </div>
-                {PERSONALIZED_ACTIONS.map((act, i) => (
+                {personalizedActions.map((act, i) => (
                   <button
                     key={i}
                     onClick={() => handleSend(act.prompt)}
@@ -667,18 +892,54 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
               </div>
             )}
 
-            <div className="flex items-end gap-2 bg-surface-container-low border border-outline-variant/60 focus-within:border-primary/60 rounded-2xl p-2 shadow-xs transition-colors">
+            <div className="flex items-end gap-1.5 bg-surface-container-low border border-outline-variant/60 focus-within:border-primary/60 rounded-2xl p-2 shadow-xs transition-colors">
               <button
-                onClick={() => setShowPersonalMenu((v) => !v)}
+                type="button"
+                onClick={() => {
+                  setShowPersonalMenu((v) => !v);
+                  setShowJpKeyboard(false);
+                }}
                 disabled={isStreaming}
-                className="p-2 rounded-xl text-outline hover:text-primary hover:bg-surface-container transition-colors shrink-0 cursor-pointer disabled:opacity-40"
-                title="Gợi ý cá nhân hóa (Giải thích câu sai, Tạo bài tập, Lập lộ trình)"
+                className={`p-2 rounded-xl transition-colors shrink-0 cursor-pointer disabled:opacity-40 ${
+                  showPersonalMenu
+                    ? 'bg-primary/12 text-primary'
+                    : 'text-outline hover:text-primary hover:bg-surface-container'
+                }`}
+                title={
+                  isEn
+                    ? 'Personalized suggestions (Mistakes, Practice quiz, Study plan)'
+                    : 'Gợi ý cá nhân hóa (Giải thích câu sai, Tạo bài tập, Lập lộ trình)'
+                }
               >
                 <Wand2 size={17} />
               </button>
 
+              <button
+                id="sensei-jp-keyboard-toggle-btn"
+                type="button"
+                onClick={() => {
+                  setShowJpKeyboard((v) => !v);
+                  setShowPersonalMenu(false);
+                }}
+                disabled={isStreaming}
+                className={`px-2 py-1.5 rounded-xl transition-colors shrink-0 cursor-pointer disabled:opacity-40 flex items-center gap-1 text-xs font-bold border ${
+                  showJpKeyboard
+                    ? 'bg-primary text-on-primary border-primary'
+                    : 'text-outline hover:text-primary hover:bg-surface-container border-outline-variant/40'
+                }`}
+                title={
+                  isEn
+                    ? 'Open Japanese Virtual Keyboard (Hiragana, Katakana, Romaji IME, Kanji)'
+                    : 'Mở bàn phím tiếng Nhật ảo (Hiragana, Katakana, Gõ Romaji, Kanji)'
+                }
+              >
+                <Keyboard size={15} />
+                <span className="font-jp text-[11px]">あ</span>
+              </button>
+
               <textarea
                 ref={textareaRef}
+                id="sensei-chat-input"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -688,7 +949,11 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
                   }
                 }}
                 rows={1}
-                placeholder="Hỏi Sensei về từ vựng, Kanji, ngữ pháp hoặc cách làm bài... (Enter để gửi)"
+                placeholder={
+                  isEn
+                    ? 'Ask Sensei about vocabulary, Kanji, grammar, or JLPT tips... (Enter to send)'
+                    : 'Hỏi Sensei về từ vựng, Kanji, ngữ pháp hoặc cách làm bài... (Enter để gửi)'
+                }
                 className="flex-1 bg-transparent text-on-surface placeholder:text-outline px-1.5 py-1.5 text-sm md:text-[15px] focus:outline-none resize-none max-h-36 leading-relaxed"
               />
 
@@ -696,24 +961,27 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
                 <button
                   onClick={handleStopStream}
                   className="p-2.5 rounded-xl bg-error text-on-error hover:opacity-90 transition-opacity shrink-0 cursor-pointer flex items-center gap-1 text-xs font-bold"
-                  title="Dừng trả lời"
+                  title={isEn ? 'Stop generating' : 'Dừng trả lời'}
                 >
                   <Square size={15} className="fill-current" />
-                  <span className="hidden sm:inline">Dừng</span>
+                  <span className="hidden sm:inline">{isEn ? 'Stop' : 'Dừng'}</span>
                 </button>
               ) : (
                 <button
+                  id="sensei-send-btn"
                   onClick={() => handleSend()}
                   disabled={!input.trim()}
                   className="p-2.5 rounded-xl bg-primary text-on-primary hover:opacity-95 disabled:opacity-40 transition-opacity shrink-0 cursor-pointer"
-                  title="Gửi câu hỏi"
+                  title={isEn ? 'Send question' : 'Gửi câu hỏi'}
                 >
                   <Send size={17} />
                 </button>
               )}
             </div>
             <p className="text-[11px] text-outline text-center mt-1.5">
-              Nippon Master có thể mắc sai sót, hãy cân nhắc câu trả lời!
+              {isEn
+                ? 'Nippon Master can make mistakes. Please verify important information!'
+                : 'Nippon Master có thể mắc sai sót, hãy cân nhắc câu trả lời!'}
             </p>
           </div>
         </div>
@@ -725,7 +993,11 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
           <div className="p-4 border-b border-outline-variant/40 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BookMarked size={16} className="text-primary" />
-              <h3 className="text-sm font-bold text-on-surface">Sổ tay từ vựng ({savedCards.length})</h3>
+              <h3 className="text-sm font-bold text-on-surface">
+                {isEn
+                  ? `Vocabulary Notebook (${savedCards.length})`
+                  : `Sổ tay từ vựng (${savedCards.length})`}
+              </h3>
             </div>
             <button
               onClick={() => setShowSavedDrawer(false)}
@@ -737,7 +1009,9 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {savedCards.length === 0 ? (
               <p className="text-xs text-outline text-center py-6 leading-relaxed">
-                Chưa có từ nào. Bôi đen một từ tiếng Nhật trong câu trả lời của Sensei để lưu 1 click!
+                {isEn
+                  ? 'No saved words yet. Highlight any Japanese word in Sensei’s reply to save it in 1 click!'
+                  : 'Chưa có từ nào. Bôi đen một từ tiếng Nhật trong câu trả lời của Sensei để lưu 1 click!'}
               </p>
             ) : (
               savedCards.map((c) => (
@@ -759,7 +1033,7 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
                   <button
                     onClick={() => handleDeleteSavedCard(c.id)}
                     className="p-1 text-outline hover:text-error cursor-pointer shrink-0"
-                    title="Xóa thẻ"
+                    title={isEn ? 'Remove card' : 'Xóa thẻ'}
                   >
                     <Trash2 size={13} />
                   </button>

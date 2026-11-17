@@ -31,7 +31,8 @@ public class AiSavedCardService {
 
         // Tự bổ sung nghĩa/cách đọc từ bảng vocabularies / kanji_chapter_vocab / kanjis nếu chưa có
         if (reading.isBlank() || meaning.isBlank()) {
-            EnrichedInfo info = lookupWordInfo(word);
+            boolean en = SenseiPromptBuilder.isEnglish(req.getLanguage());
+            EnrichedInfo info = lookupWordInfo(word, en);
             if (reading.isBlank() && info.reading != null) reading = info.reading;
             if (meaning.isBlank() && info.meaning != null) meaning = info.meaning;
             if ((level == null || level.isBlank()) && info.level != null) level = info.level;
@@ -82,23 +83,27 @@ public class AiSavedCardService {
 
     private record EnrichedInfo(String reading, String meaning, String level) {}
 
-    private EnrichedInfo lookupWordInfo(String word) {
+    private EnrichedInfo lookupWordInfo(String word, boolean en) {
         try {
+            List<EnrichedInfo> kcv = jdbc.query("""
+                    SELECT kcv.reading, kcv.meaning_vi, kcv.meaning_en, kc.jlpt_level
+                    FROM kanji_chapter_vocab kcv
+                    JOIN kanji_chapters kc ON kc.id = kcv.chapter_id
+                    WHERE kcv.word = ? LIMIT 1
+                    """,
+                    (rs, i) -> {
+                        String m = en ? rs.getString("meaning_en") : rs.getString("meaning_vi");
+                        if (m == null || m.isBlank()) m = rs.getString("meaning_vi");
+                        return new EnrichedInfo(rs.getString("reading"), m, rs.getString("jlpt_level"));
+                    },
+                    word);
+            if (!kcv.isEmpty()) return kcv.get(0);
+
             List<EnrichedInfo> vocab = jdbc.query(
                     "SELECT reading, meaning, jlpt_level FROM vocabularies WHERE word = ? LIMIT 1",
                     (rs, i) -> new EnrichedInfo(rs.getString("reading"), rs.getString("meaning"), rs.getString("jlpt_level")),
                     word);
             if (!vocab.isEmpty()) return vocab.get(0);
-
-            List<EnrichedInfo> kcv = jdbc.query("""
-                    SELECT kcv.reading, kcv.meaning_vi, kc.jlpt_level
-                    FROM kanji_chapter_vocab kcv
-                    JOIN kanji_chapters kc ON kc.id = kcv.chapter_id
-                    WHERE kcv.word = ? LIMIT 1
-                    """,
-                    (rs, i) -> new EnrichedInfo(rs.getString("reading"), rs.getString("meaning_vi"), rs.getString("jlpt_level")),
-                    word);
-            if (!kcv.isEmpty()) return kcv.get(0);
 
             if (word.length() == 1) {
                 List<EnrichedInfo> kanji = jdbc.query(

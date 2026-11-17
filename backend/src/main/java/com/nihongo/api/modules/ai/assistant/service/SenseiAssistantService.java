@@ -25,8 +25,10 @@ import java.util.function.Consumer;
 
 /**
  * Điều phối toàn bộ luồng hội thoại Trợ lý Sensei AI (Phase 4 + Phase 6):
- * - Quản lý phiên chat (giới hạn tối đa 30 phiên gần nhất/user để tránh phình DB).
- * - Đọc đúng 8 tin nhắn gần nhất từ SQL + tự động tóm tắt hội thoại dài (> 12 tin).
+ * - Quản lý phiên chat (giới hạn tối đa 30 phiên gần nhất/user để tránh phình
+ * DB).
+ * - Đọc đúng 8 tin nhắn gần nhất từ SQL + tự động tóm tắt hội thoại dài (> 12
+ * tin).
  * - Cá nhân hóa prompt theo hồ sơ học tập (cấp độ, từ yếu, kết quả thi JLPT).
  */
 @Slf4j
@@ -35,6 +37,7 @@ import java.util.function.Consumer;
 public class SenseiAssistantService {
 
     private static final String DEFAULT_TITLE = "Cuộc trò chuyện mới";
+    private static final String DEFAULT_TITLE_EN = "New Conversation";
     private static final int MAX_SESSIONS_PER_USER = 30;
     private static final int RECENT_HISTORY_LIMIT = 8;
 
@@ -48,10 +51,14 @@ public class SenseiAssistantService {
     private final ObjectMapper mapper = new ObjectMapper();
 
     public ChatSessionDto createSession(Long userId, CreateSessionRequest req) {
+        boolean en = SenseiPromptBuilder.isEnglish(req != null ? req.getLanguage() : null);
+        String defaultTitle = en ? DEFAULT_TITLE_EN : DEFAULT_TITLE;
         String title = (req != null && req.getTitle() != null && !req.getTitle().isBlank())
-                ? req.getTitle().trim() : DEFAULT_TITLE;
+                ? req.getTitle().trim()
+                : defaultTitle;
         String level = (req != null && req.getJlptLevel() != null && !req.getJlptLevel().isBlank())
-                ? req.getJlptLevel().trim().toUpperCase() : resolveUserLevel(userId);
+                ? req.getJlptLevel().trim().toUpperCase()
+                : resolveUserLevel(userId);
 
         ChatSessionDto created = jdbc.queryForObject("""
                 INSERT INTO chat_sessions (user_id, title, jlpt_level)
@@ -170,7 +177,7 @@ public class SenseiAssistantService {
 
         // 2. Lưu tin nhắn học viên & đặt tiêu đề tự động nếu là tin nhắn đầu
         saveMessage(sessionId, "USER", userText, List.of());
-        if (DEFAULT_TITLE.equals(session.getTitle())) {
+        if (DEFAULT_TITLE.equals(session.getTitle()) || DEFAULT_TITLE_EN.equals(session.getTitle())) {
             String autoTitle = userText.length() > 48 ? userText.substring(0, 48) + "..." : userText;
             jdbc.update("UPDATE chat_sessions SET title = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
                     autoTitle, sessionId);
@@ -179,8 +186,10 @@ public class SenseiAssistantService {
         }
 
         // 3. Chặn prompt injection rõ ràng
+        String lang = req.getLanguage();
+        boolean en = SenseiPromptBuilder.isEnglish(lang);
         if (promptBuilder.isPromptInjectionAttempt(userText)) {
-            String refusal = SenseiPromptBuilder.INJECTION_REFUSAL;
+            String refusal = SenseiPromptBuilder.getInjectionRefusal(lang);
             onSources.accept(List.of());
             onChunk.accept(refusal);
             return saveMessage(sessionId, "ASSISTANT", refusal, List.of());
@@ -201,15 +210,18 @@ public class SenseiAssistantService {
         String sysPrompt = promptBuilder.buildSystemInstruction(
                 effectiveLevel,
                 studentProfile.summaryPromptBlock(),
-                session.getContextSummary());
+                session.getContextSummary(),
+                lang);
         List<Map<String, Object>> contents = promptBuilder.buildContents(
-                recentHistory, userText, retrieval.chunks(), req.getPageContext());
+                recentHistory, userText, retrieval.chunks(), req.getPageContext(), lang);
 
         // 6. Stream từ Gemini AI
         String reply = geminiChatClient.streamChat(sysPrompt, contents, onChunk);
         boolean aiError = (reply == null || reply.isBlank());
         if (aiError) {
-            reply = "Xin lỗi, Sensei AI đang tạm thời quá tải kết nối. Bạn vui lòng thử gửi lại câu hỏi sau vài giây nhé!";
+            reply = en
+                    ? "Sorry, Sensei AI is temporarily busy. Please try sending your question again in a few seconds!"
+                    : "Xin lỗi, Sensei AI đang tạm thời quá tải kết nối. Bạn vui lòng thử gửi lại câu hỏi sau vài giây nhé!";
             onChunk.accept(reply);
         }
         metricsService.recordChat(!retrieval.chunks().isEmpty(), aiError, System.currentTimeMillis() - t0);
@@ -223,7 +235,8 @@ public class SenseiAssistantService {
     /** Bản đồng bộ không stream (tiện cho test/Swagger). */
     public ChatMessageDto sendMessageSync(Long userId, Long sessionId, SendMessageRequest req) {
         StringBuilder acc = new StringBuilder();
-        return sendMessageStream(userId, sessionId, req, sources -> {}, acc::append);
+        return sendMessageStream(userId, sessionId, req, sources -> {
+        }, acc::append);
     }
 
     // -------------------------------------------------------------------------
@@ -263,7 +276,8 @@ public class SenseiAssistantService {
         try {
             Integer count = jdbc.queryForObject(
                     "SELECT COUNT(*) FROM chat_messages WHERE session_id = ?", Integer.class, sessionId);
-            if (count == null || count < 12 || count % 8 != 4) return;
+            if (count == null || count < 12 || count % 8 != 4)
+                return;
 
             CompletableFuture.runAsync(() -> {
                 try {
@@ -275,11 +289,13 @@ public class SenseiAssistantService {
                             """,
                             (rs, i) -> rs.getString("role") + ": " + rs.getString("content"),
                             sessionId, RECENT_HISTORY_LIMIT);
-                    if (olderLines.isEmpty()) return;
+                    if (olderLines.isEmpty())
+                        return;
                     Collections.reverse(olderLines);
 
                     String prompt = (previousSummary != null && !previousSummary.isBlank()
-                            ? "Tóm tắt trước đó:\n" + previousSummary + "\n\n" : "")
+                            ? "Tóm tắt trước đó:\n" + previousSummary + "\n\n"
+                            : "")
                             + "Các lượt trao đổi tiếp theo:\n" + String.join("\n", olderLines)
                             + "\n\nHãy tóm tắt ngắn gọn (tối đa 4 câu tiếng Việt) những ý chính học viên đã hỏi và Sensei đã giải đáp để giữ ngữ cảnh.";
 
@@ -295,7 +311,8 @@ public class SenseiAssistantService {
                     log.debug("Tóm tắt lịch sử chat session #{} bỏ qua: {}", sessionId, ex.getMessage());
                 }
             });
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private ChatSessionDto ensureSessionOwned(Long userId, Long sessionId) {
@@ -324,7 +341,8 @@ public class SenseiAssistantService {
         String sourcesJson = "[]";
         try {
             sourcesJson = mapper.writeValueAsString(sources == null ? List.of() : sources);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return jdbc.queryForObject("""
                 INSERT INTO chat_messages (session_id, role, content, sources_json)
@@ -364,9 +382,11 @@ public class SenseiAssistantService {
     }
 
     private List<SourceCitation> parseSources(String json) {
-        if (json == null || json.isBlank()) return Collections.emptyList();
+        if (json == null || json.isBlank())
+            return Collections.emptyList();
         try {
-            return mapper.readValue(json, new TypeReference<>() {});
+            return mapper.readValue(json, new TypeReference<>() {
+            });
         } catch (Exception e) {
             return Collections.emptyList();
         }

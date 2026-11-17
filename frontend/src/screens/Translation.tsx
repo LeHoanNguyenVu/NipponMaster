@@ -198,7 +198,7 @@ export default function Translation() {
             'nippon_sensei_translation_ctx',
             `Đoạn vừa dịch (${src}→${tgt}): "${trimmed}" => "${translated}"`
           );
-        } catch {}
+        } catch { }
       }
     };
 
@@ -234,7 +234,7 @@ export default function Translation() {
         setIsStreaming(false);
         setError(
           err?.message ||
-            t('translation:errorDefault', 'Đã xảy ra lỗi khi kết nối với hệ thống dịch thuật AI. Vui lòng thử lại sau.')
+          t('translation:errorDefault', 'Đã xảy ra lỗi khi kết nối với hệ thống dịch thuật AI. Vui lòng thử lại sau.')
         );
       }
     };
@@ -250,10 +250,10 @@ export default function Translation() {
       lastTranslatedRef.current = '';
       try {
         sessionStorage.removeItem('nippon_sensei_translation_ctx');
-      } catch {}
+      } catch { }
       return;
     }
-    const timer = setTimeout(() => handleTranslate(inputText, sourceLang, targetLang), 500);
+    const timer = setTimeout(() => handleTranslate(inputText, sourceLang, targetLang), 250);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputText, sourceLang, targetLang]);
@@ -345,414 +345,411 @@ export default function Translation() {
       </header>
 
       {/* Language Selector Bar */}
-          <div className="flex items-center justify-center gap-3 bg-surface-container-low/70 backdrop-blur-md border border-outline-variant/40 p-3 rounded-2xl max-w-xl mx-auto shadow-sm">
-            {/* Source Language Dropdown */}
-            <div className="relative flex-1">
-              <button
-                id="source-lang-select-btn"
-                onClick={() => {
-                  setIsSourceOpen(!isSourceOpen);
-                  setIsTargetOpen(false);
-                }}
-                className="w-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium cursor-pointer flex justify-between items-center shadow-xs"
-              >
-                <span className="font-semibold">{getLangName(sourceLang)}</span>
-                <svg
-                  className={`w-4 h-4 text-on-surface-variant transition-transform ${isSourceOpen ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              <AnimatePresence>
-                {isSourceOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 5 }}
-                    className="absolute left-0 right-0 z-50 mt-1 bg-surface-container border border-outline-variant rounded-xl shadow-lg overflow-hidden"
-                  >
-                    {Object.keys(LANG_NAMES).map((code) => (
-                      <button
-                        key={code}
-                        id={`source-lang-option-${code}`}
-                        onClick={() => {
-                          handleSourceLangChange(code);
-                          setIsSourceOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-primary/8 transition-colors cursor-pointer ${
-                          sourceLang === code ? 'text-primary font-bold bg-primary/4' : 'text-on-surface'
-                        }`}
-                      >
-                        {getLangName(code)}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Swap Button */}
-            <button
-              id="swap-lang-btn"
-              onClick={handleSwapLanguages}
-              className="p-2.5 bg-primary/8 hover:bg-primary/15 text-primary rounded-xl transition-all border border-primary/20 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center shrink-0"
-              title={t('translation:swapTooltip', 'Đổi chiều ngôn ngữ')}
+      <div className="flex items-center justify-center gap-3 bg-surface-container-low/70 backdrop-blur-md border border-outline-variant/40 p-3 rounded-2xl max-w-xl mx-auto shadow-sm">
+        {/* Source Language Dropdown */}
+        <div className="relative flex-1">
+          <button
+            id="source-lang-select-btn"
+            onClick={() => {
+              setIsSourceOpen(!isSourceOpen);
+              setIsTargetOpen(false);
+            }}
+            className="w-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium cursor-pointer flex justify-between items-center shadow-xs"
+          >
+            <span className="font-semibold">{getLangName(sourceLang)}</span>
+            <svg
+              className={`w-4 h-4 text-on-surface-variant transition-transform ${isSourceOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <ArrowLeftRight size={18} />
-            </button>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
 
-            {/* Target Language Dropdown */}
-            <div className="relative flex-1">
-              <button
-                id="target-lang-select-btn"
-                onClick={() => {
-                  setIsTargetOpen(!isTargetOpen);
-                  setIsSourceOpen(false);
-                }}
-                className="w-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium cursor-pointer flex justify-between items-center shadow-xs"
+          <AnimatePresence>
+            {isSourceOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                className="absolute left-0 right-0 z-50 mt-1 bg-surface-container border border-outline-variant rounded-xl shadow-lg overflow-hidden"
               >
-                <span className="font-semibold">{getLangName(targetLang)}</span>
-                <svg
-                  className={`w-4 h-4 text-on-surface-variant transition-transform ${isTargetOpen ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              <AnimatePresence>
-                {isTargetOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 5 }}
-                    className="absolute left-0 right-0 z-50 mt-1 bg-surface-container border border-outline-variant rounded-xl shadow-lg overflow-hidden"
+                {Object.keys(LANG_NAMES).map((code) => (
+                  <button
+                    key={code}
+                    id={`source-lang-option-${code}`}
+                    onClick={() => {
+                      handleSourceLangChange(code);
+                      setIsSourceOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 text-sm hover:bg-primary/8 transition-colors cursor-pointer ${sourceLang === code ? 'text-primary font-bold bg-primary/4' : 'text-on-surface'
+                      }`}
                   >
-                    {Object.keys(LANG_NAMES).map((code) => (
-                      <button
-                        key={code}
-                        id={`target-lang-option-${code}`}
-                        onClick={() => {
-                          handleTargetLangChange(code);
-                          setIsTargetOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-primary/8 transition-colors cursor-pointer ${
-                          targetLang === code ? 'text-primary font-bold bg-primary/4' : 'text-on-surface'
-                        }`}
-                      >
-                        {getLangName(code)}
-                      </button>
-                    ))}
-                  </motion.div>
+                    {getLangName(code)}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Swap Button */}
+        <button
+          id="swap-lang-btn"
+          onClick={handleSwapLanguages}
+          className="p-2.5 bg-primary/8 hover:bg-primary/15 text-primary rounded-xl transition-all border border-primary/20 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center shrink-0"
+          title={t('translation:swapTooltip', 'Đổi chiều ngôn ngữ')}
+        >
+          <ArrowLeftRight size={18} />
+        </button>
+
+        {/* Target Language Dropdown */}
+        <div className="relative flex-1">
+          <button
+            id="target-lang-select-btn"
+            onClick={() => {
+              setIsTargetOpen(!isTargetOpen);
+              setIsSourceOpen(false);
+            }}
+            className="w-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium cursor-pointer flex justify-between items-center shadow-xs"
+          >
+            <span className="font-semibold">{getLangName(targetLang)}</span>
+            <svg
+              className={`w-4 h-4 text-on-surface-variant transition-transform ${isTargetOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <AnimatePresence>
+            {isTargetOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                className="absolute left-0 right-0 z-50 mt-1 bg-surface-container border border-outline-variant rounded-xl shadow-lg overflow-hidden"
+              >
+                {Object.keys(LANG_NAMES).map((code) => (
+                  <button
+                    key={code}
+                    id={`target-lang-option-${code}`}
+                    onClick={() => {
+                      handleTargetLangChange(code);
+                      setIsTargetOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 text-sm hover:bg-primary/8 transition-colors cursor-pointer ${targetLang === code ? 'text-primary font-bold bg-primary/4' : 'text-on-surface'
+                      }`}
+                  >
+                    {getLangName(code)}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Main Workspace Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Input Panel */}
+        <div className="col-span-1 lg:col-span-6 space-y-4">
+          <Card className="p-6 space-y-4 shadow-sm border border-outline-variant/50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-semibold text-on-surface-variant flex items-center gap-2">
+                <Languages size={18} className="text-primary" />
+                {t('translation:sourceLabel', {
+                  lang: getLangName(sourceLang),
+                  defaultValue: `Văn bản ${getLangName(sourceLang)} (Nguồn)`
+                })}
+              </span>
+              <div className="flex items-center gap-3">
+                {inputText.trim() && (
+                  <button
+                    onClick={() => {
+                      setInputText('');
+                      setResult(null);
+                    }}
+                    className="text-xs text-outline hover:text-error transition-colors flex items-center gap-1 cursor-pointer"
+                    title="Xóa nội dung"
+                  >
+                    <X size={14} />
+                    Xóa
+                  </button>
                 )}
-              </AnimatePresence>
+                <span className="text-xs font-mono text-outline">
+                  {t('translation:charCount', { count: inputText.length, defaultValue: `${inputText.length} ký tự` })}
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* Main Workspace Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Input Panel */}
-            <div className="col-span-1 lg:col-span-6 space-y-4">
-              <Card className="p-6 space-y-4 shadow-sm border border-outline-variant/50">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-semibold text-on-surface-variant flex items-center gap-2">
-                    <Languages size={18} className="text-primary" />
-                    {t('translation:sourceLabel', {
-                      lang: getLangName(sourceLang),
-                      defaultValue: `Văn bản ${getLangName(sourceLang)} (Nguồn)`
-                    })}
-                  </span>
-                  <div className="flex items-center gap-3">
-                    {inputText.trim() && (
-                      <button
-                        onClick={() => {
-                          setInputText('');
-                          setResult(null);
-                        }}
-                        className="text-xs text-outline hover:text-error transition-colors flex items-center gap-1 cursor-pointer"
-                        title="Xóa nội dung"
-                      >
-                        <X size={14} />
-                        Xóa
-                      </button>
-                    )}
-                    <span className="text-xs font-mono text-outline">
-                      {t('translation:charCount', { count: inputText.length, defaultValue: `${inputText.length} ký tự` })}
+            <div className="relative">
+              <textarea
+                ref={textareaRef}
+                id="translate-input-textarea"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={t('translation:inputPlaceholder', {
+                  lang: getLangName(sourceLang).toLowerCase(),
+                  sample: SAMPLE_SENTENCES[sourceLang]?.[0] || '',
+                  defaultValue: `Nhập hoặc dán câu ${getLangName(sourceLang).toLowerCase()} vào đây...`
+                })}
+                className="w-full h-52 bg-surface-container-low text-on-surface border border-outline-variant/60 rounded-2xl p-4 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all text-lg font-jp resize-none leading-relaxed"
+              />
+            </div>
+          </Card>
+
+          {/* Translation History Drawer */}
+          {history.length > 0 && (
+            <Card className="p-4 bg-surface-container-low/40 border border-outline-variant/40 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
+                  <History size={14} className="text-primary" />
+                  {t('translation:historyTitle', 'Lịch sử dịch gần đây')}
+                </span>
+                <button
+                  onClick={clearHistory}
+                  className="text-xs text-outline hover:text-error transition-colors flex items-center gap-1 cursor-pointer"
+                  title={t('translation:clearHistory', 'Xóa lịch sử')}
+                >
+                  <Trash2 size={12} />
+                  {t('translation:clearHistory', 'Xóa')}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {history.map((h) => (
+                  <button
+                    key={h.id}
+                    onClick={() => {
+                      setInputText(h.text);
+                      setSourceLang(h.sourceLang);
+                      setTargetLang(h.targetLang);
+                      handleTranslate(h.text, h.sourceLang, h.targetLang);
+                    }}
+                    className="text-left px-3 py-1.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-primary/40 hover:bg-primary/4 transition-all text-xs text-on-surface cursor-pointer group max-w-full"
+                  >
+                    <span className="font-medium text-primary font-mono text-[10px] uppercase mr-1">
+                      {h.sourceLang}→{h.targetLang}:
                     </span>
-                  </div>
-                </div>
+                    <span className="text-on-surface group-hover:text-primary transition-colors font-jp truncate inline-block max-w-[180px] align-bottom">
+                      {h.text}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
 
+        {/* Right Result Panel */}
+        <div className="col-span-1 lg:col-span-6">
+          <AnimatePresence>
+            {isLoading ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                className="w-full h-[360px] bg-surface-container-lowest border border-outline-variant/50 rounded-2xl flex flex-col items-center justify-center p-6 space-y-4 shadow-sm"
+              >
                 <div className="relative">
-                  <textarea
-                    ref={textareaRef}
-                    id="translate-input-textarea"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={t('translation:inputPlaceholder', {
-                      lang: getLangName(sourceLang).toLowerCase(),
-                      sample: SAMPLE_SENTENCES[sourceLang]?.[0] || '',
-                      defaultValue: `Nhập hoặc dán câu ${getLangName(sourceLang).toLowerCase()} vào đây...`
-                    })}
-                    className="w-full h-52 bg-surface-container-low text-on-surface border border-outline-variant/60 rounded-2xl p-4 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all text-lg font-jp resize-none leading-relaxed"
-                  />
+                  <Loader2 size={44} className="text-primary animate-spin" />
+                  <Sparkles size={18} className="text-secondary absolute -top-1 -right-1 animate-pulse" />
                 </div>
-              </Card>
+                <div className="text-center space-y-1">
+                  <p className="text-on-surface font-bold text-base">
+                    {t('translation:translatingFast', 'Đang dịch...')}
+                  </p>
+                </div>
+              </motion.div>
+            ) : error ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="w-full bg-error-container/20 border border-error/30 text-error rounded-2xl p-6 flex gap-3 shadow-xs"
+              >
+                <Info size={22} className="shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <h4 className="font-bold">{t('translation:errorTitle', 'Đã xảy ra lỗi')}</h4>
+                  <p className="text-sm">{error}</p>
+                </div>
+              </motion.div>
+            ) : result ? (
+              <motion.div
+                key={result.originalText}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="space-y-5"
+              >
+                {/* Translation Result Card */}
+                <Card className="p-6 space-y-5 border-2 border-primary/15 relative overflow-hidden shadow-sm">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-primary/4 rounded-full blur-3xl pointer-events-none" />
 
-              {/* Translation History Drawer */}
-              {history.length > 0 && (
-                <Card className="p-4 bg-surface-container-low/40 border border-outline-variant/40 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
-                      <History size={14} className="text-primary" />
-                      {t('translation:historyTitle', 'Lịch sử dịch gần đây')}
-                    </span>
-                    <button
-                      onClick={clearHistory}
-                      className="text-xs text-outline hover:text-error transition-colors flex items-center gap-1 cursor-pointer"
-                      title={t('translation:clearHistory', 'Xóa lịch sử')}
-                    >
-                      <Trash2 size={12} />
-                      {t('translation:clearHistory', 'Xóa')}
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {history.map((h) => (
+                  {/* Header bar of result: Language label & actions */}
+                  <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider flex items-center gap-1.5">
+                        <FileText size={15} className="text-primary" />
+                        {t('translation:translationResult', {
+                          lang: getLangName(targetLang),
+                          defaultValue: `Bản dịch ${getLangName(targetLang)}`
+                        })}
+                      </span>
+                    </div>
+
+                    {/* Top action buttons */}
+                    <div className="flex items-center gap-1.5">
+                      {/* Audio speak for Japanese */}
                       <button
-                        key={h.id}
                         onClick={() => {
-                          setInputText(h.text);
-                          setSourceLang(h.sourceLang);
-                          setTargetLang(h.targetLang);
-                          handleTranslate(h.text, h.sourceLang, h.targetLang);
+                          const textToSpeak = targetLang === 'ja' ? result.translatedText : result.originalText;
+                          handleSpeak(textToSpeak, targetLang === 'ja' ? 'ja' : sourceLang);
                         }}
-                        className="text-left px-3 py-1.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-primary/40 hover:bg-primary/4 transition-all text-xs text-on-surface cursor-pointer group max-w-full"
+                        className={`p-1.5 rounded-lg border transition-all cursor-pointer ${isSpeaking
+                            ? 'bg-primary text-on-primary border-primary'
+                            : 'text-outline hover:text-primary hover:bg-surface-container-low border-transparent'
+                          }`}
+                        title={t('translation:listenAudio', 'Nghe phát âm')}
                       >
-                        <span className="font-medium text-primary font-mono text-[10px] uppercase mr-1">
-                          {h.sourceLang}→{h.targetLang}:
-                        </span>
-                        <span className="text-on-surface group-hover:text-primary transition-colors font-jp truncate inline-block max-w-[180px] align-bottom">
-                          {h.text}
-                        </span>
+                        <Volume2 size={16} />
                       </button>
-                    ))}
+
+                      <button
+                        onClick={handleCopy}
+                        className="p-1.5 rounded-lg border border-transparent text-outline hover:text-primary hover:bg-surface-container-low transition-colors cursor-pointer"
+                        title={t('translation:copyBtn', 'Sao chép bản dịch')}
+                      >
+                        {copiedText ? <Check size={16} className="text-secondary" /> : <Copy size={16} />}
+                      </button>
+                    </div>
                   </div>
-                </Card>
-              )}
-            </div>
 
-            {/* Right Result Panel */}
-            <div className="col-span-1 lg:col-span-6">
-              <AnimatePresence mode="wait">
-                {isLoading ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="w-full h-[360px] bg-surface-container-lowest border border-outline-variant/50 rounded-2xl flex flex-col items-center justify-center p-6 space-y-4 shadow-sm"
-                  >
-                    <div className="relative">
-                      <Loader2 size={44} className="text-primary animate-spin" />
-                      <Sparkles size={18} className="text-secondary absolute -top-1 -right-1 animate-pulse" />
+                  {/* Furigana Display (Pronunciation HTML) */}
+                  {result.pronunciation && (
+                    <div className="space-y-2">
+                      <span className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles size={14} className="fill-current" />
+                        {sourceLang === 'ja'
+                          ? t('translation:furiganaSource', 'Phiên âm Furigana (Văn bản gốc)')
+                          : t('translation:furiganaTarget', 'Phiên âm Furigana (Văn bản dịch)')}
+                      </span>
+                      <div
+                        className="text-2xl md:text-3xl font-jp leading-[2.6] text-on-surface tracking-wide p-4 bg-surface-container-low/50 rounded-2xl border border-outline-variant/30 select-text"
+                        dangerouslySetInnerHTML={{ __html: result.pronunciation }}
+                      />
                     </div>
-                    <div className="text-center space-y-1">
-                      <p className="text-on-surface font-bold text-base">
-                        {t('translation:translatingFast', 'Đang dịch...')}
-                      </p>
-                    </div>
-                  </motion.div>
-                ) : error ? (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="w-full bg-error-container/20 border border-error/30 text-error rounded-2xl p-6 flex gap-3 shadow-xs"
-                  >
-                    <Info size={22} className="shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      <h4 className="font-bold">{t('translation:errorTitle', 'Đã xảy ra lỗi')}</h4>
-                      <p className="text-sm">{error}</p>
-                    </div>
-                  </motion.div>
-                ) : result ? (
-                  <motion.div
-                    key={result.originalText}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="space-y-5"
-                  >
-                    {/* Translation Result Card */}
-                    <Card className="p-6 space-y-5 border-2 border-primary/15 relative overflow-hidden shadow-sm">
-                      <div className="absolute top-0 right-0 w-40 h-40 bg-primary/4 rounded-full blur-3xl pointer-events-none" />
+                  )}
 
-                      {/* Header bar of result: Language label & actions */}
-                      <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider flex items-center gap-1.5">
-                            <FileText size={15} className="text-primary" />
-                            {t('translation:translationResult', {
-                              lang: getLangName(targetLang),
-                              defaultValue: `Bản dịch ${getLangName(targetLang)}`
-                            })}
-                          </span>
-                        </div>
-
-                        {/* Top action buttons */}
-                        <div className="flex items-center gap-1.5">
-                          {/* Audio speak for Japanese */}
-                          <button
-                            onClick={() => {
-                              const textToSpeak = targetLang === 'ja' ? result.translatedText : result.originalText;
-                              handleSpeak(textToSpeak, targetLang === 'ja' ? 'ja' : sourceLang);
-                            }}
-                            className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                              isSpeaking
-                                ? 'bg-primary text-on-primary border-primary'
-                                : 'text-outline hover:text-primary hover:bg-surface-container-low border-transparent'
-                            }`}
-                            title={t('translation:listenAudio', 'Nghe phát âm')}
-                          >
-                            <Volume2 size={16} />
-                          </button>
-
-                          <button
-                            onClick={handleCopy}
-                            className="p-1.5 rounded-lg border border-transparent text-outline hover:text-primary hover:bg-surface-container-low transition-colors cursor-pointer"
-                            title={t('translation:copyBtn', 'Sao chép bản dịch')}
-                          >
-                            {copiedText ? <Check size={16} className="text-secondary" /> : <Copy size={16} />}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Furigana Display (Pronunciation HTML) */}
-                      {result.pronunciation && (
-                        <div className="space-y-2">
-                          <span className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
-                            <Sparkles size={14} className="fill-current" />
-                            {sourceLang === 'ja'
-                              ? t('translation:furiganaSource', 'Phiên âm Furigana (Văn bản gốc)')
-                              : t('translation:furiganaTarget', 'Phiên âm Furigana (Văn bản dịch)')}
-                          </span>
-                          <div
-                            className="text-2xl md:text-3xl font-jp leading-[2.6] text-on-surface tracking-wide p-4 bg-surface-container-low/50 rounded-2xl border border-outline-variant/30 select-text"
-                            dangerouslySetInnerHTML={{ __html: result.pronunciation }}
-                          />
-                        </div>
-                      )}
-
-                      {/* Translation Text Result */}
-                      <div className="space-y-1.5 pt-1">
-                        <span className="text-xs font-medium text-outline">Nội dung đã dịch:</span>
-                        <p className="text-xl md:text-2xl font-medium text-on-surface font-sans leading-relaxed select-text">
-                          {result.translatedText}
-                          {isStreaming && <span className="inline-block w-2 h-6 ml-1 align-middle bg-primary/70 animate-pulse rounded-sm" />}
-                        </p>
-                      </div>
-
-                      {!isStreaming && !result.words?.length && !result.grammarNotes && (
-                        <button
-                          onClick={handleDeepAnalyze}
-                          disabled={isAnalyzing}
-                          className="w-full py-2.5 rounded-xl border border-dashed border-primary/40 text-primary text-sm font-bold hover:bg-primary/5 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-                        >
-                          {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                          {isAnalyzing
-                            ? t('translation:analyzingShort', 'Đang phân tích Furigana, từ vựng, ngữ pháp...')
-                            : t('translation:deepAnalyzeBtn', 'Phân tích chi tiết (Furigana · Từ vựng · Ngữ pháp)')}
-                        </button>
-                      )}
-                    </Card>
-
-                    {/* AI Grammar & Nuance Notes Card */}
-                    {result.grammarNotes && result.grammarNotes.trim() && (
-                      <Card className="p-5 border border-primary/20 bg-primary/3 rounded-2xl space-y-2.5 shadow-xs">
-                        <div className="flex items-center gap-2 text-primary font-bold text-sm">
-                          <Sparkles size={16} className="fill-primary/30" />
-                          <span>{t('translation:grammarNotesTitle', 'Phân tích ngữ pháp & Sắc thái câu AI')}</span>
-                        </div>
-                        <p className="text-sm text-on-surface-variant leading-relaxed whitespace-pre-line select-text">
-                          {result.grammarNotes}
-                        </p>
-                      </Card>
-                    )}
-
-                    {/* Vocabulary Analysis Card */}
-                    {result.words && result.words.length > 0 && (
-                      <div className="space-y-3">
-                        <h3 className="text-base md:text-lg font-bold text-on-surface flex items-center gap-2">
-                          <BookOpen size={18} className="text-secondary" />
-                          {t('translation:vocabTitle', {
-                            count: result.words.length,
-                            defaultValue: `Phân tích từ vựng tiếng Nhật (${result.words.length} từ)`
-                          })}
-                        </h3>
-                        <div className="grid grid-cols-1 gap-2.5">
-                          {result.words.map((w, idx) => (
-                            <motion.div
-                              key={idx}
-                              initial={{ opacity: 0, x: -8 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: idx * 0.04 }}
-                              className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-surface-container-lowest border border-outline-variant/40 rounded-2xl hover:shadow-xs hover:border-secondary/30 transition-all gap-2"
-                            >
-                              <div className="space-y-1">
-                                <div className="flex items-baseline gap-2 flex-wrap">
-                                  <span className="text-xl font-jp font-bold text-on-surface">{w.word}</span>
-                                  {w.reading && w.reading !== w.word && (
-                                    <span className="text-xs text-primary font-medium font-jp">({w.reading})</span>
-                                  )}
-                                  {w.sinoVietnamese && (
-                                    <span className="px-2 py-0.5 rounded-md bg-secondary/10 text-secondary border border-secondary/20 text-xs font-semibold">
-                                      Hán Việt: {w.sinoVietnamese}
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-sm text-on-surface-variant font-medium">{w.meaning}</p>
-                              </div>
-                              {w.partOfSpeech && (
-                                <span className="self-start sm:self-center px-2.5 py-1 bg-surface-container-low text-on-surface-variant rounded-lg text-xs font-bold font-mono tracking-wider shrink-0">
-                                  {w.partOfSpeech}
-                                </span>
-                              )}
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                ) : (
-                  <div className="w-full h-[360px] bg-surface-container-lowest border border-outline-variant/30 rounded-2xl border-dashed flex flex-col items-center justify-center p-6 text-center text-outline">
-                    <div className="p-4 rounded-full bg-surface-container-low/60 mb-3">
-                      <Languages size={40} className="opacity-50 text-primary" />
-                    </div>
-                    <h3 className="font-bold text-on-surface mb-1">
-                      {t('translation:placeholderTitle', 'Kết quả hiển thị tại đây')}
-                    </h3>
-                    <p className="text-sm max-w-sm text-on-surface-variant">
-                      {sourceLang === 'ja'
-                        ? t(
-                            'translation:placeholderSourceJa',
-                            'Nhập văn bản tiếng Nhật ở khung bên trái và bấm dịch để nhận bản dịch chuẩn ngữ cảnh, Furigana và phân tích ngữ pháp AI.'
-                          )
-                        : t('translation:placeholderSourceOther', {
-                            lang: getLangName(sourceLang).toLowerCase(),
-                            defaultValue: `Nhập văn bản ${getLangName(sourceLang).toLowerCase()} ở khung bên trái để nhận kết quả dịch sang tiếng Nhật kèm phiên âm Furigana và phân tích từ vựng.`
-                          })}
+                  {/* Translation Text Result */}
+                  <div className="space-y-1.5 pt-1">
+                    <span className="text-xs font-medium text-outline">Nội dung đã dịch:</span>
+                    <p className="text-xl md:text-2xl font-medium text-on-surface font-sans leading-relaxed select-text">
+                      {result.translatedText}
+                      {isStreaming && <span className="inline-block w-2 h-6 ml-1 align-middle bg-primary/70 animate-pulse rounded-sm" />}
                     </p>
                   </div>
+
+                  {!isStreaming && !result.words?.length && !result.grammarNotes && (
+                    <button
+                      onClick={handleDeepAnalyze}
+                      disabled={isAnalyzing}
+                      className="w-full py-2.5 rounded-xl border border-dashed border-primary/40 text-primary text-sm font-bold hover:bg-primary/5 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                    >
+                      {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                      {isAnalyzing
+                        ? t('translation:analyzingShort', 'Đang phân tích Furigana, từ vựng, ngữ pháp...')
+                        : t('translation:deepAnalyzeBtn', 'Phân tích chi tiết (Furigana · Từ vựng · Ngữ pháp)')}
+                    </button>
+                  )}
+                </Card>
+
+                {/* AI Grammar & Nuance Notes Card */}
+                {result.grammarNotes && result.grammarNotes.trim() && (
+                  <Card className="p-5 border border-primary/20 bg-primary/3 rounded-2xl space-y-2.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-primary font-bold text-sm">
+                      <Sparkles size={16} className="fill-primary/30" />
+                      <span>{t('translation:grammarNotesTitle', 'Phân tích ngữ pháp & Sắc thái câu')}</span>
+                    </div>
+                    <p className="text-sm text-on-surface-variant leading-relaxed whitespace-pre-line select-text">
+                      {result.grammarNotes}
+                    </p>
+                  </Card>
                 )}
-              </AnimatePresence>
-            </div>
-          </div>
+
+                {/* Vocabulary Analysis Card */}
+                {result.words && result.words.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-base md:text-lg font-bold text-on-surface flex items-center gap-2">
+                      <BookOpen size={18} className="text-secondary" />
+                      {t('translation:vocabTitle', {
+                        count: result.words.length,
+                        defaultValue: `Phân tích từ vựng tiếng Nhật (${result.words.length} từ)`
+                      })}
+                    </h3>
+                    <div className="grid grid-cols-1 gap-2.5">
+                      {result.words.map((w, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.04 }}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-surface-container-lowest border border-outline-variant/40 rounded-2xl hover:shadow-xs hover:border-secondary/30 transition-all gap-2"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                              <span className="text-xl font-jp font-bold text-on-surface">{w.word}</span>
+                              {w.reading && w.reading !== w.word && (
+                                <span className="text-xs text-primary font-medium font-jp">({w.reading})</span>
+                              )}
+                              {w.sinoVietnamese && (
+                                <span className="px-2 py-0.5 rounded-md bg-secondary/10 text-secondary border border-secondary/20 text-xs font-semibold">
+                                  Hán Việt: {w.sinoVietnamese}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-on-surface-variant font-medium">{w.meaning}</p>
+                          </div>
+                          {w.partOfSpeech && (
+                            <span className="self-start sm:self-center px-2.5 py-1 bg-surface-container-low text-on-surface-variant rounded-lg text-xs font-bold font-mono tracking-wider shrink-0">
+                              {w.partOfSpeech}
+                            </span>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            ) : (
+              <div className="w-full h-[360px] bg-surface-container-lowest border border-outline-variant/30 rounded-2xl border-dashed flex flex-col items-center justify-center p-6 text-center text-outline">
+                <div className="p-4 rounded-full bg-surface-container-low/60 mb-3">
+                  <Languages size={40} className="opacity-50 text-primary" />
+                </div>
+                <h3 className="font-bold text-on-surface mb-1">
+                  {t('translation:placeholderTitle', 'Kết quả hiển thị tại đây')}
+                </h3>
+                <p className="text-sm max-w-sm text-on-surface-variant">
+                  {sourceLang === 'ja'
+                    ? t(
+                      'translation:placeholderSourceJa',
+                      'Nhập văn bản tiếng Nhật ở khung bên trái và bấm dịch để nhận bản dịch chuẩn ngữ cảnh, Furigana và phân tích ngữ pháp AI.'
+                    )
+                    : t('translation:placeholderSourceOther', {
+                      lang: getLangName(sourceLang).toLowerCase(),
+                      defaultValue: `Nhập văn bản ${getLangName(sourceLang).toLowerCase()} ở khung bên trái để nhận kết quả dịch sang tiếng Nhật kèm phiên âm Furigana và phân tích từ vựng.`
+                    })}
+                </p>
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 }

@@ -88,7 +88,7 @@ public class SenseiChatController {
             @PathVariable Long id,
             @Valid @RequestBody SendMessageRequest req) {
 
-        SseEmitter emitter = new SseEmitter(60_000L);
+        SseEmitter emitter = new SseEmitter(180_000L);
         CHAT_STREAM_POOL.submit(() -> {
             try {
                 ChatMessageDto saved = assistantService.sendMessageStream(

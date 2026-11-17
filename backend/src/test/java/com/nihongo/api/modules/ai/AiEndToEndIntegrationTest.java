@@ -1,6 +1,7 @@
 package com.nihongo.api.modules.ai;
 
 import com.nihongo.api.modules.ai.assistant.service.GeminiChatClient;
+import com.nihongo.api.modules.ai.assistant.service.SenseiPromptBuilder;
 import com.nihongo.api.modules.ai.core.AiMetricsService;
 import com.nihongo.api.modules.ai.core.AiRateLimitException;
 import com.nihongo.api.modules.ai.core.AiRateLimiter;
@@ -122,6 +123,11 @@ class AiEndToEndIntegrationTest {
 
         assertEquals("Xin chào!", reply);
         assertEquals(2, chunks.size());
+
+        SenseiPromptBuilder pb = new SenseiPromptBuilder();
+        String enSys = pb.buildSystemInstruction("N3", "- Profile", null, "en");
+        assertTrue(enSys.contains("ALWAYS respond in English"));
+        assertTrue(SenseiPromptBuilder.getInjectionRefusal("en").contains("Sorry, I am **Sensei AI**"));
     }
 
     @Test

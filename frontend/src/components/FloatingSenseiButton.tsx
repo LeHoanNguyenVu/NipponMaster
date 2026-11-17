@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Sparkles, X, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ScreenType } from '../App';
 
 interface FloatingSenseiButtonProps {
@@ -7,7 +8,7 @@ interface FloatingSenseiButtonProps {
   onAskSensei: (pageContext: string, quickQuestion?: string) => void;
 }
 
-const SCREEN_CONTEXT_LABELS: Record<ScreenType, string> = {
+const SCREEN_CONTEXT_LABELS_VI: Record<ScreenType, string> = {
   dashboard: 'Trang tổng quan học tập',
   beginner: 'Khóa Nhập Môn (Hiragana, Katakana, Giao tiếp cơ bản)',
   kanji: 'Kho Hán Tự (Kanji Master)',
@@ -19,23 +20,38 @@ const SCREEN_CONTEXT_LABELS: Record<ScreenType, string> = {
   sensei: 'Trợ lý Sensei AI',
 };
 
+const SCREEN_CONTEXT_LABELS_EN: Record<ScreenType, string> = {
+  dashboard: 'Learning Dashboard',
+  beginner: 'Starter Course (Hiragana, Katakana, Basic Conversation)',
+  kanji: 'Kanji Hub (Kanji Master)',
+  grammar: 'Video Grammar & Exercises',
+  exams: 'JLPT Mock Exams',
+  translation: 'Translation & Syntax Breakdown',
+  listening: 'Listening Room',
+  pricing: 'Nippon Master Membership Plans',
+  sensei: 'Sensei AI Assistant',
+};
+
 export default function FloatingSenseiButton({
   currentScreen,
   onAskSensei,
 }: FloatingSenseiButtonProps) {
+  const { i18n } = useTranslation();
+  const isEn = (i18n.language || 'vi').startsWith('en');
   const [open, setOpen] = useState(false);
   const [quickInput, setQuickInput] = useState('');
 
   if (currentScreen === 'sensei') return null;
 
-  const baseLabel = SCREEN_CONTEXT_LABELS[currentScreen] || currentScreen;
+  const labels = isEn ? SCREEN_CONTEXT_LABELS_EN : SCREEN_CONTEXT_LABELS_VI;
+  const baseLabel = labels[currentScreen] || currentScreen;
 
   const buildContext = () => {
     if (currentScreen === 'translation') {
       try {
         const transCtx = sessionStorage.getItem('nippon_sensei_translation_ctx');
         if (transCtx) return transCtx;
-      } catch {}
+      } catch { }
     }
     return baseLabel;
   };
@@ -57,7 +73,9 @@ export default function FloatingSenseiButton({
                 先生
               </div>
               <div>
-                <p className="text-xs font-bold text-on-surface">Hỏi nhanh Sensei AI</p>
+                <p className="text-xs font-bold text-on-surface">
+                  {isEn ? 'Quick Ask Sensei AI' : 'Hỏi nhanh Sensei AI'}
+                </p>
                 <p className="text-[10px] text-outline truncate max-w-[180px]">{baseLabel}</p>
               </div>
             </div>
@@ -79,7 +97,11 @@ export default function FloatingSenseiButton({
                 if (quickInput.trim()) handleGo(quickInput);
               }
             }}
-            placeholder="Nhập câu hỏi rồi bấm Hỏi ngay để tạo chat mới & gửi luôn..."
+            placeholder={
+              isEn
+                ? 'Type your question and press Ask Now to start a new chat...'
+                : 'Nhập câu hỏi rồi bấm Hỏi ngay để tạo chat mới & gửi luôn...'
+            }
             className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl p-2.5 text-xs text-on-surface focus:outline-none focus:border-primary/60 resize-none"
           />
 
@@ -88,14 +110,14 @@ export default function FloatingSenseiButton({
               onClick={() => handleGo()}
               className="text-xs text-primary font-semibold hover:underline cursor-pointer"
             >
-              Mở khung chat đầy đủ
+              {isEn ? 'Open full chat' : 'Mở khung chat đầy đủ'}
             </button>
             <button
               onClick={() => handleGo(quickInput)}
               disabled={!quickInput.trim()}
               className="px-3 py-1.5 rounded-xl bg-primary text-on-primary text-xs font-bold flex items-center gap-1 hover:opacity-95 disabled:opacity-45 cursor-pointer"
             >
-              Hỏi ngay
+              {isEn ? 'Ask Now' : 'Hỏi ngay'}
               <ArrowRight size={13} />
             </button>
           </div>
@@ -105,10 +127,10 @@ export default function FloatingSenseiButton({
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="px-4 py-2.5 rounded-full bg-primary text-on-primary shadow-lg hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 text-xs font-bold cursor-pointer border border-primary/20"
-        title="Hỏi Sensei AI về nội dung đang học"
+        title={isEn ? 'Ask Sensei AI about this page' : 'Hỏi Sensei AI về nội dung đang học'}
       >
         <Sparkles size={15} />
-        <span>Hỏi Sensei</span>
+        <span>{isEn ? 'Ask Sensei' : 'Hỏi Sensei'}</span>
       </button>
     </div>
   );
