@@ -15,7 +15,6 @@ const SCREEN_CONTEXT_LABELS_VI: Record<ScreenType, string> = {
   grammar: 'Ngữ pháp Video & Bài tập',
   exams: 'Luyện Đề thi JLPT',
   translation: 'Dịch thuật & Phân tích cú pháp',
-  listening: 'Phòng Luyện Nghe',
   pricing: 'Thông tin gói học Nippon Master',
   sensei: 'Trợ lý Sensei AI',
 };
@@ -27,7 +26,6 @@ const SCREEN_CONTEXT_LABELS_EN: Record<ScreenType, string> = {
   grammar: 'Video Grammar & Exercises',
   exams: 'JLPT Mock Exams',
   translation: 'Translation & Syntax Breakdown',
-  listening: 'Listening Room',
   pricing: 'Nippon Master Membership Plans',
   sensei: 'Sensei AI Assistant',
 };

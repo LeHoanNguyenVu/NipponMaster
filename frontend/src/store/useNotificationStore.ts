@@ -13,15 +13,6 @@ export interface NotificationItem {
 
 const DEFAULT_NOTIFICATIONS: NotificationItem[] = [
   {
-    id: 'notif-listening-200',
-    icon: '🎧',
-    title: 'Phòng Luyện Nghe Tình Huống Thực Tế',
-    desc: 'Kho 200 bài nghe tình huống chuẩn JLPT N5-N1 đã mở khóa sẵn sàng cho bạn luyện tập!',
-    time: '5 phút trước',
-    screen: 'listening',
-    createdAt: Date.now() - 5 * 60 * 1000,
-  },
-  {
     id: 'notif-jlpt-exam',
     icon: '📝',
     title: 'Đề Thi Thử JLPT Mới',
@@ -50,7 +41,9 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
   try {
     const storedList = localStorage.getItem(NOTIF_LIST_KEY);
     if (storedList) {
-      const parsed: NotificationItem[] = JSON.parse(storedList);
+      const parsed: NotificationItem[] = (JSON.parse(storedList) as NotificationItem[]).filter(
+        (n) => n.id !== 'notif-listening-200' && (n.screen as string) !== 'listening'
+      );
       // Merge unique by id
       const ids = new Set(parsed.map((n) => n.id));
       initialList = [...parsed, ...DEFAULT_NOTIFICATIONS.filter((n) => !ids.has(n.id))];

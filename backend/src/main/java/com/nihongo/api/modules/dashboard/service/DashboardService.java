@@ -73,8 +73,6 @@ public class DashboardService {
                 .kanjiTotal(kanjiTotal)
                 .grammarLearned(grammarLearned)
                 .grammarTotal(grammarTotal)
-                .listeningCompleted(0)
-                .listeningTotal(200)
                 .battleWins(0)
                 .battleTotal(0)
                 .weeklyStudyMinutes(weeklyStudyMinutes)

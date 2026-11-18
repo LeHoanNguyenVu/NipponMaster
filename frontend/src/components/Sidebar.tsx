@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { 
   LayoutDashboard, Shapes, BookOpen, Target, BookType, 
-  CreditCard, X, GraduationCap, Headphones, Lock, Bot 
+  CreditCard, X, GraduationCap, Lock, Bot 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ScreenType } from '../App';
@@ -34,7 +34,6 @@ export default function Sidebar({ currentScreen, onNavigate, isOpen, onClose }: 
     { id: 'exams', icon: Target },
     { id: 'translation', icon: BookType },
     { id: 'sensei', icon: Bot },
-    { id: 'listening', icon: Headphones },
     { id: 'pricing', icon: CreditCard },
   ];
 

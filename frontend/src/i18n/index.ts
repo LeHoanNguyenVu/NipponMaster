@@ -13,7 +13,6 @@ import viKanji from '../locales/vi/kanji.json';
 import viGrammar from '../locales/vi/grammar.json';
 import viExams from '../locales/vi/exams.json';
 import viTranslation from '../locales/vi/translation.json';
-import viListening from '../locales/vi/listening.json';
 import viPricing from '../locales/vi/pricing.json';
 import viOnboarding from '../locales/vi/onboarding.json';
 import viAuth from '../locales/vi/auth.json';
@@ -28,7 +27,6 @@ import enKanji from '../locales/en/kanji.json';
 import enGrammar from '../locales/en/grammar.json';
 import enExams from '../locales/en/exams.json';
 import enTranslation from '../locales/en/translation.json';
-import enListening from '../locales/en/listening.json';
 import enPricing from '../locales/en/pricing.json';
 import enOnboarding from '../locales/en/onboarding.json';
 import enAuth from '../locales/en/auth.json';
@@ -46,7 +44,6 @@ export const resources = {
     grammar: viGrammar,
     exams: viExams,
     translation: viTranslation,
-    listening: viListening,
     pricing: viPricing,
     onboarding: viOnboarding,
     auth: viAuth,
@@ -62,7 +59,6 @@ export const resources = {
     grammar: enGrammar,
     exams: enExams,
     translation: enTranslation,
-    listening: enListening,
     pricing: enPricing,
     onboarding: enOnboarding,
     auth: enAuth,
@@ -99,7 +95,6 @@ i18n
       'grammar',
       'exams',
       'translation',
-      'listening',
       'pricing',
       'onboarding',
       'auth',

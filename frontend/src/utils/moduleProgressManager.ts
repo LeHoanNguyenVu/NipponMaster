@@ -1,8 +1,8 @@
-// moduleProgressManager.ts — Quản lý & Tính toán Tiến độ Tích lũy Thực tế của 4 Module Cốt lõi
+// moduleProgressManager.ts — Quản lý & Tính toán Tiến độ Tích lũy Thực tế của 3 Module Cốt lõi
 // Đảm bảo tính nhất quán, lưu trữ qua localStorage và đồng bộ hóa với backend khi có sẵn.
 
 export interface SingleModuleProgress {
-  key: 'beginner' | 'kanji' | 'grammar' | 'listening';
+  key: 'beginner' | 'kanji' | 'grammar';
   title: string;
   subtitle: string;
   categoryTag: string;
@@ -32,7 +32,6 @@ export interface AllModulesProgress {
   beginner: SingleModuleProgress;
   kanji: SingleModuleProgress;
   grammar: SingleModuleProgress;
-  listening: SingleModuleProgress;
   overallMasteryPercent: number;
 }
 
@@ -41,7 +40,6 @@ export const STORAGE_KEYS = {
   BEGINNER: 'beginner_course_progress',
   KANJI_RADICALS: 'kanji_radicals_learned',
   GRAMMAR_LESSONS: 'grammar_watched_lessons',
-  LISTENING_SCENARIOS: 'listening_completed_scenarios',
 };
 
 // 1. Tính toán tiến độ Nhập Môn (5 chương cơ bản)
@@ -124,47 +122,17 @@ export const getGrammarProgress = (fallbackLearned = 0): { completed: number; to
   };
 };
 
-// 4. Tính toán tiến độ Luyện Nghe (20 Kịch Bản Hội Thoại Thực Tế)
-export const getListeningProgress = (fallbackLearned = 0): { completed: number; total: number; percent: number } => {
-  const total = 20;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LISTENING_SCENARIOS);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        const completed = parsed.length;
-        return {
-          completed,
-          total,
-          percent: Math.min(100, Math.round((completed / total) * 100)),
-        };
-      }
-    }
-  } catch {
-    // Ignore parse error and fall back
-  }
-
-  const completed = Math.min(total, Math.max(0, fallbackLearned));
-  return {
-    completed,
-    total,
-    percent: Math.min(100, Math.round((completed / total) * 100)),
-  };
-};
-
-// Tải toàn bộ tiến độ 4 Module kèm giao diện tokens cao cấp, giàu màu sắc
+// Tải toàn bộ tiến độ 3 Module kèm giao diện tokens cao cấp, giàu màu sắc
 export const loadAllModulesProgress = (serverStats?: {
   kanjiLearned?: number;
   grammarLearned?: number;
-  listeningCompleted?: number;
 }): AllModulesProgress => {
   const beg = getBeginnerProgress();
   const kan = getKanjiRadicalsProgress(serverStats?.kanjiLearned ?? 0);
   const gra = getGrammarProgress(serverStats?.grammarLearned ?? 0);
-  const lis = getListeningProgress(serverStats?.listeningCompleted ?? 0);
 
   const overallMasteryPercent = Math.round(
-    (beg.percent + kan.percent + gra.percent + lis.percent) / 4
+    (beg.percent + kan.percent + gra.percent) / 3
   );
 
   return {
@@ -243,31 +211,6 @@ export const loadAllModulesProgress = (serverStats?: {
         actionBtn: 'bg-indigo-500/10 hover:bg-indigo-500 text-indigo-700 dark:text-indigo-300 hover:text-white border border-indigo-500/30 hover:border-indigo-500',
       },
     },
-    listening: {
-      key: 'listening',
-      title: 'Luyện Nghe & Shadowing',
-      subtitle: 'Hội thoại sinh hoạt, nhà hàng, ga tàu',
-      categoryTag: '20 TÌNH HUỐNG THỰC TẾ',
-      japaneseWatermark: '聴',
-      actionText: 'Luyện Nghe Ngay',
-      iconType: 'lucide',
-      iconName: 'Headphones',
-      completed: lis.completed,
-      total: lis.total,
-      percent: lis.percent,
-      unitLabel: 'bài nghe',
-      theme: {
-        gradient: 'from-sky-500/15 via-cyan-500/5 to-surface-container-lowest dark:from-sky-950/40 dark:via-cyan-900/15 dark:to-surface-container-lowest',
-        border: 'border-sky-500/35 dark:border-sky-500/30',
-        hoverBorder: 'hover:border-sky-500 hover:shadow-xl hover:shadow-sky-500/15',
-        iconBg: 'bg-gradient-to-br from-sky-500 to-cyan-500 text-white shadow-md shadow-sky-500/30',
-        badgeBg: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30',
-        watermarkColor: 'text-sky-500/[0.08]',
-        progressGradient: 'from-sky-500 to-cyan-400',
-        accentText: 'text-sky-600 dark:text-sky-400',
-        actionBtn: 'bg-sky-500/10 hover:bg-sky-500 text-sky-700 dark:text-sky-300 hover:text-white border border-sky-500/30 hover:border-sky-500',
-      },
-    },
     overallMasteryPercent,
   };
 };
@@ -296,21 +239,6 @@ export const recordGrammarWatched = (lessonId: string | number): number => {
     if (!list.includes(strId)) {
       list.push(strId);
       localStorage.setItem(STORAGE_KEYS.GRAMMAR_LESSONS, JSON.stringify(list));
-    }
-    return list.length;
-  } catch {
-    return 0;
-  }
-};
-
-// Helper để ghi nhận hoàn thành kịch bản nghe
-export const recordListeningScenarioCompleted = (scenarioId: string): number => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LISTENING_SCENARIOS);
-    const list: string[] = raw ? JSON.parse(raw) : [];
-    if (!list.includes(scenarioId)) {
-      list.push(scenarioId);
-      localStorage.setItem(STORAGE_KEYS.LISTENING_SCENARIOS, JSON.stringify(list));
     }
     return list.length;
   } catch {

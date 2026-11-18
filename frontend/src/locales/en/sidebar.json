@@ -5,7 +5,6 @@
     "beginner": "Starter Course",
     "kanji": "Kanji Hub",
     "grammar": "Grammar",
-    "listening": "Listening",
     "exams": "JLPT Exams",
     "translation": "Translation",
     "sensei": "Sensei AI Assistant",
@@ -21,6 +20,6 @@
   },
   "lockedNotice": {
     "title": "N5 Modules Locked",
-    "desc": "Complete the 5 Starter chapters to automatically unlock Kanji, Grammar, Mock Exams & Listening!"
+    "desc": "Complete the 5 Starter chapters to automatically unlock Kanji, Grammar & Mock Exams!"
   }
 }

@@ -66,9 +66,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/trial-status").permitAll()
                         .requestMatchers("/api/v1/payments/webhook").permitAll()
 
-                        // Cho phép xem danh sách kịch bản Listening
-                        .requestMatchers("/api/v1/listening/**").permitAll()
-
                         // Cho phép thử nghiệm vẽ Kanji Canvas & OCR
                         .requestMatchers("/api/v1/kanjis/canvas/**").permitAll()
 

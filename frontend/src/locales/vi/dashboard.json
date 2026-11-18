@@ -28,7 +28,7 @@
     "levelTitle": "Lộ Trình {{level}}",
     "starterCompleted": "{{completed}}/5 Chương",
     "starterPercent": "{{percent}}% hoàn thành",
-    "overall4Skills": "Tổng thể 4 kỹ năng",
+    "overall4Skills": "Tổng thể lộ trình",
     "starterGoal": "🎯 Hoàn thành 5 chương & nhận bằng để mở khóa N5",
     "syncNote": "✓ Đồng bộ theo năng lực học tập thực tế"
   },
@@ -39,7 +39,7 @@
     "remaining": "Còn {{count}} thẻ cần học để giữ lửa"
   },
   "skillsSection": {
-    "title": "Lộ Trình & Tiến Độ 4 Kỹ Năng Cốt Lõi",
+    "title": "Lộ Trình & Tiến Độ Kỹ Năng Cốt Lõi",
     "subtitle": "Hệ thống bài học phân bổ toàn diện theo năng lực thực chiến Nhật ngữ",
     "overallProgress": "Tổng thể lộ trình:",
     "completionLabel": "Tiến độ hoàn thành:",
@@ -64,20 +64,13 @@
         "categoryTag": "50 BÀI GIẢNG TUYỂN CHỌN",
         "action": "Xem Bài Giảng",
         "unitLabel": "bài học"
-      },
-      "listening": {
-        "title": "Luyện Nghe & Phản Xạ",
-        "subtitle": "Hội thoại sinh hoạt, nhà hàng, ga tàu...",
-        "categoryTag": "20 TÌNH HUỐNG THỰC TẾ",
-        "action": "Luyện Nghe Ngay",
-        "unitLabel": "tình huống"
       }
     }
   },
   "beginnerBanner": {
     "badge": "Lộ Trình Trọng Tâm",
     "title": "Khóa Tiếng Nhật Nhập Môn (5 Chương Từ Con Số 0)",
-    "description": "Hoàn thành tuần tự 5 chương (Bảng chữ cái Kana, Số đếm & Thời gian, Aisatsu, Bộ thủ, Ngữ pháp câu) với điểm kiểm tra từ 85% để nhận bằng chứng nhận và tự động mở khóa Trình độ N5 cùng toàn bộ module Kanji, Ngữ Pháp, Đề Thi Thử và Luyện Nghe.",
+    "description": "Hoàn thành tuần tự 5 chương (Bảng chữ cái Kana, Số đếm & Thời gian, Aisatsu, Bộ thủ, Ngữ pháp câu) với điểm kiểm tra từ 85% để nhận bằng chứng nhận và tự động mở khóa Trình độ N5 cùng toàn bộ module Kanji, Ngữ Pháp và Đề Thi Thử.",
     "cta": "Vào Học Nhập Môn",
     "chapters": [
       { "num": "01", "title": "Chữ Cái Kana", "desc": "Hiragana & Katakana" },

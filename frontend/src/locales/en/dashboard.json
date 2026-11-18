@@ -28,7 +28,7 @@
     "levelTitle": "{{level}} Roadmap",
     "starterCompleted": "{{completed}}/5 Chapters",
     "starterPercent": "{{percent}}% completed",
-    "overall4Skills": "Overall 4 Core Skills",
+    "overall4Skills": "Overall Core Skills",
     "starterGoal": "🎯 Complete all 5 chapters & graduate to unlock N5",
     "syncNote": "✓ Synced with your real learning progress"
   },
@@ -39,7 +39,7 @@
     "remaining": "{{count}} cards remaining to save streak"
   },
   "skillsSection": {
-    "title": "Core 4 Skills Roadmap & Progress",
+    "title": "Core Skills Roadmap & Progress",
     "subtitle": "Comprehensive curriculum structured for real-world Japanese fluency",
     "overallProgress": "Overall Progress:",
     "completionLabel": "Completion:",
@@ -64,20 +64,13 @@
         "categoryTag": "50 CURATED LESSONS",
         "action": "View Lessons",
         "unitLabel": "lessons"
-      },
-      "listening": {
-        "title": "Listening & Audio Immersion",
-        "subtitle": "Daily life, transit, restaurants...",
-        "categoryTag": "20 REAL SCENARIOS",
-        "action": "Listen Now",
-        "unitLabel": "scenarios"
       }
     }
   },
   "beginnerBanner": {
     "badge": "Key Learning Path",
     "title": "Japanese Starter Course (5 Chapters from Zero)",
-    "description": "Complete all 5 chapters (Kana, Numbers & Time, Aisatsu, Radicals, Grammar) with 85%+ scores to receive your certificate and automatically unlock N5 Level along with Kanji, Grammar, Mock Exams and Listening rooms.",
+    "description": "Complete all 5 chapters (Kana, Numbers & Time, Aisatsu, Radicals, Grammar) with 85%+ scores to receive your certificate and automatically unlock N5 Level along with Kanji, Grammar and Mock Exams.",
     "cta": "Start Starter Course",
     "chapters": [
       { "num": "01", "title": "Kana Alphabet", "desc": "Hiragana & Katakana" },

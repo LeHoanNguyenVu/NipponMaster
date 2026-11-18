@@ -23,8 +23,6 @@ interface Stats {
   kanjiTotal: number;
   grammarLearned: number;
   grammarTotal: number;
-  listeningCompleted: number;
-  listeningTotal: number;
   weeklyStudyMinutes: number;
   dueCardCount: number;
   streakDays: number;
@@ -87,8 +85,6 @@ export default function DashboardStudent({
       kanjiTotal: 214,
       grammarLearned: 0,
       grammarTotal: 50,
-      listeningCompleted: 0,
-      listeningTotal: 20,
       weeklyStudyMinutes: 30,
       dueCardCount: 0,
       streakDays: streakState.currentStreak,
@@ -217,14 +213,13 @@ export default function DashboardStudent({
     return getDaily10CardsDeck(cards, undefined, isStarter ? 'STARTER' : rawLevel, deckVersion > 0);
   }, [cards, rawLevel, isStarter, deckVersion]);
 
-  // Tiến độ tích lũy thực tế của 4 Module Cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện nghe)
+  // Tiến độ tích lũy thực tế của 3 Module Cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp)
   const modulesProgress = useMemo(() => {
     return loadAllModulesProgress({
       kanjiLearned: stats.kanjiLearned,
       grammarLearned: stats.grammarLearned,
-      listeningCompleted: stats.listeningCompleted,
     });
-  }, [stats.kanjiLearned, stats.grammarLearned, stats.listeningCompleted]);
+  }, [stats.kanjiLearned, stats.grammarLearned]);
 
   const overallMastery = modulesProgress.overallMasteryPercent;
 
@@ -242,7 +237,7 @@ export default function DashboardStudent({
         beginnerSummary={beginnerSummary}
       />
 
-      {/* Tầng 2: Tiến độ 4 chức năng cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện nghe)
+      {/* Tầng 2: Tiến độ 3 chức năng cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp)
           QUY TẮC BẮT BUỘC:
           - Ở level Nhập Môn: KHÔNG HIỆN bảng stat này!
           - Chỉ khi user đạt 5 chương và nhận bằng lên N5 thì mới hiện full ra! */}

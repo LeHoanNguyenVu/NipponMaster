@@ -23,8 +23,6 @@ public class DashboardStatsResponse {
     private long kanjiTotal;
     private long grammarLearned;
     private long grammarTotal;
-    private int listeningCompleted;
-    private int listeningTotal;
     private int battleWins;
     private int battleTotal;
     private int weeklyStudyMinutes;

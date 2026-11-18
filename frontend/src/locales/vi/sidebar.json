@@ -5,7 +5,6 @@
     "beginner": "Khóa Nhập Môn",
     "kanji": "Kho Hán Tự",
     "grammar": "Ngữ Pháp",
-    "listening": "Luyện Nghe",
     "exams": "Đề Thi JLPT",
     "translation": "Dịch Thuật",
     "sensei": "Trợ Lý Sensei AI",
@@ -21,6 +20,6 @@
   },
   "lockedNotice": {
     "title": "Module N5 Đang Khóa",
-    "desc": "Hoàn thành 5 chương Nhập Môn để tự động mở khóa Kanji, Ngữ Pháp, Thi thử & Luyện Nghe!"
+    "desc": "Hoàn thành 5 chương Nhập Môn để tự động mở khóa Kanji, Ngữ Pháp & Thi thử!"
   }
 }
