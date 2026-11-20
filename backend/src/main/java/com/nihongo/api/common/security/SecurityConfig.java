@@ -74,6 +74,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/translate/**").permitAll()
                         .requestMatchers("/api/v1/ai/rag/**").permitAll()
 
+                        // Admin Reading Room: bắt buộc quyền ADMIN (chống lạm dụng quota Gemini/TTS & bảo vệ duyệt bài)
+                        .requestMatchers("/api/v1/admin/reading/**").hasRole("ADMIN")
+
                         // Endpoints Admin Dashboard & Consoles
                         .requestMatchers("/api/v1/admin/**").permitAll()
 

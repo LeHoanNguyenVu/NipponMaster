@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nihongo.api.modules.ai.core.AiMetricsService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -40,8 +41,16 @@ public class FastGeminiTranslator {
     @Value("${gemini.fast.models:gemini-flash-lite-latest,gemini-2.5-flash-lite,gemini-3.1-flash-lite-preview,gemini-2.5-flash}")
     private String modelsConfig;
 
-    @Autowired(required = false)
-    private AiMetricsService metricsService;
+    private final AiMetricsService metricsService;
+
+    public FastGeminiTranslator() {
+        this.metricsService = null;
+    }
+
+    @Autowired
+    public FastGeminiTranslator(ObjectProvider<AiMetricsService> metricsServiceProvider) {
+        this.metricsService = metricsServiceProvider.getIfAvailable();
+    }
 
     public void setBaseUrlForTest(String baseUrl) {
         this.apiBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";

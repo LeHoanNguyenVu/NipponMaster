@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://purl.org/rss/1.0/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <item rdf:about="https://www.gov-online.go.jp/useful/article/202611/1.html">
+    <title>冬の省エネ対策 家庭でできる工夫</title>
+    <link>https://www.gov-online.go.jp/useful/article/202611/1.html</link>
+    <description>冬場の電力消費を抑えるために、暖房の設定温度を見直すなど家庭で実践できる取り組みを紹介します。</description>
+    <dc:date>2026-11-20T10:30:00+09:00</dc:date>
+  </item>
+</rdf:RDF>

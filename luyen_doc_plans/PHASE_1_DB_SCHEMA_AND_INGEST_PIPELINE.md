@@ -49,10 +49,10 @@ CREATE TABLE user_reading_progress (
 );
 ```
 
-- [ ] Viết migration V35 (kiểm tra lại số version mới nhất trước khi tạo – hiện tại là V34)
-- [ ] Kiểm tra tên bảng `users` và kiểu khóa chính trùng khớp schema hiện có
-- [ ] Entity JPA hoặc `JdbcTemplate` – **theo cách các module gần nhất đang làm** (`AiSavedCardService` dùng `JdbcTemplate`, phù hợp với cột `jsonb`)
-- [ ] `mvn -q test` pass, Flyway chạy sạch trên DB dev
+- [x] Viết migration V35 (`V35__create_reading_articles.sql`, thêm `source_license`, bật RLS Supabase, version trước là V34)
+- [x] Kiểm tra tên bảng `users` và kiểu khóa chính trùng khớp schema hiện có (`users.id` kiểu `BIGINT`)
+- [x] `ReadingArticleRepository` dùng `JdbcTemplate` (đồng bộ với `AiSavedCardService`, tối ưu `jsonb`, transaction ngắn chỉ bọc bước lưu DB)
+- [x] `mvn -q test -Dtest=com.nihongo.api.modules.reading.**` pass (15/15 tests), Flyway V35 chạy sạch trên DB dev (Supabase PostgreSQL 17.6)
 
 ---
 
@@ -83,36 +83,36 @@ sequenceDiagram
 ```
 
 ### Việc cần làm
-- [ ] `ReadingRssClient`: đọc RSS bằng XML parser có sẵn của JDK (`javax.xml` / StAX) – **không thêm thư viện** nếu không cần
-  - [ ] Chỉ gọi tới host trong whitelist (chống SSRF), timeout 10 s, giới hạn dung lượng phản hồi
-  - [ ] Tắt DTD/external entity khi parse XML (chống XXE)
-- [ ] `ReadingContentGenerator`: dùng `GeminiClient` có sẵn trong module translator
-  - [ ] Prompt trích facts (trả về JSON list)
-  - [ ] Prompt viết bài theo level (đầu vào: facts + level + danh sách từ/ngữ pháp cho phép + độ dài mục tiêu)
-  - [ ] Ràng buộc đầu ra JSON, validate bằng Jackson; JSON hỏng → thử lại 1 lần rồi đánh dấu lỗi
-  - [ ] Nội dung RSS được truyền vào prompt như **dữ liệu** (đóng khung rõ ràng), không cho phép nó đổi chỉ dẫn (chống prompt injection)
-- [ ] `JapaneseTokenizer` (bọc Kuromoji): tách câu theo `。！？`, trả token `{surface, reading(hiragana), lemma, pos}`
-- [ ] Kiểm tra chống sao chép: tỉ lệ trùng 8-gram ký tự giữa bài sinh ra và tiêu đề/tóm tắt RSS < ngưỡng (ví dụ 15%) – vượt thì viết lại
-- [ ] `ReadingIngestJob`
-  - [ ] `@Scheduled` (ví dụ 06:00 hằng ngày) + bật/tắt bằng property `reading.ingest.enabled`
-  - [ ] Endpoint admin `POST /api/v1/admin/reading/ingest` để chạy tay
-  - [ ] Giới hạn số sự kiện/lần chạy (theo quyết định Phase 0)
-  - [ ] Log ngắn gọn: số bài lấy / sinh / lỗi; không log API key
-- [ ] Endpoint admin duyệt bài: `GET /admin/reading/articles?status=REVIEW`, `POST /admin/reading/articles/{id}/publish|reject`
+- [x] `ReadingRssClient`: đọc RSS/RDF/Atom bằng XML parser có sẵn của JDK (`javax.xml.parsers.DocumentBuilderFactory`), hỗ trợ UTF-8 & Shift_JIS/MS932
+  - [x] Chỉ gọi tới 7 host trong whitelist (chống SSRF, tắt redirect ra ngoài), timeout 10 s, giới hạn dung lượng 2 MB
+  - [x] Tắt tuyệt đối DTD/external entity khi parse XML (chống XXE)
+- [x] `ReadingContentGenerator`: dùng `GEMINI_API_KEY` xoay vòng key + fallback model (`gemini-3.1-flash-lite-preview` → `gemini-flash-lite-latest` → `gemini-2.5-flash-lite`)
+  - [x] Prompt bước 1 trích facts khách quan sang tiếng Việt trung tính (Facts Firewall — không truyền văn bản gốc sang bước 2)
+  - [x] Prompt bước 2 viết bài nguyên bản theo level từ facts + quy tắc bảo toàn số liệu/mốc thời gian
+  - [x] Ép JSON bằng Gemini Structured Outputs (`responseSchema`), validate bằng Jackson; lỗi thử lại 1 lần
+  - [x] Nội dung RSS đóng khung trong `<rss_data>` và sanitize thẻ đóng (chống prompt injection)
+- [x] `JapaneseTokenizer` (bọc Kuromoji IPADIC): tách câu theo `。！？` (giữ nguyên trích dẫn `「…」`), trả token `{s, r(hiragana), l, pos, lv}`
+- [x] `CopyrightGuardService`: kiểm tra 8-gram overlap **< 10%** (ngặt hơn 15% cho Production) + LCS; vượt ngưỡng tự viết lại tối đa 2 lần rồi từ chối lưu
+- [x] `ReadingIngestJob` & `ReadingIngestService`
+  - [x] `@EnableScheduling` + `@Scheduled` (06:00 hằng ngày) + bật/tắt bằng `reading.ingest.enabled=false` (mặc định tắt an toàn)
+  - [x] Endpoint admin `POST /api/v1/admin/reading/ingest` bảo vệ kép (`SecurityConfig` `.hasRole("ADMIN")` đặt trước `permitAll` + `@PreAuthorize("hasRole('ADMIN')")`)
+  - [x] Giới hạn số sự kiện/lần chạy (mặc định 5, trần cứng 10) + kill-switch nguồn `reading.rss.enabled-sources`
+  - [x] Log ngắn gọn số bài lấy / trùng / tạo / lỗi; không log API key
+- [x] Endpoint admin duyệt bài: `GET /api/v1/admin/reading/articles?status=REVIEW`, `POST /api/v1/admin/reading/articles/{id}/publish|reject`
 
 > [!WARNING]
-> `SecurityConfig` hiện đang để `/api/v1/admin/**` là `permitAll()`. Các endpoint admin mới của module này (chạy ingest tốn tiền Gemini/TTS, publish bài) **phải** yêu cầu quyền ADMIN (ví dụ `@PreAuthorize("hasRole('ADMIN')")` hoặc rule riêng đặt **trước** rule `permitAll` của admin). Nên xử lý luôn lỗ hổng chung này trong Phase 7.
+> `SecurityConfig` hiện đang để `/api/v1/admin/**` là `permitAll()`. Các endpoint admin mới của module này (`/api/v1/admin/reading/**`) **đã được bảo vệ chặt bằng cả `SecurityConfig` (đặt trước rule `permitAll`) lẫn `@PreAuthorize("hasRole('ADMIN')")`**. Phần `/api/v1/admin/**` chung sẽ rà soát ở Phase 7.
 
 ### Kiểm thử
-- [ ] Unit test parse RSS mẫu (file XML trong `src/test/resources`), gồm cả XML có DOCTYPE độc hại
-- [ ] Unit test tách câu/tách từ với 3 câu mẫu (có số, katakana, tên riêng)
-- [ ] Unit test check chống sao chép (1 case giống, 1 case khác)
-- [ ] Integration: chạy ingest với GeminiClient được mock → có 1 article + N versions trong DB
+- [x] Unit test parse RSS mẫu (`sample_rss2.xml`, `sample_rdf_gov.xml`, Shift_JIS, `malicious_xxe.xml`) + test SSRF whitelist (`ReadingRssClientTest`)
+- [x] Unit test tách câu/tách từ với 3 câu mẫu có số, katakana, tên riêng (`JapaneseTokenizerTest`)
+- [x] Unit test check chống sao chép: case sao chép bị chặn, case viết lại vượt qua (`CopyrightGuardServiceTest`)
+- [x] Unit/Integration test ingest với mock generator + test chặn bài trùng lặp/vi phạm bản quyền (`ReadingIngestServiceTest`) + test bảo mật phân quyền (`AdminReadingControllerSecurityTest`)
 
 ---
 
 ## ✅ ĐIỀU KIỆN HOÀN THÀNH PHASE 1
-- [ ] Migration V35 chạy được, `mvn -q test` pass
-- [ ] Gọi `POST /api/v1/admin/reading/ingest` (với tài khoản admin) sinh được ≥ 1 sự kiện × các level đã chốt, trạng thái `REVIEW`
-- [ ] Gọi bằng tài khoản không phải admin → 403
-- [ ] `graphify update .`
+- [x] Migration V35 chạy sạch trên DB dev, toàn bộ 15 unit/security test của module Reading pass
+- [x] Gọi thực tế `POST /api/v1/admin/reading/ingest` (với JWT ADMIN) sinh thành công bài đọc 3 cấp độ (`N5`, `N3`, `N1`) ở trạng thái `REVIEW` trong PostgreSQL
+- [x] Gọi không token hoặc bằng JWT `STUDENT` → 403 Forbidden
+- [x] `graphify update .` hoàn tất (3.193 nodes, 9.219 edges)

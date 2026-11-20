@@ -1,0 +1,136 @@
+package com.nihongo.api.modules.reading.article.service;
+
+import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.*;
+import com.nihongo.api.modules.reading.article.service.ReadingArticleRepository.VersionInsertPayload;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class ReadingIngestServiceTest {
+
+    @Mock
+    private ReadingRssClient rssClient;
+
+    @Mock
+    private ReadingContentGenerator contentGenerator;
+
+    @Mock
+    private ReadingArticleRepository repository;
+
+    private final JapaneseTokenizer tokenizer = new JapaneseTokenizer();
+    private final CopyrightGuardService copyrightGuard = new CopyrightGuardService();
+
+    @Test
+    void runIngest_generatesThreeLevelsTokenizesAndSavesAsReview() {
+        ReadingIngestService service = new ReadingIngestService(
+                rssClient, contentGenerator, tokenizer, copyrightGuard, repository
+        );
+
+        RssItem dup = new RssItem("GOV_ONLINE", "PDL_1_0", "LIFE", "Old", "Old desc", "https://www.gov-online.go.jp/old.html", OffsetDateTime.now());
+        RssItem fresh = new RssItem(
+                "GOV_ONLINE", "PDL_1_0", "LIFE",
+                "冬の省エネ対策について",
+                "家庭で暖房の設定温度を見直す取り組みを紹介します。",
+                "https://www.gov-online.go.jp/new.html",
+                OffsetDateTime.now()
+        );
+
+        when(rssClient.fetchEnabledFeeds(null, 6)).thenReturn(List.of(dup, fresh));
+        when(repository.existsBySourceUrl(dup.link())).thenReturn(true);
+        when(repository.existsBySourceUrl(fresh.link())).thenReturn(false);
+
+        when(contentGenerator.extractFacts(fresh)).thenReturn(FactsExtractionResult.builder()
+                .facts(List.of("Chính phủ khuyến nghị tiết kiệm điện mùa đông.", "Các gia đình điều chỉnh nhiệt độ máy sưởi hợp lý."))
+                .category("LIFE")
+                .build());
+
+        when(contentGenerator.generateArticleForLevel(anyList(), anyString(), isNull())).thenAnswer(inv -> {
+            String lv = inv.getArgument(1);
+            return GeneratedArticleDto.builder()
+                    .titleJa("冬の電気を大切にする方法（" + lv + "）")
+                    .titleVi("Cách tiết kiệm điện mùa đông (" + lv + ")")
+                    .sentences(List.of(
+                            SentenceDto.builder().idx(0).text("冬は寒いので電気をたくさん使います。").translationVi("Mùa đông lạnh nên dùng nhiều điện.").build(),
+                            SentenceDto.builder().idx(1).text("家でエアコンの温度に気をつけましょう。").translationVi("Hãy chú ý nhiệt độ điều hòa ở nhà.").build(),
+                            SentenceDto.builder().idx(2).text("少しの工夫で毎月の料金が安くなります。").translationVi("Chỉ cần chút khéo léo sẽ giảm tiền điện hàng tháng.").build()
+                    ))
+                    .keyVocab(List.of(KeyVocabDto.builder().word("工夫").reading("くふう").meaningVi("Sự khéo léo").jlptLevel(lv).build()))
+                    .build();
+        });
+
+        when(repository.saveArticleWithVersions(any(), any(), any(), any(), any(), any(), anyList(), anyList())).thenReturn(42L);
+
+        IngestReportDto report = service.runIngest(5, null);
+
+        assertEquals(2, report.getFetchedItems());
+        assertEquals(1, report.getSkippedDuplicates());
+        assertEquals(1, report.getCreatedArticles());
+        assertEquals(3, report.getCreatedVersions());
+        assertEquals(0, report.getFailedItems());
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<VersionInsertPayload>> versionsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(repository).saveArticleWithVersions(
+                eq("GOV_ONLINE"), eq("PDL_1_0"), eq(fresh.link()), eq(fresh.title()),
+                eq(fresh.publishedAt()), eq("LIFE"), anyList(), versionsCaptor.capture()
+        );
+
+        List<VersionInsertPayload> savedVersions = versionsCaptor.getValue();
+        assertEquals(3, savedVersions.size());
+        String voice = savedVersions.get(0).voiceName();
+        assertTrue("Kore".equals(voice) || "Puck".equals(voice));
+        for (VersionInsertPayload v : savedVersions) {
+            assertEquals(voice, v.voiceName()); // Đồng nhất 1 giọng cho cả bài
+            assertTrue(v.charCount() > 0);
+            assertFalse(v.sentences().get(0).getTokens().isEmpty());
+            assertEquals(Boolean.TRUE, v.levelMetrics().get("copyrightPassed"));
+        }
+    }
+
+    @Test
+    void runIngest_blocksCopiedVersionAfterRetry() {
+        ReadingIngestService service = new ReadingIngestService(
+                rssClient, contentGenerator, tokenizer, copyrightGuard, repository
+        );
+
+        String rssText = "東京都内の鉄道会社は20日、消費電力を従来より20％削減できる新型電車の運行を始めました。";
+        RssItem item = new RssItem("NHK_TOP", "FACTS_ONLY", "SOCIETY", rssText, rssText, "https://www.nhk.or.jp/news/copy.html", OffsetDateTime.now());
+
+        when(rssClient.fetchEnabledFeeds("NHK_TOP", 6)).thenReturn(List.of(item));
+        when(repository.existsBySourceUrl(item.link())).thenReturn(false);
+        when(contentGenerator.extractFacts(item)).thenReturn(FactsExtractionResult.builder()
+                .facts(List.of("Công ty đường sắt Tokyo chạy tàu tiết kiệm 20% điện."))
+                .category("SOCIETY")
+                .build());
+
+        // Cố tình trả văn bản giống hệt nguồn gốc ở cả 2 lần thử
+        when(contentGenerator.generateArticleForLevel(anyList(), anyString(), any())).thenReturn(
+                GeneratedArticleDto.builder()
+                        .titleJa("コピー")
+                        .titleVi("Copy")
+                        .sentences(List.of(
+                                SentenceDto.builder().idx(0).text(rssText).translationVi("...").build(),
+                                SentenceDto.builder().idx(1).text(rssText).translationVi("...").build(),
+                                SentenceDto.builder().idx(2).text(rssText).translationVi("...").build()
+                        ))
+                        .keyVocab(List.of())
+                        .build()
+        );
+
+        IngestReportDto report = service.runIngest(1, "NHK_TOP");
+
+        assertEquals(0, report.getCreatedArticles());
+        assertEquals(1, report.getFailedItems());
+        verify(repository, never()).saveArticleWithVersions(any(), any(), any(), any(), any(), any(), anyList(), anyList());
+    }
+}

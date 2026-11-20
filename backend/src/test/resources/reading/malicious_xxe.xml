@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rss [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<rss version="2.0">
+  <channel>
+    <item>
+      <title>&xxe;</title>
+      <link>https://www.nhk.or.jp/news/xxe.html</link>
+      <description>Malicious XXE payload</description>
+    </item>
+  </channel>
+</rss>

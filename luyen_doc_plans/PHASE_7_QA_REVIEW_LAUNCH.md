@@ -27,6 +27,7 @@
   - [ ] Không lộ bài `REVIEW`/`REJECTED`
   - [ ] Secret (Gemini, TTS, Supabase) chỉ nằm trong `.env`, không log
 - [ ] Rate limit: endpoint `translate/fast` khi bị gọi dồn dập từ toolbar (debounce phía client + kiểm tra giới hạn phía server nếu đã có)
+- [ ] Nâng cấp bản vá bảo mật Spring Boot (`spring-boot-starter-parent`: `4.1.1` → `4.1.3` hoặc bản patch `4.1.x` mới nhất) trong `backend/pom.xml` ở commit riêng, rồi chạy lại `mvn -q test` trước khi lên Production
 
 ## 7.3 Hiệu năng
 - [ ] API danh sách < 200 ms (có index `jlpt_level`, phân trang)

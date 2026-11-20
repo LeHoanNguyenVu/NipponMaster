@@ -124,6 +124,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
+
+		<!-- Japanese Morphological Analyzer (Kuromoji IPADIC, Apache 2.0) -->
+		<dependency>
+			<groupId>com.atilika.kuromoji</groupId>
+			<artifactId>kuromoji-ipadic</artifactId>
+			<version>0.9.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

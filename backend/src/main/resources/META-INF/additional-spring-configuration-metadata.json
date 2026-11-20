@@ -21,6 +21,16 @@
       "description": "Đường dẫn chứa các file SQL Migration."
     },
     {
+      "name": "gemini.api.key",
+      "type": "java.lang.String",
+      "description": "Danh sách API Key Google Gemini (ngăn cách bằng dấu phẩy)."
+    },
+    {
+      "name": "gemini.model",
+      "type": "java.lang.String",
+      "description": "Model Gemini mặc định dùng cho dịch thuật và AI."
+    },
+    {
       "name": "jwt.secret",
       "type": "java.lang.String",
       "description": "Mã khóa bí mật dùng để mã hóa và giải mã JWT Tokens."
@@ -39,6 +49,56 @@
       "name": "stripe.webhook.secret",
       "type": "java.lang.String",
       "description": "Webhook signing secret cho Stripe."
+    },
+    {
+      "name": "supabase.url",
+      "type": "java.lang.String",
+      "description": "URL dự án Supabase Storage."
+    },
+    {
+      "name": "supabase.key",
+      "type": "java.lang.String",
+      "description": "Service Key cho Supabase Storage."
+    },
+    {
+      "name": "supabase.storage.bucket",
+      "type": "java.lang.String",
+      "description": "Tên bucket mặc định trên Supabase Storage."
+    },
+    {
+      "name": "reading.ingest.enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "Bật/tắt job ingest bài đọc báo Nhật tự động hằng ngày."
+    },
+    {
+      "name": "reading.ingest.cron",
+      "type": "java.lang.String",
+      "defaultValue": "0 0 6 * * *",
+      "description": "Biểu thức cron chạy job ingest bài đọc định kỳ."
+    },
+    {
+      "name": "reading.ingest.max-events-per-run",
+      "type": "java.lang.Integer",
+      "defaultValue": 5,
+      "description": "Số sự kiện tối đa sinh bài trong mỗi lần chạy ingest."
+    },
+    {
+      "name": "reading.ingest.target-levels",
+      "type": "java.lang.String",
+      "defaultValue": "N5,N3,N1",
+      "description": "Danh sách cấp độ JLPT mục tiêu cần sinh cho mỗi sự kiện."
+    },
+    {
+      "name": "reading.rss.enabled-sources",
+      "type": "java.lang.String",
+      "description": "Kill-switch danh sách mã nguồn RSS trong whitelist được phép lấy tin."
+    },
+    {
+      "name": "reading.copyright.max-8gram-overlap",
+      "type": "java.lang.Double",
+      "defaultValue": 0.1,
+      "description": "Ngưỡng tỉ lệ trùng lặp 8-gram tối đa cho phép so với RSS gốc (mặc định 0.10 = 10%)."
     }
   ]
 }
