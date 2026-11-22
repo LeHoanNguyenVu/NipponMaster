@@ -2,6 +2,7 @@ package com.nihongo.api.modules.reading.article.service;
 
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.*;
 import com.nihongo.api.modules.reading.article.service.CopyrightGuardService.CopyrightCheckResult;
+import com.nihongo.api.modules.reading.article.service.JlptLevelClassifier.ClassificationResult;
 import com.nihongo.api.modules.reading.article.service.ReadingArticleRepository.VersionInsertPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,8 @@ import java.util.*;
 /**
  * Pipeline Ingest bài đọc:
  * RSS (whitelist) -> dedup source_url -> trích facts tiếng Việt -> sinh bài gốc theo từng cấp độ
- * -> kiểm tra chống sao chép (< 10% 8-gram) -> tách từ Kuromoji -> random giọng Kore/Puck -> lưu DB (REVIEW).
+ * -> kiểm tra chống sao chép (< 10% 8-gram) -> tách từ Kuromoji -> chấm cấp độ JLPT (viết lại tối đa 2 lần nếu lệch cấp)
+ * -> ý kiến thứ hai LLM -> random giọng Kore/Puck -> lưu DB (REVIEW).
  */
 @Slf4j
 @Service
@@ -28,6 +30,7 @@ public class ReadingIngestService {
     private final ReadingContentGenerator contentGenerator;
     private final JapaneseTokenizer tokenizer;
     private final CopyrightGuardService copyrightGuard;
+    private final JlptLevelClassifier levelClassifier;
     private final ReadingArticleRepository repository;
 
     private final SecureRandom random = new SecureRandom();
@@ -37,6 +40,9 @@ public class ReadingIngestService {
 
     @Value("${reading.ingest.target-levels:N5,N3,N1}")
     private String targetLevelsConfig = "N5,N3,N1";
+
+    @Value("${reading.level.llm-second-opinion-enabled:true}")
+    private boolean llmSecondOpinionEnabled = true;
 
     public IngestReportDto runIngest(Integer maxEventsOverride, String sourceFilter) {
         int maxEvents = maxEventsOverride != null
@@ -125,46 +131,106 @@ public class ReadingIngestService {
     }
 
     private VersionInsertPayload generateAndVerifyVersion(List<String> facts, String targetLevel, String rawRss, String voiceName) {
+        int targetRank = JlptLexiconService.levelToRank(targetLevel);
         String feedback = null;
-        for (int attempt = 1; attempt <= 2; attempt++) {
+
+        GeneratedArticleDto lastPassedCopyArticle = null;
+        CopyrightCheckResult lastPassedCopyCheck = null;
+        ClassificationResult lastClassification = null;
+
+        // Vòng lặp "viết – kiểm tra bản quyền – chấm cấp độ – viết lại" (tối đa 3 lượt: 1 gốc + 2 lần viết lại)
+        for (int attempt = 1; attempt <= 3; attempt++) {
             GeneratedArticleDto generated = contentGenerator.generateArticleForLevel(facts, targetLevel, feedback);
             String fullJaText = joinSentenceTexts(generated.getSentences());
-            CopyrightCheckResult check = copyrightGuard.evaluate(fullJaText, rawRss);
+            CopyrightCheckResult copyCheck = copyrightGuard.evaluate(fullJaText, rawRss);
 
-            if (check.passed()) {
-                // Tokenize từng câu bằng Kuromoji
-                int charCount = 0;
-                for (SentenceDto s : generated.getSentences()) {
-                    s.setTokens(tokenizer.tokenize(s.getText()));
-                    charCount += s.getText().length();
-                }
-                Map<String, Object> metrics = new LinkedHashMap<>();
-                metrics.put("ngramOverlap8", Math.round(check.ngramOverlap8() * 10000.0) / 10000.0);
-                metrics.put("longestCommonSubstring", check.longestCommonSubstring());
-                metrics.put("copyrightPassed", true);
-                metrics.put("needsReview", false);
-                return new VersionInsertPayload(
+            if (!copyCheck.passed()) {
+                log.warn("Phiên bản [{}] vượt ngưỡng trùng lặp 8-gram ({}% >= {}%), thử viết lại lần {}",
                         targetLevel,
-                        generated.getTitleJa(),
-                        generated.getTitleVi(),
-                        generated.getSentences(),
-                        generated.getKeyVocab(),
-                        charCount,
-                        null, // computed_level sẽ được bộ phân loại Phase 2 tính
-                        metrics,
-                        voiceName
-                );
+                        String.format("%.1f", copyCheck.ngramOverlap8() * 100.0),
+                        String.format("%.1f", copyCheck.threshold() * 100.0),
+                        attempt);
+                feedback = "Bản nháp trước còn diễn đạt hơi gần tin gốc. Hãy viết lại hoàn toàn bằng cấu trúc câu và cách diễn đạt mới tự nhiên hơn.";
+                continue;
             }
 
-            log.warn("Phiên bản [{}] vượt ngưỡng trùng lặp 8-gram ({}% >= {}%), thử viết lại lần {}",
-                    targetLevel,
-                    String.format("%.1f", check.ngramOverlap8() * 100.0),
-                    String.format("%.1f", check.threshold() * 100.0),
-                    attempt);
-            feedback = "Bản nháp trước còn diễn đạt hơi gần tin gốc. Hãy viết lại hoàn toàn bằng cấu trúc câu và cách diễn đạt mới tự nhiên hơn.";
+            // Tokenize từng câu bằng Kuromoji
+            for (SentenceDto s : generated.getSentences()) {
+                s.setTokens(tokenizer.tokenize(s.getText()));
+            }
+
+            // Chấm cấp độ JLPT bằng bộ phân loại Phase 2 (đồng thời gán lv cho từng token)
+            ClassificationResult classification = levelClassifier.classifySentences(
+                    generated.getSentences(), generated.getKeyVocab(), targetLevel, null
+            );
+
+            lastPassedCopyArticle = generated;
+            lastPassedCopyCheck = copyCheck;
+            lastClassification = classification;
+
+            boolean tooHard = targetRank > 0 && classification.computedRank() > targetRank;
+            boolean tooFar = targetRank > 0 && Math.abs(classification.computedRank() - targetRank) > 1;
+            if (!tooHard && !tooFar) {
+                break;
+            }
+
+            if (attempt < 3) {
+                List<String> problemWords = new ArrayList<>();
+                problemWords.addAll(classification.harderThanTargetWords());
+                for (String oov : classification.outOfListWords()) {
+                    if (!problemWords.contains(oov)) problemWords.add(oov);
+                }
+                List<String> sampleWords = problemWords.size() > 12 ? problemWords.subList(0, 12) : problemWords;
+                log.info("Phiên bản [{}] bị chấm lệch cấp ({} vs mục tiêu {}), gửi yêu cầu viết lại lần {} (từ vượt cấp: {})",
+                        targetLevel, classification.computedLevel(), targetLevel, attempt, sampleWords);
+                feedback = "Bản nháp trước bị chấm ở mức " + classification.computedLevel()
+                        + " (khó hơn mục tiêu " + targetLevel + "). "
+                        + "Hãy thay thế các từ/Kanji vượt cấp sau bằng từ đơn giản hơn phù hợp " + targetLevel
+                        + " (hoặc đưa từ thời sự bắt buộc vào keyVocab): " + String.join("、", sampleWords)
+                        + ". Giữ câu ngắn gọn đúng độ dài chuẩn " + targetLevel + ".";
+            }
         }
-        log.warn("Bỏ qua phiên bản [{}] sau 2 lần vẫn không đạt kiểm định chống sao chép", targetLevel);
-        return null;
+
+        if (lastPassedCopyArticle == null || lastPassedCopyCheck == null || lastClassification == null) {
+            log.warn("Bỏ qua phiên bản [{}] sau 3 lần thử không vượt qua kiểm định bản quyền", targetLevel);
+            return null;
+        }
+
+        String finalFullText = joinSentenceTexts(lastPassedCopyArticle.getSentences());
+        String llmLevel = llmSecondOpinionEnabled
+                ? contentGenerator.assessJlptLevelSecondOpinion(finalFullText)
+                : null;
+
+        // Tính lại final metrics kèm ý kiến thứ hai LLM
+        ClassificationResult finalClass = levelClassifier.classifySentences(
+                lastPassedCopyArticle.getSentences(), lastPassedCopyArticle.getKeyVocab(), targetLevel, llmLevel
+        );
+
+        int charCount = 0;
+        for (SentenceDto s : lastPassedCopyArticle.getSentences()) {
+            if (s.getText() != null) charCount += s.getText().length();
+        }
+
+        boolean stillMismatchedAfterRetries = targetRank > 0 && finalClass.computedRank() > targetRank;
+        boolean needsReview = finalClass.needsReview() || stillMismatchedAfterRetries;
+
+        Map<String, Object> metrics = new LinkedHashMap<>(finalClass.toMetricsMap());
+        metrics.put("ngramOverlap8", Math.round(lastPassedCopyCheck.ngramOverlap8() * 10000.0) / 10000.0);
+        metrics.put("longestCommonSubstring", lastPassedCopyCheck.longestCommonSubstring());
+        metrics.put("copyrightPassed", true);
+        metrics.put("needsReview", needsReview);
+
+        return new VersionInsertPayload(
+                targetLevel,
+                lastPassedCopyArticle.getTitleJa(),
+                lastPassedCopyArticle.getTitleVi(),
+                lastPassedCopyArticle.getSentences(),
+                lastPassedCopyArticle.getKeyVocab(),
+                charCount,
+                finalClass.computedLevel(),
+                metrics,
+                voiceName
+        );
     }
 
     private String joinSentenceTexts(List<SentenceDto> sentences) {
@@ -186,5 +252,28 @@ public class ReadingIngestService {
             }
         }
         return out.isEmpty() ? List.of("N5", "N3", "N1") : out;
+    }
+
+    /**
+     * Chấm lại cấp độ JLPT + token lv + level_metrics cho bài đọc đã lưu (dùng cho bài sinh ở Phase 1 hoặc sau khi chỉnh ngưỡng).
+     */
+    public AdminArticleSummaryDto reclassifyArticle(Long articleId) {
+        AdminArticleSummaryDto existing = repository.findAdminArticleById(articleId);
+        List<ReadingArticleRepository.VersionClassificationRow> versions = repository.findVersionsForClassification(articleId);
+        for (ReadingArticleRepository.VersionClassificationRow row : versions) {
+            List<SentenceDto> sentences = row.sentences();
+            String fullText = joinSentenceTexts(sentences);
+            String llmLevel = llmSecondOpinionEnabled
+                    ? contentGenerator.assessJlptLevelSecondOpinion(fullText)
+                    : null;
+            ClassificationResult res = levelClassifier.classifySentences(sentences, row.keyVocab(), row.jlptLevel(), llmLevel);
+            Map<String, Object> merged = new LinkedHashMap<>();
+            if (row.existingMetrics() != null) {
+                merged.putAll(row.existingMetrics());
+            }
+            merged.putAll(res.toMetricsMap());
+            repository.updateVersionClassification(row.id(), sentences, res.computedLevel(), merged);
+        }
+        return repository.findAdminArticleById(existing.getId());
     }
 }

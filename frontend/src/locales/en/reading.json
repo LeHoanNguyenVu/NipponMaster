@@ -1,0 +1,79 @@
+{
+  "title": "Japanese Reading Room",
+  "subtitle": "Original JLPT-graded reading articles crafted from Japanese current events, with smart Furigana and announcer audio.",
+  "levels": {
+    "ALL": "All",
+    "N5": "N5",
+    "N4": "N4",
+    "N3": "N3",
+    "N2": "N2",
+    "N1": "N1"
+  },
+  "categories": {
+    "ALL": "All Topics",
+    "SOCIETY": "Society",
+    "LIFE": "Lifestyle",
+    "ECONOMY": "Economy",
+    "SCI_TECH": "Sci & Tech",
+    "SPORTS": "Sports",
+    "CULTURE": "Culture",
+    "WEATHER": "Weather"
+  },
+  "card": {
+    "minutes": "{{count}} min read",
+    "chars": "{{count}} chars",
+    "completed": "Completed",
+    "audioReady": "Audio Ready",
+    "voiceFemale": "Female (Kore)",
+    "voiceMale": "Male (Puck)"
+  },
+  "list": {
+    "emptyTitle": "No articles match this filter",
+    "emptyDesc": "Try selecting \"All\" or switching to another JLPT level or topic.",
+    "resetFilter": "Show all articles",
+    "loadError": "Could not load reading articles. Please try again.",
+    "retry": "Retry",
+    "showing": "Showing {{count}} of {{total}} articles"
+  },
+  "reader": {
+    "back": "Back to articles",
+    "otherLevels": "Same event in other levels:",
+    "furiganaLabel": "Furigana",
+    "furiganaSmart": "Smart",
+    "furiganaAll": "All",
+    "furiganaOff": "Hide",
+    "showTranslation": "Show translations",
+    "hideTranslation": "Hide translations",
+    "keyVocabTitle": "Key vocabulary before reading",
+    "keyVocabCount": "{{count}} words",
+    "clickSentenceHint": "Click a sentence to play from it · Click any word for a quick dictionary popup",
+    "keyboardHint": "Shortcuts: Space (Play/Pause) · ← / → (Prev/Next sentence)",
+    "markComplete": "Mark as completed",
+    "completedBadge": "You completed this article",
+    "completing": "Saving...",
+    "completedToast": "Great job! You have completed {{total}} articles.",
+    "wordPopup": {
+      "reading": "Reading",
+      "baseForm": "Base form",
+      "meaning": "Meaning",
+      "translating": "Looking up meaning...",
+      "noMeaning": "No meaning available",
+      "close": "Close"
+    },
+    "attribution": {
+      "pdl": "Public data source: {{source}} (Japan Public Data License 1.0 / CC BY 4.0) — Rewritten for Japanese learners by NipponMaster.",
+      "factsOnly": "Original reading material authored by NipponMaster for Japanese study based on current events · Reference (external link): {{source}}",
+      "openSource": "Open source"
+    }
+  },
+  "audio": {
+    "play": "Play audio",
+    "pause": "Pause audio",
+    "prev": "Previous sentence",
+    "next": "Next sentence",
+    "repeat": "Repeat current sentence",
+    "speed": "Playback speed",
+    "sentenceProgress": "Sentence {{current}} / {{total}}",
+    "fallbackBadge": "Temporary voice"
+  }
+}

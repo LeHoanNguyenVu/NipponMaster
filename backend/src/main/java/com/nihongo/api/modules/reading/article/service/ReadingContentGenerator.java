@@ -102,6 +102,37 @@ public class ReadingContentGenerator {
         throw new IllegalStateException("Không thể sinh bài hợp lệ cho level " + targetLevel);
     }
 
+    /**
+     * Ý kiến thứ hai từ LLM cho Phase 2 classifier: trả về cấp độ JLPT (N5..N1), hoặc null nếu lỗi.
+     */
+    public String assessJlptLevelSecondOpinion(String fullJaText) {
+        if (fullJaText == null || fullJaText.isBlank()) return null;
+        try {
+            String prompt = """
+                    Bạn là chuyên gia đánh giá độ khó đọc hiểu tiếng Nhật theo chuẩn JLPT (N5, N4, N3, N2, N1).
+                    Hãy đánh giá cấp độ JLPT phù hợp nhất cho đoạn văn tiếng Nhật sau dựa trên từ vựng, Kanji, ngữ pháp và độ phức tạp câu.
+
+                    <article>
+                    %s
+                    </article>
+                    """.formatted(fullJaText.trim());
+            Map<String, Object> schema = Map.of(
+                    "type", "OBJECT",
+                    "required", List.of("level", "reason"),
+                    "properties", Map.of(
+                            "level", Map.of("type", "STRING", "enum", List.of("N5", "N4", "N3", "N2", "N1")),
+                            "reason", Map.of("type", "STRING")
+                    )
+            );
+            JsonNode parsed = callGeminiJsonWithRetry(prompt, schema, 0.1);
+            String lv = parsed.path("level").asText("").trim().toUpperCase(Locale.ROOT);
+            return JlptLexiconService.levelToRank(lv) > 0 ? lv : null;
+        } catch (Exception e) {
+            log.warn("Không lấy được ý kiến thứ hai LLM cho classifier: {}", e.getMessage());
+            return null;
+        }
+    }
+
     private GeneratedArticleDto parseAndValidateArticle(JsonNode parsed, String targetLevel) {
         String titleJa = parsed.path("titleJa").asText("").trim();
         String titleVi = parsed.path("titleVi").asText("").trim();

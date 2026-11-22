@@ -12,6 +12,7 @@ import Auth from './screens/Auth';
 import LandingPage from './screens/LandingPage';
 import Kanji from './screens/Kanji';
 import Grammar from './screens/Grammar';
+import ReadingScreen from './screens/reading/ReadingScreen';
 import Translation from './screens/Translation';
 import OnboardingScreen from './screens/OnboardingScreen';
 import Pricing from './screens/Pricing';
@@ -24,7 +25,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { isBeginnerGraduated } from './utils/beginnerProgressManager';
 import gsap from 'gsap';
 
-export type ScreenType = 'dashboard' | 'kanji' | 'grammar' | 'exams' | 'translation' | 'sensei' | 'pricing' | 'beginner';
+export type ScreenType = 'dashboard' | 'kanji' | 'grammar' | 'reading' | 'exams' | 'translation' | 'sensei' | 'pricing' | 'beginner';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
@@ -42,7 +43,7 @@ export default function App() {
 
   // Route guard: Nếu ở level Nhập Môn mà screen trỏ vào module N5 đang bị ẩn, tự động điều hướng sang Khóa Nhập Môn
   useEffect(() => {
-    if (isStarter && ['kanji', 'grammar', 'exams'].includes(currentScreen)) {
+    if (isStarter && ['kanji', 'grammar', 'reading', 'exams'].includes(currentScreen)) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentScreen('beginner');
     }
@@ -279,6 +280,7 @@ export default function App() {
           {currentScreen === 'exams' && <Exams />}
           {currentScreen === 'kanji' && <Kanji />}
           {currentScreen === 'grammar' && <Grammar />}
+          {currentScreen === 'reading' && <ReadingScreen onNavigate={setCurrentScreen} />}
           {currentScreen === 'translation' && <Translation />}
           {currentScreen === 'sensei' && (
             <SenseiChat

@@ -99,6 +99,60 @@
       "type": "java.lang.Double",
       "defaultValue": 0.1,
       "description": "Ngưỡng tỉ lệ trùng lặp 8-gram tối đa cho phép so với RSS gốc (mặc định 0.10 = 10%)."
+    },
+    {
+      "name": "reading.level.vocab-coverage",
+      "type": "java.lang.Double",
+      "defaultValue": 0.84,
+      "description": "Ngưỡng độ phủ từ vựng tối thiểu để xác định cấp độ JLPT của bài đọc."
+    },
+    {
+      "name": "reading.level.kanji-coverage",
+      "type": "java.lang.Double",
+      "defaultValue": 0.84,
+      "description": "Ngưỡng độ phủ Kanji tối thiểu để xác định cấp độ JLPT của bài đọc."
+    },
+    {
+      "name": "reading.level.sent-len-n5",
+      "type": "java.lang.Double",
+      "defaultValue": 22.0,
+      "description": "Độ dài câu trung bình tối đa (ký tự) của bài đọc N5."
+    },
+    {
+      "name": "reading.level.sent-len-n4",
+      "type": "java.lang.Double",
+      "defaultValue": 30.0,
+      "description": "Độ dài câu trung bình tối đa (ký tự) của bài đọc N4."
+    },
+    {
+      "name": "reading.level.sent-len-n3",
+      "type": "java.lang.Double",
+      "defaultValue": 41.0,
+      "description": "Độ dài câu trung bình tối đa (ký tự) của bài đọc N3."
+    },
+    {
+      "name": "reading.level.sent-len-n2",
+      "type": "java.lang.Double",
+      "defaultValue": 53.0,
+      "description": "Độ dài câu trung bình tối đa (ký tự) của bài đọc N2."
+    },
+    {
+      "name": "reading.level.llm-second-opinion-enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Bật/tắt gọi Gemini đánh giá ý kiến thứ hai cho bộ phân loại cấp độ JLPT."
+    },
+    {
+      "name": "reading.audio.bucket",
+      "type": "java.lang.String",
+      "defaultValue": "reading-audio",
+      "description": "Tên bucket Supabase Storage lưu audio từng câu của module Luyện Đọc."
+    },
+    {
+      "name": "reading.audio.tts-model",
+      "type": "java.lang.String",
+      "defaultValue": "gemini-2.5-flash-preview-tts",
+      "description": "Model Gemini TTS sử dụng để sinh giọng đọc phát thanh viên Kore/Puck."
     }
   ]
 }

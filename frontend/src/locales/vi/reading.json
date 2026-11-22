@@ -1,0 +1,79 @@
+{
+  "title": "Phòng Luyện Đọc Báo Nhật",
+  "subtitle": "Bài đọc nguyên bản biên soạn theo từng cấp độ JLPT từ sự kiện thời sự Nhật Bản, kèm Furigana thông minh và giọng đọc phát thanh viên.",
+  "levels": {
+    "ALL": "Tất cả",
+    "N5": "N5",
+    "N4": "N4",
+    "N3": "N3",
+    "N2": "N2",
+    "N1": "N1"
+  },
+  "categories": {
+    "ALL": "Mọi chủ đề",
+    "SOCIETY": "Xã hội",
+    "LIFE": "Đời sống",
+    "ECONOMY": "Kinh tế",
+    "SCI_TECH": "Khoa học – Công nghệ",
+    "SPORTS": "Thể thao",
+    "CULTURE": "Văn hóa – Giải trí",
+    "WEATHER": "Thời tiết"
+  },
+  "card": {
+    "minutes": "{{count}} phút đọc",
+    "chars": "{{count}} ký tự",
+    "completed": "Đã đọc",
+    "audioReady": "Có Audio",
+    "voiceFemale": "Giọng Nữ (Kore)",
+    "voiceMale": "Giọng Nam (Puck)"
+  },
+  "list": {
+    "emptyTitle": "Chưa có bài đọc nào ở bộ lọc này",
+    "emptyDesc": "Thử chọn \"Tất cả\" hoặc đổi cấp độ / chủ đề khác để khám phá kho bài đọc.",
+    "resetFilter": "Xem tất cả bài đọc",
+    "loadError": "Không thể tải danh sách bài đọc. Vui lòng thử lại.",
+    "retry": "Thử lại",
+    "showing": "Hiển thị {{count}} / {{total}} bài đọc"
+  },
+  "reader": {
+    "back": "Quay lại danh sách",
+    "otherLevels": "Phiên bản cùng sự kiện:",
+    "furiganaLabel": "Furigana",
+    "furiganaSmart": "Thông minh",
+    "furiganaAll": "Tất cả",
+    "furiganaOff": "Ẩn",
+    "showTranslation": "Hiện dịch câu",
+    "hideTranslation": "Ẩn dịch câu",
+    "keyVocabTitle": "Từ khóa quan trọng trước khi đọc",
+    "keyVocabCount": "{{count}} từ",
+    "clickSentenceHint": "Bấm vào câu để nghe từ câu đó · Bấm vào từ để tra nghĩa nhanh",
+    "keyboardHint": "Phím tắt: Space (Phát/Dừng) · ← / → (Câu trước/sau)",
+    "markComplete": "Đánh dấu đã đọc xong",
+    "completedBadge": "Bạn đã hoàn thành bài đọc này",
+    "completing": "Đang lưu...",
+    "completedToast": "Tuyệt vời! Bạn đã hoàn thành {{total}} bài đọc.",
+    "wordPopup": {
+      "reading": "Cách đọc",
+      "baseForm": "Dạng gốc",
+      "meaning": "Nghĩa",
+      "translating": "Đang tra nghĩa nhanh...",
+      "noMeaning": "Không tìm thấy nghĩa",
+      "close": "Đóng"
+    },
+    "attribution": {
+      "pdl": "Nguồn thông tin công khai: {{source}} (Giấy phép Dữ liệu Công cộng Nhật Bản 1.0 / CC BY 4.0) — Biên soạn lại cho mục đích học tiếng Nhật bởi NipponMaster.",
+      "factsOnly": "Bài đọc gốc do NipponMaster biên soạn cho mục đích học tiếng Nhật dựa trên sự kiện thời sự · Tham khảo tin gốc (liên kết ngoài): {{source}}",
+      "openSource": "Xem nguồn gốc"
+    }
+  },
+  "audio": {
+    "play": "Phát audio",
+    "pause": "Tạm dừng",
+    "prev": "Câu trước",
+    "next": "Câu tiếp theo",
+    "repeat": "Lặp lại câu đang nghe",
+    "speed": "Tốc độ phát",
+    "sentenceProgress": "Câu {{current}} / {{total}}",
+    "fallbackBadge": "Giọng đọc tạm thời"
+  }
+}

@@ -4,9 +4,11 @@ import com.nihongo.api.common.security.JwtAuthenticationFilter;
 import com.nihongo.api.common.security.JwtBlacklistService;
 import com.nihongo.api.common.security.JwtTokenProvider;
 import com.nihongo.api.common.security.SecurityConfig;
+import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.AudioGenerationResultDto;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.IngestReportDto;
 import com.nihongo.api.modules.reading.article.service.ReadingArticleRepository;
 import com.nihongo.api.modules.reading.article.service.ReadingIngestService;
+import com.nihongo.api.modules.reading.article.service.ReadingTtsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -36,6 +38,9 @@ class AdminReadingControllerSecurityTest {
 
     @MockitoBean
     private ReadingArticleRepository repository;
+
+    @MockitoBean
+    private ReadingTtsService ttsService;
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
@@ -80,5 +85,34 @@ class AdminReadingControllerSecurityTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.createdArticles").value(1))
                 .andExpect(jsonPath("$.data.createdVersions").value(3));
+    }
+
+    @Test
+    @WithMockUser(roles = "STUDENT")
+    void generateAudio_asStudent_isForbidden403() throws Exception {
+        mockMvc.perform(post("/api/v1/admin/reading/versions/1/audio"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void generateAudio_asAdmin_succeeds200() throws Exception {
+        when(ttsService.generateAudioForVersion(1L, null, false)).thenReturn(AudioGenerationResultDto.builder()
+                .versionId(1L)
+                .articleId(1L)
+                .jlptLevel("N5")
+                .voiceName("Kore")
+                .audioStatus("READY")
+                .totalSentences(5)
+                .readySentences(5)
+                .failedSentences(0)
+                .totalDurationMs(15000L)
+                .build());
+
+        mockMvc.perform(post("/api/v1/admin/reading/versions/1/audio"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.audioStatus").value("READY"))
+                .andExpect(jsonPath("$.data.voiceName").value("Kore"));
     }
 }

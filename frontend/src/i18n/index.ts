@@ -11,6 +11,7 @@ import viDashboard from '../locales/vi/dashboard.json';
 import viBeginner from '../locales/vi/beginner.json';
 import viKanji from '../locales/vi/kanji.json';
 import viGrammar from '../locales/vi/grammar.json';
+import viReading from '../locales/vi/reading.json';
 import viExams from '../locales/vi/exams.json';
 import viTranslation from '../locales/vi/translation.json';
 import viPricing from '../locales/vi/pricing.json';
@@ -25,6 +26,7 @@ import enDashboard from '../locales/en/dashboard.json';
 import enBeginner from '../locales/en/beginner.json';
 import enKanji from '../locales/en/kanji.json';
 import enGrammar from '../locales/en/grammar.json';
+import enReading from '../locales/en/reading.json';
 import enExams from '../locales/en/exams.json';
 import enTranslation from '../locales/en/translation.json';
 import enPricing from '../locales/en/pricing.json';
@@ -42,6 +44,7 @@ export const resources = {
     beginner: viBeginner,
     kanji: viKanji,
     grammar: viGrammar,
+    reading: viReading,
     exams: viExams,
     translation: viTranslation,
     pricing: viPricing,
@@ -57,6 +60,7 @@ export const resources = {
     beginner: enBeginner,
     kanji: enKanji,
     grammar: enGrammar,
+    reading: enReading,
     exams: enExams,
     translation: enTranslation,
     pricing: enPricing,
@@ -93,6 +97,7 @@ i18n
       'beginner',
       'kanji',
       'grammar',
+      'reading',
       'exams',
       'translation',
       'pricing',

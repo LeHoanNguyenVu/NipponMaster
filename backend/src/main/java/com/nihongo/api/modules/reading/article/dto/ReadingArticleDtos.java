@@ -146,4 +146,110 @@ public final class ReadingArticleDtos {
         private int failedItems;
         private List<String> errors;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AudioGenerationResultDto {
+        private Long versionId;
+        private Long articleId;
+        private String jlptLevel;
+        private String voiceName;
+        private String audioStatus;
+        private int totalSentences;
+        private int readySentences;
+        private int failedSentences;
+        private long totalDurationMs;
+    }
+
+    // --- Public Student API DTOs (Tuyệt đối KHÔNG bao gồm sourceTitle gốc!) ---
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReadingArticleCardDto {
+        private Long versionId;
+        private Long articleId;
+        private String jlptLevel;
+        private String computedLevel;
+        private String category;
+        private String titleJa;
+        private String titleVi;
+        private int charCount;
+        private int estimatedMinutes;
+        private String voiceName;
+        private String audioStatus;
+        private String sourceName;
+        private String sourceLicense;
+        private OffsetDateTime publishedAt;
+        private boolean completed;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReadingArticleListResponse {
+        private List<ReadingArticleCardDto> items;
+        private int page;
+        private int size;
+        private long totalItems;
+        private int totalPages;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OtherLevelLinkDto {
+        private Long versionId;
+        private String jlptLevel;
+        private String titleJa;
+        private String audioStatus;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReadingVersionDetailDto {
+        private Long versionId;
+        private Long articleId;
+        private String jlptLevel;
+        private String computedLevel;
+        private String category;
+        private String titleJa;
+        private String titleVi;
+        private int charCount;
+        private int estimatedMinutes;
+        private String voiceName;
+        private String audioStatus;
+        private String sourceName;
+        private String sourceLicense;
+        private String sourceUrl;
+        private OffsetDateTime publishedAt;
+        private List<SentenceDto> sentences;
+        private List<KeyVocabDto> keyVocab;
+        private List<OtherLevelLinkDto> otherLevels;
+        private boolean completed;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CompleteReadingRequest {
+        private Integer readingSeconds;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CompleteReadingResponse {
+        private Long versionId;
+        private boolean completed;
+        private int totalCompleted;
+    }
 }

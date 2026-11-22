@@ -129,25 +129,32 @@ public class ReadingArticleRepository {
     }
 
     public List<AdminArticleSummaryDto> listArticlesForAdmin(String status, int limit) {
+        return listArticlesForAdmin(status, null, limit);
+    }
+
+    public List<AdminArticleSummaryDto> listArticlesForAdmin(String status, Boolean needsReviewOnly, int limit) {
         int safeLimit = Math.max(1, Math.min(limit, 100));
         boolean filterStatus = status != null && !status.isBlank() && !"ALL".equalsIgnoreCase(status);
+        boolean filterNeedsReview = Boolean.TRUE.equals(needsReviewOnly);
 
-        List<AdminArticleSummaryDto> articles = filterStatus
-                ? jdbc.query("""
-                        SELECT id, source_name, source_license, source_url, source_title,
-                               source_published_at, category, facts::text AS facts_json, status, created_at, published_at
-                        FROM reading_articles
-                        WHERE status = ?
-                        ORDER BY created_at DESC
-                        LIMIT ?
-                        """, (rs, i) -> mapArticleRow(rs), status.trim().toUpperCase(Locale.ROOT), safeLimit)
-                : jdbc.query("""
-                        SELECT id, source_name, source_license, source_url, source_title,
-                               source_published_at, category, facts::text AS facts_json, status, created_at, published_at
-                        FROM reading_articles
-                        ORDER BY created_at DESC
-                        LIMIT ?
-                        """, (rs, i) -> mapArticleRow(rs), safeLimit);
+        StringBuilder sql = new StringBuilder("""
+                SELECT a.id, a.source_name, a.source_license, a.source_url, a.source_title,
+                       a.source_published_at, a.category, a.facts::text AS facts_json, a.status, a.created_at, a.published_at
+                FROM reading_articles a
+                WHERE 1=1
+                """);
+        List<Object> params = new ArrayList<>();
+        if (filterStatus) {
+            sql.append(" AND a.status = ?");
+            params.add(status.trim().toUpperCase(Locale.ROOT));
+        }
+        if (filterNeedsReview) {
+            sql.append(" AND EXISTS (SELECT 1 FROM reading_article_versions v WHERE v.article_id = a.id AND (v.level_metrics->>'needsReview') = 'true')");
+        }
+        sql.append(" ORDER BY a.created_at DESC LIMIT ?");
+        params.add(safeLimit);
+
+        List<AdminArticleSummaryDto> articles = jdbc.query(sql.toString(), (rs, i) -> mapArticleRow(rs), params.toArray());
 
         if (articles.isEmpty()) {
             return articles;
@@ -247,6 +254,272 @@ public class ReadingArticleRepository {
         return art;
     }
 
+    public record VersionClassificationRow(
+            Long id,
+            String jlptLevel,
+            List<SentenceDto> sentences,
+            List<KeyVocabDto> keyVocab,
+            Map<String, Object> existingMetrics
+    ) {
+    }
+
+    public List<VersionClassificationRow> findVersionsForClassification(Long articleId) {
+        return jdbc.query("""
+                SELECT id, jlpt_level, sentences::text AS sentences_json, key_vocab::text AS kv_json, level_metrics::text AS metrics_json
+                FROM reading_article_versions
+                WHERE article_id = ?
+                ORDER BY id ASC
+                """,
+                (rs, i) -> new VersionClassificationRow(
+                        rs.getLong("id"),
+                        rs.getString("jlpt_level"),
+                        fromJsonSentences(rs.getString("sentences_json")),
+                        fromJsonKeyVocab(rs.getString("kv_json")),
+                        fromJsonMap(rs.getString("metrics_json"))
+                ),
+                articleId
+        );
+    }
+
+    public void updateVersionClassification(
+            Long versionId,
+            List<SentenceDto> tokenizedSentences,
+            String computedLevel,
+            Map<String, Object> levelMetrics
+    ) {
+        jdbc.update("""
+                UPDATE reading_article_versions
+                SET sentences = ?::jsonb, computed_level = ?, level_metrics = ?::jsonb
+                WHERE id = ?
+                """,
+                toJson(tokenizedSentences),
+                computedLevel,
+                toJson(levelMetrics),
+                versionId
+        );
+    }
+
+    public record VersionAudioRow(
+            Long id,
+            Long articleId,
+            String jlptLevel,
+            String voiceName,
+            String audioStatus,
+            List<SentenceDto> sentences
+    ) {
+    }
+
+    public VersionAudioRow findVersionForAudio(Long versionId) {
+        List<VersionAudioRow> list = jdbc.query("""
+                SELECT id, article_id, jlpt_level, voice_name, audio_status, sentences::text AS sentences_json
+                FROM reading_article_versions
+                WHERE id = ?
+                """,
+                (rs, i) -> new VersionAudioRow(
+                        rs.getLong("id"),
+                        rs.getLong("article_id"),
+                        rs.getString("jlpt_level"),
+                        rs.getString("voice_name"),
+                        rs.getString("audio_status"),
+                        fromJsonSentences(rs.getString("sentences_json"))
+                ),
+                versionId
+        );
+        if (list.isEmpty()) {
+            throw new ResourceNotFoundException("Không tìm thấy phiên bản bài đọc id=" + versionId);
+        }
+        return list.get(0);
+    }
+
+    public List<Long> findVersionIdsByArticleId(Long articleId) {
+        return jdbc.queryForList(
+                "SELECT id FROM reading_article_versions WHERE article_id = ? ORDER BY id ASC",
+                Long.class,
+                articleId
+        );
+    }
+
+    public void updateVersionAudio(Long versionId, List<SentenceDto> sentences, String voiceName, String audioStatus) {
+        jdbc.update("""
+                UPDATE reading_article_versions
+                SET sentences = ?::jsonb, voice_name = ?, audio_status = ?
+                WHERE id = ?
+                """,
+                toJson(sentences),
+                voiceName,
+                audioStatus,
+                versionId
+        );
+    }
+
+    // --- Public Student Queries (CHỈ trả bài PUBLISHED, KHÔNG trả source_title) ---
+
+    public ReadingArticleListResponse findPublishedArticles(Long userId, String level, String category, int page, int size) {
+        StringBuilder where = new StringBuilder(" WHERE a.status = 'PUBLISHED' ");
+        List<Object> filterParams = new ArrayList<>();
+        if (level != null && !level.isBlank()) {
+            where.append(" AND v.jlpt_level = ? ");
+            filterParams.add(level);
+        }
+        if (category != null && !category.isBlank()) {
+            where.append(" AND a.category = ? ");
+            filterParams.add(category);
+        }
+
+        Long totalObj = jdbc.queryForObject(
+                "SELECT COUNT(1) FROM reading_article_versions v JOIN reading_articles a ON v.article_id = a.id " + where,
+                Long.class,
+                filterParams.toArray()
+        );
+        long total = totalObj != null ? totalObj : 0L;
+
+        List<Object> queryParams = new ArrayList<>();
+        queryParams.add(userId != null ? userId : -1L);
+        queryParams.addAll(filterParams);
+        queryParams.add(size);
+        queryParams.add(page * size);
+
+        List<ReadingArticleCardDto> items = jdbc.query("""
+                SELECT v.id AS version_id, v.article_id, v.jlpt_level, v.computed_level, a.category,
+                       v.title_ja, v.title_vi, v.char_count, v.voice_name, v.audio_status,
+                       a.source_name, a.source_license, a.published_at,
+                       (urp.version_id IS NOT NULL) AS completed
+                FROM reading_article_versions v
+                JOIN reading_articles a ON v.article_id = a.id
+                LEFT JOIN user_reading_progress urp ON urp.version_id = v.id AND urp.user_id = ?
+                """ + where + """
+                ORDER BY a.published_at DESC NULLS LAST, v.id DESC
+                LIMIT ? OFFSET ?
+                """,
+                (rs, i) -> {
+                    int chars = rs.getInt("char_count");
+                    return ReadingArticleCardDto.builder()
+                            .versionId(rs.getLong("version_id"))
+                            .articleId(rs.getLong("article_id"))
+                            .jlptLevel(rs.getString("jlpt_level"))
+                            .computedLevel(rs.getString("computed_level"))
+                            .category(rs.getString("category"))
+                            .titleJa(rs.getString("title_ja"))
+                            .titleVi(rs.getString("title_vi"))
+                            .charCount(chars)
+                            .estimatedMinutes(Math.max(1, (int) Math.ceil(chars / 180.0)))
+                            .voiceName(rs.getString("voice_name"))
+                            .audioStatus(rs.getString("audio_status"))
+                            .sourceName(rs.getString("source_name"))
+                            .sourceLicense(rs.getString("source_license"))
+                            .publishedAt(toOffset(rs.getTimestamp("published_at")))
+                            .completed(rs.getBoolean("completed"))
+                            .build();
+                },
+                queryParams.toArray()
+        );
+
+        int totalPages = total == 0 ? 0 : (int) Math.ceil((double) total / size);
+        return ReadingArticleListResponse.builder()
+                .items(items)
+                .page(page)
+                .size(size)
+                .totalItems(total)
+                .totalPages(totalPages)
+                .build();
+    }
+
+    public ReadingVersionDetailDto findPublishedVersionDetail(Long versionId, Long userId) {
+        List<ReadingVersionDetailDto> list = jdbc.query("""
+                SELECT v.id AS version_id, v.article_id, v.jlpt_level, v.computed_level, a.category,
+                       v.title_ja, v.title_vi, v.char_count, v.voice_name, v.audio_status,
+                       a.source_name, a.source_license, a.source_url, a.published_at,
+                       v.sentences::text AS sentences_json, v.key_vocab::text AS kv_json,
+                       (urp.version_id IS NOT NULL) AS completed
+                FROM reading_article_versions v
+                JOIN reading_articles a ON v.article_id = a.id
+                LEFT JOIN user_reading_progress urp ON urp.version_id = v.id AND urp.user_id = ?
+                WHERE v.id = ? AND a.status = 'PUBLISHED'
+                """,
+                (rs, i) -> {
+                    int chars = rs.getInt("char_count");
+                    return ReadingVersionDetailDto.builder()
+                            .versionId(rs.getLong("version_id"))
+                            .articleId(rs.getLong("article_id"))
+                            .jlptLevel(rs.getString("jlpt_level"))
+                            .computedLevel(rs.getString("computed_level"))
+                            .category(rs.getString("category"))
+                            .titleJa(rs.getString("title_ja"))
+                            .titleVi(rs.getString("title_vi"))
+                            .charCount(chars)
+                            .estimatedMinutes(Math.max(1, (int) Math.ceil(chars / 180.0)))
+                            .voiceName(rs.getString("voice_name"))
+                            .audioStatus(rs.getString("audio_status"))
+                            .sourceName(rs.getString("source_name"))
+                            .sourceLicense(rs.getString("source_license"))
+                            .sourceUrl(rs.getString("source_url"))
+                            .publishedAt(toOffset(rs.getTimestamp("published_at")))
+                            .sentences(fromJsonSentences(rs.getString("sentences_json")))
+                            .keyVocab(fromJsonKeyVocab(rs.getString("kv_json")))
+                            .completed(rs.getBoolean("completed"))
+                            .build();
+                },
+                userId != null ? userId : -1L,
+                versionId
+        );
+
+        if (list.isEmpty()) {
+            throw new ResourceNotFoundException("Không tìm thấy bài đọc đã xuất bản id=" + versionId);
+        }
+
+        ReadingVersionDetailDto detail = list.get(0);
+        List<OtherLevelLinkDto> siblings = jdbc.query("""
+                SELECT v.id AS version_id, v.jlpt_level, v.title_ja, v.audio_status
+                FROM reading_article_versions v
+                JOIN reading_articles a ON v.article_id = a.id
+                WHERE v.article_id = ? AND a.status = 'PUBLISHED'
+                ORDER BY CASE v.jlpt_level
+                    WHEN 'N5' THEN 1 WHEN 'N4' THEN 2 WHEN 'N3' THEN 3 WHEN 'N2' THEN 4 WHEN 'N1' THEN 5 ELSE 9 END
+                """,
+                (rs, i) -> OtherLevelLinkDto.builder()
+                        .versionId(rs.getLong("version_id"))
+                        .jlptLevel(rs.getString("jlpt_level"))
+                        .titleJa(rs.getString("title_ja"))
+                        .audioStatus(rs.getString("audio_status"))
+                        .build(),
+                detail.getArticleId()
+        );
+        detail.setOtherLevels(siblings);
+        return detail;
+    }
+
+    public boolean isPublishedVersion(Long versionId) {
+        Integer cnt = jdbc.queryForObject("""
+                SELECT COUNT(1)
+                FROM reading_article_versions v
+                JOIN reading_articles a ON v.article_id = a.id
+                WHERE v.id = ? AND a.status = 'PUBLISHED'
+                """,
+                Integer.class,
+                versionId
+        );
+        return cnt != null && cnt > 0;
+    }
+
+    public int markVersionCompleted(Long userId, Long versionId, Integer readingSeconds) {
+        Integer safeSecs = readingSeconds == null ? null : Math.max(0, Math.min(readingSeconds, 7200));
+        jdbc.update("""
+                INSERT INTO user_reading_progress (user_id, version_id, reading_seconds)
+                VALUES (?, ?, ?)
+                ON CONFLICT (user_id, version_id) DO UPDATE SET
+                    completed_at = NOW(),
+                    reading_seconds = COALESCE(EXCLUDED.reading_seconds, user_reading_progress.reading_seconds)
+                """,
+                userId, versionId, safeSecs
+        );
+        Integer total = jdbc.queryForObject(
+                "SELECT COUNT(1) FROM user_reading_progress WHERE user_id = ?",
+                Integer.class,
+                userId
+        );
+        return total != null ? total : 0;
+    }
+
     private AdminArticleSummaryDto mapArticleRow(java.sql.ResultSet rs) throws java.sql.SQLException {
         return AdminArticleSummaryDto.builder()
                 .id(rs.getLong("id"))
@@ -290,6 +563,24 @@ public class ReadingArticleRepository {
             return objectMapper.readValue(json, new TypeReference<>() {});
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    private List<SentenceDto> fromJsonSentences(String json) {
+        if (json == null || json.isBlank()) return List.of();
+        try {
+            return objectMapper.readValue(json, new TypeReference<>() {});
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
+    private List<KeyVocabDto> fromJsonKeyVocab(String json) {
+        if (json == null || json.isBlank()) return List.of();
+        try {
+            return objectMapper.readValue(json, new TypeReference<>() {});
+        } catch (Exception e) {
+            return List.of();
         }
     }
 }
