@@ -69,16 +69,13 @@ public class SecurityConfig {
                         // Cho phép thử nghiệm vẽ Kanji Canvas & OCR
                         .requestMatchers("/api/v1/kanjis/canvas/**").permitAll()
 
-                        // Cho phép phân tích cú pháp câu AI & Dịch thuật AI
+                        // Phân tích cú pháp câu AI & Dịch thuật AI
                         .requestMatchers("/api/v1/sentence-breakdown/**").permitAll()
                         .requestMatchers("/api/v1/translate/**").permitAll()
-                        .requestMatchers("/api/v1/ai/rag/**").permitAll()
 
-                        // Admin Reading Room: bắt buộc quyền ADMIN (chống lạm dụng quota Gemini/TTS & bảo vệ duyệt bài)
-                        .requestMatchers("/api/v1/admin/reading/**").hasRole("ADMIN")
-
-                        // Endpoints Admin Dashboard & Consoles
-                        .requestMatchers("/api/v1/admin/**").permitAll()
+                        // Admin RAG, Reading Room, Dashboard & Consoles: bắt buộc quyền ADMIN
+                        .requestMatchers("/api/v1/ai/rag/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         // Tất cả endpoint còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()

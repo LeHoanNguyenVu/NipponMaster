@@ -82,4 +82,34 @@ class ReadingRssClientTest {
         assertThrows(SecurityException.class, () -> client.validateWhitelistedUri("http://169.254.169.254/latest/meta-data/"));
         assertThrows(SecurityException.class, () -> client.validateWhitelistedUri("http://www.nhk.or.jp/rss/news/cat0.xml"));
     }
+
+    @Test
+    void parseXml_dropsUnsafeJavascriptAndNonWhitelistedItemLinks() throws Exception {
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rss version="2.0"><channel>
+                  <item>
+                    <title>Malicious XSS</title>
+                    <link>javascript:alert(1)</link>
+                    <description>Bad link</description>
+                  </item>
+                  <item>
+                    <title>Phishing Link</title>
+                    <link>https://evil.example.com/news</link>
+                    <description>External non-whitelisted link</description>
+                  </item>
+                  <item>
+                    <title>Valid Gov Article</title>
+                    <link>https://www.gov-online.go.jp/article/safe.html</link>
+                    <description>Safe article</description>
+                  </item>
+                </channel></rss>
+                """;
+        RssSourceConfig src = ReadingRssClient.ALL_SOURCES.get("GOV_ONLINE");
+
+        List<RssItem> items = client.parseXml(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8), src);
+
+        assertEquals(1, items.size());
+        assertEquals("https://www.gov-online.go.jp/article/safe.html", items.get(0).link());
+    }
 }

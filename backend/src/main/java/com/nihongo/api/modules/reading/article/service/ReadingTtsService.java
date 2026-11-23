@@ -23,6 +23,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,7 +40,7 @@ import java.util.concurrent.Executors;
 @RequiredArgsConstructor
 public class ReadingTtsService {
 
-    private static final String GEMINI_TTS_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s";
+    private static final String GEMINI_TTS_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent";
     private static final String NEWS_ANCHOR_PREFIX = "ニュースキャスターのように、自然で聞き取りやすい日本語で読んでください: ";
     private static final Set<String> VALID_VOICES = Set.of("Kore", "Puck");
     private static final int PCM_SAMPLE_RATE = 24000;
@@ -63,7 +64,10 @@ public class ReadingTtsService {
             .connectTimeout(Duration.ofSeconds(15))
             .build();
 
-    private final ExecutorService asyncExecutor = Executors.newFixedThreadPool(2, r -> {
+    private final Set<Long> inFlightVersions = ConcurrentHashMap.newKeySet();
+
+    // Hàng đợi tuần tự 1 luồng giúp tránh gọi dồn dập vượt hạn mức RPM của Gemini 2.5 Flash TTS khi Admin duyệt nhiều bài liên tiếp
+    private final ExecutorService asyncExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "reading-tts-worker");
         t.setDaemon(true);
         return t;
@@ -102,15 +106,34 @@ public class ReadingTtsService {
      * @param force         true = sinh lại toàn bộ câu; false = bỏ qua câu đã có audioUrl
      */
     public AudioGenerationResultDto generateAudioForVersion(Long versionId, String voiceOverride, boolean force) {
+        if (!inFlightVersions.add(versionId)) {
+            throw new IllegalStateException("Phiên bản bài đọc id=" + versionId + " đang được tạo audio ở tiến trình khác");
+        }
+        try {
+            return doGenerateAudioForVersion(versionId, voiceOverride, force);
+        } finally {
+            inFlightVersions.remove(versionId);
+        }
+    }
+
+    private AudioGenerationResultDto doGenerateAudioForVersion(Long versionId, String voiceOverride, boolean force) {
         VersionAudioRow version = repository.findVersionForAudio(versionId);
         String voice = resolveVoice(voiceOverride, version.voiceName());
         boolean voiceChanged = voiceOverride != null && !voiceOverride.isBlank() && !voice.equals(version.voiceName());
         boolean regenerateAll = force || voiceChanged;
 
         List<SentenceDto> sentences = new ArrayList<>(version.sentences());
+        if (regenerateAll) {
+            // Xóa audio cũ trước khi sinh lại để tránh trộn lẫn 2 giọng khi gặp lỗi cục bộ
+            for (SentenceDto s : sentences) {
+                s.setAudioUrl(null);
+                s.setDurationMs(null);
+            }
+        }
         int readyCount = 0;
         int failedCount = 0;
         long totalDurationMs = 0;
+        long cacheBuster = System.currentTimeMillis();
 
         for (int i = 0; i < sentences.size(); i++) {
             SentenceDto s = sentences.get(i);
@@ -126,11 +149,23 @@ public class ReadingTtsService {
                 SynthesizedAudio audio = synthesizeSentenceAudio(s.getText(), voice);
                 String storagePath = buildStoragePath(version.articleId(), version.jlptLevel(), idx);
                 String publicUrl = storageService.uploadPublicFile(audioBucket, storagePath, audio.wavBytes(), "audio/wav");
+                if (regenerateAll && publicUrl != null && !publicUrl.isBlank()) {
+                    publicUrl = publicUrl + (publicUrl.contains("?") ? "&" : "?") + "v=" + cacheBuster;
+                }
 
                 s.setAudioUrl(publicUrl);
                 s.setDurationMs(audio.durationMs());
                 readyCount++;
                 totalDurationMs += audio.durationMs();
+                // Giãn nhịp nhẹ giữa các câu để tránh bị Gemini TTS trả 429 rate limit
+                if (i + 1 < sentences.size()) {
+                    try {
+                        Thread.sleep(1200L);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
             } catch (Exception e) {
                 failedCount++;
                 log.warn("TTS thất bại cho versionId={} sentence idx={}: {}", versionId, idx, e.getMessage());
@@ -183,12 +218,14 @@ public class ReadingTtsService {
         String payloadJson = objectMapper.writeValueAsString(body);
         String lastError = "unknown";
 
-        for (int attempt = 1; attempt <= 2; attempt++) {
+        for (int attempt = 1; attempt <= 4; attempt++) {
+            boolean sawRateLimit = false;
             for (String key : keys) {
                 try {
-                    String url = String.format(GEMINI_TTS_URL_TEMPLATE, ttsModel, key);
+                    String url = String.format(GEMINI_TTS_URL_TEMPLATE, ttsModel);
                     HttpRequest request = HttpRequest.newBuilder(URI.create(url))
                             .header("Content-Type", "application/json; charset=utf-8")
+                            .header("x-goog-api-key", key)
                             .timeout(Duration.ofSeconds(45))
                             .POST(HttpRequest.BodyPublishers.ofString(payloadJson, StandardCharsets.UTF_8))
                             .build();
@@ -196,6 +233,9 @@ public class ReadingTtsService {
                     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
                     if (response.statusCode() == 200) {
                         return extractAudioFromGeminiResponse(response.body());
+                    }
+                    if (response.statusCode() == 429) {
+                        sawRateLimit = true;
                     }
                     lastError = "HTTP " + response.statusCode();
                     log.warn("Gemini TTS [voice={}, attempt={}] trả về HTTP {}", voiceName, attempt, response.statusCode());
@@ -207,9 +247,10 @@ public class ReadingTtsService {
                     log.warn("Gemini TTS lỗi [voice={}, attempt={}]: {}", voiceName, attempt, e.getMessage());
                 }
             }
-            if (attempt < 2) {
+            if (attempt < 4) {
+                long backoffMs = sawRateLimit ? (6000L * attempt) : (2000L * attempt);
                 try {
-                    Thread.sleep(1500L * attempt);
+                    Thread.sleep(backoffMs);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     throw new IOException("Bị gián đoạn khi backoff Gemini TTS", ie);

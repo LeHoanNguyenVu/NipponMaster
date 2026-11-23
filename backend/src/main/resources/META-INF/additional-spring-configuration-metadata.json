@@ -153,6 +153,18 @@
       "type": "java.lang.String",
       "defaultValue": "gemini-2.5-flash-preview-tts",
       "description": "Model Gemini TTS sử dụng để sinh giọng đọc phát thanh viên Kore/Puck."
+    },
+    {
+      "name": "reading.retention.days",
+      "type": "java.lang.Integer",
+      "defaultValue": 7,
+      "description": "Số ngày lưu giữ bài báo trên trang Luyện Đọc trước khi tự ẩn/xóa (mặc định 7 ngày)."
+    },
+    {
+      "name": "reading.retention.cleanup-enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Bật/tắt tác vụ tự dọn bài báo cũ quá hạn lưu trữ hằng ngày."
     }
   ]
 }

@@ -16,9 +16,16 @@ import org.springframework.stereotype.Component;
 public class ReadingIngestJob {
 
     private final ReadingIngestService ingestService;
+    private final ReadingArticleRepository repository;
 
     @Value("${reading.ingest.enabled:false}")
     private boolean ingestEnabled;
+
+    @Value("${reading.retention.days:7}")
+    private int retentionDays;
+
+    @Value("${reading.retention.cleanup-enabled:true}")
+    private boolean cleanupEnabled;
 
     @Scheduled(cron = "${reading.ingest.cron:0 0 6 * * *}")
     public void runDailyIngest() {
@@ -27,5 +34,19 @@ public class ReadingIngestJob {
         }
         log.info("Bắt đầu job ingest bài đọc định kỳ hằng ngày...");
         ingestService.runIngest(null, null);
+    }
+
+    /**
+     * Dọn các bài báo cũ quá 7 ngày vào 03:30 sáng hằng ngày để trang báo luôn giữ tin mới nhất.
+     */
+    @Scheduled(cron = "0 30 3 * * *", zone = "Asia/Ho_Chi_Minh")
+    public void cleanupExpiredArticles() {
+        if (!cleanupEnabled) {
+            return;
+        }
+        int deleted = repository.deleteExpiredArticles(retentionDays);
+        if (deleted > 0) {
+            log.info("Đã tự động dọn {} bài báo cũ quá {} ngày.", deleted, retentionDays);
+        }
     }
 }

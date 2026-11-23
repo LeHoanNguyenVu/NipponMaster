@@ -170,8 +170,8 @@ public class FastGeminiTranslator {
 
     private HttpRequest buildRequest(String model, String method, String text, String src, String tgt)
             throws Exception {
-        String url = apiBaseUrl + model + ":" + method + "?key=" + getPrimaryApiKey()
-                + ("streamGenerateContent".equals(method) ? "&alt=sse" : "");
+        String url = apiBaseUrl + model + ":" + method
+                + ("streamGenerateContent".equals(method) ? "?alt=sse" : "");
 
         // Chỉ các model dòng Gemini 3 mới dùng thinkingLevel; Gemini 2.5 /
         // flash-lite-latest dùng thinkingBudget: 0
@@ -189,6 +189,7 @@ public class FastGeminiTranslator {
 
         return HttpRequest.newBuilder(URI.create(url))
                 .header("Content-Type", "application/json; charset=utf-8")
+                .header("x-goog-api-key", getPrimaryApiKey())
                 .timeout(Duration.ofSeconds(10))
                 .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body), StandardCharsets.UTF_8))
                 .build();

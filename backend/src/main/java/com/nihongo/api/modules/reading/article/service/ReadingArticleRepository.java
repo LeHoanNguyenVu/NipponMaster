@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nihongo.api.common.exception.ResourceNotFoundException;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,9 @@ public class ReadingArticleRepository {
 
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
+
+    @Value("${reading.retention.days:7}")
+    private int retentionDays = 7;
 
     public boolean existsBySourceUrl(String sourceUrl) {
         Integer cnt = jdbc.queryForObject(
@@ -139,7 +143,9 @@ public class ReadingArticleRepository {
 
         StringBuilder sql = new StringBuilder("""
                 SELECT a.id, a.source_name, a.source_license, a.source_url, a.source_title,
-                       a.source_published_at, a.category, a.facts::text AS facts_json, a.status, a.created_at, a.published_at
+                       a.source_published_at, a.category, a.facts::text AS facts_json, a.status,
+                       a.cover_image_url, a.cover_image_credit, a.cover_image_source,
+                       a.created_at, a.published_at
                 FROM reading_articles a
                 WHERE 1=1
                 """);
@@ -200,7 +206,7 @@ public class ReadingArticleRepository {
         int updated;
         if ("PUBLISHED".equals(normalized)) {
             updated = jdbc.update(
-                    "UPDATE reading_articles SET status = 'PUBLISHED', published_at = NOW() WHERE id = ?",
+                    "UPDATE reading_articles SET status = 'PUBLISHED', published_at = COALESCE(published_at, NOW()) WHERE id = ?",
                     articleId
             );
         } else if ("REJECTED".equals(normalized)) {
@@ -222,7 +228,9 @@ public class ReadingArticleRepository {
     public AdminArticleSummaryDto findAdminArticleById(Long articleId) {
         List<AdminArticleSummaryDto> list = jdbc.query("""
                 SELECT id, source_name, source_license, source_url, source_title,
-                       source_published_at, category, facts::text AS facts_json, status, created_at, published_at
+                       source_published_at, category, facts::text AS facts_json, status,
+                       cover_image_url, cover_image_credit, cover_image_source,
+                       created_at, published_at
                 FROM reading_articles
                 WHERE id = ?
                 """, (rs, i) -> mapArticleRow(rs), articleId);
@@ -352,11 +360,44 @@ public class ReadingArticleRepository {
         );
     }
 
+    public void updateArticleCoverImage(Long articleId, String coverImageUrl, String coverImageCredit, String coverImageSource) {
+        int updated = jdbc.update("""
+                UPDATE reading_articles
+                SET cover_image_url = ?, cover_image_credit = ?, cover_image_source = ?
+                WHERE id = ?
+                """,
+                coverImageUrl,
+                coverImageCredit,
+                coverImageSource,
+                articleId
+        );
+        if (updated == 0) {
+            throw new ResourceNotFoundException("Không tìm thấy bài đọc id=" + articleId);
+        }
+    }
+
+    public List<Long> findArticleIdsWithoutCoverImage(int limit) {
+        int safeLimit = Math.max(1, Math.min(limit, 50));
+        return jdbc.queryForList("""
+                SELECT id FROM reading_articles
+                WHERE (cover_image_url IS NULL OR BTRIM(cover_image_url) = '')
+                  AND status IN ('PUBLISHED', 'REVIEW')
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                Long.class,
+                safeLimit
+        );
+    }
+
     // --- Public Student Queries (CHỈ trả bài PUBLISHED, KHÔNG trả source_title) ---
 
     public ReadingArticleListResponse findPublishedArticles(Long userId, String level, String category, int page, int size) {
-        StringBuilder where = new StringBuilder(" WHERE a.status = 'PUBLISHED' ");
+        StringBuilder where = new StringBuilder(
+                " WHERE a.status = 'PUBLISHED' AND COALESCE(a.published_at, a.created_at) >= NOW() - make_interval(days => ?) "
+        );
         List<Object> filterParams = new ArrayList<>();
+        filterParams.add(Math.max(1, retentionDays));
         if (level != null && !level.isBlank()) {
             where.append(" AND v.jlpt_level = ? ");
             filterParams.add(level);
@@ -377,12 +418,12 @@ public class ReadingArticleRepository {
         queryParams.add(userId != null ? userId : -1L);
         queryParams.addAll(filterParams);
         queryParams.add(size);
-        queryParams.add(page * size);
+        queryParams.add((long) page * size);
 
         List<ReadingArticleCardDto> items = jdbc.query("""
                 SELECT v.id AS version_id, v.article_id, v.jlpt_level, v.computed_level, a.category,
                        v.title_ja, v.title_vi, v.char_count, v.voice_name, v.audio_status,
-                       a.source_name, a.source_license, a.published_at,
+                       a.source_name, a.source_license, a.cover_image_url, a.cover_image_credit, a.published_at,
                        (urp.version_id IS NOT NULL) AS completed
                 FROM reading_article_versions v
                 JOIN reading_articles a ON v.article_id = a.id
@@ -407,6 +448,8 @@ public class ReadingArticleRepository {
                             .audioStatus(rs.getString("audio_status"))
                             .sourceName(rs.getString("source_name"))
                             .sourceLicense(rs.getString("source_license"))
+                            .coverImageUrl(rs.getString("cover_image_url"))
+                            .coverImageCredit(rs.getString("cover_image_credit"))
                             .publishedAt(toOffset(rs.getTimestamp("published_at")))
                             .completed(rs.getBoolean("completed"))
                             .build();
@@ -425,17 +468,36 @@ public class ReadingArticleRepository {
     }
 
     public ReadingVersionDetailDto findPublishedVersionDetail(Long versionId, Long userId) {
+        return findVersionDetailInternal(versionId, userId, true);
+    }
+
+    /**
+     * Xem trước chi tiết phiên bản bài đọc dành riêng cho Admin (xem được cả bài REVIEW/REJECTED trước khi duyệt).
+     */
+    public ReadingVersionDetailDto findVersionDetailForAdmin(Long versionId) {
+        return findVersionDetailInternal(versionId, -1L, false);
+    }
+
+    private ReadingVersionDetailDto findVersionDetailInternal(Long versionId, Long userId, boolean publishedOnly) {
+        String statusClause = publishedOnly
+                ? " AND a.status = 'PUBLISHED' AND COALESCE(a.published_at, a.created_at) >= NOW() - make_interval(days => ?) "
+                : "";
+        List<Object> args = new ArrayList<>();
+        args.add(userId != null ? userId : -1L);
+        args.add(versionId);
+        if (publishedOnly) {
+            args.add(Math.max(1, retentionDays));
+        }
         List<ReadingVersionDetailDto> list = jdbc.query("""
                 SELECT v.id AS version_id, v.article_id, v.jlpt_level, v.computed_level, a.category,
                        v.title_ja, v.title_vi, v.char_count, v.voice_name, v.audio_status,
-                       a.source_name, a.source_license, a.source_url, a.published_at,
+                       a.source_name, a.source_license, a.source_url, a.cover_image_url, a.cover_image_credit, a.published_at,
                        v.sentences::text AS sentences_json, v.key_vocab::text AS kv_json,
                        (urp.version_id IS NOT NULL) AS completed
                 FROM reading_article_versions v
                 JOIN reading_articles a ON v.article_id = a.id
                 LEFT JOIN user_reading_progress urp ON urp.version_id = v.id AND urp.user_id = ?
-                WHERE v.id = ? AND a.status = 'PUBLISHED'
-                """,
+                WHERE v.id = ? """ + statusClause,
                 (rs, i) -> {
                     int chars = rs.getInt("char_count");
                     return ReadingVersionDetailDto.builder()
@@ -453,14 +515,15 @@ public class ReadingArticleRepository {
                             .sourceName(rs.getString("source_name"))
                             .sourceLicense(rs.getString("source_license"))
                             .sourceUrl(rs.getString("source_url"))
+                            .coverImageUrl(rs.getString("cover_image_url"))
+                            .coverImageCredit(rs.getString("cover_image_credit"))
                             .publishedAt(toOffset(rs.getTimestamp("published_at")))
                             .sentences(fromJsonSentences(rs.getString("sentences_json")))
                             .keyVocab(fromJsonKeyVocab(rs.getString("kv_json")))
                             .completed(rs.getBoolean("completed"))
                             .build();
                 },
-                userId != null ? userId : -1L,
-                versionId
+                args.toArray()
         );
 
         if (list.isEmpty()) {
@@ -512,12 +575,102 @@ public class ReadingArticleRepository {
                 """,
                 userId, versionId, safeSecs
         );
-        Integer total = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM user_reading_progress WHERE user_id = ?",
-                Integer.class,
-                userId
+        return (int) countCompletedByUser(userId);
+    }
+
+    public long countCompletedByUser(Long userId) {
+        if (userId == null) return 0L;
+        Long cnt = jdbc.queryForObject("""
+                SELECT COUNT(1)
+                FROM user_reading_progress urp
+                JOIN reading_article_versions v ON v.id = urp.version_id
+                JOIN reading_articles a ON a.id = v.article_id
+                WHERE urp.user_id = ?
+                  AND a.status = 'PUBLISHED'
+                  AND COALESCE(a.published_at, a.created_at) >= NOW() - make_interval(days => ?)
+                """,
+                Long.class,
+                userId,
+                Math.max(1, retentionDays)
         );
-        return total != null ? total : 0;
+        return cnt != null ? cnt : 0L;
+    }
+
+    public long countPublishedVersions() {
+        Long cnt = jdbc.queryForObject("""
+                SELECT COUNT(1)
+                FROM reading_article_versions v
+                JOIN reading_articles a ON a.id = v.article_id
+                WHERE a.status = 'PUBLISHED'
+                  AND COALESCE(a.published_at, a.created_at) >= NOW() - make_interval(days => ?)
+                """,
+                Long.class,
+                Math.max(1, retentionDays)
+        );
+        return cnt != null ? cnt : 0L;
+    }
+
+    /**
+     * Xóa các bài báo cũ quá số ngày lưu trữ (mặc định 7 ngày) để trang báo luôn giữ tin tức mới.
+     * shortcut: file WAV cũ trên Supabase Storage sẽ dọn bằng lifecycle policy bucket thay vì gọi delete từng file.
+     */
+    public int deleteExpiredArticles(int days) {
+        int safeDays = Math.max(1, days);
+        return jdbc.update("""
+                DELETE FROM reading_articles
+                WHERE COALESCE(published_at, created_at) < NOW() - make_interval(days => ?)
+                """,
+                safeDays
+        );
+    }
+
+    /**
+     * Tìm bài đọc gợi ý hôm nay: bài PUBLISHED mới nhất (trong vòng 7 ngày) đúng level học viên mà chưa đọc.
+     */
+    public ReadingArticleCardDto findRecommendedUnreadForUser(Long userId, String preferredLevel) {
+        Long safeUserId = userId != null ? userId : -1L;
+        String normLevel = preferredLevel != null ? preferredLevel.trim().toUpperCase(Locale.ROOT) : "";
+        List<ReadingArticleCardDto> rows = jdbc.query("""
+                SELECT v.id AS version_id, v.article_id, v.jlpt_level, v.computed_level, a.category,
+                       v.title_ja, v.title_vi, v.char_count, v.voice_name, v.audio_status,
+                       a.source_name, a.source_license, a.cover_image_url, a.cover_image_credit, a.published_at,
+                       FALSE AS completed
+                FROM reading_article_versions v
+                JOIN reading_articles a ON v.article_id = a.id
+                LEFT JOIN user_reading_progress urp ON urp.version_id = v.id AND urp.user_id = ?
+                WHERE a.status = 'PUBLISHED'
+                  AND COALESCE(a.published_at, a.created_at) >= NOW() - make_interval(days => ?)
+                  AND urp.version_id IS NULL
+                ORDER BY (CASE WHEN v.jlpt_level = ? THEN 0 ELSE 1 END) ASC,
+                         a.published_at DESC NULLS LAST,
+                         v.id DESC
+                LIMIT 1
+                """,
+                (rs, i) -> {
+                    int chars = rs.getInt("char_count");
+                    return ReadingArticleCardDto.builder()
+                            .versionId(rs.getLong("version_id"))
+                            .articleId(rs.getLong("article_id"))
+                            .jlptLevel(rs.getString("jlpt_level"))
+                            .computedLevel(rs.getString("computed_level"))
+                            .category(rs.getString("category"))
+                            .titleJa(rs.getString("title_ja"))
+                            .titleVi(rs.getString("title_vi"))
+                            .charCount(chars)
+                            .estimatedMinutes(Math.max(1, (int) Math.ceil(chars / 180.0)))
+                            .voiceName(rs.getString("voice_name"))
+                            .audioStatus(rs.getString("audio_status"))
+                            .sourceName(rs.getString("source_name"))
+                            .sourceLicense(rs.getString("source_license"))
+                            .coverImageUrl(rs.getString("cover_image_url"))
+                            .coverImageCredit(rs.getString("cover_image_credit"))
+                            .publishedAt(toOffset(rs.getTimestamp("published_at")))
+                            .completed(false)
+                            .build();
+                },
+                safeUserId, Math.max(1, retentionDays), normLevel
+        );
+        return rows.isEmpty() ? null : rows.get(0);
     }
 
     private AdminArticleSummaryDto mapArticleRow(java.sql.ResultSet rs) throws java.sql.SQLException {
@@ -531,6 +684,9 @@ public class ReadingArticleRepository {
                 .category(rs.getString("category"))
                 .facts(fromJsonList(rs.getString("facts_json")))
                 .status(rs.getString("status"))
+                .coverImageUrl(rs.getString("cover_image_url"))
+                .coverImageCredit(rs.getString("cover_image_credit"))
+                .coverImageSource(rs.getString("cover_image_source"))
                 .createdAt(toOffset(rs.getTimestamp("created_at")))
                 .publishedAt(toOffset(rs.getTimestamp("published_at")))
                 .build();

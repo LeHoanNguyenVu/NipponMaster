@@ -129,6 +129,9 @@ public final class ReadingArticleDtos {
         private String category;
         private List<String> facts;
         private String status;
+        private String coverImageUrl;
+        private String coverImageCredit;
+        private String coverImageSource;
         private OffsetDateTime createdAt;
         private OffsetDateTime publishedAt;
         private List<AdminVersionSummaryDto> versions;
@@ -183,6 +186,8 @@ public final class ReadingArticleDtos {
         private String audioStatus;
         private String sourceName;
         private String sourceLicense;
+        private String coverImageUrl;
+        private String coverImageCredit;
         private OffsetDateTime publishedAt;
         private boolean completed;
     }
@@ -229,6 +234,8 @@ public final class ReadingArticleDtos {
         private String sourceName;
         private String sourceLicense;
         private String sourceUrl;
+        private String coverImageUrl;
+        private String coverImageCredit;
         private OffsetDateTime publishedAt;
         private List<SentenceDto> sentences;
         private List<KeyVocabDto> keyVocab;
@@ -241,6 +248,14 @@ public final class ReadingArticleDtos {
     @AllArgsConstructor
     public static class CompleteReadingRequest {
         private Integer readingSeconds;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateCoverImageRequest {
+        private String coverImageUrl;
+        private String coverImageCredit;
     }
 
     @Data

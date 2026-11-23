@@ -21,6 +21,7 @@ public class ReadingArticleService {
             "SOCIETY", "LIFE", "ECONOMY", "SCI_TECH", "SPORTS", "CULTURE", "WEATHER"
     );
     private static final int MAX_PAGE_SIZE = 50;
+    private static final int MAX_PAGE_NUMBER = 10_000;
 
     private final ReadingArticleRepository repository;
 
@@ -31,8 +32,8 @@ public class ReadingArticleService {
             int page,
             int size
     ) {
-        if (page < 0) {
-            throw new BusinessException("Tham số page phải >= 0");
+        if (page < 0 || page > MAX_PAGE_NUMBER) {
+            throw new BusinessException("Tham số page phải nằm trong khoảng 0.." + MAX_PAGE_NUMBER);
         }
         if (size < 1 || size > MAX_PAGE_SIZE) {
             throw new BusinessException("Tham số size phải nằm trong khoảng 1.." + MAX_PAGE_SIZE);
@@ -59,6 +60,17 @@ public class ReadingArticleService {
 
     public ReadingVersionDetailDto getPublishedVersion(Long versionId, Long userId) {
         return repository.findPublishedVersionDetail(versionId, userId);
+    }
+
+    public ReadingArticleCardDto getRecommendedArticle(Long userId, String level) {
+        String normalizedLevel = null;
+        if (level != null && !level.isBlank()) {
+            String candidate = level.trim().toUpperCase(Locale.ROOT);
+            if (VALID_LEVELS.contains(candidate)) {
+                normalizedLevel = candidate;
+            }
+        }
+        return repository.findRecommendedUnreadForUser(userId, normalizedLevel);
     }
 
     public CompleteReadingResponse completeVersion(Long versionId, Long userId, Integer readingSeconds) {

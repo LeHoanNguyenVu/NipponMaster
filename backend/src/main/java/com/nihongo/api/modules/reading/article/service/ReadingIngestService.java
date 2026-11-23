@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Pipeline Ingest bài đọc:
@@ -32,8 +33,10 @@ public class ReadingIngestService {
     private final CopyrightGuardService copyrightGuard;
     private final JlptLevelClassifier levelClassifier;
     private final ReadingArticleRepository repository;
+    private final ReadingCoverImageService coverImageService;
 
     private final SecureRandom random = new SecureRandom();
+    private final AtomicBoolean ingestRunning = new AtomicBoolean(false);
 
     @Value("${reading.ingest.max-events-per-run:5}")
     private int defaultMaxEvents = 5;
@@ -45,6 +48,19 @@ public class ReadingIngestService {
     private boolean llmSecondOpinionEnabled = true;
 
     public IngestReportDto runIngest(Integer maxEventsOverride, String sourceFilter) {
+        if (!ingestRunning.compareAndSet(false, true)) {
+            return IngestReportDto.builder()
+                    .errors(List.of("Pipeline ingest đang chạy ở tiến trình khác, vui lòng thử lại sau."))
+                    .build();
+        }
+        try {
+            return executeIngest(maxEventsOverride, sourceFilter);
+        } finally {
+            ingestRunning.set(false);
+        }
+    }
+
+    private IngestReportDto executeIngest(Integer maxEventsOverride, String sourceFilter) {
         int maxEvents = maxEventsOverride != null
                 ? Math.max(1, Math.min(maxEventsOverride, MAX_EVENTS_HARD_CAP))
                 : Math.max(1, Math.min(defaultMaxEvents, MAX_EVENTS_HARD_CAP));
@@ -117,7 +133,7 @@ public class ReadingIngestService {
             return 0;
         }
 
-        repository.saveArticleWithVersions(
+        Long articleId = repository.saveArticleWithVersions(
                 item.sourceCode(),
                 item.sourceLicense(),
                 item.link(),
@@ -127,6 +143,7 @@ public class ReadingIngestService {
                 extracted.getFacts(),
                 prepared
         );
+        coverImageService.generateAndSaveSilently(articleId, extracted.getCategory(), extracted.getFacts());
         return prepared.size();
     }
 
@@ -141,16 +158,17 @@ public class ReadingIngestService {
         // Vòng lặp "viết – kiểm tra bản quyền – chấm cấp độ – viết lại" (tối đa 3 lượt: 1 gốc + 2 lần viết lại)
         for (int attempt = 1; attempt <= 3; attempt++) {
             GeneratedArticleDto generated = contentGenerator.generateArticleForLevel(facts, targetLevel, feedback);
-            String fullJaText = joinSentenceTexts(generated.getSentences());
+            String titleJa = generated.getTitleJa() != null ? generated.getTitleJa() : "";
+            String fullJaText = titleJa + " " + joinSentenceTexts(generated.getSentences());
             CopyrightCheckResult copyCheck = copyrightGuard.evaluate(fullJaText, rawRss);
 
             if (!copyCheck.passed()) {
-                log.warn("Phiên bản [{}] vượt ngưỡng trùng lặp 8-gram ({}% >= {}%), thử viết lại lần {}",
+                log.warn("Phiên bản [{}] vượt ngưỡng bản quyền (8-gram={}%, lcs={}), thử viết lại lần {}",
                         targetLevel,
                         String.format("%.1f", copyCheck.ngramOverlap8() * 100.0),
-                        String.format("%.1f", copyCheck.threshold() * 100.0),
+                        copyCheck.longestCommonSubstring(),
                         attempt);
-                feedback = "Bản nháp trước còn diễn đạt hơi gần tin gốc. Hãy viết lại hoàn toàn bằng cấu trúc câu và cách diễn đạt mới tự nhiên hơn.";
+                feedback = "Bản nháp trước còn diễn đạt hơi gần tin gốc (kể cả tiêu đề). Hãy viết lại hoàn toàn bằng cấu trúc câu và cách diễn đạt mới tự nhiên hơn.";
                 continue;
             }
 
@@ -164,30 +182,42 @@ public class ReadingIngestService {
                     generated.getSentences(), generated.getKeyVocab(), targetLevel, null
             );
 
-            lastPassedCopyArticle = generated;
-            lastPassedCopyCheck = copyCheck;
-            lastClassification = classification;
+            // Chỉ cập nhật bản lưu tốt nhất (ưu tiên gần targetRank nhất và không vượt cấp)
+            if (isBetterDraft(classification, lastClassification, targetRank)) {
+                lastPassedCopyArticle = generated;
+                lastPassedCopyCheck = copyCheck;
+                lastClassification = classification;
+            }
 
             boolean tooHard = targetRank > 0 && classification.computedRank() > targetRank;
-            boolean tooFar = targetRank > 0 && Math.abs(classification.computedRank() - targetRank) > 1;
-            if (!tooHard && !tooFar) {
+            boolean tooEasy = targetRank > 0 && (targetRank - classification.computedRank()) > 1;
+            if (!tooHard && !tooEasy) {
                 break;
             }
 
             if (attempt < 3) {
-                List<String> problemWords = new ArrayList<>();
-                problemWords.addAll(classification.harderThanTargetWords());
-                for (String oov : classification.outOfListWords()) {
-                    if (!problemWords.contains(oov)) problemWords.add(oov);
+                if (tooHard) {
+                    List<String> problemWords = new ArrayList<>();
+                    problemWords.addAll(classification.harderThanTargetWords());
+                    for (String oov : classification.outOfListWords()) {
+                        if (!problemWords.contains(oov)) problemWords.add(oov);
+                    }
+                    List<String> sampleWords = problemWords.size() > 12 ? problemWords.subList(0, 12) : problemWords;
+                    log.info("Phiên bản [{}] bị chấm lệch cấp ({} vs mục tiêu {}), gửi yêu cầu viết lại lần {} (từ vượt cấp: {})",
+                            targetLevel, classification.computedLevel(), targetLevel, attempt, sampleWords);
+                    feedback = "Bản nháp trước bị chấm ở mức " + classification.computedLevel()
+                            + " (khó hơn mục tiêu " + targetLevel + "). "
+                            + "Hãy thay thế các từ/Kanji vượt cấp sau bằng từ đơn giản hơn phù hợp " + targetLevel
+                            + " (hoặc đưa từ thời sự bắt buộc vào keyVocab): " + String.join("、", sampleWords)
+                            + ". Giữ câu ngắn gọn đúng độ dài chuẩn " + targetLevel + ".";
+                } else {
+                    log.info("Phiên bản [{}] bị chấm quá dễ ({} vs mục tiêu {}), gửi yêu cầu nâng văn phong lần {}",
+                            targetLevel, classification.computedLevel(), targetLevel, attempt);
+                    feedback = "Bản nháp trước bị chấm ở mức " + classification.computedLevel()
+                            + " (dễ hơn mục tiêu " + targetLevel + "). "
+                            + "Hãy nâng cấp văn phong báo chí, từ vựng và cấu trúc ngữ pháp trang trọng hơn cho sát chuẩn "
+                            + targetLevel + ".";
                 }
-                List<String> sampleWords = problemWords.size() > 12 ? problemWords.subList(0, 12) : problemWords;
-                log.info("Phiên bản [{}] bị chấm lệch cấp ({} vs mục tiêu {}), gửi yêu cầu viết lại lần {} (từ vượt cấp: {})",
-                        targetLevel, classification.computedLevel(), targetLevel, attempt, sampleWords);
-                feedback = "Bản nháp trước bị chấm ở mức " + classification.computedLevel()
-                        + " (khó hơn mục tiêu " + targetLevel + "). "
-                        + "Hãy thay thế các từ/Kanji vượt cấp sau bằng từ đơn giản hơn phù hợp " + targetLevel
-                        + " (hoặc đưa từ thời sự bắt buộc vào keyVocab): " + String.join("、", sampleWords)
-                        + ". Giữ câu ngắn gọn đúng độ dài chuẩn " + targetLevel + ".";
             }
         }
 
@@ -231,6 +261,15 @@ public class ReadingIngestService {
                 metrics,
                 voiceName
         );
+    }
+
+    private boolean isBetterDraft(ClassificationResult candidate, ClassificationResult currentBest, int targetRank) {
+        if (currentBest == null) return true;
+        if (targetRank <= 0) return true;
+        int candDist = Math.abs(candidate.computedRank() - targetRank);
+        int bestDist = Math.abs(currentBest.computedRank() - targetRank);
+        if (candDist != bestDist) return candDist < bestDist;
+        return candidate.computedRank() <= targetRank && currentBest.computedRank() > targetRank;
     }
 
     private String joinSentenceTexts(List<SentenceDto> sentences) {

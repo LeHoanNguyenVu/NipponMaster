@@ -3,12 +3,13 @@ package com.nihongo.api.modules.reading.article.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.text.Normalizer;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Cổng kiểm tra chống sao chép văn bản (Originality Gate).
- * Đo tỉ lệ trùng lặp ký tự 8-gram và độ dài chuỗi con chung dài nhất giữa bài sinh ra với dữ liệu RSS gốc.
+ * Đo tỉ lệ trùng lặp ký tự 8-gram và độ dài chuỗi con chung dài nhất (LCS) giữa bài sinh ra với dữ liệu RSS gốc.
  */
 @Component
 public class CopyrightGuardService {
@@ -18,10 +19,13 @@ public class CopyrightGuardService {
     @Value("${reading.copyright.max-8gram-overlap:0.10}")
     private double maxAllowedOverlap = 0.10;
 
+    @Value("${reading.copyright.max-lcs:18}")
+    private int maxAllowedLcs = 18;
+
     public CopyrightCheckResult evaluate(String generatedJaText, String originalRssRaw) {
         double overlap = calculateCharNGramOverlap(generatedJaText, originalRssRaw, DEFAULT_NGRAM);
         int lcs = calculateLongestCommonSubstring(generatedJaText, originalRssRaw);
-        boolean passed = overlap < maxAllowedOverlap;
+        boolean passed = overlap < maxAllowedOverlap && lcs < maxAllowedLcs;
         return new CopyrightCheckResult(passed, overlap, lcs, maxAllowedOverlap);
     }
 
@@ -72,7 +76,8 @@ public class CopyrightGuardService {
 
     private String normalize(String input) {
         if (input == null) return "";
-        return input.replaceAll("[\\s\\u3000。、！？「」『』（）()・….,:;!?\"'\\-]", "");
+        String nfkc = Normalizer.normalize(input, Normalizer.Form.NFKC);
+        return nfkc.replaceAll("[\\s\\u3000。、！？「」『』（）()・….,:;!?\"'\\-]", "");
     }
 
     public record CopyrightCheckResult(

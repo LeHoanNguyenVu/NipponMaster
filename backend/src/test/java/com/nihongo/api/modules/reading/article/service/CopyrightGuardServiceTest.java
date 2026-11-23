@@ -31,4 +31,17 @@ class CopyrightGuardServiceTest {
         assertTrue(res.passed());
         assertTrue(res.ngramOverlap8() < 0.10);
     }
+
+    @Test
+    void evaluate_verbatimLongSentenceInsideLongerArticle_isRejectedByLcs() {
+        String source = "東京都内の鉄道会社は20日、消費電力を従来より20％削減できる新型電車の運行を始めました。";
+        String padded = "これはまったく別の長い導入文です。日本の交通はとても便利で、毎日たくさんの人が電車を使って学校や会社へ行きます。"
+                + "しかし最近のニュースによると、東京都内の鉄道会社は20日、消費電力を従来より20％削減できる新型電車の運行を始めました。"
+                + "これからも環境にやさしい技術が増えていくと考えられます。";
+
+        CopyrightCheckResult res = guard.evaluate(padded, source);
+
+        assertFalse(res.passed(), "Verbatim 25+ char substring must be blocked by LCS cap");
+        assertTrue(res.longestCommonSubstring() >= 18);
+    }
 }

@@ -27,7 +27,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ReadingContentGenerator {
 
-    private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s";
+    private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent";
     private static final Set<String> VALID_CATEGORIES = Set.of(
             "SOCIETY", "LIFE", "ECONOMY", "SCI_TECH", "SPORTS", "CULTURE", "WEATHER"
     );
@@ -208,32 +208,32 @@ public class ReadingContentGenerator {
     private String buildGenerateArticlePrompt(List<String> facts, String targetLevel, String extraFeedback) {
         String levelRules = switch (targetLevel.toUpperCase(Locale.ROOT)) {
             case "N5" -> """
-                    - Văn phong: です・ます体 đơn giản, dễ hiểu cho người mới học.
-                    - Độ dài: 5-6 câu ngắn, mỗi câu 12-20 ký tự.
-                    - Kanji: CHỈ dùng Kanji JLPT N5 cơ bản (như 日, 本, 人, 年, 月, 円, 高, 安, 店, 食, 新, 大, 小, 今, 行, 見, 言, 話, 時, 間, 先...). Từ khó hơn viết bằng Hiragana hoặc Katakana quen thuộc. Không chèn dấu cách thừa trong câu.
-                    - Ngữ pháp: CHỈ dùng ngữ pháp N5 (は/が/を/に/で/へ/と/から/まで, ～ます/～ました/～ません, ～ています, tính từ い/な, ～から, ～が). Cấm bị động, sai khiến, kính ngữ.
+                    - Văn phong: です・ます体 đơn giản, dễ hiểu cho người mới học, nhưng PHẢI truyền tải ĐẦY ĐỦ 100% nội dung sự kiện.
+                    - Độ dài: 8-12 câu đơn giản (khoảng 180-280 ký tự), mỗi câu 16-26 ký tự. Với mỗi sự kiện phức tạp trong FACTS, hãy TÁCH THÀNH 2-3 CÂU ĐƠN NGẮN RÕ NGHĨA thay vì cắt bớt thông tin!
+                    - Từ vựng & Kanji: Dùng từ vựng và cách diễn đạt cơ bản N5, giải thích ngắn các khái niệm thời sự bằng lời dễ hiểu. Vẫn giữ đúng Kanji của danh từ/chủ đề cốt lõi của bản tin (hệ thống sẽ tự hiển thị Furigana bên trên Kanji). Không chèn dấu cách thừa trong câu.
+                    - Ngữ pháp: Ưu tiên ngữ pháp N5 (は/が/を/に/で/へ/と/から/まで, ～ます/～ました/～ません, ～ています, tính từ い/な, ～から, ～が, ～たいです). Tránh câu ghép nhiều mệnh đề, kính ngữ hay bị động phức tạp.
                     """;
             case "N4" -> """
-                    - Văn phong: です・ます体 rõ ràng.
-                    - Độ dài: 5-7 câu, mỗi câu 20-28 ký tự.
-                    - Kanji: Dùng Kanji N5-N4 phổ biến. Từ vượt cấp đưa vào keyVocab.
+                    - Văn phong: です・ます体 rõ ràng, truyền tải đầy đủ 100% sự kiện.
+                    - Độ dài: 8-11 câu (khoảng 220-320 ký tự), mỗi câu 20-30 ký tự.
+                    - Kanji: Dùng Kanji N5-N4 phổ biến kết hợp từ khóa sự kiện chính xác (đưa từ vượt cấp vào keyVocab).
                     - Ngữ pháp: Ngữ pháp N5-N4 (～と思います, ～ことができます, ～ために, ～てしまう, ～ようになる, bị động cơ bản).
                     """;
             case "N3" -> """
-                    - Văn phong: です・ます体 tự nhiên kiểu bài đọc tin tức phổ thông.
-                    - Độ dài: 6-8 câu, mỗi câu 25-36 ký tự.
+                    - Văn phong: です・ます体 tự nhiên kiểu bài báo phổ thông Nhật Bản, truyền tải đầy đủ 100% sự kiện.
+                    - Độ dài: 7-10 câu (khoảng 260-380 ký tự), mỗi câu 26-38 ký tự.
                     - Kanji: Dùng Kanji N5-N3. Từ thời sự/chuyên ngành vượt N3 bắt buộc liệt kê vào keyVocab.
                     - Ngữ pháp: Ngữ pháp N5-N3 (～によると, ～ため, ～によって, ～ように, 一方で, ～ことになる...).
                     """;
             case "N2" -> """
-                    - Văn phong: です・ます体 hoặc だ・である体 trang trọng kiểu báo phổ thông.
-                    - Độ dài: 6-8 câu, mỗi câu 35-48 ký tự.
+                    - Văn phong: です・ます体 hoặc だ・である体 trang trọng kiểu báo phổ thông, truyền tải đầy đủ 100% sự kiện.
+                    - Độ dài: 7-9 câu (khoảng 300-420 ký tự), mỗi câu 35-48 ký tự.
                     - Kanji & từ vựng: N5-N2 chuẩn mực.
                     - Ngữ pháp: Ngữ pháp N3-N2 (～に伴い, ～に対して, ～をもとに, ～つつある, ～をはじめ...).
                     """;
             default -> """
-                    - Văn phong: だ・である体 hoặc văn phong báo chí/xã luận trang trọng chuẩn Nhật (N1).
-                    - Độ dài: 6-8 câu giàu thông tin, mỗi câu 42-58 ký tự.
+                    - Văn phong: だ・である体 hoặc văn phong báo chí/xã luận trang trọng chuẩn Nhật (N1), truyền tải đầy đủ 100% sự kiện.
+                    - Độ dài: 7-9 câu giàu thông tin (khoảng 320-460 ký tự), mỗi câu 42-58 ký tự.
                     - Kanji & từ vựng: Hán từ báo chí N2-N1 tự nhiên.
                     - Ngữ pháp: Ngữ pháp N2-N1 (～に伴い, ～をめぐり, ～に至った, ～とされる, ～を踏まえ, ～を余儀なくされる...).
                     """;
@@ -258,8 +258,8 @@ public class ReadingContentGenerator {
                 %s
                 [QUY TẮC CHẤT LƯỢNG & PHÁP LÝ BẮT BUỘC]
                 1. Tiêu đề "titleJa" và toàn bộ nội dung "sentences" phải là câu văn nguyên bản của bạn, diễn đạt tự nhiên theo đúng cấp độ %s.
-                2. BẢO TOÀN SỰ THẬT: Giữ đúng tuyệt đối con số và mốc thời gian trong FACTS (ví dụ "năm ngoái" = 去年/きょねん, KHÔNG viết nhầm thành おととし). KHÔNG tự bịa thêm tên cơ quan/tổ chức không có trong FACTS.
-                3. Mọi câu trong "sentences" phải kết thúc bằng dấu 。 và có bản dịch tiếng Việt tự nhiên trong "translationVi".
+                2. BẢO TOÀN ĐẦY ĐỦ 100%% SỰ THẬT: Ở MỌI cấp độ (kể cả N5/N4), bài viết PHẢI nhắc tới và giải thích đầy đủ TẤT CẢ các sự kiện trong FACTS — TUYỆT ĐỐI KHÔNG cắt bớt ý chính hay viết chung chung làm người đọc không hiểu tin đang nói về việc gì. Giữ đúng tuyệt đối tên người, con số và mốc thời gian trong FACTS; KHÔNG tự bịa thêm chi tiết ngoài FACTS.
+                3. Mọi câu trong "sentences" phải kết thúc bằng dấu 。 và có bản dịch tiếng Việt tự nhiên, sát nghĩa trong "translationVi".
                 4. Liệt kê 4-8 từ khóa quan trọng hoặc từ thời sự trong "keyVocab" kèm cách đọc Hiragana và nghĩa tiếng Việt.
                 %s
                 """.formatted(targetLevel, factsBlock, targetLevel, levelRules, targetLevel, feedbackBlock);
@@ -315,6 +315,7 @@ public class ReadingContentGenerator {
                     genConfig.put("responseMimeType", "application/json");
                     genConfig.put("responseSchema", responseSchema);
                     genConfig.put("temperature", temperature);
+                    genConfig.put("maxOutputTokens", 2048);
                     genConfig.put("thinkingConfig", thinkingConfig);
 
                     Map<String, Object> body = Map.of(
@@ -322,9 +323,10 @@ public class ReadingContentGenerator {
                             "generationConfig", genConfig
                     );
 
-                    String url = String.format(GEMINI_URL_TEMPLATE, model, key);
+                    String url = String.format(GEMINI_URL_TEMPLATE, model);
                     HttpRequest req = HttpRequest.newBuilder(URI.create(url))
                             .header("Content-Type", "application/json; charset=utf-8")
+                            .header("x-goog-api-key", key)
                             .timeout(Duration.ofSeconds(30))
                             .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body), StandardCharsets.UTF_8))
                             .build();
@@ -360,7 +362,10 @@ public class ReadingContentGenerator {
 
     private String sanitizeRssField(String input) {
         if (input == null) return "";
-        return input.replace("</rss_data>", "").replace("<rss_data>", "").trim();
+        return input.replaceAll("(?i)</?\\s*rss_data[^>]*>", "")
+                .replace("<", " ")
+                .replace(">", " ")
+                .trim();
     }
 
     private String stripCodeFences(String s) {

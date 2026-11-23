@@ -5,6 +5,7 @@ import com.nihongo.api.modules.auth.repository.UserRepository;
 import com.nihongo.api.modules.dashboard.dto.DashboardStatsResponse;
 import com.nihongo.api.modules.grammar.repository.GrammarRepository;
 import com.nihongo.api.modules.kanji.repository.KanjiRepository;
+import com.nihongo.api.modules.reading.article.service.ReadingArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class DashboardService {
     private final UserRepository userRepository;
     private final KanjiRepository kanjiRepository;
     private final GrammarRepository grammarRepository;
+    private final ReadingArticleRepository readingArticleRepository;
 
     @Transactional(readOnly = true)
     public DashboardStatsResponse getStats(Long userId) {
@@ -53,6 +55,8 @@ public class DashboardService {
         long vocabLearned = 0;
         long kanjiLearned = (userId != null) ? Math.min(dbKanjiCount, 15) : 0;
         long grammarLearned = (userId != null) ? Math.min(dbGrammarCount, 8) : 0;
+        long readingCompleted = (userId != null) ? readingArticleRepository.countCompletedByUser(userId) : 0;
+        long readingTotal = readingArticleRepository.countPublishedVersions();
 
         int dueCardCount = 0;
         List<Object> dueCardsLimit = Collections.emptyList();
@@ -73,6 +77,8 @@ public class DashboardService {
                 .kanjiTotal(kanjiTotal)
                 .grammarLearned(grammarLearned)
                 .grammarTotal(grammarTotal)
+                .readingCompleted(readingCompleted)
+                .readingTotal(readingTotal)
                 .battleWins(0)
                 .battleTotal(0)
                 .weeklyStudyMinutes(weeklyStudyMinutes)

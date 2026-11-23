@@ -1,7 +1,9 @@
 package com.nihongo.api.modules.translator.controller;
 
 import com.nihongo.api.common.dto.ApiResponse;
+import com.nihongo.api.common.exception.BusinessException;
 import com.nihongo.api.modules.ai.core.AiRateLimitException;
+import com.nihongo.api.modules.ai.core.AiRateLimiter;
 import com.nihongo.api.modules.translator.dto.FastTranslateResponse;
 import com.nihongo.api.modules.translator.dto.TranslateRequest;
 import com.nihongo.api.modules.translator.dto.TranslateResponse;
@@ -17,23 +19,36 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/translate")
 @RequiredArgsConstructor
 public class TranslateController {
 
+    private static final int MAX_STREAM_TEXT_LEN = 500;
+
     private final TranslationService translationService;
     private final FastTranslationService fastTranslationService;
+    private final AiRateLimiter rateLimiter;
 
-    private static final ExecutorService STREAM_POOL = Executors.newCachedThreadPool();
+    // Giới hạn thread pool tránh cạn kiệt tài nguyên khi /stream bị spam
+    private static final ExecutorService STREAM_POOL = new ThreadPoolExecutor(
+            4, 16, 60L, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(64),
+            new ThreadPoolExecutor.AbortPolicy()
+    );
 
     /** Dịch + phân tích sâu (furigana, từ vựng, ngữ pháp) – chậm hơn. */
     @PostMapping
     public ResponseEntity<ApiResponse<TranslateResponse>> translate(
-            @Valid @RequestBody TranslateRequest request) {
+            @Valid @RequestBody TranslateRequest request,
+            Authentication auth,
+            HttpServletRequest httpReq) {
+        rateLimiter.consumeTranslateLlm(resolveClientKey(auth, httpReq));
         TranslateResponse response = translationService.translate(request);
         return ResponseEntity.ok(ApiResponse.ok("Dịch thành công", response));
     }
@@ -60,6 +75,9 @@ public class TranslateController {
                              @RequestParam(required = false) String targetLang,
                              Authentication auth,
                              HttpServletRequest httpReq) {
+        if (text == null || text.isBlank() || text.length() > MAX_STREAM_TEXT_LEN) {
+            throw new BusinessException("Nội dung cần dịch phải từ 1 đến " + MAX_STREAM_TEXT_LEN + " ký tự");
+        }
         String key = resolveClientKey(auth, httpReq);
         SseEmitter emitter = new SseEmitter(20_000L);
         STREAM_POOL.submit(() -> {

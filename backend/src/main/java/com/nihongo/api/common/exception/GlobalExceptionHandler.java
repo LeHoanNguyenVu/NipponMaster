@@ -55,6 +55,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Xử lý lỗi tham số đầu vào không hợp lệ (400)
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Invalid argument: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+    /**
      * Xử lý lỗi validation từ @Valid (400)
      * Trả về chi tiết từng trường bị lỗi
      */
@@ -125,12 +136,8 @@ public class GlobalExceptionHandler {
         }
 
         log.error("Unexpected error: ", ex);
-        String details = ex.getMessage() != null ? ex.getMessage() : ex.toString();
-        if (ex.getCause() != null) {
-            details += " | Cause: " + ex.getCause().getMessage();
-        }
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Lỗi hệ thống: " + details));
+                .body(ApiResponse.error("Lỗi hệ thống nội bộ. Vui lòng thử lại sau."));
     }
 }

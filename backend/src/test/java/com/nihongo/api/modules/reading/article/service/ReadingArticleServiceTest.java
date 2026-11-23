@@ -64,4 +64,17 @@ class ReadingArticleServiceTest {
         assertTrue(res.isCompleted());
         assertEquals(4, res.getTotalCompleted());
     }
+
+    @Test
+    void getRecommendedArticle_normalizesLevelAndFallsBackForInvalidOrStarter() {
+        ReadingArticleCardDto card = ReadingArticleCardDto.builder()
+                .versionId(2L).articleId(1L).jlptLevel("N3").titleJa("テスト").completed(false).build();
+        when(repository.findRecommendedUnreadForUser(10L, "N3")).thenReturn(card);
+        when(repository.findRecommendedUnreadForUser(10L, null)).thenReturn(card);
+
+        assertEquals(2L, service.getRecommendedArticle(10L, "n3").getVersionId());
+        assertEquals(2L, service.getRecommendedArticle(10L, "STARTER").getVersionId());
+        verify(repository).findRecommendedUnreadForUser(10L, "N3");
+        verify(repository).findRecommendedUnreadForUser(10L, null);
+    }
 }

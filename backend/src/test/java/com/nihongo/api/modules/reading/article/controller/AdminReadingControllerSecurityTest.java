@@ -7,6 +7,7 @@ import com.nihongo.api.common.security.SecurityConfig;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.AudioGenerationResultDto;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.IngestReportDto;
 import com.nihongo.api.modules.reading.article.service.ReadingArticleRepository;
+import com.nihongo.api.modules.reading.article.service.ReadingCoverImageService;
 import com.nihongo.api.modules.reading.article.service.ReadingIngestService;
 import com.nihongo.api.modules.reading.article.service.ReadingTtsService;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,9 @@ class AdminReadingControllerSecurityTest {
 
     @MockitoBean
     private ReadingTtsService ttsService;
+
+    @MockitoBean
+    private ReadingCoverImageService coverImageService;
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
@@ -114,5 +118,12 @@ class AdminReadingControllerSecurityTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.audioStatus").value("READY"))
                 .andExpect(jsonPath("$.data.voiceName").value("Kore"));
+    }
+
+    @Test
+    @WithMockUser(roles = "STUDENT")
+    void generateCoverImage_asStudent_isForbidden403() throws Exception {
+        mockMvc.perform(post("/api/v1/admin/reading/articles/1/cover-image"))
+                .andExpect(status().isForbidden());
     }
 }

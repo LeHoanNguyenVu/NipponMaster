@@ -31,6 +31,16 @@ public class ReadingArticleController {
         return ResponseEntity.ok(ApiResponse.ok("Danh sách bài đọc", res));
     }
 
+    @GetMapping("/recommended")
+    public ResponseEntity<ApiResponse<ReadingArticleCardDto>> getRecommendedArticle(
+            @RequestParam(required = false) String level,
+            Authentication authentication
+    ) {
+        Long userId = extractUserId(authentication);
+        ReadingArticleCardDto card = readingService.getRecommendedArticle(userId, level);
+        return ResponseEntity.ok(ApiResponse.ok("Bài đọc gợi ý hôm nay", card));
+    }
+
     @GetMapping("/versions/{id}")
     public ResponseEntity<ApiResponse<ReadingVersionDetailDto>> getVersionDetail(
             @PathVariable Long id,

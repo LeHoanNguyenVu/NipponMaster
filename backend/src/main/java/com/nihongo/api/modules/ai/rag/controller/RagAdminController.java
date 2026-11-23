@@ -8,6 +8,7 @@ import com.nihongo.api.modules.ai.rag.service.RagEvaluationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/ai/rag")
+@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class RagAdminController {
 

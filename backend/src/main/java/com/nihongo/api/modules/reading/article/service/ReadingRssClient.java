@@ -45,6 +45,9 @@ import java.util.regex.Pattern;
 public class ReadingRssClient {
 
     public static final int MAX_RESPONSE_BYTES = 2 * 1024 * 1024; // 2 MB
+    private static final int MAX_TITLE_CHARS = 300;
+    private static final int MAX_DESC_CHARS = 1500;
+    private static final long MAX_BODY_READ_NANOS = Duration.ofSeconds(15).toNanos();
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
     private static final String USER_AGENT = "NipponMaster-ReadingIngest/1.0 (+https://nipponmaster.jp)";
     private static final Pattern XML_ENCODING_PATTERN = Pattern.compile("encoding=[\"']([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
@@ -138,10 +141,34 @@ public class ReadingRssClient {
         URI uri = URI.create(url.trim());
         String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
         String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(Locale.ROOT);
-        if (!"https".equals(scheme) || !ALLOWED_HOSTS.contains(host)) {
+        if (!"https".equals(scheme) || uri.getPort() != -1 || uri.getUserInfo() != null || !ALLOWED_HOSTS.contains(host)) {
             throw new SecurityException("Host không nằm trong whitelist RSS: " + host);
         }
         return uri;
+    }
+
+    /**
+     * Chỉ chấp nhận liên kết https thuộc tên miền whitelist (chặn javascript:, data:, phishing redirect).
+     */
+    public boolean isSafeSourceLink(String link) {
+        if (link == null || link.isBlank()) return false;
+        try {
+            URI u = URI.create(link.trim());
+            String scheme = u.getScheme() == null ? "" : u.getScheme().toLowerCase(Locale.ROOT);
+            String host = u.getHost() == null ? "" : u.getHost().toLowerCase(Locale.ROOT);
+            if (!"https".equals(scheme) || host.isBlank() || u.getUserInfo() != null) {
+                return false;
+            }
+            for (String allowed : ALLOWED_HOSTS) {
+                String base = allowed.startsWith("www.") ? allowed.substring(4) : allowed;
+                if (host.equals(allowed) || host.equals(base) || host.endsWith("." + base)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private byte[] downloadWithCap(URI uri) throws IOException, InterruptedException {
@@ -153,15 +180,18 @@ public class ReadingRssClient {
                 .build();
 
         HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
-        if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new IOException("HTTP " + response.statusCode() + " từ " + uri.getHost());
-        }
-
         try (InputStream in = response.body(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new IOException("HTTP " + response.statusCode() + " từ " + uri.getHost());
+            }
+            long deadline = System.nanoTime() + MAX_BODY_READ_NANOS;
             byte[] buf = new byte[8192];
             int total = 0;
             int read;
             while ((read = in.read(buf)) != -1) {
+                if (System.nanoTime() > deadline) {
+                    throw new IOException("Quá thời gian đọc nội dung RSS từ " + uri.getHost());
+                }
                 total += read;
                 if (total > MAX_RESPONSE_BYTES) {
                     throw new IOException("Phản hồi RSS vượt quá giới hạn " + MAX_RESPONSE_BYTES + " bytes");
@@ -190,6 +220,8 @@ public class ReadingRssClient {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
         dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
@@ -222,19 +254,24 @@ public class ReadingRssClient {
                     ? firstNonBlank(getChildText(el, "updated"), getChildText(el, "published"))
                     : firstNonBlank(getChildText(el, "pubDate"), getChildText(el, "date"));
 
-            if (title.isBlank() || link.isBlank()) continue;
+            if (title.isBlank() || !isSafeSourceLink(link)) continue;
 
             items.add(new RssItem(
                     source.code(),
                     source.licenseType(),
                     source.defaultCategory(),
-                    cleanWhitespace(title),
-                    cleanWhitespace(stripHtmlTags(desc)),
+                    truncate(cleanWhitespace(title), MAX_TITLE_CHARS),
+                    truncate(cleanWhitespace(stripHtmlTags(desc)), MAX_DESC_CHARS),
                     link.trim(),
                     parseDate(dateStr)
             ));
         }
         return items;
+    }
+
+    private String truncate(String s, int maxLen) {
+        if (s == null || s.length() <= maxLen) return s == null ? "" : s;
+        return s.substring(0, maxLen);
     }
 
     private String decodeXmlBytes(byte[] rawBytes, String fallbackCharset) {
@@ -246,7 +283,9 @@ public class ReadingRssClient {
             encoding = "MS932";
         }
         Charset cs = Charset.isSupported(encoding) ? Charset.forName(encoding) : StandardCharsets.UTF_8;
-        return new String(rawBytes, cs);
+        String decoded = new String(rawBytes, cs);
+        // Loại bỏ UTF-8 BOM nếu có để không làm lệch khai báo <?xml ...?>
+        return (!decoded.isEmpty() && decoded.charAt(0) == '\uFEFF') ? decoded.substring(1) : decoded;
     }
 
     private String getChildText(Element parent, String localName) {
