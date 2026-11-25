@@ -154,6 +154,24 @@ public final class ReadingArticleDtos {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class IngestStatusDto {
+        private boolean running;
+        private int targetEvents;
+        private int processedEvents;
+        private int createdArticles;
+        private int createdVersions;
+        private int skippedDuplicates;
+        private int failedItems;
+        private String currentMessage;
+        private OffsetDateTime startedAt;
+        private OffsetDateTime finishedAt;
+        private IngestReportDto lastReport;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class AudioGenerationResultDto {
         private Long versionId;
         private Long articleId;

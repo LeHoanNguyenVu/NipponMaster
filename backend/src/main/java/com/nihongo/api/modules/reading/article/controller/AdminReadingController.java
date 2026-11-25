@@ -4,6 +4,7 @@ import com.nihongo.api.common.dto.ApiResponse;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.AdminArticleSummaryDto;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.AudioGenerationResultDto;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.IngestReportDto;
+import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.IngestStatusDto;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.ReadingVersionDetailDto;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.UpdateCoverImageRequest;
 import com.nihongo.api.modules.reading.article.service.ReadingArticleRepository;
@@ -43,6 +44,25 @@ public class AdminReadingController {
         return ResponseEntity.ok(ApiResponse.ok("Chạy pipeline ingest bài đọc hoàn tất", report));
     }
 
+    @PostMapping("/ingest/start")
+    public ResponseEntity<ApiResponse<IngestStatusDto>> startIngestAsync(
+            @RequestParam(required = false) Integer maxEvents,
+            @RequestParam(required = false) String source
+    ) {
+        IngestStatusDto status = ingestService.startIngestAsync(maxEvents, source);
+        return ResponseEntity.ok(ApiResponse.ok("Đã kích hoạt pipeline lấy tin & viết bài AI chạy nền", status));
+    }
+
+    @GetMapping("/ingest/status")
+    public ResponseEntity<ApiResponse<IngestStatusDto>> getIngestStatus() {
+        return ResponseEntity.ok(ApiResponse.ok("Trạng thái pipeline ingest", ingestService.getIngestStatus()));
+    }
+
+    @PostMapping("/ingest/cancel")
+    public ResponseEntity<ApiResponse<IngestStatusDto>> cancelIngest() {
+        return ResponseEntity.ok(ApiResponse.ok("Đã gửi yêu cầu dừng pipeline ingest", ingestService.cancelIngest()));
+    }
+
     @GetMapping("/articles")
     public ResponseEntity<ApiResponse<List<AdminArticleSummaryDto>>> listArticles(
             @RequestParam(defaultValue = "REVIEW") String status,
@@ -79,7 +99,7 @@ public class AdminReadingController {
 
     @PostMapping("/articles/backfill-covers")
     public ResponseEntity<ApiResponse<java.util.Map<String, Integer>>> backfillCoverImages(
-            @RequestParam(defaultValue = "20") int limit
+            @RequestParam(defaultValue = "40") int limit
     ) {
         int updated = coverImageService.backfillMissingCoverImages(limit);
         return ResponseEntity.ok(ApiResponse.ok(

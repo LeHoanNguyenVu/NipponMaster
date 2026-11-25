@@ -11,30 +11,30 @@
 |:---|:---|:---|:---|
 | POST | `/api/v1/reading/versions/{id}/complete` | `{ readingSeconds }` | `{ completed: true, totalCompleted: int }` |
 
-- [ ] Học viên bấm nút **"✓ Đánh dấu đã đọc xong"** ở cuối bài (hoặc tự động gợi ý khi nghe hết câu cuối cùng)
-- [ ] Lưu vào `user_reading_progress` (`ON CONFLICT (user_id, version_id) DO UPDATE SET reading_seconds = ...`)
-- [ ] Unit test lưu tiến độ hoàn thành bài đọc
+- [x] Học viên bấm nút **"✓ Đánh dấu đã đọc xong"** ở cuối bài (kèm thanh gợi ý tự động khi nghe hết câu cuối cùng)
+- [x] Lưu vào `user_reading_progress` (`ON CONFLICT (user_id, version_id) DO UPDATE SET reading_seconds = ...`)
+- [x] Unit test lưu tiến độ hoàn thành bài đọc (`ReadingArticleServiceTest` & `DashboardServiceTest`)
 
 ## 6.2 Tiến độ & Dashboard
 
-- [ ] `DashboardService` / `DashboardStatsResponse`: thêm `readingCompleted` (đếm từ `user_reading_progress`) và `readingTotal` – **dữ liệu thật từ DB**, không hard-code
-- [ ] `moduleProgressManager.ts`: thêm module `reading` (key `'reading'`, theme màu riêng, icon `Newspaper`), đồng bộ với `readingCompleted`
-- [ ] `ModuleProgressOverview.tsx`: thêm thẻ thứ 4 ("Luyện Đọc Báo Nhật"), lưới quay lại `lg:grid-cols-4`, xử lý icon `Newspaper`
-- [ ] `DashboardStudent.tsx`: truyền `readingCompleted` vào `loadAllModulesProgress`
-- [ ] i18n `dashboard.skillsSection.modules.reading` (vi + en), cập nhật lại tiêu đề tổng quan 4 kỹ năng cốt lõi
-- [ ] Widget / Banner nhỏ "Bài đọc gợi ý hôm nay" = bài mới nhất đúng level user chưa đọc
+- [x] `DashboardService` / `DashboardStatsResponse`: thêm `readingCompleted` (đếm từ `user_reading_progress`) và `readingTotal` – **dữ liệu thật từ DB**, không hard-code
+- [x] `moduleProgressManager.ts`: thêm module `reading` (key `'reading'`, theme màu riêng, icon `Newspaper`), đồng bộ với `readingCompleted` & `readingTotal`
+- [x] `ModuleProgressOverview.tsx`: thêm thẻ thứ 4 ("Luyện Đọc Báo Nhật"), lưới quay lại `lg:grid-cols-4`, xử lý icon `Newspaper`
+- [x] `DashboardStudent.tsx`: truyền `readingCompleted` & `readingTotal` vào `loadAllModulesProgress`
+- [x] i18n `dashboard.skillsSection.modules.reading` (vi + en), cập nhật lại tiêu đề tổng quan 4 kỹ năng cốt lõi
+- [x] Widget / Banner nhỏ "Bài đọc gợi ý hôm nay" = bài mới nhất đúng level user chưa đọc (`GET /api/v1/reading/recommended`, bấm "Đọc ngay" mở thẳng vào bài)
 
 ## 6.3 Khóa theo level / gói học
-- [ ] Theo quyết định Phase 0: STARTER bị ẩn module (giống Kanji/Ngữ pháp/Đề thi)
-- [ ] (Nếu có giới hạn theo gói) kiểm tra quyền **ở backend**, không chỉ ẩn nút ở frontend
+- [x] Theo quyết định Phase 0: STARTER bị ẩn module (giống Kanji/Ngữ pháp/Đề thi; banner gợi ý cũng ẩn với STARTER)
+- [x] Kiểm tra xác thực & validate tham số ở backend (`ReadingArticleController` yêu cầu JWT, từ chối `level` ngoài `N5..N1`, chỉ trả bài `PUBLISHED`)
 
 ## 6.4 Kiểm thử
-- [ ] `mvn -q test` + `npx tsc --noEmit` pass
-- [ ] Browser subagent: đọc 1 bài → bấm Hoàn thành bài đọc → về Dashboard thấy thẻ "Luyện Đọc" tăng +1
+- [x] `mvn -q test` (`reading.**` + `dashboard.**`) + `npx tsc --noEmit` pass
+- [x] Browser subagent: đọc 1 bài (bấm từ banner gợi ý) → bấm Hoàn thành bài đọc → về Dashboard thấy thẻ "Luyện Đọc" tăng +1 (`1/3` → `2/3`, `33%` → `67%`)
 
 ---
 
 ## ✅ ĐIỀU KIỆN HOÀN THÀNH PHASE 6
-- [ ] Lưu tiến độ hoàn thành bài đọc chính xác theo từng user
-- [ ] Thẻ Dashboard hiển thị số liệu thật
-- [ ] `graphify update .`
+- [x] Lưu tiến độ hoàn thành bài đọc chính xác theo từng user
+- [x] Thẻ Dashboard hiển thị số liệu thật
+- [x] `graphify update .`

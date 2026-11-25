@@ -27,30 +27,30 @@ flowchart TD
 
 ## 5.3 Việc cần làm
 
-- [ ] Tách `hooks/useTextSelectionPopup.ts` từ logic hiện có trong `SenseiChat.tsx` (giữ nguyên hành vi; giới hạn trong 1 container ref; ẩn khi cuộn/click ra ngoài)
-- [ ] Cập nhật `SenseiChat.tsx` dùng hook mới → kiểm tra lại tính năng lưu từ của Sensei không bị hỏng
-- [ ] `screens/reading/components/SelectionToolbar.tsx`
-  - [ ] Chỉ hiện khi đoạn bôi đen có chữ Nhật (regex Hiragana/Katakana/Kanji) và dài 1–200 ký tự
-  - [ ] 💾 **Lưu flashcard**: gửi `word`, `jlptLevel` = level bài, `language` = ngôn ngữ UI; toast thành công/lỗi; chưa đăng nhập → nhắc đăng nhập
-  - [ ] 🌐 **Dịch nhanh**: popover hiển thị nghĩa, nút đóng, trạng thái loading; cache theo text trong phiên để không gọi lại
-  - [ ] 🔍 **Xem nghĩa & phân tích**: ghi `sessionStorage` rồi `onNavigate('translation')`
-  - [ ] Hỗ trợ cảm ứng (mobile: `selectionchange` thay vì chỉ `mouseup`)
-  - [ ] Truy cập được bằng bàn phím, có `aria-label`
-- [ ] `Translation.tsx`: khi mount, đọc `nippon_translation_prefill` → `setInputText(text)` → gọi hàm dịch hiện có → `removeItem` (chỉ chạy 1 lần, xóa key ngay cả khi dịch lỗi)
+- [x] Tách `hooks/useTextSelectionPopup.ts` từ logic hiện có trong `SenseiChat.tsx` (giữ nguyên hành vi; giới hạn trong 1 container ref; loại thẻ `<rt>/<rp>` furigana; ẩn khi cuộn/click ra ngoài)
+- [x] Cập nhật `SenseiChat.tsx` dùng hook mới → kiểm tra lại tính năng lưu từ của Sensei không bị hỏng
+- [x] `screens/reading/components/SelectionToolbar.tsx`
+  - [x] Chỉ hiện khi đoạn bôi đen có chữ Nhật (regex Hiragana/Katakana/Kanji) và dài 1–200 ký tự
+  - [x] 💾 **Lưu flashcard**: gửi `word`, `reading`/`meaning` (tự bổ sung từ `keyVocab`/Kuromoji + backend), `jlptLevel` = level bài, `language` = ngôn ngữ UI; toast thành công/lỗi; chưa đăng nhập → nhắc đăng nhập
+  - [x] 🌐 **Dịch nhanh**: popover hiển thị nghĩa, nút đóng, trạng thái loading; cache theo text trong phiên để không gọi lại
+  - [x] 🔍 **Xem nghĩa & phân tích**: ghi `sessionStorage` rồi `onNavigate('translation')`
+  - [x] Hỗ trợ cảm ứng (mobile: `selectionchange` + `touchend` thay vì chỉ `mouseup`)
+  - [x] Truy cập được bằng bàn phím, có `aria-label`
+- [x] `Translation.tsx`: khi mount, đọc `nippon_translation_prefill` → `setInputText(text)` → gọi hàm dịch hiện có → `removeItem` (chỉ chạy 1 lần, xóa key ngay cả khi dịch lỗi)
 - [ ] (Tùy chọn, sau MVP) lưu kèm câu ngữ cảnh vào flashcard → cần thêm cột `context_sentence` cho `ai_saved_cards` (migration riêng) – **chỉ làm nếu được duyệt**
 
 ## 5.4 Kiểm thử
-- [ ] `npx tsc --noEmit` pass
-- [ ] Browser subagent:
-  - [ ] Bôi đen 1 từ → Lưu → mở trang Sensei/Flashcard thấy từ đã lưu có cách đọc
-  - [ ] Bôi đen 1 câu → Dịch nhanh → thấy nghĩa tiếng Việt tại chỗ
-  - [ ] Bôi đen → Xem nghĩa & phân tích → sang trang Dịch Thuật, ô nhập đã có text, kết quả tự hiện
-  - [ ] Quay lại Sensei: tính năng bôi đen lưu từ cũ vẫn chạy (không hồi quy)
-  - [ ] Bôi đen chữ tiếng Việt → không hiện toolbar
+- [x] `npx tsc --noEmit` pass
+- [x] Browser subagent:
+  - [x] Bôi đen 1 từ → Lưu → mở trang Sensei/Flashcard thấy từ đã lưu có cách đọc (`病気 (びょうき) — Bệnh tật`)
+  - [x] Bôi đen 1 câu → Dịch nhanh → thấy nghĩa tiếng Việt tại chỗ
+  - [x] Bôi đen → Xem nghĩa & phân tích → sang trang Dịch Thuật, ô nhập đã có text, kết quả tự hiện, key `sessionStorage` đã được xóa
+  - [x] Quay lại Sensei: tính năng bôi đen lưu từ cũ vẫn chạy (không hồi quy)
+  - [x] Bôi đen chữ tiếng Việt → không hiện toolbar
 
 ---
 
 ## ✅ ĐIỀU KIỆN HOÀN THÀNH PHASE 5
-- [ ] 3 hành động hoạt động đúng trên desktop + mobile viewport
-- [ ] Không hồi quy ở Sensei Chat & Translation
-- [ ] `graphify update .`
+- [x] 3 hành động hoạt động đúng trên desktop + mobile viewport (đã kiểm thử thực tế trên `1280×800` và `390×844`)
+- [x] Không hồi quy ở Sensei Chat & Translation (0 lỗi console, 0 lỗi network)
+- [x] `graphify update .`

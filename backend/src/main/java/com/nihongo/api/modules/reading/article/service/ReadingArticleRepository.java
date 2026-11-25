@@ -376,18 +376,121 @@ public class ReadingArticleRepository {
         }
     }
 
-    public List<Long> findArticleIdsWithoutCoverImage(int limit) {
-        int safeLimit = Math.max(1, Math.min(limit, 50));
-        return jdbc.queryForList("""
-                SELECT id FROM reading_articles
-                WHERE (cover_image_url IS NULL OR BTRIM(cover_image_url) = '')
-                  AND status IN ('PUBLISHED', 'REVIEW')
-                ORDER BY created_at DESC
+    public void clearVersionCoverImagesForArticle(Long articleId) {
+        jdbc.update("""
+                UPDATE reading_article_versions
+                SET cover_image_url = NULL, cover_image_credit = NULL, cover_image_source = NULL
+                WHERE article_id = ?
+                """,
+                articleId
+        );
+    }
+
+    public void updateVersionCoverImage(Long versionId, String coverImageUrl, String coverImageCredit, String coverImageSource) {
+        jdbc.update("""
+                UPDATE reading_article_versions
+                SET cover_image_url = ?, cover_image_credit = ?, cover_image_source = ?
+                WHERE id = ?
+                """,
+                coverImageUrl,
+                coverImageCredit,
+                coverImageSource,
+                versionId
+        );
+    }
+
+    public record VersionCoverTarget(
+            Long versionId,
+            Long articleId,
+            String jlptLevel,
+            String category,
+            List<String> facts,
+            String currentUrl
+    ) {
+    }
+
+    public List<VersionCoverTarget> findVersionsForCoverByArticleId(Long articleId) {
+        return jdbc.query("""
+                SELECT v.id AS version_id, v.article_id, v.jlpt_level, a.category,
+                       a.facts::text AS facts_json, v.cover_image_url
+                FROM reading_article_versions v
+                JOIN reading_articles a ON a.id = v.article_id
+                WHERE v.article_id = ?
+                ORDER BY v.id ASC
+                """,
+                (rs, i) -> new VersionCoverTarget(
+                        rs.getLong("version_id"),
+                        rs.getLong("article_id"),
+                        rs.getString("jlpt_level"),
+                        rs.getString("category"),
+                        fromJsonList(rs.getString("facts_json")),
+                        rs.getString("cover_image_url")
+                ),
+                articleId
+        );
+    }
+
+    /**
+     * Tìm các phiên bản chưa có ảnh bìa riêng hoặc đang bị trùng URL ảnh với phiên bản khác.
+     */
+    public List<VersionCoverTarget> findVersionsNeedingUniqueCover(int limit) {
+        int safeLimit = Math.max(1, Math.min(limit, 100));
+        return jdbc.query("""
+                SELECT v.id AS version_id, v.article_id, v.jlpt_level, a.category,
+                       a.facts::text AS facts_json, v.cover_image_url
+                FROM reading_article_versions v
+                JOIN reading_articles a ON a.id = v.article_id
+                WHERE a.status IN ('PUBLISHED', 'REVIEW')
+                  AND (
+                        v.cover_image_url IS NULL
+                     OR BTRIM(v.cover_image_url) = ''
+                     OR EXISTS (
+                            SELECT 1 FROM reading_article_versions v2
+                            WHERE v2.id < v.id
+                              AND v2.cover_image_url = v.cover_image_url
+                        )
+                  )
+                ORDER BY a.created_at DESC, v.id ASC
                 LIMIT ?
                 """,
-                Long.class,
+                (rs, i) -> new VersionCoverTarget(
+                        rs.getLong("version_id"),
+                        rs.getLong("article_id"),
+                        rs.getString("jlpt_level"),
+                        rs.getString("category"),
+                        fromJsonList(rs.getString("facts_json")),
+                        rs.getString("cover_image_url")
+                ),
                 safeLimit
         );
+    }
+
+    public Set<String> findAllUsedCoverImageUrls(Long excludeArticleId) {
+        Set<String> urls = new HashSet<>();
+        if (excludeArticleId == null) {
+            jdbc.query("""
+                    SELECT cover_image_url FROM reading_article_versions
+                    WHERE cover_image_url IS NOT NULL AND BTRIM(cover_image_url) <> ''
+                    UNION
+                    SELECT cover_image_url FROM reading_articles
+                    WHERE cover_image_url IS NOT NULL AND BTRIM(cover_image_url) <> ''
+                    """, rs -> {
+                String u = rs.getString(1);
+                if (u != null && !u.isBlank()) urls.add(u.trim());
+            });
+        } else {
+            jdbc.query("""
+                    SELECT cover_image_url FROM reading_article_versions
+                    WHERE article_id <> ? AND cover_image_url IS NOT NULL AND BTRIM(cover_image_url) <> ''
+                    UNION
+                    SELECT cover_image_url FROM reading_articles
+                    WHERE id <> ? AND cover_image_url IS NOT NULL AND BTRIM(cover_image_url) <> ''
+                    """, rs -> {
+                String u = rs.getString(1);
+                if (u != null && !u.isBlank()) urls.add(u.trim());
+            }, excludeArticleId, excludeArticleId);
+        }
+        return urls;
     }
 
     // --- Public Student Queries (CHỈ trả bài PUBLISHED, KHÔNG trả source_title) ---
@@ -423,7 +526,10 @@ public class ReadingArticleRepository {
         List<ReadingArticleCardDto> items = jdbc.query("""
                 SELECT v.id AS version_id, v.article_id, v.jlpt_level, v.computed_level, a.category,
                        v.title_ja, v.title_vi, v.char_count, v.voice_name, v.audio_status,
-                       a.source_name, a.source_license, a.cover_image_url, a.cover_image_credit, a.published_at,
+                       a.source_name, a.source_license,
+                       COALESCE(NULLIF(BTRIM(v.cover_image_url), ''), a.cover_image_url) AS cover_image_url,
+                       COALESCE(NULLIF(BTRIM(v.cover_image_credit), ''), a.cover_image_credit) AS cover_image_credit,
+                       a.published_at,
                        (urp.version_id IS NOT NULL) AS completed
                 FROM reading_article_versions v
                 JOIN reading_articles a ON v.article_id = a.id
@@ -491,7 +597,10 @@ public class ReadingArticleRepository {
         List<ReadingVersionDetailDto> list = jdbc.query("""
                 SELECT v.id AS version_id, v.article_id, v.jlpt_level, v.computed_level, a.category,
                        v.title_ja, v.title_vi, v.char_count, v.voice_name, v.audio_status,
-                       a.source_name, a.source_license, a.source_url, a.cover_image_url, a.cover_image_credit, a.published_at,
+                       a.source_name, a.source_license, a.source_url,
+                       COALESCE(NULLIF(BTRIM(v.cover_image_url), ''), a.cover_image_url) AS cover_image_url,
+                       COALESCE(NULLIF(BTRIM(v.cover_image_credit), ''), a.cover_image_credit) AS cover_image_credit,
+                       a.published_at,
                        v.sentences::text AS sentences_json, v.key_vocab::text AS kv_json,
                        (urp.version_id IS NOT NULL) AS completed
                 FROM reading_article_versions v
@@ -633,7 +742,10 @@ public class ReadingArticleRepository {
         List<ReadingArticleCardDto> rows = jdbc.query("""
                 SELECT v.id AS version_id, v.article_id, v.jlpt_level, v.computed_level, a.category,
                        v.title_ja, v.title_vi, v.char_count, v.voice_name, v.audio_status,
-                       a.source_name, a.source_license, a.cover_image_url, a.cover_image_credit, a.published_at,
+                       a.source_name, a.source_license,
+                       COALESCE(NULLIF(BTRIM(v.cover_image_url), ''), a.cover_image_url) AS cover_image_url,
+                       COALESCE(NULLIF(BTRIM(v.cover_image_credit), ''), a.cover_image_credit) AS cover_image_credit,
+                       a.published_at,
                        FALSE AS completed
                 FROM reading_article_versions v
                 JOIN reading_articles a ON v.article_id = a.id

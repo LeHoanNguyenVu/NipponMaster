@@ -39,7 +39,7 @@
     "remaining": "Còn {{count}} thẻ cần học để giữ lửa"
   },
   "skillsSection": {
-    "title": "Lộ Trình & Tiến Độ Kỹ Năng Cốt Lõi",
+    "title": "Lộ Trình & Tiến Độ 4 Kỹ Năng Cốt Lõi",
     "subtitle": "Hệ thống bài học phân bổ toàn diện theo năng lực thực chiến Nhật ngữ",
     "overallProgress": "Tổng thể lộ trình:",
     "completionLabel": "Tiến độ hoàn thành:",
@@ -64,8 +64,20 @@
         "categoryTag": "50 BÀI GIẢNG TUYỂN CHỌN",
         "action": "Xem Bài Giảng",
         "unitLabel": "bài học"
+      },
+      "reading": {
+        "title": "Luyện Đọc Báo Nhật",
+        "subtitle": "Tin tức JLPT kèm Furigana & giọng đọc...",
+        "categoryTag": "ĐỌC & NGHE BÁO NHẬT",
+        "action": "Đọc Báo Ngay",
+        "unitLabel": "bài đọc"
       }
     }
+  },
+  "recommendedReading": {
+    "badge": "Bài đọc gợi ý hôm nay",
+    "cta": "Đọc ngay",
+    "minutes": "{{count}} phút đọc"
   },
   "beginnerBanner": {
     "badge": "Lộ Trình Trọng Tâm",

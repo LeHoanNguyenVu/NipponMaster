@@ -76,6 +76,7 @@ class ReadingRssClientTest {
     @Test
     void validateWhitelistedUri_blocksNonWhitelistedHostAndHttp() {
         assertDoesNotThrow(() -> client.validateWhitelistedUri("https://www.nhk.or.jp/rss/news/cat0.xml"));
+        assertDoesNotThrow(() -> client.validateWhitelistedUri("https://news.web.nhk/n-data/conf/na/rss/cat0.xml"));
         assertDoesNotThrow(() -> client.validateWhitelistedUri("https://www.gov-online.go.jp/rss/index.rdf"));
 
         assertThrows(SecurityException.class, () -> client.validateWhitelistedUri("https://news.yahoo.co.jp/rss/topics/top-picks.xml"));
@@ -111,5 +112,23 @@ class ReadingRssClientTest {
 
         assertEquals(1, items.size());
         assertEquals("https://www.gov-online.go.jp/article/safe.html", items.get(0).link());
+    }
+
+    @Test
+    void parseXml_upgradesWhitelistedHttpGovLinksToHttps() throws Exception {
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/">
+                  <item>
+                    <title>訪日外国人旅行者数の推移</title>
+                    <link>http://www.mlit.go.jp/kankocho/news02.html</link>
+                    <description>観光庁の発表です。</description>
+                  </item>
+                </rdf:RDF>
+                """;
+        RssSourceConfig src = ReadingRssClient.ALL_SOURCES.get("KANKOCHO");
+        List<RssItem> items = client.parseXml(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8), src);
+        assertEquals(1, items.size());
+        assertEquals("https://www.mlit.go.jp/kankocho/news02.html", items.get(0).link());
     }
 }

@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { BarChart3, BookOpen, Newspaper, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ScreenType } from '../../App';
 import type { AllModulesProgress, SingleModuleProgress } from '../../utils/moduleProgressManager';
@@ -20,6 +20,7 @@ export default function ModuleProgressOverview({
     modulesProgress.beginner,
     modulesProgress.kanji,
     modulesProgress.grammar,
+    modulesProgress.reading,
   ];
 
   return (
@@ -67,8 +68,8 @@ export default function ModuleProgressOverview({
         </div>
       </div>
 
-      {/* 3 Cards Grid - Washi Editorial style */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4.5">
+      {/* 4 Cards Grid - Washi Editorial style */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card) => {
           const isComplete = card.percent >= 100;
           const translatedTitle = t(`dashboard:skillsSection.modules.${card.key}.title`, { defaultValue: card.title });
@@ -134,6 +135,8 @@ export default function ModuleProgressOverview({
                   >
                     {card.iconType === 'text' ? (
                       <span className="font-serif">{card.iconText}</span>
+                    ) : card.iconName === 'Newspaper' ? (
+                      <Newspaper size={20} />
                     ) : (
                       <BookOpen size={20} />
                     )}

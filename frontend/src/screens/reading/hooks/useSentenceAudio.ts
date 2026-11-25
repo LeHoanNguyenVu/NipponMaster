@@ -9,9 +9,22 @@ interface UseSentenceAudioOptions {
   onFinishedAll?: () => void;
 }
 
+function releaseAudioElement(el: HTMLAudioElement) {
+  el.onended = null;
+  el.onerror = null;
+  try {
+    el.pause();
+    el.removeAttribute('src');
+    el.load();
+  } catch {
+    // Bỏ qua lỗi giải phóng phần tử audio
+  }
+}
+
 /**
- * Phát audio tuần tự từng câu từ Supabase WAV (preload trước tối đa 2 câu kế tiếp),
- * tự động fallback sang Web Speech API (speechSynthesis, lang='ja-JP') nếu câu thiếu audioUrl hoặc audioStatus != READY.
+ * Phát audio tuần tự từng câu từ Supabase WAV (chỉ preload tối đa 2 câu kế tiếp và giải phóng phần tử cũ),
+ * dùng playTokenRef đơn điệu chống race condition khi đổi câu nhanh,
+ * tự động fallback sang Web Speech API (speechSynthesis, lang='ja-JP') nếu câu thiếu audioUrl hoặc WAV lỗi.
  */
 export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseSentenceAudioOptions) {
   const [activeIdx, setActiveIdx] = useState<number>(0);
@@ -24,6 +37,7 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
   const playbackRateRef = useRef<PlaybackSpeed>(1);
   const repeatRef = useRef<boolean>(false);
   const isPlayingRef = useRef<boolean>(false);
+  const playTokenRef = useRef<number>(0);
   const sentencesRef = useRef<ReadingSentence[]>(sentences);
   const onFinishedRef = useRef(onFinishedAll);
 
@@ -46,18 +60,25 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
     onFinishedRef.current = onFinishedAll;
   }, [onFinishedAll]);
 
-  const hasReadyAudioFor = useCallback(
-    (idx: number) => {
-      const s = sentencesRef.current[idx];
-      return Boolean(s?.audioUrl && s.audioUrl.trim().length > 0);
-    },
-    []
-  );
+  const hasReadyAudioFor = useCallback((idx: number) => {
+    const s = sentencesRef.current[idx];
+    return Boolean(s?.audioUrl && s.audioUrl.trim().length > 0);
+  }, []);
 
   const usingFallback =
     audioStatus !== 'READY' || !sentences.some((s) => Boolean(s.audioUrl && s.audioUrl.trim()));
 
+  const releaseAllPreloaded = useCallback(() => {
+    preloadedRef.current.forEach((el) => {
+      if (el !== audioRef.current) {
+        releaseAudioElement(el);
+      }
+    });
+    preloadedRef.current.clear();
+  }, []);
+
   const stopInternal = useCallback(() => {
+    playTokenRef.current += 1;
     if (audioRef.current) {
       audioRef.current.onended = null;
       audioRef.current.onerror = null;
@@ -71,9 +92,22 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
     setIsPlaying(false);
   }, []);
 
-  // Preload chỉ 2 câu kế tiếp để tối ưu băng thông (Phase 7.3)
+  // Preload chỉ 2 câu kế tiếp và giải phóng bộ đệm các câu nằm ngoài cửa sổ [currentIdx .. currentIdx + 2]
   const preloadUpcoming = useCallback((currentIdx: number) => {
     const list = sentencesRef.current;
+    const keepUrls = new Set<string>();
+    for (let offset = 0; offset <= 2; offset++) {
+      const s = list[currentIdx + offset];
+      if (s?.audioUrl) keepUrls.add(s.audioUrl);
+    }
+
+    preloadedRef.current.forEach((el, url) => {
+      if (!keepUrls.has(url) && el !== audioRef.current) {
+        releaseAudioElement(el);
+        preloadedRef.current.delete(url);
+      }
+    });
+
     for (let offset = 1; offset <= 2; offset++) {
       const next = list[currentIdx + offset];
       if (next?.audioUrl && !preloadedRef.current.has(next.audioUrl)) {
@@ -87,7 +121,8 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
 
   const playAtRef = useRef<(idx: number) => void>(() => {});
 
-  const speakWithWebSpeech = useCallback((idx: number, text: string) => {
+  const speakWithWebSpeech = useCallback((idx: number, text: string, token: number) => {
+    if (playTokenRef.current !== token) return;
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       isPlayingRef.current = false;
       setIsPlaying(false);
@@ -98,7 +133,7 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
     utter.lang = 'ja-JP';
     utter.rate = playbackRateRef.current;
     utter.onend = () => {
-      if (!isPlayingRef.current) return;
+      if (playTokenRef.current !== token || !isPlayingRef.current) return;
       if (repeatRef.current) {
         playAtRef.current(idx);
       } else if (idx + 1 < sentencesRef.current.length) {
@@ -109,7 +144,9 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
         onFinishedRef.current?.();
       }
     };
-    utter.onerror = () => {
+    utter.onerror = (ev) => {
+      if (playTokenRef.current !== token) return;
+      if (ev.error === 'canceled' || ev.error === 'interrupted') return;
       isPlayingRef.current = false;
       setIsPlaying(false);
     };
@@ -123,6 +160,9 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
         stopInternal();
         return;
       }
+
+      const token = playTokenRef.current + 1;
+      playTokenRef.current = token;
 
       if (audioRef.current) {
         audioRef.current.onended = null;
@@ -140,15 +180,27 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
 
       const sentence = list[idx];
       if (hasReadyAudioFor(idx) && sentence.audioUrl) {
+        const audioUrl = sentence.audioUrl;
         preloadUpcoming(idx);
-        const cached = preloadedRef.current.get(sentence.audioUrl);
-        const audio = cached || new Audio(sentence.audioUrl);
+        const cached = preloadedRef.current.get(audioUrl);
+        const audio = cached || new Audio(audioUrl);
         audio.currentTime = 0;
         audio.playbackRate = playbackRateRef.current;
         audioRef.current = audio;
 
+        let fellBack = false;
+        const triggerFallback = () => {
+          if (fellBack || playTokenRef.current !== token || !isPlayingRef.current) return;
+          fellBack = true;
+          preloadedRef.current.delete(audioUrl);
+          if (audioRef.current === audio) {
+            audioRef.current = null;
+          }
+          speakWithWebSpeech(idx, sentence.text, token);
+        };
+
         audio.onended = () => {
-          if (!isPlayingRef.current) return;
+          if (playTokenRef.current !== token || !isPlayingRef.current) return;
           if (repeatRef.current) {
             playAtRef.current(idx);
           } else if (idx + 1 < sentencesRef.current.length) {
@@ -159,19 +211,10 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
             onFinishedRef.current?.();
           }
         };
-        audio.onerror = () => {
-          // Audio lỗi -> fallback mượt sang Web Speech API
-          if (isPlayingRef.current) {
-            speakWithWebSpeech(idx, sentence.text);
-          }
-        };
-        audio.play().catch(() => {
-          if (isPlayingRef.current) {
-            speakWithWebSpeech(idx, sentence.text);
-          }
-        });
+        audio.onerror = triggerFallback;
+        audio.play().catch(triggerFallback);
       } else {
-        speakWithWebSpeech(idx, sentence.text);
+        speakWithWebSpeech(idx, sentence.text, token);
       }
     },
     [hasReadyAudioFor, preloadUpcoming, speakWithWebSpeech, stopInternal]
@@ -181,15 +224,16 @@ export function useSentenceAudio({ sentences, audioStatus, onFinishedAll }: UseS
     playAtRef.current = playAt;
   }, [playAt]);
 
-  // Reset cleanly when switching articles/versions
+  // Reset & release all preloaded audio elements when switching articles/versions or unmounting
   useEffect(() => {
     stopInternal();
-    preloadedRef.current.clear();
+    releaseAllPreloaded();
     setActiveIdx(0);
     return () => {
       stopInternal();
+      releaseAllPreloaded();
     };
-  }, [sentences, stopInternal]);
+  }, [sentences, stopInternal, releaseAllPreloaded]);
 
   const togglePlay = useCallback(() => {
     if (isPlayingRef.current) {

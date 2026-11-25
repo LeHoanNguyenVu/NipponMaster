@@ -78,9 +78,10 @@ const LANG_NAMES: Record<string, string> = {
 };
 
 const HISTORY_STORAGE_KEY = 'nipponmaster_translation_history';
+const PREFILL_STORAGE_KEY = 'nippon_translation_prefill';
 
 export default function Translation() {
-  const { t } = useTranslation(['translation', 'common']);
+  const { t, i18n } = useTranslation(['translation', 'common']);
   const getLangName = (lang: string) => t(`translation:languages.${lang}`, LANG_NAMES[lang] || lang);
 
   const [inputText, setInputText] = useState('');
@@ -97,7 +98,7 @@ export default function Translation() {
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load history from localStorage on mount
+  // Load history from localStorage on mount + đọc prefill từ Reading Selection Toolbar (chỉ chạy 1 lần)
   useEffect(() => {
     try {
       const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
@@ -107,6 +108,27 @@ export default function Translation() {
     } catch (e) {
       console.warn('Could not load translation history', e);
     }
+
+    let prefill: string | null = null;
+    try {
+      prefill = sessionStorage.getItem(PREFILL_STORAGE_KEY);
+    } catch {
+      prefill = null;
+    } finally {
+      try {
+        sessionStorage.removeItem(PREFILL_STORAGE_KEY);
+      } catch { }
+    }
+
+    if (prefill && prefill.trim()) {
+      const cleaned = prefill.trim().slice(0, 500);
+      const resolvedTarget = (i18n.language || 'vi').startsWith('en') ? 'en' : 'vi';
+      setSourceLang('ja');
+      setTargetLang(resolvedTarget);
+      setInputText(cleaned);
+      handleTranslate(cleaned, 'ja', resolvedTarget);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Save history helper
@@ -173,7 +195,7 @@ export default function Translation() {
     const trimmed = textToTranslate.trim();
     if (!trimmed) return;
     const key = `${src}>${tgt}:${trimmed}`;
-    if (key === lastTranslatedRef.current && result?.translatedText) return;
+    if (key === lastTranslatedRef.current && (result?.translatedText || streamRef.current)) return;
     lastTranslatedRef.current = key;
 
     stopStream();

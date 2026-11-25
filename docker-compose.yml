@@ -3,5 +3,5 @@ services:
     image: redis:alpine
     container_name: nihongo-redis
     ports:
-      - "6379:6379"
+      - "16379:6379"
     restart: "no"

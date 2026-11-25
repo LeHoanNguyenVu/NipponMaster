@@ -4,14 +4,20 @@ import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.*;
 import com.nihongo.api.modules.reading.article.service.CopyrightGuardService.CopyrightCheckResult;
 import com.nihongo.api.modules.reading.article.service.JlptLevelClassifier.ClassificationResult;
 import com.nihongo.api.modules.reading.article.service.ReadingArticleRepository.VersionInsertPayload;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Pipeline Ingest bài đọc:
@@ -26,6 +32,7 @@ public class ReadingIngestService {
 
     private static final List<String> VOICES = List.of("Kore", "Puck");
     private static final int MAX_EVENTS_HARD_CAP = 10;
+    private static final long MAX_RUN_NANOS = java.time.Duration.ofMinutes(3).toNanos();
 
     private final ReadingRssClient rssClient;
     private final ReadingContentGenerator contentGenerator;
@@ -34,9 +41,25 @@ public class ReadingIngestService {
     private final JlptLevelClassifier levelClassifier;
     private final ReadingArticleRepository repository;
     private final ReadingCoverImageService coverImageService;
+    private final ReadingTtsService ttsService;
 
     private final SecureRandom random = new SecureRandom();
     private final AtomicBoolean ingestRunning = new AtomicBoolean(false);
+    private final AtomicBoolean cancelRequested = new AtomicBoolean(false);
+    private volatile java.util.concurrent.Future<?> currentFuture;
+    private final AtomicReference<IngestStatusDto> latestStatus = new AtomicReference<>(
+            IngestStatusDto.builder().running(false).build()
+    );
+    private final ExecutorService ingestExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "reading-ingest-worker");
+        t.setDaemon(true);
+        return t;
+    });
+
+    @PreDestroy
+    public void shutdown() {
+        ingestExecutor.shutdownNow();
+    }
 
     @Value("${reading.ingest.max-events-per-run:5}")
     private int defaultMaxEvents = 5;
@@ -47,24 +70,133 @@ public class ReadingIngestService {
     @Value("${reading.level.llm-second-opinion-enabled:true}")
     private boolean llmSecondOpinionEnabled = true;
 
+    public IngestStatusDto getIngestStatus() {
+        return latestStatus.get();
+    }
+
+    public IngestStatusDto cancelIngest() {
+        cancelRequested.set(true);
+        java.util.concurrent.Future<?> f = currentFuture;
+        if (f != null && !f.isDone()) {
+            f.cancel(true);
+        }
+        IngestStatusDto cur = latestStatus.get();
+        if (cur != null && cur.isRunning()) {
+            IngestStatusDto stopped = IngestStatusDto.builder()
+                    .running(false)
+                    .targetEvents(cur.getTargetEvents())
+                    .processedEvents(cur.getProcessedEvents())
+                    .createdArticles(cur.getCreatedArticles())
+                    .createdVersions(cur.getCreatedVersions())
+                    .skippedDuplicates(cur.getSkippedDuplicates())
+                    .failedItems(cur.getFailedItems())
+                    .currentMessage("Đã dừng tiến trình lấy tin theo yêu cầu của Admin.")
+                    .startedAt(cur.getStartedAt())
+                    .finishedAt(OffsetDateTime.now(ZoneOffset.UTC))
+                    .build();
+            latestStatus.set(stopped);
+            return stopped;
+        }
+        return latestStatus.get();
+    }
+
+    /**
+     * Khởi chạy pipeline ingest ở tiến trình nền để trả HTTP 200 ngay lập tức (tránh hoàn toàn lỗi timeout / Network Error).
+     */
+    public IngestStatusDto startIngestAsync(Integer maxEventsOverride, String sourceFilter) {
+        if (!ingestRunning.compareAndSet(false, true)) {
+            return latestStatus.get();
+        }
+        cancelRequested.set(false);
+        int maxEvents = maxEventsOverride != null
+                ? Math.max(1, Math.min(maxEventsOverride, MAX_EVENTS_HARD_CAP))
+                : Math.max(1, Math.min(defaultMaxEvents, MAX_EVENTS_HARD_CAP));
+
+        OffsetDateTime startedAt = OffsetDateTime.now(ZoneOffset.UTC);
+        IngestStatusDto initial = IngestStatusDto.builder()
+                .running(true)
+                .targetEvents(maxEvents)
+                .processedEvents(0)
+                .createdArticles(0)
+                .createdVersions(0)
+                .skippedDuplicates(0)
+                .failedItems(0)
+                .currentMessage("Đang đọc RSS từ các nguồn tin Nhật Bản...")
+                .startedAt(startedAt)
+                .build();
+        latestStatus.set(initial);
+
+        currentFuture = ingestExecutor.submit(() -> {
+            try {
+                IngestReportDto report = executeIngest(maxEvents, sourceFilter, startedAt);
+                latestStatus.set(IngestStatusDto.builder()
+                        .running(false)
+                        .targetEvents(maxEvents)
+                        .processedEvents(report.getCreatedArticles() + report.getFailedItems())
+                        .createdArticles(report.getCreatedArticles())
+                        .createdVersions(report.getCreatedVersions())
+                        .skippedDuplicates(report.getSkippedDuplicates())
+                        .failedItems(report.getFailedItems())
+                        .currentMessage("Hoàn tất: tạo mới " + report.getCreatedArticles() + " bài (" + report.getCreatedVersions() + " phiên bản JLPT).")
+                        .startedAt(startedAt)
+                        .finishedAt(OffsetDateTime.now(ZoneOffset.UTC))
+                        .lastReport(report)
+                        .build());
+            } catch (Exception e) {
+                log.error("Async reading ingest gặp lỗi bất ngờ: {}", e.getMessage(), e);
+                IngestReportDto errReport = IngestReportDto.builder()
+                        .failedItems(1)
+                        .errors(List.of("Lỗi hệ thống khi chạy ingest: " + e.getMessage()))
+                        .build();
+                latestStatus.set(IngestStatusDto.builder()
+                        .running(false)
+                        .targetEvents(maxEvents)
+                        .failedItems(1)
+                        .currentMessage("Pipeline gặp lỗi: " + e.getMessage())
+                        .startedAt(startedAt)
+                        .finishedAt(OffsetDateTime.now(ZoneOffset.UTC))
+                        .lastReport(errReport)
+                        .build());
+            } finally {
+                ingestRunning.set(false);
+            }
+        });
+
+        return initial;
+    }
+
     public IngestReportDto runIngest(Integer maxEventsOverride, String sourceFilter) {
         if (!ingestRunning.compareAndSet(false, true)) {
             return IngestReportDto.builder()
                     .errors(List.of("Pipeline ingest đang chạy ở tiến trình khác, vui lòng thử lại sau."))
                     .build();
         }
+        int maxEvents = maxEventsOverride != null
+                ? Math.max(1, Math.min(maxEventsOverride, MAX_EVENTS_HARD_CAP))
+                : Math.max(1, Math.min(defaultMaxEvents, MAX_EVENTS_HARD_CAP));
+        OffsetDateTime startedAt = OffsetDateTime.now(ZoneOffset.UTC);
         try {
-            return executeIngest(maxEventsOverride, sourceFilter);
+            IngestReportDto report = executeIngest(maxEvents, sourceFilter, startedAt);
+            latestStatus.set(IngestStatusDto.builder()
+                    .running(false)
+                    .targetEvents(maxEvents)
+                    .processedEvents(report.getCreatedArticles() + report.getFailedItems())
+                    .createdArticles(report.getCreatedArticles())
+                    .createdVersions(report.getCreatedVersions())
+                    .skippedDuplicates(report.getSkippedDuplicates())
+                    .failedItems(report.getFailedItems())
+                    .currentMessage("Hoàn tất")
+                    .startedAt(startedAt)
+                    .finishedAt(OffsetDateTime.now(ZoneOffset.UTC))
+                    .lastReport(report)
+                    .build());
+            return report;
         } finally {
             ingestRunning.set(false);
         }
     }
 
-    private IngestReportDto executeIngest(Integer maxEventsOverride, String sourceFilter) {
-        int maxEvents = maxEventsOverride != null
-                ? Math.max(1, Math.min(maxEventsOverride, MAX_EVENTS_HARD_CAP))
-                : Math.max(1, Math.min(defaultMaxEvents, MAX_EVENTS_HARD_CAP));
-
+    private IngestReportDto executeIngest(int maxEvents, String sourceFilter, OffsetDateTime startedAt) {
         List<String> targetLevels = parseTargetLevels();
         List<RssItem> feedItems = rssClient.fetchEnabledFeeds(sourceFilter, 6);
 
@@ -73,30 +205,57 @@ public class ReadingIngestService {
         int createdArticles = 0;
         int createdVersions = 0;
         int failed = 0;
+        int consecutiveErrors = 0;
+        long deadlineNanos = System.nanoTime() + MAX_RUN_NANOS;
         List<String> errors = new ArrayList<>();
 
         for (RssItem item : feedItems) {
             if (createdArticles >= maxEvents) {
                 break;
             }
+            if (cancelRequested.get() || Thread.currentThread().isInterrupted()) {
+                errors.add("Đã dừng sớm theo yêu cầu.");
+                break;
+            }
+            if (System.nanoTime() > deadlineNanos) {
+                errors.add("Đã đạt giới hạn thời gian 3 phút mỗi lượt lấy tin — tự dừng để tránh treo.");
+                break;
+            }
             if (repository.existsBySourceUrl(item.link())) {
                 skippedDuplicates++;
                 continue;
             }
+            latestStatus.set(IngestStatusDto.builder()
+                    .running(true)
+                    .targetEvents(maxEvents)
+                    .processedEvents(createdArticles + failed)
+                    .createdArticles(createdArticles)
+                    .createdVersions(createdVersions)
+                    .skippedDuplicates(skippedDuplicates)
+                    .failedItems(failed)
+                    .currentMessage("Đang viết bài " + (createdArticles + 1) + "/" + maxEvents + " từ " + item.sourceCode() + "...")
+                    .startedAt(startedAt)
+                    .build());
             try {
                 int versionsSaved = ingestSingleEvent(item, targetLevels);
                 if (versionsSaved > 0) {
                     createdArticles++;
                     createdVersions += versionsSaved;
+                    consecutiveErrors = 0;
                 } else {
                     failed++;
                     errors.add(item.sourceCode() + ": không có phiên bản nào vượt qua kiểm định bản quyền");
                 }
             } catch (Exception e) {
                 failed++;
+                consecutiveErrors++;
                 String msg = item.sourceCode() + " [" + item.link() + "]: " + e.getMessage();
                 errors.add(msg);
                 log.warn("Lỗi ingest sự kiện {}: {}", item.sourceCode(), e.getMessage());
+                if (consecutiveErrors >= 2) {
+                    errors.add("Dừng sớm sau 2 sự kiện lỗi liên tiếp để tránh chờ lâu.");
+                    break;
+                }
             }
         }
 
@@ -144,6 +303,8 @@ public class ReadingIngestService {
                 prepared
         );
         coverImageService.generateAndSaveSilently(articleId, extracted.getCategory(), extracted.getFacts());
+        // Tự động xếp hàng sinh sẵn giọng đọc Gemini TTS cho cả 3 phiên bản N5/N3/N1 ngay khi bài mới được tạo
+        ttsService.generateAudioForArticleAsync(articleId);
         return prepared.size();
     }
 

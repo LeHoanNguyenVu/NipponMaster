@@ -11,6 +11,7 @@
   },
   "categories": {
     "ALL": "Mọi chủ đề",
+    "LATEST": "Tin mới nhất",
     "SOCIETY": "Xã hội",
     "LIFE": "Đời sống",
     "ECONOMY": "Kinh tế",
@@ -33,10 +34,13 @@
     "resetFilter": "Xem tất cả bài đọc",
     "loadError": "Không thể tải danh sách bài đọc. Vui lòng thử lại.",
     "retry": "Thử lại",
-    "showing": "Hiển thị {{count}} / {{total}} bài đọc"
+    "showing": "Hiển thị {{count}} / {{total}} bài đọc",
+    "retentionNote": "Bài báo tự động làm mới, lưu trong 7 ngày"
   },
   "reader": {
     "back": "Quay lại danh sách",
+    "latestNewsTitle": "Tin mới nhất",
+    "viewAllNews": "Xem tất cả",
     "otherLevels": "Phiên bản cùng sự kiện:",
     "furiganaLabel": "Furigana",
     "furiganaSmart": "Thông minh",
@@ -52,6 +56,7 @@
     "completedBadge": "Bạn đã hoàn thành bài đọc này",
     "completing": "Đang lưu...",
     "completedToast": "Tuyệt vời! Bạn đã hoàn thành {{total}} bài đọc.",
+    "finishedAudioHint": "Bạn đã nghe hết bài đọc! Đánh dấu đã hoàn thành ngay nhé?",
     "wordPopup": {
       "reading": "Cách đọc",
       "baseForm": "Dạng gốc",
@@ -74,6 +79,21 @@
     "repeat": "Lặp lại câu đang nghe",
     "speed": "Tốc độ phát",
     "sentenceProgress": "Câu {{current}} / {{total}}",
-    "fallbackBadge": "Giọng đọc tạm thời"
+    "fallbackBadge": "Giọng đọc tạm thời",
+    "generatingBadge": "Đang tạo giọng Gemini..."
+  },
+  "selectionToolbar": {
+    "ariaLabel": "Thanh công cụ cho đoạn chữ Nhật đã chọn",
+    "saveFlashcard": "Lưu flashcard",
+    "saving": "Đang lưu...",
+    "quickTranslate": "Dịch nhanh",
+    "analyze": "Xem nghĩa & phân tích",
+    "savedToast": "Đã lưu \"{{word}}\" vào sổ tay Flashcard",
+    "savedToastWithReading": "Đã lưu \"{{word}}\" ({{reading}}) vào sổ tay Flashcard",
+    "saveError": "Không thể lưu flashcard. Vui lòng thử lại.",
+    "loginRequired": "Vui lòng đăng nhập để lưu flashcard.",
+    "translating": "Đang dịch nhanh...",
+    "translateError": "Không thể dịch đoạn này lúc này. Vui lòng thử lại.",
+    "closePopover": "Đóng bản dịch nhanh"
   }
 }

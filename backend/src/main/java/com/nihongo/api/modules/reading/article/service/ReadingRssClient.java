@@ -60,7 +60,8 @@ public class ReadingRssClient {
             "www.soumu.go.jp",
             "www.maff.go.jp",
             "www.data.jma.go.jp",
-            "www.nhk.or.jp"
+            "www.nhk.or.jp",
+            "news.web.nhk"
     );
 
     public static final Map<String, RssSourceConfig> ALL_SOURCES;
@@ -75,13 +76,13 @@ public class ReadingRssClient {
         m.put("MAFF", new RssSourceConfig("MAFF", "農林水産省", "https://www.maff.go.jp/j/press/rss.xml", "PDL_1_0", "LIFE", "UTF-8"));
         m.put("JMA_REGULAR", new RssSourceConfig("JMA_REGULAR", "気象庁", "https://www.data.jma.go.jp/developer/xml/feed/regular.xml", "PDL_1_0", "WEATHER", "UTF-8"));
 
-        // Tầng 2: Tin nóng thời sự (chỉ trích sự kiện khách quan theo 著作権法 Điều 10 khoản 2)
-        m.put("NHK_TOP", new RssSourceConfig("NHK_TOP", "NHK NEWS WEB", "https://www.nhk.or.jp/rss/news/cat0.xml", "FACTS_ONLY", "SOCIETY", "UTF-8"));
-        m.put("NHK_SOCIETY", new RssSourceConfig("NHK_SOCIETY", "NHK NEWS WEB", "https://www.nhk.or.jp/rss/news/cat1.xml", "FACTS_ONLY", "SOCIETY", "UTF-8"));
-        m.put("NHK_CULTURE", new RssSourceConfig("NHK_CULTURE", "NHK NEWS WEB", "https://www.nhk.or.jp/rss/news/cat2.xml", "FACTS_ONLY", "CULTURE", "UTF-8"));
-        m.put("NHK_SCITECH", new RssSourceConfig("NHK_SCITECH", "NHK NEWS WEB", "https://www.nhk.or.jp/rss/news/cat3.xml", "FACTS_ONLY", "SCI_TECH", "UTF-8"));
-        m.put("NHK_ECONOMY", new RssSourceConfig("NHK_ECONOMY", "NHK NEWS WEB", "https://www.nhk.or.jp/rss/news/cat5.xml", "FACTS_ONLY", "ECONOMY", "UTF-8"));
-        m.put("NHK_SPORTS", new RssSourceConfig("NHK_SPORTS", "NHK NEWS WEB", "https://www.nhk.or.jp/rss/news/cat7.xml", "FACTS_ONLY", "SPORTS", "UTF-8"));
+        // Tầng 2: Tin nóng thời sự NHK (đã chuyển host RSS sang news.web.nhk; chỉ trích facts theo 著作権法 Điều 10 khoản 2)
+        m.put("NHK_TOP", new RssSourceConfig("NHK_TOP", "NHK NEWS WEB", "https://news.web.nhk/n-data/conf/na/rss/cat0.xml", "FACTS_ONLY", "SOCIETY", "UTF-8"));
+        m.put("NHK_SOCIETY", new RssSourceConfig("NHK_SOCIETY", "NHK NEWS WEB", "https://news.web.nhk/n-data/conf/na/rss/cat1.xml", "FACTS_ONLY", "SOCIETY", "UTF-8"));
+        m.put("NHK_CULTURE", new RssSourceConfig("NHK_CULTURE", "NHK NEWS WEB", "https://news.web.nhk/n-data/conf/na/rss/cat2.xml", "FACTS_ONLY", "CULTURE", "UTF-8"));
+        m.put("NHK_SCITECH", new RssSourceConfig("NHK_SCITECH", "NHK NEWS WEB", "https://news.web.nhk/n-data/conf/na/rss/cat3.xml", "FACTS_ONLY", "SCI_TECH", "UTF-8"));
+        m.put("NHK_ECONOMY", new RssSourceConfig("NHK_ECONOMY", "NHK NEWS WEB", "https://news.web.nhk/n-data/conf/na/rss/cat5.xml", "FACTS_ONLY", "ECONOMY", "UTF-8"));
+        m.put("NHK_SPORTS", new RssSourceConfig("NHK_SPORTS", "NHK NEWS WEB", "https://news.web.nhk/n-data/conf/na/rss/cat7.xml", "FACTS_ONLY", "SPORTS", "UTF-8"));
         ALL_SOURCES = Collections.unmodifiableMap(m);
     }
 
@@ -145,6 +146,19 @@ public class ReadingRssClient {
             throw new SecurityException("Host không nằm trong whitelist RSS: " + host);
         }
         return uri;
+    }
+
+    /**
+     * Chuẩn hóa http:// -> https:// cho các nguồn công quyền cũ (KANKOCHO/SOUMU),
+     * rồi kiểm tra nghiêm ngặt theo whitelist.
+     */
+    public String normalizeSafeSourceLink(String link) {
+        if (link == null || link.isBlank()) return null;
+        String trimmed = link.trim();
+        if (trimmed.regionMatches(true, 0, "http://", 0, 7)) {
+            trimmed = "https://" + trimmed.substring(7);
+        }
+        return isSafeSourceLink(trimmed) ? trimmed : null;
     }
 
     /**
@@ -254,7 +268,8 @@ public class ReadingRssClient {
                     ? firstNonBlank(getChildText(el, "updated"), getChildText(el, "published"))
                     : firstNonBlank(getChildText(el, "pubDate"), getChildText(el, "date"));
 
-            if (title.isBlank() || !isSafeSourceLink(link)) continue;
+            String safeLink = normalizeSafeSourceLink(link);
+            if (title.isBlank() || safeLink == null) continue;
 
             items.add(new RssItem(
                     source.code(),
@@ -262,7 +277,7 @@ public class ReadingRssClient {
                     source.defaultCategory(),
                     truncate(cleanWhitespace(title), MAX_TITLE_CHARS),
                     truncate(cleanWhitespace(stripHtmlTags(desc)), MAX_DESC_CHARS),
-                    link.trim(),
+                    safeLink,
                     parseDate(dateStr)
             ));
         }

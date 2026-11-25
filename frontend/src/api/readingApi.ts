@@ -48,6 +48,8 @@ export interface ReadingArticleCard {
   audioStatus: 'PENDING' | 'READY' | 'FAILED';
   sourceName: string;
   sourceLicense: 'PDL_1_0' | 'FACTS_ONLY' | string;
+  coverImageUrl?: string | null;
+  coverImageCredit?: string | null;
   publishedAt?: string | null;
   completed: boolean;
 }
@@ -82,6 +84,8 @@ export interface ReadingVersionDetail {
   sourceName: string;
   sourceLicense: 'PDL_1_0' | 'FACTS_ONLY' | string;
   sourceUrl: string;
+  coverImageUrl?: string | null;
+  coverImageCredit?: string | null;
   publishedAt?: string | null;
   sentences: ReadingSentence[];
   keyVocab: ReadingKeyVocab[];
@@ -115,6 +119,12 @@ export const readingApi = {
     if (params.size !== undefined) query.set('size', String(params.size));
     const res = (await axiosClient.get(`/reading/articles?${query.toString()}`)) as unknown as ApiEnvelope<ReadingArticleListResponse>;
     return res.data;
+  },
+
+  async getRecommended(level?: string): Promise<ReadingArticleCard | null> {
+    const query = level && level !== 'ALL' ? `?level=${encodeURIComponent(level)}` : '';
+    const res = (await axiosClient.get(`/reading/recommended${query}`)) as unknown as ApiEnvelope<ReadingArticleCard | null>;
+    return res?.data ?? null;
   },
 
   async getVersionDetail(versionId: number): Promise<ReadingVersionDetail> {

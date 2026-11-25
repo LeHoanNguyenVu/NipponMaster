@@ -11,8 +11,9 @@ import { loadAllModulesProgress } from '../utils/moduleProgressManager';
 import { getDaily10CardsDeck, clearDailyDeckCache, getCumulativeFallbackCards } from '../utils/srsCardManager';
 import { isBeginnerGraduated, getBeginnerCourseSummary } from '../utils/beginnerProgressManager';
 import { getUserScope } from '../utils/userScope';
-import { GraduationCap, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { GraduationCap, ArrowRight, CheckCircle2, Newspaper, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { readingApi, type ReadingArticleCard } from '../api/readingApi';
 
 interface Stats {
   jlptLevel: string;
@@ -23,6 +24,8 @@ interface Stats {
   kanjiTotal: number;
   grammarLearned: number;
   grammarTotal: number;
+  readingCompleted?: number;
+  readingTotal?: number;
   weeklyStudyMinutes: number;
   dueCardCount: number;
   streakDays: number;
@@ -70,10 +73,11 @@ export default function DashboardStudent({
     }
   }, [isGraduated, user?.jlptLevel, updateUserLevel]);
 
-  // Stale-While-Revalidate Stats
+  // Stale-While-Revalidate Stats (cô lập theo từng tài khoản để không nháy số liệu user trước)
+  const scopedStatsKey = `${getUserScope()}${STATS_CACHE_KEY}`;
   const [stats, setStats] = useState<Stats>(() => {
     try {
-      const cached = localStorage.getItem(STATS_CACHE_KEY);
+      const cached = localStorage.getItem(`${getUserScope()}${STATS_CACHE_KEY}`);
       if (cached) return JSON.parse(cached);
     } catch {}
     return {
@@ -85,6 +89,8 @@ export default function DashboardStudent({
       kanjiTotal: 214,
       grammarLearned: 0,
       grammarTotal: 50,
+      readingCompleted: 0,
+      readingTotal: 0,
       weeklyStudyMinutes: 30,
       dueCardCount: 0,
       streakDays: streakState.currentStreak,
@@ -92,6 +98,7 @@ export default function DashboardStudent({
   });
 
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [recommendedArticle, setRecommendedArticle] = useState<ReadingArticleCard | null>(null);
   const [cards, setCards] = useState<FlashcardItem[]>(() => {
     const scope = getUserScope();
     const currentLvl = (user?.jlptLevel || localStorage.getItem('nippon_user_level') || 'STARTER').toUpperCase();
@@ -159,7 +166,7 @@ export default function DashboardStudent({
         if (active && data) {
           setStats(data);
           try {
-            localStorage.setItem(STATS_CACHE_KEY, JSON.stringify(data));
+            localStorage.setItem(scopedStatsKey, JSON.stringify(data));
           } catch {}
         }
       } catch (err) {
@@ -174,6 +181,26 @@ export default function DashboardStudent({
       active = false;
     };
   }, []);
+
+  // Fetch bài đọc gợi ý hôm nay (chỉ áp dụng cho học viên từ N5 trở lên)
+  useEffect(() => {
+    if (isStarter) {
+      setRecommendedArticle(null);
+      return;
+    }
+    let active = true;
+    readingApi
+      .getRecommended(rawLevel)
+      .then((card) => {
+        if (active) setRecommendedArticle(card);
+      })
+      .catch(() => {
+        if (active) setRecommendedArticle(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [isStarter, rawLevel]);
 
   // Xử lý khi học viên lật/xem 1 thẻ flashcard
   const handleCardReviewed = useCallback((cardIndex: number) => {
@@ -213,13 +240,15 @@ export default function DashboardStudent({
     return getDaily10CardsDeck(cards, undefined, isStarter ? 'STARTER' : rawLevel, deckVersion > 0);
   }, [cards, rawLevel, isStarter, deckVersion]);
 
-  // Tiến độ tích lũy thực tế của 3 Module Cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp)
+  // Tiến độ tích lũy thực tế của 4 Module Cốt lõi (Nhập môn, 214 Bộ thủ, Ngữ pháp, Luyện Đọc)
   const modulesProgress = useMemo(() => {
     return loadAllModulesProgress({
       kanjiLearned: stats.kanjiLearned,
       grammarLearned: stats.grammarLearned,
+      readingCompleted: stats.readingCompleted ?? 0,
+      readingTotal: stats.readingTotal ?? 0,
     });
-  }, [stats.kanjiLearned, stats.grammarLearned]);
+  }, [stats.kanjiLearned, stats.grammarLearned, stats.readingCompleted, stats.readingTotal]);
 
   const overallMastery = modulesProgress.overallMasteryPercent;
 
@@ -242,11 +271,69 @@ export default function DashboardStudent({
           - Ở level Nhập Môn: KHÔNG HIỆN bảng stat này!
           - Chỉ khi user đạt 5 chương và nhận bằng lên N5 thì mới hiện full ra! */}
       {!isStarter ? (
-        <ModuleProgressOverview
-          levelDisplay={levelDisplay}
-          modulesProgress={modulesProgress}
-          onNavigate={navigateTo}
-        />
+        <>
+          <ModuleProgressOverview
+            levelDisplay={levelDisplay}
+            modulesProgress={modulesProgress}
+            onNavigate={navigateTo}
+          />
+
+          {/* Banner Bài đọc gợi ý hôm nay (bài chưa đọc mới nhất đúng level học viên) */}
+          {recommendedArticle && (
+            <div
+              data-testid="recommended-reading-banner"
+              className="p-4 sm:p-5 bg-surface-container-lowest border border-outline-variant/70 border-l-4 border-l-primary shadow-flat-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-serif"
+              style={{ borderRadius: '2px' }}
+            >
+              <div className="min-w-0 space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-primary">
+                    <Newspaper size={13} />
+                    {t('dashboard:recommendedReading.badge')}
+                  </span>
+                  <span
+                    className="px-2 py-0.5 text-[11px] font-bold bg-primary/10 text-primary border border-primary/25 font-mono"
+                    style={{ borderRadius: '2px' }}
+                  >
+                    {recommendedArticle.jlptLevel}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-xs text-outline">
+                    <Clock size={12} />
+                    {t('dashboard:recommendedReading.minutes', {
+                      count: recommendedArticle.estimatedMinutes,
+                    })}
+                  </span>
+                </div>
+                <h3 className="font-jp text-base sm:text-lg font-bold text-on-surface leading-snug truncate">
+                  {recommendedArticle.titleJa}
+                </h3>
+                {recommendedArticle.titleVi && (
+                  <p className="text-xs text-on-surface-variant line-clamp-1">
+                    {recommendedArticle.titleVi}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem(
+                      'nippon_reading_open_version',
+                      String(recommendedArticle.versionId)
+                    );
+                  } catch {}
+                  navigateTo('reading');
+                }}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-primary text-on-primary text-xs font-bold hover:opacity-95 transition-opacity shrink-0 cursor-pointer shadow-flat-sm self-start sm:self-center"
+                style={{ borderRadius: '2px' }}
+              >
+                <span>{t('dashboard:recommendedReading.cta')}</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         /* Ở level Nhập Môn: Hiển thị Banner Lộ Trình 5 Chương Nhập Môn trực quan */
         <div 

@@ -30,6 +30,9 @@ class ReadingIngestServiceTest {
     @Mock
     private ReadingCoverImageService coverImageService;
 
+    @Mock
+    private ReadingTtsService ttsService;
+
     private final JapaneseTokenizer tokenizer = new JapaneseTokenizer();
     private final CopyrightGuardService copyrightGuard = new CopyrightGuardService();
     private final JlptLexiconService lexicon = new JlptLexiconService();
@@ -38,7 +41,7 @@ class ReadingIngestServiceTest {
     @Test
     void runIngest_generatesThreeLevelsTokenizesClassifiesAndSavesAsReview() {
         ReadingIngestService service = new ReadingIngestService(
-                rssClient, contentGenerator, tokenizer, copyrightGuard, levelClassifier, repository, coverImageService
+                rssClient, contentGenerator, tokenizer, copyrightGuard, levelClassifier, repository, coverImageService, ttsService
         );
 
         RssItem dup = new RssItem("GOV_ONLINE", "PDL_1_0", "LIFE", "Old", "Old desc", "https://www.gov-online.go.jp/old.html", OffsetDateTime.now());
@@ -101,6 +104,7 @@ class ReadingIngestServiceTest {
                 eq("GOV_ONLINE"), eq("PDL_1_0"), eq(fresh.link()), eq(fresh.title()),
                 eq(fresh.publishedAt()), eq("LIFE"), anyList(), versionsCaptor.capture()
         );
+        verify(ttsService).generateAudioForArticleAsync(42L);
 
         List<VersionInsertPayload> savedVersions = versionsCaptor.getValue();
         assertEquals(3, savedVersions.size());
@@ -119,7 +123,7 @@ class ReadingIngestServiceTest {
     @Test
     void runIngest_triggersRewriteWhenDraftIsTooHardForN5() {
         ReadingIngestService service = new ReadingIngestService(
-                rssClient, contentGenerator, tokenizer, copyrightGuard, levelClassifier, repository, coverImageService
+                rssClient, contentGenerator, tokenizer, copyrightGuard, levelClassifier, repository, coverImageService, ttsService
         );
 
         RssItem item = new RssItem("GOV_ONLINE", "PDL_1_0", "LIFE", "省エネの案内", "冬の節電について", "https://www.gov-online.go.jp/rewrite.html", OffsetDateTime.now());
@@ -180,7 +184,7 @@ class ReadingIngestServiceTest {
     @Test
     void runIngest_blocksCopiedVersionAfterRetry() {
         ReadingIngestService service = new ReadingIngestService(
-                rssClient, contentGenerator, tokenizer, copyrightGuard, levelClassifier, repository, coverImageService
+                rssClient, contentGenerator, tokenizer, copyrightGuard, levelClassifier, repository, coverImageService, ttsService
         );
 
         String rssText = "東京都内の鉄道会社は20日、消費電力を従来より20％削減できる新型電車の運行を始めました。";

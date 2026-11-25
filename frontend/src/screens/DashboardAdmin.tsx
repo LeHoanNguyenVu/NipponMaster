@@ -2,7 +2,7 @@ import { Component, type ErrorInfo, type ReactNode, useState, useRef, useEffect 
 import { 
   Users, BookOpen, ShieldCheck, Activity, LayoutDashboard, 
   CreditCard, Building2, MailCheck, TrendingUp, 
-  CheckCircle2, Clock, Zap, Cpu, Server, Database, Lock, RefreshCw, Bot
+  CheckCircle2, Clock, Zap, Cpu, Server, Database, Lock, RefreshCw, Bot, Newspaper
 } from 'lucide-react';
 import UserManagementConsole from './admin/UserManagementConsole';
 import SubscriptionPlanConsole from './admin/SubscriptionPlanConsole';
@@ -10,6 +10,7 @@ import EnterpriseManagementConsole from './admin/EnterpriseManagementConsole';
 import AntiCheatConsole from './admin/AntiCheatConsole';
 import RetentionCampaignConsole from './admin/RetentionCampaignConsole';
 import AiTelemetryConsole from './admin/AiTelemetryConsole';
+import ReadingManagementConsole from './admin/ReadingManagementConsole';
 import { adminDashboardApi, type AdminOverviewData } from '../api/adminDashboardApi';
 
 interface DashboardAdminProps {
@@ -47,8 +48,38 @@ class TabErrorBoundary extends Component<{ resetKey: string; children: ReactNode
   }
 }
 
+type AdminTabId = 'overview' | 'users' | 'subscriptions' | 'enterprise' | 'security' | 'retention' | 'ai' | 'reading';
+const ADMIN_TABS: ReadonlySet<string> = new Set<AdminTabId>([
+  'overview', 'users', 'subscriptions', 'enterprise', 'security', 'retention', 'ai', 'reading',
+]);
+
+function parseAdminTabFromHash(hash: string): AdminTabId {
+  const m = /^#\/dashboard\/([a-z]+)$/i.exec(hash.trim());
+  const tab = m?.[1]?.toLowerCase();
+  if (tab && ADMIN_TABS.has(tab)) return tab as AdminTabId;
+  return 'overview';
+}
+
 export default function DashboardAdmin({ username }: DashboardAdminProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'subscriptions' | 'enterprise' | 'security' | 'retention' | 'ai'>('overview');
+  const [activeTab, setActiveTab] = useState<AdminTabId>(() => parseAdminTabFromHash(window.location.hash));
+
+  const selectTab = (tab: AdminTabId) => {
+    setActiveTab(tab);
+    const targetHash = tab === 'overview' ? '#/dashboard' : `#/dashboard/${tab}`;
+    if (window.location.hash !== targetHash) {
+      window.location.hash = targetHash;
+    }
+  };
+
+  useEffect(() => {
+    const onHashChange = () => {
+      if (window.location.hash.toLowerCase().startsWith('#/dashboard')) {
+        setActiveTab(parseAdminTabFromHash(window.location.hash));
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   // Real Dynamic Data State (100% PURE REAL DATABASE DATA)
   const [overviewData, setOverviewData] = useState<AdminOverviewData | null>(null);
@@ -156,13 +187,14 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
             { id: 'security', label: '🛡️ An Ninh & Anti-Cheat', icon: ShieldCheck },
             { id: 'retention', label: '📩 Tự Động Hóa Retention', icon: MailCheck },
             { id: 'ai', label: '🤖 Giám Sát AI & RAG', icon: Bot },
+            { id: 'reading', label: '📰 Quản Lý Luyện Đọc', icon: Newspaper },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => selectTab(tab.id as AdminTabId)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
                     ? 'bg-primary text-on-primary shadow-sm'
@@ -496,6 +528,13 @@ export default function DashboardAdmin({ username }: DashboardAdminProps) {
       {activeTab === 'ai' && (
         <div className="animate-fade-in">
           <AiTelemetryConsole />
+        </div>
+      )}
+
+      {/* TAB 8: READING ROOM MANAGEMENT CONSOLE */}
+      {activeTab === 'reading' && (
+        <div className="animate-fade-in">
+          <ReadingManagementConsole />
         </div>
       )}
       </TabErrorBoundary>

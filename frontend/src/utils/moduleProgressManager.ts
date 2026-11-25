@@ -2,7 +2,7 @@
 // Đảm bảo tính nhất quán, lưu trữ qua localStorage và đồng bộ hóa với backend khi có sẵn.
 
 export interface SingleModuleProgress {
-  key: 'beginner' | 'kanji' | 'grammar';
+  key: 'beginner' | 'kanji' | 'grammar' | 'reading';
   title: string;
   subtitle: string;
   categoryTag: string;
@@ -32,6 +32,7 @@ export interface AllModulesProgress {
   beginner: SingleModuleProgress;
   kanji: SingleModuleProgress;
   grammar: SingleModuleProgress;
+  reading: SingleModuleProgress;
   overallMasteryPercent: number;
 }
 
@@ -122,17 +123,31 @@ export const getGrammarProgress = (fallbackLearned = 0): { completed: number; to
   };
 };
 
-// Tải toàn bộ tiến độ 3 Module kèm giao diện tokens cao cấp, giàu màu sắc
+// 4. Tính toán tiến độ Luyện Đọc Báo Nhật (dữ liệu thật 100% từ DB backend)
+export const getReadingProgress = (
+  completedFromServer = 0,
+  totalFromServer = 0
+): { completed: number; total: number; percent: number } => {
+  const total = Math.max(0, totalFromServer);
+  const completed = Math.max(0, total > 0 ? Math.min(total, completedFromServer) : completedFromServer);
+  const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
+  return { completed, total, percent };
+};
+
+// Tải toàn bộ tiến độ 4 Module Cốt lõi kèm giao diện tokens
 export const loadAllModulesProgress = (serverStats?: {
   kanjiLearned?: number;
   grammarLearned?: number;
+  readingCompleted?: number;
+  readingTotal?: number;
 }): AllModulesProgress => {
   const beg = getBeginnerProgress();
   const kan = getKanjiRadicalsProgress(serverStats?.kanjiLearned ?? 0);
   const gra = getGrammarProgress(serverStats?.grammarLearned ?? 0);
+  const rdg = getReadingProgress(serverStats?.readingCompleted ?? 0, serverStats?.readingTotal ?? 0);
 
   const overallMasteryPercent = Math.round(
-    (beg.percent + kan.percent + gra.percent) / 3
+    (beg.percent + kan.percent + gra.percent + rdg.percent) / 4
   );
 
   return {
@@ -209,6 +224,31 @@ export const loadAllModulesProgress = (serverStats?: {
         progressGradient: 'from-indigo-500 to-purple-400',
         accentText: 'text-indigo-600 dark:text-indigo-400',
         actionBtn: 'bg-indigo-500/10 hover:bg-indigo-500 text-indigo-700 dark:text-indigo-300 hover:text-white border border-indigo-500/30 hover:border-indigo-500',
+      },
+    },
+    reading: {
+      key: 'reading',
+      title: 'Luyện Đọc Báo Nhật',
+      subtitle: 'Bài đọc thời sự JLPT kèm Furigana & Audio',
+      categoryTag: 'ĐỌC & NGHE BÁO NHẬT',
+      japaneseWatermark: '読',
+      actionText: 'Đọc Báo Ngay',
+      iconType: 'lucide',
+      iconName: 'Newspaper',
+      completed: rdg.completed,
+      total: rdg.total,
+      percent: rdg.percent,
+      unitLabel: 'bài đọc',
+      theme: {
+        gradient: 'from-rose-500/15 via-red-500/5 to-surface-container-lowest dark:from-rose-950/40 dark:via-red-900/15 dark:to-surface-container-lowest',
+        border: 'border-rose-500/35 dark:border-rose-500/30',
+        hoverBorder: 'hover:border-rose-500 hover:shadow-xl hover:shadow-rose-500/15',
+        iconBg: 'bg-gradient-to-br from-rose-600 to-red-600 text-white shadow-md shadow-rose-500/30',
+        badgeBg: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30',
+        watermarkColor: 'text-rose-500/[0.08]',
+        progressGradient: 'from-rose-500 to-red-400',
+        accentText: 'text-rose-600 dark:text-rose-400',
+        actionBtn: 'bg-rose-500/10 hover:bg-rose-500 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-500/30 hover:border-rose-500',
       },
     },
     overallMasteryPercent,

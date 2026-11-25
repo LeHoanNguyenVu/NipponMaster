@@ -27,14 +27,41 @@ import gsap from 'gsap';
 
 export type ScreenType = 'dashboard' | 'kanji' | 'grammar' | 'reading' | 'exams' | 'translation' | 'sensei' | 'pricing' | 'beginner';
 
+const VALID_SCREENS: ReadonlySet<string> = new Set<ScreenType>([
+  'dashboard', 'kanji', 'grammar', 'reading', 'exams', 'translation', 'sensei', 'pricing', 'beginner',
+]);
+
+function parseScreenFromHash(hash: string): ScreenType | null {
+  if (!hash || hash.includes('access_token=') || hash.includes('id_token=') || hash.includes('oauth')) {
+    return null;
+  }
+  const clean = hash.replace(/^#\/?/, '').split(/[?#]/)[0];
+  const root = clean.split('/')[0]?.toLowerCase();
+  if (root && VALID_SCREENS.has(root)) {
+    return root as ScreenType;
+  }
+  return null;
+}
+
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
+  const [currentScreen, setCurrentScreen] = useState<ScreenType>(() => {
+    return parseScreenFromHash(window.location.hash) ?? 'dashboard';
+  });
   const [showAuth, setShowAuth] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickAsk, setQuickAsk] = useState<{ id: number; context: string; prompt?: string } | null>(null);
   const mainRef = useRef<HTMLDivElement>(null);
 
   const { isAuthenticated, user, fetchMe } = useAuthStore();
+
+  // Điều hướng đồng bộ với Browser History (#/<screen>) để nút Back/Forward trên chuột & trình duyệt hoạt động mượt
+  const navigateTo = (screen: ScreenType) => {
+    setCurrentScreen(screen);
+    const targetHash = `#/${screen}`;
+    if (window.location.hash !== targetHash) {
+      window.location.hash = targetHash;
+    }
+  };
 
   const isGraduated = isBeginnerGraduated();
   const isStaff = ['admin', 'system', 'teacher'].includes((user?.role || '').toLowerCase());
@@ -46,6 +73,7 @@ export default function App() {
     if (isStarter && ['kanji', 'grammar', 'reading', 'exams'].includes(currentScreen)) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentScreen('beginner');
+      window.history.replaceState(null, '', '#/beginner');
     }
   }, [isStarter, currentScreen]);
 
@@ -75,21 +103,26 @@ export default function App() {
     fetchMe();
   }, [fetchMe]);
 
-  // Support browser's back/forward buttons (hash navigation)
+  // Support browser's back/forward buttons & mouse Back/Forward (hash history navigation)
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
+      if (hash.includes('access_token=') || hash.includes('id_token=') || hash.includes('oauth')) {
+        return;
+      }
       if (hash === '#/auth' || hash === '#auth') {
         setShowAuth(true);
-      } else if (hash === '#/pricing' || hash === '#pricing') {
-        setShowAuth(false);
-        setCurrentScreen('pricing');
-      } else {
-        setShowAuth(false);
+        return;
+      }
+      setShowAuth(false);
+      const parsed = parseScreenFromHash(hash);
+      if (parsed) {
+        setCurrentScreen(parsed);
+      } else if (!hash || hash === '#' || hash === '#/') {
+        setCurrentScreen('dashboard');
       }
     };
 
-    // Run once on load
     handleHashChange();
 
     window.addEventListener('hashchange', handleHashChange);
@@ -97,6 +130,15 @@ export default function App() {
       window.removeEventListener('hashchange', handleHashChange);
     };
   }, []);
+
+  // Sau khi đã đăng nhập, nếu URL vẫn còn trống hoặc #/auth thì thay thế (replaceState) thành #/dashboard để Back không quay lại trang login
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const hash = window.location.hash;
+    if (!hash || hash === '#' || hash === '#/' || hash === '#/auth' || hash === '#auth') {
+      window.history.replaceState(null, '', `#/${currentScreen}`);
+    }
+  }, [isAuthenticated, currentScreen]);
 
   useEffect(() => {
     if (mainRef.current) {
@@ -220,7 +262,8 @@ export default function App() {
       return (
         <Auth
           onAuthSuccess={() => {
-            window.location.hash = '';
+            window.history.replaceState(null, '', '#/dashboard');
+            setShowAuth(false);
             setCurrentScreen('dashboard');
           }}
           onBack={() => {
@@ -238,7 +281,7 @@ export default function App() {
       <OnboardingScreen
         onDone={() => {
           fetchMe();
-          setCurrentScreen('dashboard');
+          navigateTo('dashboard');
         }}
       />
     );
@@ -249,14 +292,14 @@ export default function App() {
     <div className="flex h-screen overflow-hidden bg-surface font-sans">
       <Sidebar
         currentScreen={currentScreen}
-        onNavigate={setCurrentScreen}
+        onNavigate={navigateTo}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
       <div className="flex flex-col flex-1 min-w-0">
         <TopBar
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          onNavigate={setCurrentScreen}
+          onNavigate={navigateTo}
         />
         <main ref={mainRef} className="flex-1 overflow-y-auto">
           {currentScreen === 'dashboard' && user?.role === 'teacher' && (
@@ -270,9 +313,9 @@ export default function App() {
           )}
           {currentScreen === 'dashboard' && (!user?.role || user?.role === 'student') && (
             <DashboardStudent
-              onStartStudy={() => setCurrentScreen(isStarter ? 'beginner' : 'kanji')}
-              onOpenBeginnerCourse={() => setCurrentScreen('beginner')}
-              onNavigate={setCurrentScreen}
+              onStartStudy={() => navigateTo(isStarter ? 'beginner' : 'kanji')}
+              onOpenBeginnerCourse={() => navigateTo('beginner')}
+              onNavigate={navigateTo}
               username={user?.username}
             />
           )}
@@ -280,7 +323,7 @@ export default function App() {
           {currentScreen === 'exams' && <Exams />}
           {currentScreen === 'kanji' && <Kanji />}
           {currentScreen === 'grammar' && <Grammar />}
-          {currentScreen === 'reading' && <ReadingScreen onNavigate={setCurrentScreen} />}
+          {currentScreen === 'reading' && <ReadingScreen onNavigate={navigateTo} />}
           {currentScreen === 'translation' && <Translation />}
           {currentScreen === 'sensei' && (
             <SenseiChat
@@ -296,7 +339,7 @@ export default function App() {
           currentScreen={currentScreen}
           onAskSensei={(ctx, q) => {
             setQuickAsk({ id: Date.now(), context: ctx, prompt: q });
-            setCurrentScreen('sensei');
+            navigateTo('sensei');
           }}
         />
       </div>

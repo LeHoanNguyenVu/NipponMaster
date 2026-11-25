@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nihongo.api.common.exception.BusinessException;
 import com.nihongo.api.common.storage.StorageService;
 import com.nihongo.api.modules.reading.article.dto.ReadingArticleDtos.AdminArticleSummaryDto;
+import com.nihongo.api.modules.reading.article.service.ReadingArticleRepository.VersionCoverTarget;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,13 +21,13 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * Dịch vụ tạo/chọn ảnh bìa báo chí hợp pháp theo chế độ Hybrid 3 tầng tự động (1 ảnh/sự kiện dùng chung N5–N1):
+ * Dịch vụ tạo/chọn ảnh bìa báo chí hợp pháp theo chế độ Hybrid 3 tầng tự động — ĐẢM BẢO MỖI BÀI 1 ẢNH RIÊNG KHÔNG TRÙNG LẶP:
  * 1) Tầng 1 - Gemini AI Image (GEMINI_MEDIA_API_KEY, fallback nhẹ GEMINI_API_KEY 1 lượt không retry khi 429/403)
- *    -> upload lên Supabase Storage (100% bản quyền NipponMaster, cấm deepfake người thật/chữ/logo).
- * 2) Tầng 2 - Pexels API miễn phí (nếu đã cấu hình PEXELS_API_KEY) -> kèm ghi nguồn tác giả.
- * 3) Tầng 3 - Wikimedia Commons API (MIỄN PHÍ 100%, KHÔNG CẦN KEY, ảnh chụp Nhật Bản thật theo giấy phép mở
- *    CC0 / Public domain / CC BY / CC BY-SA, tự động lọc ảnh ngang sắc nét và gắn ghi nguồn bản quyền chuẩn).
- * 4) Tầng 4 - Nếu mất mạng hoặc không có kết quả -> trả null để UI hiển thị banner đồ họa NHK mặc định.
+ *    -> upload lên Supabase Storage (reading-covers/article-{id}-v{versionId}.{ext}).
+ * 2) Tầng 2 - Pexels API miễn phí (nếu đã cấu hình PEXELS_API_KEY) -> bỏ qua mọi URL đã dùng.
+ * 3) Tầng 3 - Wikimedia Commons API (MIỄN PHÍ 100%, KHÔNG CẦN KEY, chỉ lấy ảnh chụp Nhật Bản thật theo giấy phép mở
+ *    CC0 / Public domain / CC BY / CC BY-SA, tự động xoay vòng nhiều truy vấn & loại trừ toàn bộ URL đã dùng trong DB).
+ * 4) Tầng 4 - Nếu mất mạng/không có kết quả -> trả null để UI hiển thị banner đồ họa NHK mặc định.
  */
 @Slf4j
 @Service
@@ -34,10 +35,10 @@ import java.util.*;
 public class ReadingCoverImageService {
 
     private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent";
-    private static final String PEXELS_SEARCH_URL = "https://api.pexels.com/v1/search?query=%s&orientation=landscape&per_page=8";
+    private static final String PEXELS_SEARCH_URL = "https://api.pexels.com/v1/search?query=%s&orientation=landscape&per_page=15";
     private static final String WIKIMEDIA_SEARCH_URL =
             "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6"
-                    + "&gsrsearch=%s+filetype:bitmap&gsrlimit=12&prop=imageinfo&iiprop=url%%7Csize%%7Cmime%%7Cextmetadata"
+                    + "&gsrsearch=%s+filetype:bitmap&gsrlimit=25&prop=imageinfo&iiprop=url%%7Csize%%7Cmime%%7Cextmetadata"
                     + "&iiurlwidth=1200&format=json";
     private static final String WIKIMEDIA_USER_AGENT = "NipponMaster/2.0 (Educational Japanese Reading App)";
 
@@ -52,13 +53,21 @@ public class ReadingCoverImageService {
     );
 
     private static final Map<String, String> CATEGORY_WIKIMEDIA_QUERY = Map.of(
-            "SOCIETY", "Tokyo Kasumigaseki city Japan",
+            "SOCIETY", "Tokyo Kasumigaseki government building Japan",
             "LIFE", "Japan residential street neighborhood Tokyo",
-            "ECONOMY", "Marunouchi Tokyo financial district buildings",
-            "SCI_TECH", "Japan Shinkansen modern technology Tokyo",
+            "ECONOMY", "Marunouchi Tokyo financial district skyscrapers",
+            "SCI_TECH", "Japan Shinkansen modern technology station",
             "SPORTS", "Japan National Stadium Tokyo sports",
             "CULTURE", "Kyoto temple traditional Japan architecture",
             "WEATHER", "Mount Fuji Tokyo skyline sky Japan"
+    );
+
+    private static final List<String> JAPAN_DIVERSITY_QUERIES = List.of(
+            "Tokyo cityscape skyline Japan",
+            "Chiyoda Tokyo buildings street Japan",
+            "Shinjuku Shibuya Tokyo modern city",
+            "Yokohama Osaka modern buildings Japan",
+            "Nagatacho National Diet Building Tokyo"
     );
 
     private final ReadingArticleRepository repository;
@@ -88,14 +97,24 @@ public class ReadingCoverImageService {
     }
 
     /**
-     * Gọi best-effort trong pipeline ingest: tự động gán ảnh bìa Hybrid mà không bao giờ làm lỗi ingest.
+     * Gọi best-effort trong pipeline ingest: tự động gán ảnh bìa RIÊNG BIỆT (không trùng) cho từng phiên bản N5/N3/N1.
      */
     public void generateAndSaveSilently(Long articleId, String category, List<String> facts) {
         try {
-            CoverImageResult result = resolveHybridCoverImage(articleId, category, facts);
-            if (result != null) {
-                repository.updateArticleCoverImage(articleId, result.url(), result.credit(), result.source());
-                log.info("Đã gắn ảnh bìa [{}] cho bài đọc #{}", result.source(), articleId);
+            List<VersionCoverTarget> versions = repository.findVersionsForCoverByArticleId(articleId);
+            Set<String> usedUrls = repository.findAllUsedCoverImageUrls(null);
+            CoverImageResult firstCover = null;
+            for (VersionCoverTarget v : versions) {
+                CoverImageResult res = resolveHybridCoverImage(articleId, v.versionId(), v.jlptLevel(), category, facts, usedUrls);
+                if (res != null) {
+                    usedUrls.add(res.url());
+                    repository.updateVersionCoverImage(v.versionId(), res.url(), res.credit(), res.source());
+                    if (firstCover == null) firstCover = res;
+                }
+            }
+            if (firstCover != null) {
+                repository.updateArticleCoverImage(articleId, firstCover.url(), firstCover.credit(), firstCover.source());
+                log.info("Đã gắn ảnh bìa riêng [{}] cho {} phiên bản bài đọc #{}", firstCover.source(), versions.size(), articleId);
             }
         } catch (Exception e) {
             log.warn("Không thể tạo ảnh bìa tự động cho bài đọc #{}: {}", articleId, e.getMessage());
@@ -103,36 +122,58 @@ public class ReadingCoverImageService {
     }
 
     /**
-     * Admin bấm "Tạo ảnh Hybrid" cho một bài đã có trong DB.
+     * Admin bấm "Tạo ảnh Hybrid" cho một sự kiện: gán ảnh RIÊNG BIỆT không trùng cho từng phiên bản N5/N3/N1 của bài đó.
      */
     public AdminArticleSummaryDto generateCoverImageForArticle(Long articleId) {
         AdminArticleSummaryDto art = repository.findAdminArticleById(articleId);
-        CoverImageResult result = resolveHybridCoverImage(articleId, art.getCategory(), art.getFacts());
-        if (result == null) {
+        List<VersionCoverTarget> versions = repository.findVersionsForCoverByArticleId(articleId);
+        Set<String> usedUrls = repository.findAllUsedCoverImageUrls(articleId);
+
+        CoverImageResult firstCover = null;
+        int assigned = 0;
+        for (VersionCoverTarget v : versions) {
+            CoverImageResult res = resolveHybridCoverImage(articleId, v.versionId(), v.jlptLevel(), art.getCategory(), art.getFacts(), usedUrls);
+            if (res != null) {
+                usedUrls.add(res.url());
+                repository.updateVersionCoverImage(v.versionId(), res.url(), res.credit(), res.source());
+                if (firstCover == null) firstCover = res;
+                assigned++;
+            }
+        }
+
+        if (assigned == 0 || firstCover == null) {
             throw new BusinessException(
                     "Không tạo được ảnh tự động từ cả 3 nguồn (Gemini / Pexels / Wikimedia). Bạn có thể dán URL ảnh thủ công."
             );
         }
-        repository.updateArticleCoverImage(articleId, result.url(), result.credit(), result.source());
+        repository.updateArticleCoverImage(articleId, firstCover.url(), firstCover.credit(), firstCover.source());
         return repository.findAdminArticleById(articleId);
     }
 
     /**
-     * Bổ sung ảnh bìa Hybrid hàng loạt cho tất cả bài báo hiện chưa có ảnh bìa.
+     * Bổ sung / khử trùng ảnh bìa Hybrid hàng loạt cho toàn bộ phiên bản chưa có ảnh riêng hoặc đang bị trùng ảnh.
      */
-    public int backfillMissingCoverImages(int maxArticles) {
-        List<Long> missingIds = repository.findArticleIdsWithoutCoverImage(Math.max(1, Math.min(maxArticles, 30)));
+    public int backfillMissingCoverImages(int maxVersions) {
+        List<VersionCoverTarget> targets = repository.findVersionsNeedingUniqueCover(Math.max(1, Math.min(maxVersions, 60)));
+        if (targets.isEmpty()) {
+            return 0;
+        }
+        Set<String> usedUrls = repository.findAllUsedCoverImageUrls(null);
+        Set<Long> updatedArticles = new HashSet<>();
         int updated = 0;
-        for (Long articleId : missingIds) {
+        for (VersionCoverTarget t : targets) {
             try {
-                AdminArticleSummaryDto art = repository.findAdminArticleById(articleId);
-                CoverImageResult result = resolveHybridCoverImage(articleId, art.getCategory(), art.getFacts());
-                if (result != null) {
-                    repository.updateArticleCoverImage(articleId, result.url(), result.credit(), result.source());
+                CoverImageResult res = resolveHybridCoverImage(t.articleId(), t.versionId(), t.jlptLevel(), t.category(), t.facts(), usedUrls);
+                if (res != null) {
+                    usedUrls.add(res.url());
+                    repository.updateVersionCoverImage(t.versionId(), res.url(), res.credit(), res.source());
+                    if (updatedArticles.add(t.articleId())) {
+                        repository.updateArticleCoverImage(t.articleId(), res.url(), res.credit(), res.source());
+                    }
                     updated++;
                 }
             } catch (Exception e) {
-                log.warn("Backfill ảnh bìa lỗi cho bài #{}: {}", articleId, e.getMessage());
+                log.warn("Backfill ảnh bìa lỗi cho version #{}: {}", t.versionId(), e.getMessage());
             }
         }
         return updated;
@@ -145,6 +186,7 @@ public class ReadingCoverImageService {
         repository.findAdminArticleById(articleId);
         String cleanUrl = coverImageUrl == null ? "" : coverImageUrl.trim();
         if (cleanUrl.isEmpty()) {
+            repository.clearVersionCoverImagesForArticle(articleId);
             repository.updateArticleCoverImage(articleId, null, null, null);
             return repository.findAdminArticleById(articleId);
         }
@@ -154,23 +196,36 @@ public class ReadingCoverImageService {
         String cleanCredit = coverImageCredit == null || coverImageCredit.isBlank()
                 ? null
                 : coverImageCredit.trim().substring(0, Math.min(coverImageCredit.trim().length(), 190));
+        repository.clearVersionCoverImagesForArticle(articleId);
         repository.updateArticleCoverImage(articleId, cleanUrl, cleanCredit, "MANUAL");
         return repository.findAdminArticleById(articleId);
     }
 
     public CoverImageResult resolveHybridCoverImage(Long articleId, String category, List<String> facts) {
-        CoverImageResult gemini = tryGenerateWithGemini(articleId, category, facts);
-        if (gemini != null) {
+        return resolveHybridCoverImage(articleId, articleId, "N3", category, facts, new HashSet<>());
+    }
+
+    public CoverImageResult resolveHybridCoverImage(
+            Long articleId,
+            Long versionId,
+            String jlptLevel,
+            String category,
+            List<String> facts,
+            Set<String> usedUrls
+    ) {
+        Set<String> seen = usedUrls != null ? usedUrls : new HashSet<>();
+        CoverImageResult gemini = tryGenerateWithGemini(articleId, versionId, jlptLevel, category, facts);
+        if (gemini != null && !seen.contains(gemini.url())) {
             return gemini;
         }
-        CoverImageResult pexels = tryFetchFromPexels(articleId, category, facts);
+        CoverImageResult pexels = tryFetchFromPexels(versionId != null ? versionId : articleId, category, facts, seen);
         if (pexels != null) {
             return pexels;
         }
-        return tryFetchFromWikimedia(articleId, category, facts);
+        return tryFetchFromWikimedia(versionId != null ? versionId : articleId, category, facts, seen);
     }
 
-    protected CoverImageResult tryGenerateWithGemini(Long articleId, String category, List<String> facts) {
+    protected CoverImageResult tryGenerateWithGemini(Long articleId, Long versionId, String jlptLevel, String category, List<String> facts) {
         List<String> keys = resolveGeminiImageKeys();
         if (keys.isEmpty()) {
             return null;
@@ -206,7 +261,8 @@ public class ReadingCoverImageService {
                     if (img != null) {
                         String ext = img.mimeType().contains("png") ? "png"
                                 : img.mimeType().contains("webp") ? "webp" : "jpg";
-                        String path = "reading-covers/article-" + articleId + "." + ext;
+                        String suffix = versionId != null ? ("-v" + versionId) : ("-" + (jlptLevel != null ? jlptLevel : "v"));
+                        String path = "reading-covers/article-" + articleId + suffix + "." + ext;
                         String publicUrl = storageService.uploadPublicFile(imageBucket, path, img.bytes(), img.mimeType());
                         if (publicUrl != null && !publicUrl.isBlank()) {
                             String busted = publicUrl + (publicUrl.contains("?") ? "&" : "?") + "v=" + System.currentTimeMillis();
@@ -226,7 +282,7 @@ public class ReadingCoverImageService {
         return null;
     }
 
-    protected CoverImageResult tryFetchFromPexels(Long articleId, String category, List<String> facts) {
+    protected CoverImageResult tryFetchFromPexels(Long seedId, String category, List<String> facts, Set<String> usedUrls) {
         if (pexelsApiKey == null || pexelsApiKey.isBlank()) {
             return null;
         }
@@ -248,18 +304,18 @@ public class ReadingCoverImageService {
             if (!photos.isArray() || photos.isEmpty()) {
                 return null;
             }
-            List<CoverImageResult> valid = new ArrayList<>();
+            List<CoverImageResult> fresh = new ArrayList<>();
             for (JsonNode p : photos) {
                 String imgUrl = p.path("src").path("large").asText("");
-                if (isSafePublicHttpsImageUrl(imgUrl)) {
+                if (isSafePublicHttpsImageUrl(imgUrl) && !usedUrls.contains(imgUrl)) {
                     String photographer = p.path("photographer").asText("Pexels").trim();
                     String credit = "Photo by " + (photographer.isEmpty() ? "Pexels" : photographer) + " / Pexels";
-                    valid.add(new CoverImageResult(imgUrl, credit, "PEXELS"));
+                    fresh.add(new CoverImageResult(imgUrl, credit, "PEXELS"));
                 }
             }
-            if (!valid.isEmpty()) {
-                int idx = (int) (Math.abs(articleId != null ? articleId : 0L) % valid.size());
-                return valid.get(idx);
+            if (!fresh.isEmpty()) {
+                int idx = (int) (Math.abs(seedId != null ? seedId : 0L) % fresh.size());
+                return fresh.get(idx);
             }
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
@@ -271,20 +327,15 @@ public class ReadingCoverImageService {
 
     /**
      * Tầng 3 tự động (0 key, 0 chi phí): truy vấn ảnh chụp Nhật Bản thật từ Wikimedia Commons
-     * với danh sách trắng giấy phép mở (CC0 / Public Domain / CC BY / CC BY-SA).
+     * với danh sách trắng giấy phép mở và loại trừ toàn bộ URL đã dùng để mỗi bài có 1 ảnh duy nhất.
      */
-    protected CoverImageResult tryFetchFromWikimedia(Long articleId, String category, List<String> facts) {
-        String primaryQuery = buildWikimediaQuery(category, facts);
-        CoverImageResult hit = searchWikimediaOnce(articleId, primaryQuery);
-        if (hit != null) {
-            return hit;
-        }
-        String catFallback = CATEGORY_WIKIMEDIA_QUERY.getOrDefault(
-                category == null ? "SOCIETY" : category.trim().toUpperCase(Locale.ROOT),
-                "Tokyo Japan cityscape"
-        );
-        if (!catFallback.equals(primaryQuery)) {
-            return searchWikimediaOnce(articleId, catFallback);
+    protected CoverImageResult tryFetchFromWikimedia(Long seedId, String category, List<String> facts, Set<String> usedUrls) {
+        List<String> queries = buildWikimediaQueryCascade(category, facts);
+        for (String q : queries) {
+            CoverImageResult hit = searchWikimediaOnce(seedId, q, usedUrls);
+            if (hit != null) {
+                return hit;
+            }
         }
         return null;
     }
@@ -294,7 +345,7 @@ public class ReadingCoverImageService {
         return URI.create(String.format(WIKIMEDIA_SEARCH_URL, encoded));
     }
 
-    private CoverImageResult searchWikimediaOnce(Long articleId, String query) {
+    private CoverImageResult searchWikimediaOnce(Long seedId, String query, Set<String> usedUrls) {
         try {
             HttpRequest req = HttpRequest.newBuilder(buildWikimediaSearchUri(query))
                     .header("User-Agent", WIKIMEDIA_USER_AGENT)
@@ -343,7 +394,7 @@ public class ReadingCoverImageService {
                     rawUrl = ii.path("url").asText("");
                 }
                 String cleanUrl = stripQueryParams(rawUrl);
-                if (!isSafePublicHttpsImageUrl(cleanUrl)) {
+                if (!isSafePublicHttpsImageUrl(cleanUrl) || usedUrls.contains(cleanUrl)) {
                     continue;
                 }
 
@@ -359,9 +410,8 @@ public class ReadingCoverImageService {
             }
 
             if (!candidates.isEmpty()) {
-                // Sắp xếp ổn định theo URL rồi chọn theo articleId để các bài cùng chủ đề có ảnh khác nhau
                 candidates.sort(Comparator.comparing(CoverImageResult::url));
-                int idx = (int) (Math.abs(articleId != null ? articleId : 0L) % candidates.size());
+                int idx = (int) (Math.abs(seedId != null ? seedId : 0L) % candidates.size());
                 return candidates.get(idx);
             }
         } catch (InterruptedException ie) {
@@ -383,7 +433,7 @@ public class ReadingCoverImageService {
                 || lower.startsWith("cc-by-sa");
     }
 
-    private static boolean isUndesirableWikimediaTitle(String title) {
+    public static boolean isUndesirableWikimediaTitle(String title) {
         String lower = title == null ? "" : title.toLowerCase(Locale.ROOT);
         return lower.contains("placard")
                 || lower.contains("sign")
@@ -392,7 +442,18 @@ public class ReadingCoverImageService {
                 || lower.contains("diagram")
                 || lower.contains("chart")
                 || lower.contains("poster")
-                || lower.contains("stamp");
+                || lower.contains("stamp")
+                || lower.contains("met_dp")
+                || lower.contains("met ")
+                || lower.contains("ukiyo")
+                || lower.contains("woodblock")
+                || lower.contains("painting")
+                || lower.contains("kunisada")
+                || lower.contains("hokusai")
+                || lower.contains("hiroshige")
+                || lower.contains("drawing")
+                || lower.contains("manuscript")
+                || lower.contains("document");
     }
 
     private static String stripQueryParams(String url) {
@@ -455,7 +516,10 @@ public class ReadingCoverImageService {
             return "Kasumigaseki Central Government Building Tokyo";
         }
         if (joined.contains("tủy xương") || joined.contains("hiến") || joined.contains("bệnh viện") || joined.contains("y tế") || joined.contains("bác sĩ")) {
-            return "Japan Red Cross hospital Tokyo medical";
+            return "Japan hospital Tokyo medical center building";
+        }
+        if (joined.contains("kinh tế") || joined.contains("thương mại") || joined.contains("đầu tư") || joined.contains("tài chính")) {
+            return "Marunouchi Tokyo financial district buildings";
         }
         if (joined.contains("chuyển đổi số") || joined.contains("kỹ thuật số") || joined.contains("ứng dụng") || joined.contains("ai ")) {
             return "Tokyo modern office technology Shibuya";
@@ -471,6 +535,16 @@ public class ReadingCoverImageService {
         }
         String normCat = category == null ? "SOCIETY" : category.trim().toUpperCase(Locale.ROOT);
         return CATEGORY_WIKIMEDIA_QUERY.getOrDefault(normCat, "Tokyo Kasumigaseki Japan");
+    }
+
+    private static List<String> buildWikimediaQueryCascade(String category, List<String> facts) {
+        LinkedHashSet<String> queries = new LinkedHashSet<>();
+        queries.add(buildWikimediaQuery(category, facts));
+        String normCat = category == null ? "SOCIETY" : category.trim().toUpperCase(Locale.ROOT);
+        String catDefault = CATEGORY_WIKIMEDIA_QUERY.get(normCat);
+        if (catDefault != null) queries.add(catDefault);
+        queries.addAll(JAPAN_DIVERSITY_QUERIES);
+        return new ArrayList<>(queries);
     }
 
     public static boolean isSafePublicHttpsImageUrl(String url) {

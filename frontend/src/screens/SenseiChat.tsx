@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Bot,
   Send,
@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { senseiApi, type ChatSession, type ChatMessage, type SavedCard } from '../api/senseiApi';
 import { SenseiMarkdown } from '../components/SenseiMarkdown';
 import { JapaneseVirtualKeyboard } from '../components/JapaneseVirtualKeyboard';
+import { useTextSelectionPopup } from '../hooks/useTextSelectionPopup';
 
 export interface QuickAskRequest {
   id: number;
@@ -95,7 +96,6 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
   // Phase 6: 1-click Save Flashcard & Sổ tay từ vựng cá nhân
   const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
   const [showSavedDrawer, setShowSavedDrawer] = useState(false);
-  const [selectionPopup, setSelectionPopup] = useState<{ text: string; x: number; y: number } | null>(null);
   const [saveToast, setSaveToast] = useState<string | null>(null);
   const [showPersonalMenu, setShowPersonalMenu] = useState(false);
   const [showJpKeyboard, setShowJpKeyboard] = useState(false);
@@ -428,80 +428,21 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
     }
   };
 
-  // ---------------- Bôi đen chữ Nhật -> hiện nút "+ Lưu Flashcard" chuẩn tọa độ góc ----------------
-  const updateSelectionPopup = useCallback(() => {
-    const sel = window.getSelection();
-    const selected = sel?.toString().trim() || '';
-    if (!selected || selected.length > 40 || !/[\u3040-\u30ff\u4e00-\u9faf]/.test(selected)) {
-      setSelectionPopup(null);
-      return;
-    }
-
-    if (!sel || sel.rangeCount === 0 || !containerRef.current || !feedRef.current) {
-      setSelectionPopup(null);
-      return;
-    }
-
-    // Đảm bảo vùng bôi đen nằm bên trong khung tin nhắn
-    const anchorNode = sel.anchorNode;
-    if (anchorNode && !feedRef.current.contains(anchorNode)) {
-      setSelectionPopup(null);
-      return;
-    }
-
-    const range = sel.getRangeAt(0);
-    const clientRects = range.getClientRects();
-    const rect = clientRects.length > 0 ? clientRects[0] : range.getBoundingClientRect();
-    if (!rect || (rect.width === 0 && rect.height === 0)) {
-      setSelectionPopup(null);
-      return;
-    }
-
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const feedRect = feedRef.current.getBoundingClientRect();
-
-    // Tính tọa độ tương đối so với containerRef (tránh hoàn toàn lỗi lệch tọa độ khi <main> có CSS transform từ GSAP)
-    const pillEstimatedWidth = 250;
-    const pillHeight = 36;
-    const minX = Math.max(12, feedRect.left - containerRect.left + 12);
-    const maxX = Math.max(minX, feedRect.right - containerRect.left - pillEstimatedWidth - 12);
-
-    const rawX = rect.left - containerRect.left;
-    const clampedX = Math.min(maxX, Math.max(minX, rawX));
-
-    // Nếu bôi đen sát mép trên của khung chat, hiển thị nút ở ngay bên dưới dòng chữ thay vì bị che phía trên
-    const minTopY = Math.max(56, feedRect.top - containerRect.top + 8);
-    const maxBottomY = Math.max(minTopY, feedRect.bottom - containerRect.top - pillHeight - 8);
-    const aboveY = rect.top - containerRect.top - pillHeight - 8;
-    const belowY = rect.bottom - containerRect.top + 8;
-
-    const rawY = aboveY < minTopY ? belowY : aboveY;
-    const clampedY = Math.min(maxBottomY, Math.max(minTopY, rawY));
-
-    setSelectionPopup({
-      text: selected,
-      x: clampedX,
-      y: clampedY,
-    });
-  }, []);
-
-  // Bắt sự kiện nhả chuột trên toàn cửa sổ (kể cả khi kéo chuột lố ra sát mép góc ngoài bubble)
-  useEffect(() => {
-    const onGlobalMouseUp = (e: MouseEvent) => {
-      if (popupBtnRef.current && popupBtnRef.current.contains(e.target as Node)) {
-        return;
-      }
-      requestAnimationFrame(updateSelectionPopup);
-    };
-    window.addEventListener('mouseup', onGlobalMouseUp);
-    return () => window.removeEventListener('mouseup', onGlobalMouseUp);
-  }, [updateSelectionPopup]);
+  // ---------------- Bôi đen chữ Nhật -> hiện nút "+ Lưu Flashcard" dùng chung hook ----------------
+  const { selection: selectionPopup, clearSelection: clearSelectionPopup } = useTextSelectionPopup({
+    containerRef,
+    scopeRef: feedRef,
+    popupRef: popupBtnRef,
+    maxLength: 40,
+    estimatedWidth: 250,
+    estimatedHeight: 36,
+    minTopPadding: 56,
+  });
 
   const handleQuickSaveWord = async () => {
     if (!selectionPopup) return;
     const word = selectionPopup.text;
-    setSelectionPopup(null);
-    window.getSelection()?.removeAllRanges();
+    clearSelectionPopup();
     try {
       const saved = await senseiApi.saveFlashcard({ word, language: langCode });
       setSavedCards((prev) => [saved, ...prev.filter((c) => c.id !== saved.id)]);
@@ -540,11 +481,12 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
       {selectionPopup && (
         <button
           ref={popupBtnRef}
+          type="button"
           onMouseDown={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            handleQuickSaveWord();
           }}
+          onClick={handleQuickSaveWord}
           style={{ left: selectionPopup.x, top: selectionPopup.y }}
           className="absolute z-50 max-w-[260px] px-3 py-1.5 rounded-full bg-primary text-on-primary shadow-lg text-xs font-bold flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer border border-on-primary/15"
         >
@@ -765,8 +707,6 @@ export default function SenseiChat({ quickAsk, onConsumeQuickAsk }: SenseiChatPr
         <div
           ref={feedRef}
           className="flex-1 overflow-y-auto px-4 md:px-8 py-6"
-          onMouseUp={updateSelectionPopup}
-          onScroll={() => selectionPopup && setSelectionPopup(null)}
         >
           <div className="max-w-3xl mx-auto space-y-6">
             {error && (

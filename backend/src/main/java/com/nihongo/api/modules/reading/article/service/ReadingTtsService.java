@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Pipeline sinh audio từng câu bằng Gemini 2.5 Flash TTS (gemini-2.5-flash-preview-tts):
@@ -57,14 +58,15 @@ public class ReadingTtsService {
     @Value("${reading.audio.bucket:reading-audio}")
     private String audioBucket = "reading-audio";
 
-    @Value("${reading.audio.tts-model:gemini-2.5-flash-preview-tts}")
-    private String ttsModel = "gemini-2.5-flash-preview-tts";
+    @Value("${reading.audio.tts-model:gemini-3.1-flash-tts-preview,gemini-3.8-flash-lite-tts,gemini-3.8-flash-tts,gemini-2.5-flash-preview-tts}")
+    private String ttsModel = "gemini-3.1-flash-tts-preview,gemini-3.8-flash-lite-tts,gemini-3.8-flash-tts,gemini-2.5-flash-preview-tts";
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(15))
             .build();
 
     private final Set<Long> inFlightVersions = ConcurrentHashMap.newKeySet();
+    private final AtomicInteger keyCursor = new AtomicInteger(0);
 
     // Hàng đợi tuần tự 1 luồng giúp tránh gọi dồn dập vượt hạn mức RPM của Gemini 2.5 Flash TTS khi Admin duyệt nhiều bài liên tiếp
     private final ExecutorService asyncExecutor = Executors.newSingleThreadExecutor(r -> {
@@ -157,10 +159,10 @@ public class ReadingTtsService {
                 s.setDurationMs(audio.durationMs());
                 readyCount++;
                 totalDurationMs += audio.durationMs();
-                // Giãn nhịp nhẹ giữa các câu để tránh bị Gemini TTS trả 429 rate limit
+                // Giãn nhịp nhẹ giữa các câu khi xoay vòng nhiều model/key Gemini TTS
                 if (i + 1 < sentences.size()) {
                     try {
-                        Thread.sleep(1200L);
+                        Thread.sleep(400L);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                         break;
@@ -201,54 +203,64 @@ public class ReadingTtsService {
         if (keys.isEmpty()) {
             throw new IllegalStateException("Chưa cấu hình GEMINI_API_KEY cho ReadingTtsService");
         }
+        List<String> models = parseTtsModels(ttsModel);
+        String lastError = "unknown";
+        int keyCount = keys.size();
+        int startIdx = Math.floorMod(keyCursor.getAndIncrement(), keyCount);
 
-        Map<String, Object> body = Map.of(
-                "contents", List.of(Map.of(
-                        "parts", List.of(Map.of("text", NEWS_ANCHOR_PREFIX + sentenceText.trim()))
-                )),
-                "generationConfig", Map.of(
-                        "responseModalities", List.of("AUDIO"),
-                        "speechConfig", Map.of(
-                                "voiceConfig", Map.of(
-                                        "prebuiltVoiceConfig", Map.of("voiceName", voiceName)
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            boolean sawRateLimit = false;
+            for (String model : models) {
+                String promptText = buildTtsPrompt(model, sentenceText);
+                Map<String, Object> body = Map.of(
+                        "contents", List.of(Map.of(
+                                "parts", List.of(Map.of("text", promptText))
+                        )),
+                        "generationConfig", Map.of(
+                                "responseModalities", List.of("AUDIO"),
+                                "speechConfig", Map.of(
+                                        "voiceConfig", Map.of(
+                                                "prebuiltVoiceConfig", Map.of("voiceName", voiceName)
+                                        )
                                 )
                         )
-                )
-        );
-        String payloadJson = objectMapper.writeValueAsString(body);
-        String lastError = "unknown";
+                );
+                String payloadJson = objectMapper.writeValueAsString(body);
+                String url = String.format(GEMINI_TTS_URL_TEMPLATE, model);
 
-        for (int attempt = 1; attempt <= 4; attempt++) {
-            boolean sawRateLimit = false;
-            for (String key : keys) {
-                try {
-                    String url = String.format(GEMINI_TTS_URL_TEMPLATE, ttsModel);
-                    HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-                            .header("Content-Type", "application/json; charset=utf-8")
-                            .header("x-goog-api-key", key)
-                            .timeout(Duration.ofSeconds(45))
-                            .POST(HttpRequest.BodyPublishers.ofString(payloadJson, StandardCharsets.UTF_8))
-                            .build();
+                for (int offset = 0; offset < keyCount; offset++) {
+                    String key = keys.get((startIdx + offset) % keyCount);
+                    try {
+                        HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+                                .header("Content-Type", "application/json; charset=utf-8")
+                                .header("x-goog-api-key", key)
+                                .timeout(Duration.ofSeconds(45))
+                                .POST(HttpRequest.BodyPublishers.ofString(payloadJson, StandardCharsets.UTF_8))
+                                .build();
 
-                    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-                    if (response.statusCode() == 200) {
-                        return extractAudioFromGeminiResponse(response.body());
+                        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                        if (response.statusCode() == 200) {
+                            return extractAudioFromGeminiResponse(response.body());
+                        }
+                        if (response.statusCode() == 429) {
+                            sawRateLimit = true;
+                        }
+                        lastError = model + " HTTP " + response.statusCode();
+                        log.warn("Gemini TTS [model={}, voice={}, attempt={}] trả về HTTP {}", model, voiceName, attempt, response.statusCode());
+                        if (response.statusCode() == 404 || response.statusCode() == 400) {
+                            break; // Model không hợp lệ hoặc bị gỡ -> chuyển sang model fallback ngay
+                        }
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new IOException("Bị gián đoạn khi gọi Gemini TTS", ie);
+                    } catch (Exception e) {
+                        lastError = model + ": " + e.getMessage();
+                        log.warn("Gemini TTS lỗi [model={}, voice={}, attempt={}]: {}", model, voiceName, attempt, e.getMessage());
                     }
-                    if (response.statusCode() == 429) {
-                        sawRateLimit = true;
-                    }
-                    lastError = "HTTP " + response.statusCode();
-                    log.warn("Gemini TTS [voice={}, attempt={}] trả về HTTP {}", voiceName, attempt, response.statusCode());
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new IOException("Bị gián đoạn khi gọi Gemini TTS", ie);
-                } catch (Exception e) {
-                    lastError = e.getMessage();
-                    log.warn("Gemini TTS lỗi [voice={}, attempt={}]: {}", voiceName, attempt, e.getMessage());
                 }
             }
-            if (attempt < 4) {
-                long backoffMs = sawRateLimit ? (6000L * attempt) : (2000L * attempt);
+            if (attempt < 3) {
+                long backoffMs = sawRateLimit ? (4000L * attempt) : (1500L * attempt);
                 try {
                     Thread.sleep(backoffMs);
                 } catch (InterruptedException ie) {
@@ -257,7 +269,27 @@ public class ReadingTtsService {
                 }
             }
         }
-        throw new IOException("Không thể sinh audio từ Gemini TTS sau khi xoay vòng key (" + lastError + ")");
+        throw new IOException("Không thể sinh audio từ Gemini TTS sau khi xoay vòng model/key (" + lastError + ")");
+    }
+
+    static List<String> parseTtsModels(String modelConfig) {
+        if (modelConfig == null || modelConfig.isBlank()) {
+            return List.of("gemini-3.1-flash-tts-preview", "gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts", "gemini-2.5-flash-preview-tts");
+        }
+        List<String> parsed = Arrays.stream(modelConfig.split("[,;\\s]+"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+        return parsed.isEmpty() ? List.of("gemini-3.1-flash-tts-preview") : parsed;
+    }
+
+    // gemini-3.8-* đọc nguyên văn nội dung trong contents, không tách chỉ dẫn director như 2.5/3.1
+    static String buildTtsPrompt(String model, String sentenceText) {
+        String trimmed = sentenceText.trim();
+        if (model != null && model.contains("3.8")) {
+            return trimmed;
+        }
+        return NEWS_ANCHOR_PREFIX + trimmed;
     }
 
     private SynthesizedAudio extractAudioFromGeminiResponse(String responseBody) throws IOException {

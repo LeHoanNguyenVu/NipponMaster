@@ -160,4 +160,13 @@ class ReadingTtsServiceTest {
         // Giọng không hợp lệ bị chặn
         assertThrows(IllegalArgumentException.class, () -> service.generateAudioForVersion(30L, "InvalidVoice", false));
     }
+
+    @Test
+    void parseTtsModels_andBuildPrompt_handlesGemini38WithoutDirectorPrefix() {
+        List<String> models = ReadingTtsService.parseTtsModels("gemini-3.1-flash-tts-preview, gemini-3.8-flash-lite-tts");
+        assertEquals(List.of("gemini-3.1-flash-tts-preview", "gemini-3.8-flash-lite-tts"), models);
+        assertEquals("こんにちは。", ReadingTtsService.buildTtsPrompt("gemini-3.8-flash-lite-tts", "  こんにちは。 "));
+        assertTrue(ReadingTtsService.buildTtsPrompt("gemini-3.1-flash-tts-preview", "こんにちは。").endsWith("こんにちは。"));
+        assertTrue(ReadingTtsService.buildTtsPrompt("gemini-3.1-flash-tts-preview", "こんにちは。").length() > "こんにちは。".length());
+    }
 }

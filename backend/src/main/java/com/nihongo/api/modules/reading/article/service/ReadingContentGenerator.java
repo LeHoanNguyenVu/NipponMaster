@@ -15,6 +15,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Sinh bài đọc gốc theo cấp độ JLPT bằng kiến trúc 2 bước cách ly bản quyền (Facts Firewall):
@@ -33,11 +34,12 @@ public class ReadingContentGenerator {
     );
 
     private static final List<String> DEFAULT_MODELS = List.of(
-            "gemini-3.1-flash-lite-preview",
+            "gemini-3.5-flash-lite",
             "gemini-flash-lite-latest",
-            "gemini-2.5-flash-lite",
-            "gemini-2.5-flash"
+            "gemini-3.6-flash"
     );
+
+    private final AtomicInteger keyCursor = new AtomicInteger(0);
 
     @Value("${gemini.api.key:}")
     private String apiKeyConfig;
@@ -85,19 +87,15 @@ public class ReadingContentGenerator {
         String prompt = buildGenerateArticlePrompt(facts, targetLevel, extraFeedback);
         Map<String, Object> schema = buildArticleResponseSchema();
 
-        for (int attempt = 1; attempt <= 2; attempt++) {
-            try {
-                JsonNode parsed = callGeminiJsonWithRetry(prompt, schema, 0.4);
-                GeneratedArticleDto dto = parseAndValidateArticle(parsed, targetLevel);
-                if (dto != null) {
-                    return dto;
-                }
-            } catch (Exception e) {
-                log.warn("Lỗi sinh bài [level={}, attempt={}]: {}", targetLevel, attempt, e.getMessage());
-                if (attempt == 2) {
-                    throw new IllegalStateException("Không thể sinh bài hợp lệ cho level " + targetLevel + ": " + e.getMessage(), e);
-                }
+        try {
+            JsonNode parsed = callGeminiJsonWithRetry(prompt, schema, 0.4);
+            GeneratedArticleDto dto = parseAndValidateArticle(parsed, targetLevel);
+            if (dto != null) {
+                return dto;
             }
+        } catch (Exception e) {
+            log.warn("Lỗi sinh bài [level={}]: {}", targetLevel, e.getMessage());
+            throw new IllegalStateException("Không thể sinh bài hợp lệ cho level " + targetLevel + ": " + e.getMessage(), e);
         }
         throw new IllegalStateException("Không thể sinh bài hợp lệ cho level " + targetLevel);
     }
@@ -304,49 +302,78 @@ public class ReadingContentGenerator {
         }
 
         String lastErr = "unknown";
-        for (String model : DEFAULT_MODELS) {
-            for (String key : keys) {
-                try {
-                    Map<String, Object> thinkingConfig = model.startsWith("gemini-3")
-                            ? Map.of("thinkingLevel", "minimal")
-                            : Map.of("thinkingBudget", 0);
+        int keyCount = keys.size();
+        int startIdx = Math.floorMod(keyCursor.getAndIncrement(), keyCount);
 
-                    Map<String, Object> genConfig = new LinkedHashMap<>();
-                    genConfig.put("responseMimeType", "application/json");
-                    genConfig.put("responseSchema", responseSchema);
-                    genConfig.put("temperature", temperature);
-                    genConfig.put("maxOutputTokens", 2048);
-                    genConfig.put("thinkingConfig", thinkingConfig);
+        // Thử tối đa 3 vòng kèm giãn nhịp 2.5s / 5s để vượt qua các đợt quá tải ngắn (HTTP 503) của Google Gemini
+        for (int round = 1; round <= 3; round++) {
+            boolean sawTransient = false;
+            for (String model : DEFAULT_MODELS) {
+                for (int offset = 0; offset < keyCount; offset++) {
+                    String key = keys.get((startIdx + offset + (round - 1)) % keyCount);
+                    try {
+                        Map<String, Object> genConfig = new LinkedHashMap<>();
+                        genConfig.put("responseMimeType", "application/json");
+                        genConfig.put("responseSchema", responseSchema);
+                        genConfig.put("temperature", temperature);
+                        genConfig.put("maxOutputTokens", 2048);
+                        // Gemini 3.x & alias *-latest dùng thinkingLevel (tránh gửi thinkingBudget=0 gây lỗi 400 INVALID_ARGUMENT)
+                        if (model.startsWith("gemini-3") || model.endsWith("-latest")) {
+                            genConfig.put("thinkingConfig", Map.of("thinkingLevel", "minimal"));
+                        }
 
-                    Map<String, Object> body = Map.of(
-                            "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))),
-                            "generationConfig", genConfig
-                    );
+                        Map<String, Object> body = Map.of(
+                                "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))),
+                                "generationConfig", genConfig
+                        );
 
-                    String url = String.format(GEMINI_URL_TEMPLATE, model);
-                    HttpRequest req = HttpRequest.newBuilder(URI.create(url))
-                            .header("Content-Type", "application/json; charset=utf-8")
-                            .header("x-goog-api-key", key)
-                            .timeout(Duration.ofSeconds(30))
-                            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body), StandardCharsets.UTF_8))
-                            .build();
+                        String url = String.format(GEMINI_URL_TEMPLATE, model);
+                        HttpRequest req = HttpRequest.newBuilder(URI.create(url))
+                                .header("Content-Type", "application/json; charset=utf-8")
+                                .header("x-goog-api-key", key)
+                                .timeout(Duration.ofSeconds(15))
+                                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body), StandardCharsets.UTF_8))
+                                .build();
 
-                    HttpResponse<String> res = httpClient.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-                    if (res.statusCode() == 200) {
-                        JsonNode root = objectMapper.readTree(res.body());
-                        String text = root.path("candidates").path(0).path("content").path("parts").path(0).path("text").asText("");
-                        String cleaned = stripCodeFences(text);
-                        return objectMapper.readTree(cleaned);
+                        HttpResponse<String> res = httpClient.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                        int status = res.statusCode();
+                        if (status == 200) {
+                            JsonNode root = objectMapper.readTree(res.body());
+                            String text = root.path("candidates").path(0).path("content").path("parts").path(0).path("text").asText("");
+                            String cleaned = stripCodeFences(text);
+                            return objectMapper.readTree(cleaned);
+                        }
+                        lastErr = model + " HTTP " + status;
+                        log.warn("Gemini reading generator [{}, round={}] trả về HTTP {}", model, round, status);
+                        if (status == 503 || status == 429) {
+                            sawTransient = true;
+                        }
+                        // 404/400/503 là lỗi ở phía model -> chuyển ngay sang model kế tiếp
+                        if (status == 404 || status == 400 || status == 503) {
+                            break;
+                        }
+                        if (status == 429) {
+                            Thread.sleep(500L);
+                        }
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new IllegalStateException("Bị gián đoạn khi gọi Gemini", ie);
+                    } catch (Exception e) {
+                        lastErr = model + ": " + e.getMessage();
+                        sawTransient = true;
+                        log.warn("Gemini reading generator lỗi [{}, round={}]: {}", model, round, e.getMessage());
+                        break;
                     }
-                    lastErr = model + " HTTP " + res.statusCode();
-                    log.warn("Gemini reading generator [{}] trả về HTTP {}", model, res.statusCode());
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new IllegalStateException("Bị gián đoạn khi gọi Gemini", ie);
-                } catch (Exception e) {
-                    lastErr = model + ": " + e.getMessage();
-                    log.warn("Gemini reading generator lỗi [{}]: {}", model, e.getMessage());
                 }
+            }
+            if (!sawTransient || round >= 3) {
+                break;
+            }
+            try {
+                Thread.sleep(2500L * round);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Bị gián đoạn khi chờ retry Gemini", ie);
             }
         }
         throw new IllegalStateException("Tất cả model/key Gemini đều thất bại (" + lastErr + ")");

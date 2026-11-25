@@ -11,6 +11,7 @@
   },
   "categories": {
     "ALL": "All Topics",
+    "LATEST": "Latest",
     "SOCIETY": "Society",
     "LIFE": "Lifestyle",
     "ECONOMY": "Economy",
@@ -33,10 +34,13 @@
     "resetFilter": "Show all articles",
     "loadError": "Could not load reading articles. Please try again.",
     "retry": "Retry",
-    "showing": "Showing {{count}} of {{total}} articles"
+    "showing": "Showing {{count}} of {{total}} articles",
+    "retentionNote": "Articles auto-expire after 7 days"
   },
   "reader": {
     "back": "Back to articles",
+    "latestNewsTitle": "Latest News",
+    "viewAllNews": "See All",
     "otherLevels": "Same event in other levels:",
     "furiganaLabel": "Furigana",
     "furiganaSmart": "Smart",
@@ -52,6 +56,7 @@
     "completedBadge": "You completed this article",
     "completing": "Saving...",
     "completedToast": "Great job! You have completed {{total}} articles.",
+    "finishedAudioHint": "You finished listening to the article! Mark it as completed now?",
     "wordPopup": {
       "reading": "Reading",
       "baseForm": "Base form",
@@ -74,6 +79,21 @@
     "repeat": "Repeat current sentence",
     "speed": "Playback speed",
     "sentenceProgress": "Sentence {{current}} / {{total}}",
-    "fallbackBadge": "Temporary voice"
+    "fallbackBadge": "Temporary voice",
+    "generatingBadge": "Generating Gemini voice..."
+  },
+  "selectionToolbar": {
+    "ariaLabel": "Japanese text selection toolbar",
+    "saveFlashcard": "Save flashcard",
+    "saving": "Saving...",
+    "quickTranslate": "Quick translate",
+    "analyze": "Analyze & explain",
+    "savedToast": "Saved \"{{word}}\" to Flashcard Notebook",
+    "savedToastWithReading": "Saved \"{{word}}\" ({{reading}}) to Flashcard Notebook",
+    "saveError": "Could not save flashcard. Please try again.",
+    "loginRequired": "Please sign in to save flashcards.",
+    "translating": "Translating...",
+    "translateError": "Could not translate right now. Please try again.",
+    "closePopover": "Close quick translation"
   }
 }

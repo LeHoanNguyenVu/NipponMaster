@@ -39,7 +39,7 @@
     "remaining": "{{count}} cards remaining to save streak"
   },
   "skillsSection": {
-    "title": "Core Skills Roadmap & Progress",
+    "title": "4 Core Skills Roadmap & Progress",
     "subtitle": "Comprehensive curriculum structured for real-world Japanese fluency",
     "overallProgress": "Overall Progress:",
     "completionLabel": "Completion:",
@@ -64,8 +64,20 @@
         "categoryTag": "50 CURATED LESSONS",
         "action": "View Lessons",
         "unitLabel": "lessons"
+      },
+      "reading": {
+        "title": "Japanese News Reading",
+        "subtitle": "JLPT-graded articles with Furigana & audio...",
+        "categoryTag": "READING & AUDIO",
+        "action": "Read Articles",
+        "unitLabel": "articles"
       }
     }
+  },
+  "recommendedReading": {
+    "badge": "Recommended Reading Today",
+    "cta": "Read now",
+    "minutes": "{{count}} min read"
   },
   "beginnerBanner": {
     "badge": "Key Learning Path",
